@@ -21,14 +21,16 @@ const emit = (name, ext, content) => {
   assets[`${name}.${ext}`] = `/assets/${file}`;
 };
 
-// --- CSS（コメントと余分な空白を取るだけ）
+// --- CSS：コメントと余分な空白を取り、HTML の <style> に埋め込む（読み込みが1回へって表示が速い）
 const css = readFileSync(join(ROOT, 'src/styles/site.css'), 'utf8')
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .split('\n')
   .map((l) => l.trim())
   .filter(Boolean)
-  .join('\n');
-emit('site', 'css', css);
+  .map((l) => (/[{};,]$/.test(l) ? l : `${l} `))
+  .join('')
+  .replace(/\s*([{};,>])\s*/g, '$1') // 「:」はさわらない（:hover などのセレクタを壊さないため）
+  .replace(/;}/g, '}');
 
 // --- ブラウザ用スクリプト：import をたどって1ファイルにまとめる（小さなバンドラー）
 //   決まり：import は1行で `import { a, b } from './x.mjs';` の形。まとめると同じスコープになるので名前を重ねない
@@ -52,7 +54,17 @@ function bundle(entry) {
     order.push(`// ${relative(ROOT, file)}\n${text.trim()}`);
   };
   visit(entry);
-  return `(() => {\n'use strict';\n${order.join('\n\n')}\n})();\n`;
+  return minifyJs(`(() => {\n'use strict';\n${order.join('\n\n')}\n})();\n`);
+}
+
+// 行だけのコメント・説明コメント・字下げ・空行を取る（文字列の中身は変えない。複数行のテンプレート文字列があれば字下げは残す）
+function minifyJs(src) {
+  const lines = src.replace(/^\s*\/\*\*[\s\S]*?\*\/\s*$/gm, '').split('\n');
+  const multiLineTemplate = lines.some((l) => (l.match(/`/g) || []).length % 2 === 1);
+  return lines
+    .filter((l) => !/^\s*\/\//.test(l) && l.trim() !== '')
+    .map((l) => (multiLineTemplate ? l : l.trim()))
+    .join('\n');
 }
 for (const f of readdirSync(join(ROOT, 'src/client'))) {
   if (!f.endsWith('.js')) continue; // .mjs は部品、.js が入口
@@ -60,8 +72,9 @@ for (const f of readdirSync(join(ROOT, 'src/client'))) {
 }
 
 // --- ページ
-const { setAssets } = await import(pathToFileURL(join(ROOT, 'src/layout.mjs')));
+const { setAssets, setInlineCss } = await import(pathToFileURL(join(ROOT, 'src/layout.mjs')));
 setAssets(assets);
+setInlineCss(css);
 const pages = [];
 for (const f of readdirSync(join(ROOT, 'src/pages')).sort()) {
   if (!f.endsWith('.mjs')) continue;
@@ -75,7 +88,8 @@ for (const p of pages) {
   seenPaths.add(p.path);
   const file = p.file ? join(DIST, p.file) : join(DIST, p.path, 'index.html');
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, p.html);
+  // 行頭の字下げと空行を取る（<pre> や <textarea> は使っていない）
+  writeFileSync(file, p.html.split('\n').map((l) => l.trim()).filter(Boolean).join('\n') + '\n');
 }
 
 // --- public/ と sitemap

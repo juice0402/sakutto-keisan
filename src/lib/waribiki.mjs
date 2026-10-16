@@ -50,9 +50,6 @@ export function calcRate({ price, sale }) {
   return { ok: true, off, rate, increase: sale > price };
 }
 
-/** 「割」の数字を％に（3 → 30、2.5 → 25） */
-export const wariToPct = (w) => (w === null || Number.isNaN(w) ? w : fix(w * 10));
-
 /**
  * 2つの割引後の値段をくらべる
  * @param {{price:number|null, rate:number|null}} a

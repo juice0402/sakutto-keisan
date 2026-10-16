@@ -87,8 +87,12 @@ for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favico
 }
 
 // iPhoneの自動ズームを防ぐ：入力欄・選択欄の文字は16px以上、ページ全体はダブルタップでズームしない
-for (const f of files.filter((x) => x.endsWith('.css'))) {
-  const css = readFileSync(f, 'utf8');
+const cssSources = [
+  ...files.filter((x) => x.endsWith('.css')).map((f) => [f, readFileSync(f, 'utf8')]),
+  ...htmlFiles.flatMap((f) => [...readFileSync(f, 'utf8').matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => [f, m[1]])),
+];
+if (!cssSources.length) fail('dist', 'CSS が見つからない');
+for (const [f, css] of cssSources) {
   for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     const sel = m[1];
     const size = (m[2].match(/font-size:\s*(\d+(?:\.\d+)?)px/) || [])[1];
@@ -96,7 +100,7 @@ for (const f of files.filter((x) => x.endsWith('.css'))) {
       fail(relative(DIST, f), `入力欄の文字が16px未満（自動ズームの原因）: ${sel.trim()} → ${size}px`);
     }
   }
-  if (!/html\s*\{[^}]*touch-action:\s*manipulation/.test(css)) fail(relative(DIST, f), 'html に touch-action: manipulation がない');
+  if (!/(^|[},])html\s*\{[^}]*touch-action:\s*manipulation/.test(css)) fail(relative(DIST, f), 'html に touch-action: manipulation がない');
 }
 for (const file of htmlFiles) {
   const vp = (readFileSync(file, 'utf8').match(/<meta name="viewport" content="([^"]+)">/) || [])[1] || '';

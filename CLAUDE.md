@@ -33,7 +33,7 @@
 ## ツールを1つ足す手順
 1. `src/lib/<slug>.mjs` に計算（DOM なし）と `tests/<slug>.test.mjs`（ページに載せる計算例は必ずテストに入れる）
 2. `src/pages/<slug>.mjs`（割引計算 `waribiki.mjs` をお手本に）：h1・リード・計算カード・使い方・計算式・計算例・よくある質問・関連ツール
-3. `src/client/<slug>.js`（入力したそばから結果を出す。結果のコピー・クリア）
+3. `src/client/<slug>.js`（入力したそばから結果を出す。クリア。共通部品は `src/client/ui.mjs`）
 4. `src/tools.mjs` を `published: true`・`updated` を今日に。`related` を見直す（ほかのツールの `related` にも足す）
 5. `npm run check` → PR → プレビューを Playwright のスマホ幅（390px）で確認
 

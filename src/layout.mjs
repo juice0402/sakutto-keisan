@@ -3,6 +3,8 @@ import { SITE } from './site.mjs';
 // ビルド時に scripts/build.mjs が、ハッシュ付きのファイル名をここに入れる
 const assets = {};
 export const setAssets = (map) => Object.assign(assets, map);
+let inlineCss = '';
+export const setInlineCss = (css) => { inlineCss = css; };
 export const asset = (name) => {
   if (!assets[name]) throw new Error(`asset not found: ${name}`);
   return assets[name];
@@ -88,7 +90,7 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="${asset('site.css')}">
+<style>${inlineCss}</style>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceAll('<', '\\u003c')}</script>`).join('\n')}
 </head>
 <body data-theme="${theme}">
