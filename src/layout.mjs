@@ -62,6 +62,7 @@ export const breadcrumbLd = (items) => ({
  * @param {Array}  [p.scripts]  読み込むスクリプト（asset 名）
  * @param {boolean}[p.noindex]
  * @param {string} [p.theme]    home / seikatsu / shigoto / fx（ツールはカテゴリのテーマ）
+ * @param {string} [p.ogImage]  SNSで共有したときの画像（public/og/ の中。scripts/make-images.py で作る）
  */
 export function page(p) {
   const fullTitle = p.path === '/' ? p.title : `${p.title}｜${SITE.name}`;
@@ -79,7 +80,7 @@ export function page(p) {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(fullTitle)}</title>
 <meta name="description" content="${esc(p.description)}">
-${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${canonical}">`}
+${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${canonical}">\n<meta name="robots" content="max-image-preview:large">`}
 <meta name="theme-color" content="${THEME_COLOR[theme]}">
 <meta property="og:type" content="${p.path === '/' ? 'website' : 'article'}">
 <meta property="og:site_name" content="${esc(SITE.name)}">
@@ -87,7 +88,13 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <meta property="og:description" content="${esc(p.description)}">
 <meta property="og:url" content="${canonical}">
 <meta property="og:locale" content="ja_JP">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${absUrl(p.ogImage || '/og/default.png')}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(p.title)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>${inlineCss}</style>

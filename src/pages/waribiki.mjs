@@ -199,6 +199,7 @@ ${relatedHtml(tool)}
     ],
     jsonLd: [toolLd(tool, '値段と割引率から割引後の値段・安くなる額を計算。2つの割引の比較・割引率の逆算・二重割引にも対応。'), faqLd(FAQS)],
     theme: themeOf(tool),
+    ogImage: `/og/${tool.slug}.png`,
     scripts: ['waribiki.js'],
     body,
   });

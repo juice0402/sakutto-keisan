@@ -6,6 +6,7 @@
 ## しくみ
 - **依存パッケージなし**の Node だけのビルド（`scripts/build.mjs`）。npm install は不要。クラウド環境では npm レジストリに届かないことがあるので、パッケージを足さない
 - コマンド：`npm run check`（テスト → ビルド → 全ページ点検）。PR前に必ず緑にする
+- 軽さ：CSS は各ページの `<style>` に埋め込み（読み込みはHTMLとスクリプトの2回だけ）、スクリプトとHTMLはビルドでコメント・字下げを取る。使わなくなったCSS・関数はその場で消す
 - 公開：GitHub Actions（`.github/workflows/deploy.yml`）が Cloudflare Pages へ **Direct Upload**。Cloudflare 側のビルドは使わない（あそびトーク・FANZA・ヤセ活と共有の「月500回」のビルド枠を使わないため）
   - PR → プレビュー（PRに自動でURLのコメント）／ main → 本番
   - Secrets：`CLOUDFLARE_API_TOKEN`（Pages の編集だけ）・`CLOUDFLARE_ACCOUNT_ID`
@@ -24,7 +25,8 @@
 | `src/styles/site.css` | デザイン（色はテーマごとに `[data-theme]` で管理） |
 | `public/` | そのままコピー（`_headers`・アイコン） |
 | `tests/*.test.mjs` | `node --test` のテスト |
-| `scripts/verify-dist.mjs` | ビルド後の全ページ点検（title・description・canonical・h1・リンク切れ・外部読み込みなし・入力欄の inputmode とラベル・スクリプトの文法） |
+| `scripts/verify-dist.mjs` | ビルド後の全ページ点検（title・description・canonical・h1・タグの閉じ忘れ・id の重複・リンク切れ・共有画像・外部読み込みなし・入力欄の inputmode とラベル・ズーム防止・スクリプトの文法） |
+| `scripts/make-images.py` | SNSの共有画像（OGP）とホーム画面用アイコンを作る（Pillow と日本語フォントが要るので Claude の環境で動かしてコミット） |
 
 ### ブラウザ用スクリプトの決まり（小さなバンドラーの都合）
 - import は1行で `import { a, b } from './x.mjs';` の形だけ
@@ -35,7 +37,8 @@
 2. `src/pages/<slug>.mjs`（割引計算 `waribiki.mjs` をお手本に）：h1・リード・計算カード・使い方・計算式・計算例・よくある質問・関連ツール
 3. `src/client/<slug>.js`（入力したそばから結果を出す。クリア。共通部品は `src/client/ui.mjs`）
 4. `src/tools.mjs` を `published: true`・`updated` を今日に。`related` を見直す（ほかのツールの `related` にも足す）
-5. `npm run check` → PR → プレビューを Playwright のスマホ幅（390px）で確認
+5. `python3 scripts/make-images.py` でSNSの共有画像（`public/og/<slug>.png`）を作ってコミット。ツールらしい絵は `VISUALS` に足す（割引＝値札）
+6. `npm run check` → PR → プレビューを Playwright のスマホ幅（390px）で確認
 
 ## デザインの決まり（しょーくんの方針・10/16）
 - **見た目はターゲットに合わせてカテゴリごとのテーマ**、**部品と操作はどのページも共通**（簡単・わかりやすい・統一感）

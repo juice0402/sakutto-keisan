@@ -43,6 +43,21 @@ for (const file of htmlFiles) {
     const canon = (html.match(/<link rel="canonical" href="([^"]+)">/) || [])[1];
     if (canon !== SITE.url + rel) fail(rel, `canonical がちがう: ${canon}`);
   }
+  // タグの閉じ忘れ・入れ子のまちがい（テンプレートの書きまちがいを見つける）
+  {
+    const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+    const body = html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+    const stack = [];
+    for (const m of body.matchAll(/<(\/?)([a-zA-Z][\w-]*)\b[^>]*?(\/?)>/g)) {
+      const [, close, rawName, selfClose] = m;
+      const name = rawName.toLowerCase();
+      if (VOID.has(name) || selfClose || name === '!doctype') continue;
+      if (!close) { stack.push(name); continue; }
+      const top = stack.pop();
+      if (top !== name) { fail(rel, `タグの入れ子がおかしい: <${top || 'なし'}> の中で </${name}>`); break; }
+    }
+    if (stack.length) fail(rel, `閉じていないタグ: ${stack.join(', ')}`);
+  }
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
   const dup = ids.filter((id, i) => ids.indexOf(id) !== i);
   if (dup.length) fail(rel, `同じ id が2回以上ある（同じ見出しや部品の重複）: ${[...new Set(dup)].join(', ')}`);
@@ -52,6 +67,9 @@ for (const file of htmlFiles) {
   for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try { JSON.parse(m[1]); } catch { fail(rel, '構造化データの JSON が壊れている'); }
   }
+  // SNSの共有画像が dist にあるか
+  const ogImg = (html.match(/<meta property="og:image" content="([^"]+)">/) || [])[1] || '';
+  if (!ogImg.startsWith(SITE.url + '/') || !existsSync(join(DIST, ogImg.slice(SITE.url.length)))) fail(rel, `og:image の画像がない: ${ogImg}`);
   // 外部のファイルを読み込まない（入力した数字を送らない約束・表示の速さのため）
   for (const m of html.matchAll(/<(?:script|img|link|iframe)\b[^>]*\b(?:src|href)="(https?:)?\/\/[^"]*"/g)) {
     if (!m[0].includes('rel="canonical"')) fail(rel, `外部のファイルを読み込んでいる: ${m[0].slice(0, 80)}`);
@@ -78,11 +96,12 @@ for (const t of TOOLS.filter((x) => x.published)) {
   if (!title.startsWith(t.name.replace(/（.*$/, ''))) fail(`/${t.slug}/`, `title の先頭がツール名でない: ${title}`);
   if (!sitemap.includes(`<loc>${SITE.url}/${t.slug}/</loc>`)) fail('/sitemap.xml', `${t.slug} が載っていない`);
   if (!t.updated) fail(`/${t.slug}/`, 'tools.mjs に updated がない');
+  if (!readFileSync(f, 'utf8').includes(`/og/${t.slug}.png`)) fail(`/${t.slug}/`, 'ツール専用の共有画像を使っていない（scripts/make-images.py で作る）');
 }
 for (const t of TOOLS.filter((x) => !x.published)) {
   if (existsSync(join(DIST, t.slug))) fail(`/${t.slug}/`, '準備中なのにページがある');
 }
-for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favicon.svg', 'apple-touch-icon.png']) {
+for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favicon.svg', 'apple-touch-icon.png', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png']) {
   if (!existsSync(join(DIST, need))) fail(need, 'ない');
 }
 
