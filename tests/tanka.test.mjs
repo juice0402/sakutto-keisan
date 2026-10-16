@@ -118,3 +118,18 @@ test('単価：単位なし（値段と数量だけ）', () => {
   assert.equal(big.results[0].per, 39.6);
   assert.equal(compareUnitPrices([{ price: 100, qty: 100, unit: 'なし' }, { price: 100, qty: 100, unit: 'g' }]).mismatch, true);
 });
+
+test('単価：量が空でも、値段と入り数だけでくらべる（1個あたり）', () => {
+  const r = compareUnitPrices([
+    { price: 980, qty: null, unit: 'なし', packs: 5 },
+    { price: 1000, qty: null, unit: 'g', packs: 6 },
+  ]);
+  assert.equal(r.ok, true);
+  assert.equal(r.base.label, '1個');
+  assert.equal(r.results[0].per, 196);
+  assert.equal(fmt(r.results[1].per, 1), '166.7');
+  assert.deepEqual(r.best, [1]);
+  assert.equal(r.results[1].unit, '個');
+  // 入り数も空なら、まだくらべない
+  assert.equal(calcUnitPrice({ price: 980, qty: null, unit: 'g', packs: null }).empty, true);
+});

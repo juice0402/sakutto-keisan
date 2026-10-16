@@ -35,10 +35,14 @@ export const baseLabel = (dim, unit) => (dim === 'count' ? `1${unit}` : BASES[di
  * @param {{price:number|null, qty:number|null, unit:string, packs?:number|null, disc?:number|null}} p
  */
 export function calcUnitPrice({ price, qty, unit, packs = null, disc = null }) {
-  if (price === null || qty === null) return { ok: false, empty: true };
+  // 量が空でも入り数があれば「値段と個数」だけでくらべる（1個あたり）
+  const byCount = qty === null && packs !== null && !Number.isNaN(packs);
+  const q = byCount ? 1 : qty;
+  const unitKey = byCount ? '個' : unit;
+  if (price === null || q === null) return { ok: false, empty: true };
   if (Number.isNaN(price) || price < 0) return { ok: false, error: '値段は0以上の数字で入れてください。' };
-  if (Number.isNaN(qty) || qty <= 0) return { ok: false, error: '量は0より大きい数字で入れてください。' };
-  const u = UNITS[unit];
+  if (Number.isNaN(q) || q <= 0) return { ok: false, error: '量は0より大きい数字で入れてください。' };
+  const u = UNITS[unitKey];
   if (!u) return { ok: false, error: '単位をえらんでください。' };
   const n = packs === null ? 1 : packs;
   if (Number.isNaN(n) || n <= 0) return { ok: false, error: '入り数は0より大きい数字で入れてください。' };
@@ -48,9 +52,9 @@ export function calcUnitPrice({ price, qty, unit, packs = null, disc = null }) {
     if (!d.ok) return { ok: false, error: d.error };
     pay = d.final;
   }
-  const amount = fix(qty * n * u.f); // いちばん小さい単位（g・ml・個・m）での量
+  const amount = fix(q * n * u.f); // いちばん小さい単位（g・ml・個・m）での量
   const per = fix((pay / amount) * BASES[u.dim].n); // 基準あたりの値段
-  return { ok: true, pay, amount, dim: u.dim, per };
+  return { ok: true, pay, amount, dim: u.dim, unit: unitKey, per };
 }
 
 /**

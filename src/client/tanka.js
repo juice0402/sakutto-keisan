@@ -59,7 +59,8 @@ function update() {
   const ref = firstOk >= 0 ? firstOk : 0;
   const dim = firstOk >= 0 ? r.results[firstOk].dim : UNITS[items[0].unit].dim;
   // 基準（100gあたり・1gあたり・1個あたりなど）。くらべられたときは計算で決まった基準を使う
-  const base = r.base ? (dim === 'count' ? baseLabel(dim, items[ref].unit) : r.base.label) : baseLabel(dim, items[ref].unit);
+  const refUnit = (r.results[ref] && r.results[ref].unit) || items[ref].unit;
+  const base = r.base ? (dim === 'count' ? baseLabel(dim, refUnit) : r.base.label) : baseLabel(dim, refUnit);
 
   // 入力まちがいの印
   keys.forEach((k, i) => {
@@ -86,7 +87,7 @@ function update() {
     .map((x) => {
       const res = r.results[x.index];
       const best = x.rank === 1;
-      return `<li class="rank-row${best ? ' is-best' : ''}"><span class="rank-no">${x.rank}位</span><span class="rank-k">${K(keys[x.index])}</span><span class="bar-track"><span class="bar-fill${best ? ' is-best' : ''}" style="width:${Math.max(4, (x.per / max) * 100)}%"></span></span><span class="rank-v">${perText(x.per)}円<small>${yen(res.pay)}／${amountText(res.amount, items[x.index].unit)}</small></span></li>`;
+      return `<li class="rank-row${best ? ' is-best' : ''}"><span class="rank-no">${x.rank}位</span><span class="rank-k">${K(keys[x.index])}</span><span class="bar-track"><span class="bar-fill${best ? ' is-best' : ''}" style="width:${Math.max(4, (x.per / max) * 100)}%"></span></span><span class="rank-v">${perText(x.per)}円<small>${yen(res.pay)}／${amountText(res.amount, res.unit)}</small></span></li>`;
     })
     .join('');
   $('rank-box').hidden = false;
@@ -94,11 +95,10 @@ function update() {
   // いちばんおトクの値札
   const winKeys = r.best.map((i) => K(keys[i]));
   const win = r.results[r.best[0]];
-  const winItem = items[r.best[0]];
   $('tag').classList.remove('is-empty');
   $('t-base').textContent = `${base}あたり`;
   $('t-price').textContent = perText(win.per);
-  $('t-sub').textContent = `${yen(win.pay)} ／ ${amountText(win.amount, winItem.unit)}`;
+  $('t-sub').textContent = `${yen(win.pay)} ／ ${amountText(win.amount, win.unit)}`;
   $('t-label').hidden = false;
   $('t-badge').hidden = !!r.same;
   const v = $('verdict');
@@ -119,7 +119,7 @@ function update() {
   v.innerHTML = `2位の${S}より <strong>${perText(r.diff)}円</strong> 安い<span class="verdict-sub">${base}あたり・約${fmt(r.pct, 0)}％おトク</span>`;
   const lines = [];
   if (r.saving >= 1 && winKeys.length === 1) {
-    lines.push(`${W}の${amountText(win.amount, winItem.unit)}を${S}の単価で買うと${yen(Math.round(win.pay + r.saving))}なので、${yen(Math.round(r.saving))}おトクです。`);
+    lines.push(`${W}の${amountText(win.amount, win.unit)}を${S}の単価で買うと${yen(Math.round(win.pay + r.saving))}なので、${yen(Math.round(r.saving))}おトクです。`);
   }
   if (winKeys.length === 1 && win.amount >= r.results[r.second].amount * 2) lines.push('量が2倍以上あるので、使い切れるかも考えてね。');
   if (errIndex >= 0) lines.push(`（${K(keys[errIndex])}は入力にまちがいがあるので、くらべていません）`);
