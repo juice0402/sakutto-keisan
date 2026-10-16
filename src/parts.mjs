@@ -1,8 +1,11 @@
-import { SITE } from './site.mjs';
+import { SITE, CATEGORIES } from './site.mjs';
 import { TOOLS, toolBySlug, toolUrl } from './tools.mjs';
 import { esc, icon, absUrl } from './layout.mjs';
 
 // ツールページの共通部品
+
+/** ツールのテーマ（カテゴリで決まる） */
+export const themeOf = (tool) => CATEGORIES.find((c) => c.id === tool.category)?.theme || 'home';
 
 /** 関連ツール（公開済みだけ。足りなければ同じカテゴリから補う。0件ならトップへのリンクだけ） */
 export function relatedHtml(tool, max = 4) {

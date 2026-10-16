@@ -1,6 +1,6 @@
 import { toolBySlug } from '../tools.mjs';
-import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
-import { relatedHtml, toolLd } from '../parts.mjs';
+import { page, section, faqHtml, faqLd } from '../layout.mjs';
+import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 
 const tool = toolBySlug('waribiki');
 const path = '/waribiki/';
@@ -10,17 +10,17 @@ const chips = (target, values) =>
     .map((v) => `<button type="button" class="chip" data-value="${v}" aria-pressed="false">${v}%</button>`)
     .join('')}</div>`;
 
-const field = (id, label, unit, placeholder, extra = '', hidden = false) =>
-  `<div class="field" id="f-${id}"${hidden ? ' hidden' : ''}><label for="${id}">${label}</label><div class="input"><input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"><span class="unit">${unit}</span></div>${extra}</div>`;
+const field = (id, label, unit, placeholder, attrs = '') =>
+  `<div class="field" id="f-${id}"${attrs}><label for="${id}">${label}</label><div class="input"><input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"><span class="unit">${unit}</span></div></div>`;
 
 const FAQS = [
   {
     q: '30％オフのあと、さらに20％オフにすると50％オフになりますか？',
-    a: '<p>なりません。2回目の20％オフは「30％オフ後の値段」にかかるので、合計は44％オフです（元の値段 × 0.7 × 0.8 = 元の値段 × 0.56）。このツールの「さらに割引する」で確かめられます。</p>',
+    a: '<p>なりません。2回目の20％オフは「30％オフ後の値段」にかかるので、合計は44％オフです（元の値段 × 0.7 × 0.8 = 元の値段 × 0.56）。このツールの「＋ さらに割引」で確かめられます。</p>',
   },
   {
     q: '1円未満の端数はどうなりますか？',
-    a: '<p>はじめは「切り捨て」で計算します。お店によっては四捨五入や切り上げのこともあるので、「1円未満」のところで切り替えてください。「さらに割引」をするときは、1回ごとに端数を処理します。</p>',
+    a: '<p>はじめは「切り捨て」で計算します。お店によっては四捨五入や切り上げのこともあるので、値札の下の「1円未満は」で切り替えてください（端数が出たときだけ表示されます）。「さらに割引」をするときは、1回ごとに端数を処理します。</p>',
   },
   {
     q: '税込と税抜、どちらの値段を入れればいいですか？',
@@ -39,41 +39,38 @@ const FAQS = [
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
-<p class="lead">元の値段と割引率を入れるだけで、割引後の値段と、いくら安くなるかがすぐわかります。</p>
+<p class="lead">値段と割引率を入れるだけ。割引後の値段が、値札ですぐわかります。</p>
 
 <div class="calc" id="calc">
-  <div class="seg" role="radiogroup" aria-label="計算のしかた">
-    <input type="radio" name="mode" id="m-off" value="off" checked><label for="m-off">割引後の値段を出す</label>
-    <input type="radio" name="mode" id="m-rate" value="rate"><label for="m-rate">何％オフか調べる</label>
+  <div class="grid2">
+    ${field('price', '元の値段', '円', '5,000')}
+    ${field('rate', '割引', '％オフ', '30', ' data-mode="off"')}
+    ${field('sale', '割引後の値段', '円', '3,500', ' data-mode="rate" hidden')}
   </div>
-
-  ${field('price', '元の値段', '円', '例 5,000')}
   <div data-mode="off">
-    ${field('rate', '割引率', '％オフ', '例 30', chips('rate', [10, 20, 30, 40, 50, 70]))}
-    ${field('rate2', 'さらに割引（クーポンなど）', '％オフ', '例 10', chips('rate2', [5, 10, 15, 20]), true)}
-  </div>
-  <div data-mode="rate" hidden>
-    ${field('sale', '割引後の値段', '円', '例 3,500')}
+    ${chips('rate', [10, 20, 30, 40, 50])}
+    ${field('rate2', 'さらに割引（クーポンなど）', '％オフ', '10', ' hidden')}
   </div>
 
-  <div class="row-opts" data-mode="off">
-    <button type="button" class="more-btn" id="more" aria-expanded="false" aria-controls="f-rate2">＋ さらに割引する</button>
-    <label class="select">1円未満<select id="rounding"><option value="floor">切り捨て</option><option value="round">四捨五入</option><option value="ceil">切り上げ</option></select></label>
+  <div class="tag-stage" aria-live="polite">
+    <div class="tag-wrap" id="tag">
+      <div class="pricetag">
+        <p class="tag-was" id="t-was" hidden></p>
+        <p class="tag-price"><span id="t-price">？</span><small>円</small></p>
+        <p class="tag-save" id="t-save">値段と割引率を入れると、値札ができます</p>
+      </div>
+      <p class="tag-badge" id="t-badge" hidden><span id="t-rate"></span><small>OFF</small></p>
+    </div>
+    <p class="tag-note" id="t-note" hidden></p>
+    <label class="select tag-round" id="t-round" hidden>1円未満は<select id="rounding"><option value="floor">切り捨て</option><option value="round">四捨五入</option><option value="ceil">切り上げ</option></select></label>
   </div>
 
-  <div class="result is-empty" id="result" aria-live="polite">
-    <p class="result-label" id="r-label">割引後の値段</p>
-    <p class="result-main" id="r-main">—</p>
-    <dl class="result-rows" id="r-rows"></dl>
-    <div class="result-steps" id="r-steps" hidden></div>
-    <p class="result-msg" id="r-msg">元の値段と割引率を入れると、ここに答えが出ます。</p>
+  <div class="calc-links">
+    <button type="button" class="link-btn" id="more" data-mode="off" aria-expanded="false" aria-controls="f-rate2">＋ さらに割引</button>
+    <button type="button" class="link-btn" id="switch">何％オフか調べる ›</button>
+    <button type="button" class="link-btn link-muted" id="clear">クリア</button>
   </div>
-
-  <div class="actions">
-    <button type="button" class="btn btn-ghost" id="clear">クリア</button>
-    <button type="button" class="btn btn-primary" id="copy" disabled>${icon('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>', 'ico ico-s')}結果をコピー</button>
-  </div>
-  <noscript><p class="result-msg is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
+  <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
@@ -81,10 +78,10 @@ ${section(
   '使い方',
   `<ol>
 <li><strong>元の値段</strong>を入れます（定価・税込価格など、知りたいほうの値段）。</li>
-<li><strong>割引率</strong>を入れるか、下のボタン（10％〜70％）を押します。</li>
-<li>入れたそばから、<strong>割引後の値段</strong>と<strong>安くなる額</strong>が表示されます。</li>
+<li><strong>割引</strong>を入れるか、10％〜50％のボタンを押します。「3割」「半額」と入れてもOKです。</li>
+<li>入れたそばに、<strong>割引後の値段</strong>と<strong>おトクになる額</strong>が値札で表示されます。</li>
 </ol>
-<p>「30％オフからさらに10％オフ」のような二重割引は「＋ さらに割引する」で。セール価格を見て「これって何％オフ？」と思ったら、上の「何％オフか調べる」に切り替えて、元の値段と割引後の値段を入れてください。</p>`,
+<p>「30％オフからさらに10％オフ」のような二重割引は「＋ さらに割引」で。セール価格を見て「これって何％オフ？」と思ったら、「何％オフか調べる」に切り替えて、割引後の値段を入れてください。</p>`,
 )}
 
 ${section(
@@ -139,6 +136,7 @@ ${relatedHtml(tool)}
       { name: tool.name, path },
     ],
     jsonLd: [toolLd(tool, '値段と割引率から割引後の値段・安くなる額を計算。割引率の逆算・二重割引にも対応。'), faqLd(FAQS)],
+    theme: themeOf(tool),
     scripts: ['waribiki.js'],
     body,
   });

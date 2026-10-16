@@ -1,4 +1,6 @@
 /* サクッと計算 — 共通スタイル（色は下の名前で管理） */
+/* 色はテーマごと。ページの <body data-theme="..."> で切り替える（端末のダークモードには連動しない）
+   home: トップ・固定ページ / seikatsu: 生活（明るく温かい）/ shigoto: お仕事（明るく落ち着いた青）/ fx: FX（ダーク） */
 :root {
   --bg: #faf9f6;
   --surface: #ffffff;
@@ -13,28 +15,49 @@
   --radius: 14px;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
   --font: system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+  /* 値札（生活の結果表示） */
+  --tag-bg: #fff3bf;
+  --tag-text: #2b2420;
+  --tag-line: #e9d48a;
+  --sale: #e03131;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141412;
-    --surface: #1e1e1b;
-    --text: #f1f0eb;
-    --muted: #a9a8a0;
-    --border: #34332e;
-    --accent: #ff8a3d;
-    --accent-strong: #ffa063;
-    --accent-soft: #3a2416;
-    --on-accent: #1a0d04;
-    --error: #ff8b80;
-    --shadow: none;
-    color-scheme: dark;
-  }
+[data-theme="seikatsu"] {
+  --bg: #fff8ef;
+  --text: #2b2420;
+  --muted: #76675b;
+  --border: #f0e2d0;
+  --accent-soft: #ffebd9;
+  --radius: 18px;
+  --shadow: 0 1px 2px rgb(120 60 20 / 0.05), 0 6px 20px rgb(120 60 20 / 0.06);
 }
-:root[data-theme="dark"] {
-  --bg: #141412; --surface: #1e1e1b; --text: #f1f0eb; --muted: #a9a8a0; --border: #34332e;
-  --accent: #ff8a3d; --accent-strong: #ffa063; --accent-soft: #3a2416; --on-accent: #1a0d04; --error: #ff8b80;
-  --shadow: none; color-scheme: dark;
+[data-theme="shigoto"] {
+  --bg: #f4f6fa;
+  --text: #1b2333;
+  --muted: #5b6475;
+  --border: #dfe4ec;
+  --accent: #2b59c3;
+  --accent-strong: #2349a6;
+  --accent-soft: #e8eefb;
+  --radius: 12px;
+}
+[data-theme="fx"] {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --border: #2a313c;
+  --accent: #2dd4bf;
+  --accent-strong: #2dd4bf;
+  --accent-soft: #10302c;
+  --on-accent: #04201c;
+  --error: #ff7b72;
+  --up: #3fb950;
+  --down: #f85149;
+  --warn: #d29922;
+  --radius: 10px;
+  --shadow: none;
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -104,7 +127,7 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 }
 .input:focus-within { border-color: var(--accent); }
 .input input {
-  flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text);
+  flex: 1; width: 100%; min-width: 0; border: 0; background: transparent; color: var(--text);
   font: inherit; font-size: 22px; font-weight: 600; padding: 10px 0; outline: none;
   font-variant-numeric: tabular-nums;
 }
@@ -160,6 +183,84 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .btn-primary { background: var(--accent-strong); color: var(--on-accent); border: 0; }
 .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
 .btn:disabled { opacity: .45; cursor: default; }
+
+/* 入力を2列に（スマホでも横並び） */
+.grid2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; }
+.grid2 .field { margin: 0; min-width: 0; }
+.grid2 .input { padding: 0 12px; }
+.grid2 .input .unit { font-size: 13px; margin-left: 4px; white-space: nowrap; }
+.calc > [data-mode] > .chips { margin-top: 10px; }
+#f-rate2 { margin: 12px 0 0; }
+
+/* 下の小さなリンク（逆算・さらに割引・クリア） */
+.calc-links {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px;
+  margin: 12px 0 0; padding-top: 4px; border-top: 1px dashed var(--border);
+}
+.link-btn {
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--accent-strong); background: none; border: 0;
+  padding: 8px 0; min-height: 44px; cursor: pointer;
+}
+.link-muted { color: var(--muted); font-weight: 600; margin-left: auto; }
+
+/* 値札（生活の結果表示）：ひもでぶら下がった黄色い値札 */
+.tag-stage { padding: 34px 0 4px; text-align: center; }
+.tag-wrap {
+  position: relative; width: min(100%, 290px); margin: 0 auto;
+  transform-origin: 50% 0; transform: rotate(-2deg);
+  filter: drop-shadow(0 6px 10px rgb(120 70 20 / 0.16));
+}
+.tag-wrap::before { /* ひも */
+  content: ""; position: absolute; left: 50%; top: -30px; width: 2px; height: 46px; margin-left: -1px;
+  background: color-mix(in srgb, var(--muted) 70%, transparent); border-radius: 2px; z-index: 2;
+}
+.pricetag {
+  position: relative; background: var(--tag-bg); color: var(--tag-text);
+  border-radius: 16px; padding: 30px 16px 16px; border: 1.5px solid var(--tag-line);
+}
+.pricetag::before { /* ひもを通す穴 */
+  content: ""; position: absolute; top: 9px; left: 50%; width: 14px; height: 14px; margin-left: -7px;
+  border-radius: 50%; background: var(--surface); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25);
+}
+.pricetag p { margin: 0; }
+.tag-was { font-size: 14px; color: #7a6b5d; }
+.tag-was s { text-decoration-thickness: 2px; text-decoration-color: var(--sale); }
+.tag-price {
+  font-size: 46px; line-height: 1.15; font-weight: 800; color: var(--sale);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em; overflow-wrap: anywhere;
+}
+.tag-price small { font-size: 20px; margin-left: 2px; }
+.tag-wrap.is-empty .tag-price { color: color-mix(in srgb, var(--tag-text) 25%, transparent); }
+.tag-save { font-size: 14px; color: #7a6b5d; margin-top: 4px !important; }
+.tag-save.is-strong {
+  display: inline-block; background: #fff; color: var(--sale); font-weight: 800; font-size: 15px;
+  padding: 3px 12px; border-radius: 999px;
+}
+.tag-badge { /* 赤い丸の「◯%OFF」 */
+  position: absolute; right: -8px; top: -18px; width: 74px; height: 74px; margin: 0;
+  display: grid; place-content: center; border-radius: 50%;
+  background: var(--sale); color: #fff; font-weight: 800; line-height: 1.05; transform: rotate(10deg);
+  box-shadow: 0 0 0 3px var(--surface); outline: 1.5px dashed rgb(255 255 255 / 0.7); outline-offset: -7px;
+}
+.tag-badge span { font-size: 19px; letter-spacing: -0.02em; }
+.tag-badge small { font-size: 12px; letter-spacing: 0.06em; }
+.tag-note { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+.tag-note.is-error { color: var(--error); font-weight: 600; }
+.tag-round { margin-top: 8px; justify-content: center; }
+.swing { animation: swing 0.7s ease-out; }
+@keyframes swing {
+  0% { transform: rotate(-2deg); }
+  25% { transform: rotate(4deg); }
+  55% { transform: rotate(-4deg); }
+  80% { transform: rotate(1deg); }
+  100% { transform: rotate(-2deg); }
+}
+
+/* トップ：FXのカードはダーク */
+.cat-fx .tool-card { background: #161b22; border-color: #2a313c; color: #e6edf3; }
+.cat-fx .tool-desc, .cat-fx .tool-card .go { color: #8b949e; }
+.cat-fx .tool-ico { background: #10302c; color: #2dd4bf; }
+.cat-shigoto .tool-ico { background: #e8eefb; color: #2349a6; }
 
 /* 本文 */
 .prose { margin: 36px 0 0; }
@@ -227,4 +328,4 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   h1 { font-size: 30px; }
   .tool-list { grid-template-columns: 1fr 1fr; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

@@ -17,10 +17,13 @@ export const esc = (s) =>
 
 export const absUrl = (path) => SITE.url + path;
 
+// ブラウザのバーの色（各テーマの背景色）
+const THEME_COLOR = { home: '#faf9f6', seikatsu: '#fff8ef', shigoto: '#f4f6fa', fx: '#0d1117' };
+
 export const icon = (inner, cls = 'ico') =>
   `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
 
-const LOGO = `<svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M9 10.5h6M12 7.5v6M17.5 10.5h6M9.6 19.6l4.8 4.8M14.4 19.6l-4.8 4.8M17.5 20h6M17.5 24h6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+const LOGO = `<svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#E8590C"/><path d="M9 10.5h6M12 7.5v6M17.5 10.5h6M9.6 19.6l4.8 4.8M14.4 19.6l-4.8 4.8M17.5 20h6M17.5 24h6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>`;
 
 // breadcrumbs: [{ name, path }]（最後が今のページ）
 const breadcrumbHtml = (items) =>
@@ -56,6 +59,7 @@ export const breadcrumbLd = (items) => ({
  * @param {Array}  [p.jsonLd]   構造化データ（オブジェクトの配列）
  * @param {Array}  [p.scripts]  読み込むスクリプト（asset 名）
  * @param {boolean}[p.noindex]
+ * @param {string} [p.theme]    home / seikatsu / shigoto / fx（ツールはカテゴリのテーマ）
  */
 export function page(p) {
   const fullTitle = p.path === '/' ? p.title : `${p.title}｜${SITE.name}`;
@@ -64,6 +68,7 @@ export function page(p) {
   const ld = [...(p.jsonLd || [])];
   if (crumbs.length >= 2) ld.push(breadcrumbLd(crumbs));
   const year = new Date().getFullYear();
+  const theme = p.theme || 'home';
 
   return `<!doctype html>
 <html lang="ja">
@@ -73,7 +78,7 @@ export function page(p) {
 <title>${esc(fullTitle)}</title>
 <meta name="description" content="${esc(p.description)}">
 ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${canonical}">`}
-<meta name="theme-color" content="${SITE.themeColor}">
+<meta name="theme-color" content="${THEME_COLOR[theme]}">
 <meta property="og:type" content="${p.path === '/' ? 'website' : 'article'}">
 <meta property="og:site_name" content="${esc(SITE.name)}">
 <meta property="og:title" content="${esc(fullTitle)}">
@@ -86,7 +91,7 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <link rel="stylesheet" href="${asset('site.css')}">
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceAll('<', '\\u003c')}</script>`).join('\n')}
 </head>
-<body>
+<body data-theme="${theme}">
 <header class="site-header">
   <a class="brand" href="/">${LOGO}<span>${esc(SITE.name)}</span></a>
 </header>

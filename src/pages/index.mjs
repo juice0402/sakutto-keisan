@@ -9,7 +9,7 @@ export default function render() {
   const cats = CATEGORIES.map((c) => {
     const tools = published.filter((t) => t.category === c.id);
     if (!tools.length) return '';
-    return `<section class="cat" aria-labelledby="cat-${c.id}">
+    return `<section class="cat cat-${c.theme}" aria-labelledby="cat-${c.id}">
   <h2 id="cat-${c.id}">${esc(c.name)}</h2>
   <ul class="tool-list">${tools
     .map(
