@@ -1,12 +1,12 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText } from '../lib/kishaku.mjs';
+import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText, mlValue, literText } from '../lib/kishaku.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 
 let how = 'times'; // 薄め方 times：何倍 / parts：何対何 / pct：何％
-let basis = 'total'; // わかっている量 total：作りたい量 / concentrate：原液の量 / water：水の量
+let basis = 'total'; // いま入れている量の欄 total：できあがり / conc：原液 / water：水（ほかの2つに答えを出す）
 let tileRatio = null; // えらんだマスの倍率（「その他」に入れたときは、そちらを使う）
-// 量の欄の見出しと、うすい例
-const AMOUNT_LABEL = { total: ['作りたい量', '500'], concentrate: ['原液の量', '10'], water: ['水の量', '1000'] };
+const AMOUNTS = ['total', 'conc', 'water'];
+const FROM = { total: 'total', conc: 'concentrate', water: 'water' };
 const BOTTLE_FULL = 82; // ボトルの何％まで液を入れて見せるか
 const val = (id) => parseNum($(id).value);
 
@@ -19,12 +19,6 @@ function currentRatio() {
     return { ok: true, ratio: custom };
   }
   return tileRatio === null ? { ok: false, empty: true } : { ok: true, ratio: tileRatio };
-}
-
-function amountMl() {
-  const v = val('amount');
-  if (v === null || Number.isNaN(v)) return v;
-  return $('unit-amount').value === 'L' ? v * 1000 : v;
 }
 
 /** 「原液1：水9」。何対何で入れたときは、入れたままの割合（原液2：水3 など） */
@@ -52,56 +46,52 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
-function showEmpty(message, error) {
-  $('r-conc').textContent = '？';
-  $('r-conc-sub').textContent = '';
-  $('r-water').textContent = '？';
-  $('r-total').textContent = message;
-  $('r-ratio').textContent = '';
-  $('calc').classList.add('is-empty');
-  setNote(error || '', !!error);
+/** 入れていない2つの欄に答えを出す（res が null なら空にする） */
+function showAmounts(res) {
+  const ml = res && { total: res.total, conc: res.concentrate, water: res.water };
+  AMOUNTS.forEach((k) => {
+    const out = k !== basis;
+    $(`f-${k}`).classList.toggle('is-out', out && !!ml);
+    if (out) $(`v-${k}`).value = ml ? mlValue(ml[k]) : '';
+    const spoon = ml && k === 'conc' ? spoonText(ml[k]) : '';
+    $(`s-${k}`).textContent = !ml ? '' : spoon ? `計量スプーンで ${spoon}` : literText(ml[k]);
+  });
+  $('r-sr').textContent = ml ? `原液${volumeText(ml.conc)}、水${volumeText(ml.water)}、できあがり${volumeText(ml.total)}` : '';
 }
 
 function update() {
   const rr = currentRatio();
-  const amt = amountMl();
+  const amt = val(`v-${basis}`);
   // 入力まちがいの印・えらんでいるマス
-  $('f-ratio').classList.toggle('has-error', rr.field === 'ratio');
-  $('f-src').classList.toggle('has-error', rr.field === 'src');
-  $('f-pc').classList.toggle('has-error', rr.field === 'pc');
-  $('f-pw').classList.toggle('has-error', rr.field === 'pw');
-  $('f-target').classList.toggle('has-error', rr.field === 'target');
-  $('f-amount').classList.toggle('has-error', Number.isNaN(amt) || amt === 0);
+  ['ratio', 'pc', 'pw', 'src', 'target'].forEach((id) => $(`f-${id}`).classList.toggle('has-error', rr.field === id));
+  AMOUNTS.forEach((k) => $(`f-${k}`).classList.toggle('has-error', k === basis && (Number.isNaN(amt) || amt === 0)));
   const custom = $('ratio').value !== '';
   document.querySelectorAll('.tile[data-ratio]').forEach((t) => t.setAttribute('aria-pressed', String(!custom && Number(t.dataset.ratio) === tileRatio)));
   $('f-ratio').classList.toggle('is-on', custom);
 
   if (!rr.ok) {
     drawBottle(null);
-    const hint = { times: '何倍に薄めるかをえらぶと、原液と水の量が出ます', parts: '原液と水の割合を入れると、原液と水の量が出ます', pct: '原液の濃度と作りたい濃度を入れると、何倍に薄めるかがわかります' };
-    return showEmpty(hint[how], rr.error);
+    showAmounts(null);
+    const hint = { times: '何倍に薄めるかをえらんでください', parts: '原液と水の割合を入れてください', pct: '原液の濃度と作りたい濃度を入れてください' };
+    $('r-ratio').textContent = hint[how];
+    return setNote(rr.error || '', !!rr.error);
   }
-  const res = dilute({ ratio: rr.ratio, amount: amt, from: basis });
+  $('r-ratio').textContent = `${fmt(rr.ratio, 2)}倍（${partsText(rr.ratio)}）`;
+  const res = dilute({ ratio: rr.ratio, amount: amt, from: FROM[basis] });
   if (!res.ok) {
     drawBottle(dilute({ ratio: rr.ratio, amount: 1000 })); // 量がまだでも、原液と水の割合は見せる
-    if (res.empty) return showEmpty(`${AMOUNT_LABEL[basis][0]}を入れると、原液と水の量が出ます（${fmt(rr.ratio, 2)}倍＝${partsText(rr.ratio)}）`);
-    return showEmpty('', res.error);
+    showAmounts(null);
+    return setNote(res.empty ? '' : res.error, !res.empty);
   }
-  $('calc').classList.remove('is-empty');
   drawBottle(res);
-  $('r-conc').textContent = volumeText(res.concentrate);
-  const spoon = spoonText(res.concentrate);
-  $('r-conc-sub').textContent = spoon ? `（${spoon}）` : '';
-  $('r-water').textContent = volumeText(res.water);
-  $('r-total').textContent = `できる量 ${volumeText(res.total)}`;
-  $('r-ratio').textContent = `${fmt(res.ratio, 2)}倍（${partsText(res.ratio)}）`;
+  showAmounts(res);
   const notes = [];
   if (how === 'pct') notes.push(`${fmt(val('src'), 4)}％の原液を${fmt(val('target'), 4)}％にするには、${fmt(res.ratio, 2)}倍に薄めます。`);
   if (res.concentrate < 1.25) notes.push('原液がとても少ないので、作る量をふやすと量りやすくなります。');
   setNote(notes.join(''));
 }
 
-/* ---- 薄め方・わかっている量（大きな3つの切り替えボタン） ---- */
+/* ---- 薄め方（3つのタブ） ---- */
 function setHow(next) {
   how = next;
   document.querySelectorAll('.seg-btn[data-how]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.how === how)));
@@ -110,17 +100,7 @@ function setHow(next) {
   $('pct-fields').hidden = how !== 'pct';
   update();
 }
-function setBasis(next) {
-  basis = next;
-  document.querySelectorAll('.seg-btn[data-basis]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.basis === basis)));
-  const [label, ph] = AMOUNT_LABEL[basis];
-  $('l-amount').textContent = label;
-  $('amount').placeholder = ph;
-  $('unit-amount').setAttribute('aria-label', `${label}の単位`);
-  update();
-}
 document.querySelectorAll('.seg-btn[data-how]').forEach((b) => b.addEventListener('click', () => setHow(b.dataset.how)));
-document.querySelectorAll('.seg-btn[data-basis]').forEach((b) => b.addEventListener('click', () => setBasis(b.dataset.basis)));
 
 /* ---- 入力 ---- */
 function fitRatio() {
@@ -135,18 +115,35 @@ document.querySelector('.tiles').addEventListener('click', (e) => {
   update();
 });
 $('f-ratio').addEventListener('click', () => $('ratio').focus());
-const inputs = ['ratio', 'pc', 'pw', 'src', 'target', 'amount'].map((id) => $(id));
-numericOnly(inputs);
-inputs.forEach((el) => el.addEventListener('input', update));
+const ratioInputs = ['ratio', 'pc', 'pw', 'src', 'target'].map((id) => $(id));
+const amountInputs = AMOUNTS.map((k) => $(`v-${k}`));
+numericOnly([...ratioInputs, ...amountInputs]);
+ratioInputs.forEach((el) => el.addEventListener('input', update));
 $('ratio').addEventListener('input', fitRatio);
-$('unit-amount').addEventListener('change', update);
-tidyOnBlur([$('amount')], true);
+// 量の欄：入れた欄から、ほかの2つを出す。答えの出ている欄をさわったら、まるごと書きかえられるように選んでおく
+AMOUNTS.forEach((k) => {
+  const el = $(`v-${k}`);
+  el.addEventListener('input', () => {
+    basis = k;
+    update();
+  });
+  el.addEventListener('focus', () => {
+    if (!$(`f-${k}`).classList.contains('is-out')) return;
+    setTimeout(() => {
+      try { el.setSelectionRange(0, el.value.length); } catch { /* 選べないときは何もしない */ }
+    }, 0);
+  });
+});
+tidyOnBlur(amountInputs, true);
 $('clear').addEventListener('click', () => {
-  inputs.forEach((el) => { el.value = ''; });
+  [...ratioInputs, ...amountInputs].forEach((el) => { el.value = ''; });
   tileRatio = null;
+  basis = 'total';
   fitRatio();
   update();
 });
-enterToNext([$('ratio'), $('pc'), $('pw'), $('src'), $('target'), $('amount')]);
+enterToNext([...ratioInputs, $('v-total')]);
+enterToNext([$('v-conc')]);
+enterToNext([$('v-water')]);
 fitRatio();
 update();

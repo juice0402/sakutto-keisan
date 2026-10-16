@@ -61,6 +61,16 @@ export function volumeText(ml) {
   return formatAmount(ml, 'ml').text;
 }
 
+/** 量の欄に入れる数字（ml。単位は欄の右に書くので付けない）。10ml より少ないときは小数第1位まで */
+export const mlValue = (ml) => formatAmount(ml, 'ml').text.replace(/ml$/, '');
+
+/** 1,000ml からは L での量も添える（「＝1L」「約2L」） */
+export function literText(ml) {
+  if (Math.round(ml) < 1000) return '';
+  const l = fmt(ml / 1000, 2);
+  return `${Math.abs(Number(l.replace(/,/g, '')) - ml / 1000) > 1e-9 ? '約' : '＝'}${l}L`;
+}
+
 /** 計量スプーンでの目安（小さじ¼〜大さじ3のとき）。大さじ1＝15ml・小さじ1＝5ml */
 export function spoonText(ml) {
   if (ml < 1.25 - 1e-9 || ml > 45 + 1e-9) return '';

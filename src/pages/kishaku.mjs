@@ -9,15 +9,15 @@ const path = '/kishaku/';
 const numInput = (id, placeholder) =>
   `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}">`;
 
-// 量の欄：単位（ml・L）は入力欄の右でえらぶ
-const amountField = (id, label, placeholder) =>
-  `<div class="field" id="f-${id}"><label class="sr-only" for="${id}" id="l-${id}">${label}</label><div class="input input-sel">${numInput(id, placeholder)}<select id="unit-${id}" class="unit-select" aria-label="${label}の単位"><option value="ml" selected>ml</option><option value="L">L</option></select></div></div>`;
+// 量の欄（できあがり・原液・水）：わかっている欄に1つ入れると、ほかの2つに答えが出る
+const amountField = (key, cls, label) =>
+  `<div class="field mix-field ${cls}" id="f-${key}"><label for="v-${key}">${label}</label><div class="input">${numInput(`v-${key}`, '？')}<span class="unit">ml</span></div><small class="mix-sub" id="s-${key}"></small></div>`;
 
 // 何対何：原液［ ］：水［ ］
 const partField = (id, label, placeholder) =>
   `<div class="field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${numInput(id, placeholder)}</div></div>`;
 
-// 大きな切り替えボタン（3つから1つ）。読み上げの名前（「？：？」→「何対何」）があれば aria-label に
+// 入力の形をえらぶタブ（3つから1つ）。読み上げの名前（「？：？」→「何対何」）があれば aria-label に
 const seg = (labelId, key, items) =>
   `<div class="seg" role="group" aria-labelledby="${labelId}">${items
     .map(([v, text, name], i) => `<button type="button" class="seg-btn" data-${key}="${v}" aria-pressed="${i === 0}"${name ? ` aria-label="${name}"` : ''}>${text}</button>`)
@@ -26,9 +26,9 @@ const seg = (labelId, key, items) =>
 const pctField = (id, label, placeholder) =>
   `<div class="field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${numInput(id, placeholder)}<span class="unit">％</span></div></div>`;
 
-// 何倍のタイル：「10倍」と「1：9」（原液：水）を両方書く。最後のマスは自分で入力
+// 何倍のタイル：「10倍」と「1：9」（原液：水）を両方書く。最後のマスは自分で入力。1000倍はせまい画面では字を少し小さく
 const TILES = `<div class="tiles" role="group" aria-labelledby="l-ratio">${DILUTE_TILES.map(
-  (v) => `<button type="button" class="tile" data-ratio="${v}" aria-pressed="false"><b>${v}倍</b><small>1：${(v - 1).toLocaleString('ja-JP')}</small></button>`,
+  (v) => `<button type="button" class="tile${v >= 1000 ? ' tile-long' : ''}" data-ratio="${v}" aria-pressed="false"><b>${v}倍</b><small>1：${(v - 1).toLocaleString('ja-JP')}</small></button>`,
 ).join('')}<div class="tile tile-input" id="f-ratio"><div class="tile-box"><input id="ratio" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="?" aria-describedby="l-ratio"><span>倍</span></div><label for="ratio">その他（倍）</label></div></div>`;
 
 const FAQS = [
@@ -61,33 +61,27 @@ const FAQS = [
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
-<p class="lead">薄め方（何倍・何対何・何％）と量を入れるだけ。原液と水の量が、ボトルの絵ですぐわかります。</p>
+<p class="lead">薄め方（何倍・何対何・何％）をえらんで、わかっている量を1つ入れるだけ。原液と水の量が、ボトルの絵ですぐわかります。</p>
 
 <div class="calc" id="calc">
-  <div class="field-head calc-head"><p class="label" id="l-how">薄め方</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
+  <div class="field-head calc-head"><p class="label step" id="l-how"><span class="step-no" aria-hidden="true">1</span>薄め方</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
   ${seg('l-how', 'how', [['times', '？倍', '何倍'], ['parts', '？：？', '何対何'], ['pct', '？％', '何％']])}
   <div class="field" id="f-tiles">
     <p class="sr-only" id="l-ratio">何倍に薄める？</p>
     ${TILES}
-    <p class="field-help">◯倍＝原液に水を足して、全体を原液の◯倍の量にします（10倍なら 原液1：水9）。</p>
   </div>
-  <div class="field" id="parts-fields" hidden>
-    <div class="parts">
-      ${partField('pc', '原液', '1')}
-      <span class="parts-colon" aria-hidden="true">：</span>
-      ${partField('pw', '水', '3')}
-    </div>
-    <p class="field-help">原液1に水3なら、全体は原液の4倍（4倍に薄める）です。</p>
+  <div class="field parts" id="parts-fields" hidden>
+    ${partField('pc', '原液', '1')}
+    <span class="parts-colon" aria-hidden="true">：</span>
+    ${partField('pw', '水', '3')}
   </div>
-  <div class="pct-fields" id="pct-fields" hidden>
+  <div class="field pct-fields" id="pct-fields" hidden>
     ${pctField('src', '原液の濃度', '6')}
     ${pctField('target', '作りたい濃度', '0.05')}
   </div>
-  <p class="label seg-label" id="l-basis">わかっている量</p>
-  ${seg('l-basis', 'basis', [['total', '作りたい量'], ['concentrate', '原液の量'], ['water', '水の量']])}
-  ${amountField('amount', '作りたい量', '500')}
 
-  <div class="mix-stage" aria-live="polite">
+  <p class="label step step-2" id="l-amount"><span class="step-no" aria-hidden="true">2</span>わかっている量を1つ入れる</p>
+  <div class="mix-stage" role="group" aria-labelledby="l-amount">
     <div class="bottle" aria-hidden="true">
       <div class="bottle-cap"></div>
       <div class="bottle-neck"></div>
@@ -98,9 +92,10 @@ export default function render() {
       </div>
     </div>
     <div class="mix-rows">
-      <p class="mix-row is-conc"><span class="mix-k">原液</span><span class="mix-v" id="r-conc">？</span><small class="mix-sub" id="r-conc-sub"></small></p>
-      <p class="mix-row is-water"><span class="mix-k">水</span><span class="mix-v" id="r-water">？</span></p>
-      <p class="mix-total"><span id="r-total">倍率と量を入れると、原液と水の量が出ます</span><span id="r-ratio"></span></p>
+      ${amountField('total', 'is-total', 'できあがり')}
+      ${amountField('conc', 'is-conc', '原液')}
+      ${amountField('water', 'is-water', '水')}
+      <p class="mix-total" aria-live="polite"><span id="r-ratio">何倍に薄めるかをえらんでください</span><span class="sr-only" id="r-sr"></span></p>
     </div>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
@@ -117,13 +112,13 @@ ${section(
 <li><strong>？：？</strong>（何対何）：「原液1：水3で薄める」のとき。原液と水の割合を入れます。</li>
 <li><strong>？％</strong>（何％）：「6％の原液から0.05％の液を作る」のとき。原液の濃度と作りたい濃度を入れます。</li>
 </ul></li>
-<li><strong>わかっている量</strong>をえらんで、量を入れます。単位（ml・L）は欄の右でえらびます。
+<li><strong>わかっている量</strong>を、「できあがり」「原液」「水」のどれか1つに入れます（ml で入れます。1L＝1,000ml）。
 <ul>
-<li><strong>作りたい量</strong>：できあがりの量から、原液と水の量を出します。</li>
-<li><strong>原液の量</strong>：「原液が10mlある」ときに、足す水の量と、できる量を出します。</li>
-<li><strong>水の量</strong>：「バケツの水2Lに入れたい」ときに、入れる原液の量を出します。</li>
+<li><strong>できあがり</strong>：「500mlのスプレーボトルに作りたい」ときに。</li>
+<li><strong>原液</strong>：「原液が10mlある」ときに、足す水の量と、できる量がわかります。</li>
+<li><strong>水</strong>：「バケツの水2Lに入れたい」ときに、入れる原液の量がわかります。</li>
 </ul></li>
-<li>すぐに<strong>原液と水の量</strong>が、ボトルの絵と数字で出ます。原液が少ないときは、計量スプーンでの目安（小さじ・大さじ）も出します。</li>
+<li>残りの2つの欄に、すぐに<strong>答え</strong>が出ます。ボトルの絵でも、原液と水の割合がわかります。原液が少ないときは、計量スプーンでの目安（小さじ・大さじ）も出します。</li>
 </ol>`,
 )}
 
@@ -138,7 +133,7 @@ ${section(
 <span>濃度から：倍率 ＝ 原液の濃度 ÷ 作りたい濃度</span>
 </div>
 <p>たとえば500mlを100倍に薄めるなら、500 ÷ 100 ＝ <strong>原液5ml</strong>、500 − 5 ＝ <strong>水495ml</strong>です。</p>
-<p class="note">量は、10mlより少ないときは小数第1位まで、それ以上は整数で出します。1,000ml（1L）からは L で出します。</p>`,
+<p class="note">量は、10mlより少ないときは小数第1位まで、それ以上は整数で出します。1,000ml（1L）からは L での量も添えます。</p>`,
 )}
 
 ${section(

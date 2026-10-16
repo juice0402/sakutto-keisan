@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText } from '../src/lib/kishaku.mjs';
+import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText, mlValue, literText } from '../src/lib/kishaku.mjs';
 
 const r = (p) => {
   const x = dilute(p);
@@ -57,4 +57,15 @@ test('量の書き方・計量スプーンの目安', () => {
   assert.equal(spoonText(100), ''); // 大さじ3より多いときは出さない
   assert.equal(spoonText(0.5), ''); // 小さじ¼より少ないときは出さない
   assert.equal(waterPart(10), '9');
+});
+
+test('量の欄の数字と L の添え書き', () => {
+  assert.equal(mlValue(5), '5');
+  assert.equal(mlValue(8.333), '8.3');
+  assert.equal(mlValue(2.002), '2');
+  assert.equal(mlValue(2002.002), '2,002');
+  assert.equal(literText(999), '');
+  assert.equal(literText(1000), '＝1L');
+  assert.equal(literText(2002.002), '約2L');
+  assert.equal(literText(1500), '＝1.5L');
 });
