@@ -4,36 +4,32 @@ import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 
 const tool = toolBySlug('tanka');
 const path = '/tanka/';
-const KEYS = ['a', 'b', 'c'];
+const KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']; // 最初は A〜D の4つ、「＋1つ追加」で H（8つ）まで
+const FIRST = 4;
 const UNIT_OPTIONS = ['g', 'kg', 'ml', 'L', '個', '枚', '本', 'm'];
 
 const numInput = (id, placeholder, extra = '') =>
   `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"${extra}>`;
 
-const field = (id, label, unit, placeholder, attrs = '') =>
-  `<div class="field" id="f-${id}"${attrs}><label for="${id}">${label}</label><div class="input">${numInput(id, placeholder)}<span class="unit">${unit}</span></div></div>`;
+// 入力は表の形：見出し（値段・量）は1行だけ。各欄のラベルは読み上げ用に隠して付ける
+const cell = (id, label, unit, placeholder) =>
+  `<div class="field" id="f-${id}"><label class="sr-only" for="${id}">${label}</label><div class="input">${numInput(id, placeholder)}${unit ? `<span class="unit">${unit}</span>` : ''}</div></div>`;
 
 // 量の欄：単位は入力欄の右で選ぶ（iPhone では大きな選択画面が出る）
-const qtyField = (k) =>
-  `<div class="field" id="f-qty-${k}"><label for="qty-${k}">量</label><div class="input input-sel">${numInput(`qty-${k}`, k === 'b' ? '1000' : k === 'c' ? '1500' : '500')}<select id="unit-${k}" class="unit-select" aria-label="${k.toUpperCase()}の量の単位">${UNIT_OPTIONS.map((u) => `<option value="${u}"${u === 'g' ? ' selected' : ''}>${u}</option>`).join('')}</select></div></div>`;
+const qtyCell = (k) =>
+  `<div class="field" id="f-qty-${k}"><label class="sr-only" for="qty-${k}">${k.toUpperCase()}の量</label><div class="input input-sel">${numInput(`qty-${k}`, k === 'a' ? '500' : k === 'b' ? '1000' : '')}<select id="unit-${k}" class="unit-select" aria-label="${k.toUpperCase()}の量の単位">${UNIT_OPTIONS.map((u) => `<option value="${u}"${u === 'g' ? ' selected' : ''}>${u}</option>`).join('')}</select></div></div>`;
 
-const item = (k) => `<div class="item" id="item-${k}"${k === 'c' ? ' hidden' : ''}>
+const item = (k, i) => `<div class="item" id="item-${k}"${i >= FIRST ? ' hidden' : ''}>
   <p class="item-k" aria-hidden="true">${k.toUpperCase()}</p>
   <div class="pair" role="group" aria-label="商品${k.toUpperCase()}">
-    ${field(`price-${k}`, '値段', '円', k === 'a' ? '198' : k === 'b' ? '298' : '450')}
-    ${qtyField(k)}
+    ${cell(`price-${k}`, `${k.toUpperCase()}の値段（円）`, '', k === 'a' ? '198' : k === 'b' ? '298' : '')}
+    ${qtyCell(k)}
   </div>
   <div class="pair extra" hidden>
-    ${field(`packs-${k}`, '入り数', '個', '1', ' data-extra="packs" hidden')}
-    ${field(`disc-${k}`, '割引シール', '％オフ', '20', ' data-extra="disc" hidden')}
+    ${cell(`packs-${k}`, `${k.toUpperCase()}の入り数`, '個入り', '1')}
+    ${cell(`disc-${k}`, `${k.toUpperCase()}の割引シール`, '％オフ', '0')}
   </div>
 </div>`;
-
-const miniTag = (k) =>
-  `<div class="cmp-item" id="ti-${k}"${k === 'c' ? ' hidden' : ''}><p class="cmp-label" id="tl-${k}">${k.toUpperCase()}</p><div class="tag-wrap tag-mini"><div class="pricetag"><p class="tag-was" id="tb-${k}">100gあたり</p><p class="tag-price"><span id="tp-${k}">？</span><small>円</small></p><p class="tag-save" id="ts-${k}">入力してください</p></div></div></div>`;
-
-const bar = (k) =>
-  `<div class="bar-row" id="br-${k}"${k === 'c' ? ' hidden' : ''}><span class="bar-k">${k.toUpperCase()}</span><span class="bar-track"><span class="bar-fill" id="bf-${k}"></span></span><span class="bar-v" id="bv-${k}"></span></div>`;
 
 const ICONS = {
   add: '<rect x="3" y="5" width="13" height="14" rx="2"/><path d="M19.5 9v6M16.5 12h6"/>',
@@ -73,21 +69,30 @@ const FAQS = [
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
-<p class="lead">値段と内容量を入れるだけ。100gあたりの値段で、どっちが得かすぐわかります。</p>
+<p class="lead">値段と内容量を入れるだけ。100gあたりの値段で、どれがいちばん得かすぐわかります。</p>
 
 <div class="calc" id="calc">
   <div class="field-head calc-head"><p class="label">くらべる商品</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
+  <div class="cols" aria-hidden="true"><span></span><span>値段（円）</span><span>量</span></div>
   ${KEYS.map(item).join('\n')}
 
   <div class="tag-stage" aria-live="polite">
-    <div class="cmp" id="cmp">${KEYS.map(miniTag).join('')}</div>
-    <p class="cmp-verdict" id="verdict">AとBの値段と量を入れると、どっちが得かわかります</p>
-    <div class="bars" id="bars" hidden><p class="bars-title" id="bars-title">100gあたりの値段</p>${KEYS.map(bar).join('')}</div>
+    <p class="win-label" id="t-label" hidden></p>
+    <div class="tag-wrap is-empty" id="tag">
+      <div class="pricetag">
+        <p class="tag-was" id="t-base">100gあたり</p>
+        <p class="tag-price"><span id="t-price">？</span><small>円</small></p>
+        <p class="tag-save" id="t-sub">値段と量を入れると、いちばんおトクな商品がわかります</p>
+      </div>
+      <p class="tag-badge" id="t-badge" hidden><span>1位</span><small>おトク</small></p>
+    </div>
+    <p class="cmp-verdict" id="verdict" hidden></p>
+    <div class="rank-box" id="rank-box" hidden><p class="bars-title" id="rank-title">100gあたりの値段（安い順）</p><ol class="rank" id="rank"></ol></div>
     <p class="tag-note" id="t-note" hidden></p>
   </div>
 
   <div class="calc-tools">
-    ${toolBtn('to-c', 'add', '3つめを追加')}
+    ${toolBtn('to-add', 'add', '＋1つ追加')}
     ${toolBtn('to-packs', 'packs', '入り数')}
     ${toolBtn('to-disc', 'disc', '割引シール')}
   </div>
@@ -98,13 +103,13 @@ ${section(
   'howto',
   '使い方',
   `<ol>
-<li>商品Aと商品Bの<strong>値段</strong>と<strong>量</strong>を入れます。量の単位（g・kg・ml・L・個など）は、量の欄の右でえらびます。</li>
-<li>すぐに<strong>100gあたり（100mlあたり・1個あたり）の値段</strong>が値札で並び、安いほうに「おトク！」が付きます。</li>
-<li>下の棒グラフで、どれくらい違うかもひと目でわかります。</li>
+<li>くらべたい商品の<strong>値段</strong>と<strong>量</strong>を、A・B・C…の行に入れます（最初は4つ。使わない行は空のままでOK）。量の単位（g・kg・ml・L・個など）は、量の欄の右でえらびます。</li>
+<li>すぐに<strong>いちばんおトクな商品</strong>が値札で出て、<strong>100gあたり（100mlあたり・1個あたり）の値段</strong>の安い順に並びます。</li>
+<li>棒グラフで、どれくらい違うかもひと目でわかります。</li>
 </ol>
 <p>値札の下の3つのボタンで、こんなときにも使えます。</p>
 <ul>
-<li><strong>3つめを追加</strong>：S・M・Lサイズのように3つをくらべる。</li>
+<li><strong>＋1つ追加</strong>：5つ以上くらべたいとき（8つまで）。</li>
 <li><strong>入り数</strong>：「350ml × 6本」のようなまとめ売り。量に1本分、入り数に6を入れます。</li>
 <li><strong>割引シール</strong>：「20％引き」のシールが貼ってある商品。割引後の値段でくらべます。</li>
 </ul>`,

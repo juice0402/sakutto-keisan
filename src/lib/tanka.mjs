@@ -73,3 +73,15 @@ export function compareUnitPrices(items) {
   const saving = fix((win.amount / BASES[win.dim].n) * second.r.per - win.pay);
   return { ok: true, results, best, second: second.i, diff, pct, saving };
 }
+
+/** 入っている商品を、基準あたりの値段が安い順に並べる（同じ値段は同じ順位） */
+export function rankUnitPrices(results) {
+  const ok = results.map((r, i) => ({ r, i })).filter((x) => x.r.ok).sort((a, b) => a.r.per - b.r.per || a.i - b.i);
+  let rank = 0;
+  let prev = null;
+  return ok.map((x, n) => {
+    if (x.r.per !== prev) rank = n + 1;
+    prev = x.r.per;
+    return { index: x.i, rank, per: x.r.per };
+  });
+}

@@ -195,44 +195,51 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 /* 商品ごとの入力（実質単価など）：A・B・C を縦に並べ、値段と量は横並び */
 .calc-head { margin-bottom: 4px; }
 .calc-head .label { margin: 0; font-size: var(--label); font-weight: 700; }
-.item {
-  display: grid; grid-template-columns: 28px 1fr; column-gap: 10px; align-items: end;
-  padding: 12px 0 14px; border-bottom: 1px dashed var(--border);
-}
-.item > .pair { grid-column: 2; }
+/* 表の見出し（値段・量）と、商品ごとの行 */
+.cols { display: grid; grid-template-columns: 28px 1fr 1fr; column-gap: 10px; margin: 6px 0 2px; font-size: var(--label); font-weight: 700; }
+.item { display: grid; grid-template-columns: 28px 1fr; column-gap: 10px; align-items: start; padding: 5px 0; }
+.item > .pair { grid-column: 2; grid-template-columns: 1fr 1.2fr; }
+.cols { grid-template-columns: 28px 1fr 1.2fr; }
 .item-k {
-  grid-row: 1; display: grid; place-items: center; width: 28px; height: 28px; margin: 0 0 18px; border-radius: 50%;
+  grid-row: 1; display: grid; place-items: center; width: 28px; height: 28px; margin: 18px 0 0; border-radius: 50%;
   background: var(--accent-strong); color: var(--on-accent); font-weight: 800; font-size: 14px;
 }
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pair > .field { margin: 0; min-width: 0; }
 .pair .input { padding: 0 12px; }
-.pair.extra { margin-top: 10px; }
-.input-sel { padding-right: 6px; }
+.pair.extra { margin-top: 8px; padding-bottom: 6px; }
+.input-sel { padding: 0 4px 0 10px; }
 .unit-select {
-  font: inherit; font-size: 17px; font-weight: 800; color: var(--text); background-color: var(--bg);
-  border: 1px solid var(--border); border-radius: 10px; min-height: 44px; padding: 0 22px 0 10px; margin-left: 4px;
+  font: inherit; font-size: 16px; font-weight: 800; color: var(--text); background-color: var(--bg);
+  border: 1px solid var(--border); border-radius: 10px; min-height: 44px; padding: 0 18px 0 7px; margin-left: 2px;
   -webkit-appearance: none; appearance: none; cursor: pointer;
   background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(-45deg, transparent 50%, var(--muted) 50%);
-  background-position: right 11px center, right 6px center; background-size: 5px 5px; background-repeat: no-repeat;
+  background-position: right 9px center, right 4px center; background-size: 5px 5px; background-repeat: no-repeat;
 }
 
-/* 3つくらべるときの小さな値札 */
-.cmp-3 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.cmp-3 .tag-mini .pricetag { padding: 24px 4px 10px; }
-.cmp-3 .tag-mini .tag-price { font-size: 21px; }
-.cmp-3 .tag-mini .tag-was, .cmp-3 .tag-mini .tag-save { font-size: 11px; }
-.cmp-3 .cmp-label { font-size: 12px; padding: 2px 6px; }
+/* いちばんおトクの上の赤いラベル */
+.win-label {
+  display: inline-block; margin: -14px auto 30px; padding: 3px 14px; border-radius: 999px;
+  background: var(--sale); color: #fff; font-weight: 800; font-size: 14px;
+}
 
-/* 棒グラフ（安いほど短い） */
-.bars { margin: 18px auto 0; max-width: 420px; text-align: left; }
-.bars-title { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
-.bar-row { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 8px; margin: 6px 0; }
-.bar-k { font-weight: 800; font-size: 14px; }
-.bar-track { height: 14px; border-radius: 999px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
-.bar-fill { display: block; height: 100%; border-radius: 999px; background: color-mix(in srgb, var(--muted) 45%, transparent); transition: width .3s; }
+/* 順位と棒グラフ（安いほど短い） */
+.rank-box { margin: 18px auto 0; max-width: 460px; text-align: left; }
+.bars-title { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.rank { list-style: none; margin: 0; padding: 0; }
+.rank-row {
+  display: grid; grid-template-columns: 34px 18px 1fr 90px; align-items: center; gap: 8px;
+  padding: 7px 0; border-bottom: 1px dashed var(--border);
+}
+.rank-row:last-child { border-bottom: 0; }
+.rank-no { font-size: 13px; font-weight: 800; color: var(--muted); }
+.rank-row.is-best .rank-no { color: var(--sale); }
+.rank-k { font-weight: 800; }
+.bar-track { height: 12px; border-radius: 999px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
+.bar-fill { display: block; height: 100%; border-radius: 999px; background: color-mix(in srgb, var(--muted) 45%, transparent); }
 .bar-fill.is-best { background: var(--sale); }
-.bar-v { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 4.5em; text-align: right; }
+.rank-v { text-align: right; font-weight: 800; font-size: 15px; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.rank-v small { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); }
 
 /* 2つくらべる：A・Bのタブ */
 .cmp-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 16px; }
@@ -395,6 +402,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .foot-nav a { color: var(--muted); min-height: 32px; display: inline-flex; align-items: center; }
 .copy { margin: 0; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
 @media (min-width: 640px) {
