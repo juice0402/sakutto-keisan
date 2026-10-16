@@ -279,7 +279,8 @@ export function cleanOcrText(text) {
       l
         .replace(MARK_RE, '')
         .replace(/[\u2460-\u24ff$®™©]/g, '') // 丸の印・®（写真では「$」に読まれやすい）
-        .replace(/([\u3040-\u30ff\u3400-\u9fff」』])[?？](?=\s|$)/g, '$1') // 「ほんじお®」の ® →「?」
+        .replace(/([\u3040-\u30ff\u3400-\u9fff」』])[25]?[?？](?=\s|$)/g, '$1') // 「ほんじお®」の ® →「?」「2?」
+        .replace(/([\u3040-\u30ff\u3400-\u9fff])[25２５?？](?=」)/g, '$1') // 「やさしい塩®」の ® →「5」
         .replace(JA_GAP_RE, '$1')
         .replace(JA_GAP_RE, '$1')
         .replace(/[ \t\u3000]{2,}/g, ' ')
