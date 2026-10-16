@@ -103,3 +103,18 @@ test('単価：100gより少ない商品があるときは1gあたりでくら�
   assert.equal(spice.results[0].per, 6.4);
   assert.equal(spice.results[1].per, 3.98);
 });
+
+test('単価：単位なし（値段と数量だけ）', () => {
+  const r = compareUnitPrices([
+    { price: 598, qty: 6, unit: 'なし' },
+    { price: 748, qty: 8, unit: 'なし' },
+  ]);
+  assert.equal(r.base.label, '1つ');
+  assert.equal(fmt(r.results[0].per, 2), '99.67');
+  assert.equal(r.results[1].per, 93.5);
+  assert.deepEqual(r.best, [1]);
+  const big = compareUnitPrices([{ price: 198, qty: 500, unit: 'なし' }, { price: 298, qty: 1000, unit: 'なし' }]);
+  assert.equal(big.base.label, '100');
+  assert.equal(big.results[0].per, 39.6);
+  assert.equal(compareUnitPrices([{ price: 100, qty: 100, unit: 'なし' }, { price: 100, qty: 100, unit: 'g' }]).mismatch, true);
+});

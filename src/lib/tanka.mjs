@@ -13,6 +13,7 @@ export const UNITS = {
   枚: { dim: 'count', f: 1 },
   本: { dim: 'count', f: 1 },
   m: { dim: 'length', f: 1 },
+  なし: { dim: 'none', f: 1 }, // 単位をえらばず「値段と数量」だけでくらべる
 };
 
 /** くらべる基準（100gあたり・100mlあたり・1個あたり・1mあたり） */
@@ -21,9 +22,10 @@ export const BASES = {
   volume: { n: 100, label: '100ml' },
   count: { n: 1, label: '1個' },
   length: { n: 1, label: '1m' },
+  none: { n: 100, label: '100' }, // 数量が100より少ないものがあれば「1あたり」
 };
 
-export const DIM_JA = { weight: '重さ（g・kg）', volume: '量（ml・L）', count: '個数（個・枚・本）', length: '長さ（m）' };
+export const DIM_JA = { weight: '重さ（g・kg）', volume: '量（ml・L）', count: '個数（個・枚・本）', length: '長さ（m）', none: '単位なし' };
 
 /** 基準の名前（個数は選んだ単位で「1枚あたり」などに） */
 export const baseLabel = (dim, unit) => (dim === 'count' ? `1${unit}` : BASES[dim].label);
@@ -64,8 +66,8 @@ export function compareUnitPrices(items) {
   // （1gの商品を「100gあたり」にすると、ありえない大きな金額に見えるため）
   const dim = ok[0].r.dim;
   const minAmount = Math.min(...ok.map((x) => x.r.amount));
-  const small = (dim === 'weight' || dim === 'volume') && minAmount < BASES[dim].n;
-  const base = small ? { n: 1, label: dim === 'weight' ? '1g' : '1ml' } : { ...BASES[dim] };
+  const small = (dim === 'weight' || dim === 'volume' || dim === 'none') && minAmount < BASES[dim].n;
+  const base = small ? { n: 1, label: { weight: '1g', volume: '1ml', none: '1つ' }[dim] } : { ...BASES[dim] };
   for (const x of ok) x.r.per = fix((x.r.pay / x.r.amount) * base.n);
   const min = Math.min(...ok.map((x) => x.r.per));
   const best = ok.filter((x) => x.r.per === min).map((x) => x.i);

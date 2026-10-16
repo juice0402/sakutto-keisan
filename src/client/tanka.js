@@ -19,6 +19,7 @@ function amountText(amount, unit) {
   const u = UNITS[unit];
   if (u.dim === 'weight') return amount >= 1000 ? `${fmt(amount / 1000, 3)}kg` : `${fmt(amount)}g`;
   if (u.dim === 'volume') return amount >= 1000 ? `${fmt(amount / 1000, 3)}L` : `${fmt(amount)}ml`;
+  if (u.dim === 'none') return fmt(amount);
   return `${fmt(amount)}${unit}`;
 }
 

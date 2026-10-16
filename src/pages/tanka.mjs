@@ -8,7 +8,7 @@ const KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']; // 最初は A〜D の4�
 const FIRST = 4;
 // 入力欄のうすい例（どの行にも入れて見た目をそろえる）[値段, 量]
 const EXAMPLES = { a: ['198', '500'], b: ['298', '1000'], c: ['128', '300'], d: ['398', '1500'], e: ['158', '400'], f: ['498', '2000'], g: ['88', '200'], h: ['598', '3000'] };
-const UNIT_OPTIONS = ['g', 'kg', 'ml', 'L', '個', '枚', '本', 'm'];
+const UNIT_OPTIONS = ['g', 'kg', 'ml', 'L', '個', '枚', '本', 'm', 'なし'];
 
 const numInput = (id, placeholder, extra = '') =>
   `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"${extra}>`;
@@ -105,7 +105,7 @@ ${section(
   'howto',
   '使い方',
   `<ol>
-<li>くらべたい商品の<strong>値段</strong>と<strong>量</strong>を、A・B・C…の行に入れます（最初は4つ。使わない行は空のままでOK）。量の単位（g・kg・ml・L・個など）は、量の欄の右でえらびます。</li>
+<li>くらべたい商品の<strong>値段</strong>と<strong>量</strong>を、A・B・C…の行に入れます（最初は4つ。使わない行は空のままでOK）。量の単位（g・kg・ml・L・個など）は、量の欄の右でえらびます。単位をえらばずに値段と数量だけでくらべたいときは「なし」にします。</li>
 <li>すぐに<strong>いちばんおトクな商品</strong>が値札で出て、<strong>100gあたり（100mlあたり・1個あたり）の値段</strong>の安い順に並びます。</li>
 <li>棒グラフで、どれくらい違うかもひと目でわかります。</li>
 </ol>
