@@ -6,6 +6,8 @@ const tool = toolBySlug('tanka');
 const path = '/tanka/';
 const KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']; // 最初は A〜D の4つ、「＋1つ追加」で H（8つ）まで
 const FIRST = 4;
+// 入力欄のうすい例（どの行にも入れて見た目をそろえる）[値段, 量]
+const EXAMPLES = { a: ['198', '500'], b: ['298', '1000'], c: ['128', '300'], d: ['398', '1500'], e: ['158', '400'], f: ['498', '2000'], g: ['88', '200'], h: ['598', '3000'] };
 const UNIT_OPTIONS = ['g', 'kg', 'ml', 'L', '個', '枚', '本', 'm'];
 
 const numInput = (id, placeholder, extra = '') =>
@@ -17,12 +19,12 @@ const cell = (id, label, unit, placeholder) =>
 
 // 量の欄：単位は入力欄の右で選ぶ（iPhone では大きな選択画面が出る）
 const qtyCell = (k) =>
-  `<div class="field" id="f-qty-${k}"><label class="sr-only" for="qty-${k}">${k.toUpperCase()}の量</label><div class="input input-sel">${numInput(`qty-${k}`, k === 'a' ? '500' : k === 'b' ? '1000' : '')}<select id="unit-${k}" class="unit-select" aria-label="${k.toUpperCase()}の量の単位">${UNIT_OPTIONS.map((u) => `<option value="${u}"${u === 'g' ? ' selected' : ''}>${u}</option>`).join('')}</select></div></div>`;
+  `<div class="field" id="f-qty-${k}"><label class="sr-only" for="qty-${k}">${k.toUpperCase()}の量</label><div class="input input-sel">${numInput(`qty-${k}`, EXAMPLES[k][1])}<select id="unit-${k}" class="unit-select" aria-label="${k.toUpperCase()}の量の単位">${UNIT_OPTIONS.map((u) => `<option value="${u}"${u === 'g' ? ' selected' : ''}>${u}</option>`).join('')}</select></div></div>`;
 
 const item = (k, i) => `<div class="item" id="item-${k}"${i >= FIRST ? ' hidden' : ''}>
   <p class="item-k" aria-hidden="true">${k.toUpperCase()}</p>
   <div class="pair" role="group" aria-label="商品${k.toUpperCase()}">
-    ${cell(`price-${k}`, `${k.toUpperCase()}の値段（円）`, '', k === 'a' ? '198' : k === 'b' ? '298' : '')}
+    ${cell(`price-${k}`, `${k.toUpperCase()}の値段（円）`, '', EXAMPLES[k][0])}
     ${qtyCell(k)}
   </div>
   <div class="pair extra" hidden>
