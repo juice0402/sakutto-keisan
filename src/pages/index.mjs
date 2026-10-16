@@ -22,7 +22,7 @@ export default function render() {
   const body = `
 <div class="hero">
   <h1>よく使う計算を、<br>ひとつのブックマークで。</h1>
-  <p class="lead">割引・単価・FXの証拠金など、ふだんの「ちょっと計算したい」をまとめた無料のツール集です。数字を入れるだけで、すぐに答えが出ます。</p>
+  <p class="lead">割引・単価・レシピの分量・FXの証拠金など、ふだんの「ちょっと計算したい」をまとめた無料のツール集です。数字を入れるだけで、すぐに答えが出ます。</p>
 </div>
 ${cats}
 ${
@@ -37,7 +37,7 @@ ${
 
   const html = page({
     path: '/',
-    title: `${SITE.name}｜割引・単価・FXの計算をひとつに。無料の計算ツール集`,
+    title: `${SITE.name}｜割引・単価・レシピ・FXの計算をひとつに。無料の計算ツール集`,
     description: SITE.description,
     body,
     jsonLd: [

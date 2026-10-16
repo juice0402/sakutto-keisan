@@ -54,6 +54,26 @@ export function tidyOnBlur(inputs, comma) {
   });
 }
 
+/** 文字をコピーする（端末の中だけ。どこにも送らない）。できたら true */
+export async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // 古いブラウザ向け：見えない入力欄を使ってコピー
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch { ok = false; }
+    ta.remove();
+    return ok;
+  }
+}
+
 /** Enter キーで次の入力欄へ（最後の欄ではキーボードを閉じる） */
 export function enterToNext(inputs) {
   inputs.forEach((el) => {

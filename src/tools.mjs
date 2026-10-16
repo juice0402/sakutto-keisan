@@ -28,7 +28,9 @@ export const TOOLS = [
     name: 'レシピの人数換算',
     category: 'seikatsu',
     short: '材料の分量を人数に合わせて計算',
-    published: false,
+    published: true,
+    updated: '2026-10-16',
+    related: ['tanka', 'waribiki', 'kishaku'],
     icon: '<path d="M4 11h16a8 8 0 0 1-16 0ZM8 7c0-1 1-1.5 1-2.5M12 7c0-1 1-1.5 1-2.5M16 7c0-1 1-1.5 1-2.5"/>',
   },
   {
