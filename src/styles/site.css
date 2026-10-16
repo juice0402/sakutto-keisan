@@ -243,7 +243,17 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .wide-btn.is-main { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); font-size: 16px; }
 #to-paste { margin: 2px 0 0; }
 .paste { margin: 12px 0 0; }
-.paste > label { display: block; font-size: var(--label); font-weight: 700; margin: 0 0 8px; }
+.paste > label[for="paste-text"] { display: block; font-size: var(--label); font-weight: 700; margin: 18px 0 8px; }
+.photo-btn { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+.photo-btn:has(+ input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.photo-btn.is-busy { opacity: .5; pointer-events: none; }
+.ocr-status { margin: 0 0 4px; padding: 12px 14px; border-radius: var(--ctl-r); background: var(--bg); border: 1px solid var(--border); }
+.ocr-status p { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--accent-strong); }
+.ocr-status.is-done p { margin: 0; }
+.ocr-status.is-error p { color: var(--error); }
+.ocr-status.is-done .ocr-bar { display: none; }
+.ocr-bar { height: 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
+.ocr-bar span { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .3s; }
 .paste textarea {
   display: block; width: 100%; min-height: 172px; resize: vertical; font: inherit; font-size: 16px; line-height: 1.6; color: var(--text);
   background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--ctl-r); padding: 12px 14px; outline: none;

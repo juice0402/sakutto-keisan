@@ -1,6 +1,6 @@
 name: Build and Deploy
 
-# テスト → ビルド → 全ページ点検 → Cloudflare Pages へ直接アップロード（Direct Upload）
+# テスト → ビルド → 写真の読み取りソフトを用意 → 全ページ点検 →（PRでは写真の読み取りのテスト）→ Cloudflare Pages へ直接アップロード（Direct Upload）
 # Cloudflare 側ではビルドしないので、アカウント共有の「月500回のビルド枠」を使わない
 #   main への push        → 本番（https://sakutto-keisan.com）
 #   プルリクエスト        → プレビュー（PRにURLをコメント）
@@ -25,7 +25,7 @@ env:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
 
@@ -39,8 +39,18 @@ jobs:
       - name: ビルド
         run: npm run build
 
+      - name: 写真の読み取りソフトを用意（Tesseract.js・日本語のデータ）
+        run: node scripts/fetch-ocr.mjs
+
       - name: 全ページ点検
         run: npm run verify
+
+      - name: 写真の読み取りのテスト（プルリクエストのとき）
+        if: github.event_name == 'pull_request'
+        run: |
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.48.2
+          npx playwright install --with-deps chromium
+          node scripts/ocr-smoke.mjs
 
       - name: Cloudflare Pages へアップロード
         # フォークからのPRには秘密情報が渡らないので、アップロードしない

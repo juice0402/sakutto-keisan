@@ -1,6 +1,7 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { peopleRatio, haveRatio, scaleRecipe, rawAmount, parseRecipeText } from '../lib/recipe.mjs';
+import { peopleRatio, haveRatio, scaleRecipe, rawAmount, parseRecipeText, cleanOcrText } from '../lib/recipe.mjs';
 import { $, enterToNext, numericOnly, copyText } from './ui.mjs';
+import { readImageText } from './ocr.mjs';
 
 const MAX = 15;
 const MAX_PLATES = 12; // お皿の絵はここまで（それより多いときは「＋◯」）
@@ -245,7 +246,7 @@ function togglePaste(open = $('paste').hidden) {
   $('to-paste').setAttribute('aria-pressed', String(open));
   if (!open) return;
   showPasteMsg('');
-  $('paste-text').focus();
+  // 開いたときは入力欄にフォーカスしない（キーボードで写真のボタンが隠れないように）
 }
 function pasteFromBox() {
   const text = $('paste-text').value;
@@ -254,8 +255,44 @@ function pasteFromBox() {
   if (!parsed.rows.length) return showPasteMsg('材料と分量を読み取れませんでした。「鶏もも肉 300g」のように、材料と分量が書いてある文字を貼り付けてください。', true);
   fillRows(parsed, 1, true, false);
   $('paste-text').value = '';
+  ocrStatus('', null);
   togglePaste(false);
 }
+// 写真・スクショから読み取る（端末の中だけ）→ 読み取った文字を貼り付け欄に出して、直してから入れてもらう
+// progress が null のとき（読み取りが終わったとき）は進み具合のバーを消す
+function ocrStatus(text, progress, error = false) {
+  $('ocr-status').hidden = !text;
+  $('ocr-status').classList.toggle('is-error', error);
+  $('ocr-status').classList.toggle('is-done', progress === null);
+  $('ocr-text').textContent = text;
+  $('ocr-fill').style.width = `${Math.round(Math.max(0, Math.min(1, progress || 0)) * 100)}%`;
+}
+async function readPhoto() {
+  const file = $('photo').files && $('photo').files[0];
+  if (!file) return;
+  $('photo').disabled = true;
+  $('photo-btn').classList.add('is-busy');
+  showPasteMsg('');
+  ocrStatus('読み取りの準備中…', 0.02);
+  try {
+    const raw = await readImageText(file, (p, reading) => {
+      ocrStatus(reading ? `文字を読み取り中… ${Math.round(p * 100)}%` : '読み取りの準備中…（はじめてのときだけ少し時間がかかります）', p);
+    });
+    const text = cleanOcrText(raw);
+    $('paste-text').value = text;
+    const found = parseRecipeText(text).rows.length;
+    if (found) ocrStatus(`読み取りました（材料が${found}つ見つかりました）。まちがいがあれば下の文字を直して、「材料に入れる」を押してください。`, null);
+    else ocrStatus('材料と分量が見つかりませんでした。文字が大きく、はっきり写るように撮り直すか、文字を貼り付けてください。', null, true);
+    $('paste-text').scrollIntoView({ block: 'center' });
+  } catch {
+    ocrStatus('読み取りできませんでした。電波のよいところでもう一度ためすか、スマホの文字の読み取り機能でコピーして貼り付けてください。', null, true);
+  } finally {
+    $('photo').value = ''; // 同じ写真をもう一度えらべるように
+    $('photo').disabled = false;
+    $('photo-btn').classList.remove('is-busy');
+  }
+}
+$('photo').addEventListener('change', readPhoto);
 $('to-paste').addEventListener('click', () => togglePaste());
 $('paste-go').addEventListener('click', pasteFromBox);
 $('paste-text').addEventListener('paste', () => setTimeout(pasteFromBox, 0)); // 貼り付けたらすぐ入れる

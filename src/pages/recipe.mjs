@@ -41,6 +41,7 @@ const row = ([name, amount, unit], i) => {
 const ICONS = {
   add: '<path d="M4 6h10M4 12h10M4 18h6"/><path d="M18 13v7M14.5 16.5h7"/>',
   match: '<rect x="4" y="9" width="16" height="11" rx="2.5"/><circle cx="12" cy="14.5" r="3"/><path d="m12 14.5 1.6-1.6M7 5.5h10"/>',
+  photo: '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.4-2h5.6l1.4 2h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z"/><circle cx="12" cy="13" r="3.5"/>',
   paste: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
   copy: '<rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V6A2 2 0 0 0 13.5 4H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/>',
 };
@@ -70,7 +71,7 @@ const FAQS = [
   },
   {
     q: 'レシピサイトや写真から入力できますか？',
-    a: '<p>できます。「レシピの文字を貼り付けて入力」を押して、材料の文字を貼り付けると、材料・分量・単位を読み取って入れます。「鶏もも肉 300g」のように1行に書かれた形も、材料と分量が別の行に分かれた形も読めます。「材料（2人分）」のように人数が書いてあれば、レシピの人数も入ります。</p><p>写真やスクショの文字は、スマホの文字の読み取り機能でコピーしてから貼り付けてください。iPhoneなら写真アプリで文字を長押しして「コピー」、Androidなら「Googleレンズ」で文字をえらんで「コピー」です（手順は機種によって違うことがあります）。読み取ったあとは、ちがうところがないか確かめてください。</p>',
+    a: '<p>できます。「レシピの文字・写真から入力」を押して、「写真・スクショから読み取る」で写真をえらぶか、材料の文字を貼り付けると、材料・分量・単位を読み取って入れます。「鶏もも肉 300g」のように1行に書かれた形も、材料と分量が別の行に分かれた形も読めます。「材料（2人分）」のように人数が書いてあれば、レシピの人数も入ります。</p><p>写真の読み取りは、お使いの端末の中で行い、写真を送信しません。はじめて使うときだけ、読み取りの準備に少し時間がかかります。本や紙を撮った写真は読みまちがいが出ることがあるので、読み取った文字を確かめて、直してから入れてください。スマホの文字の読み取り機能（iPhoneの写真アプリで文字を長押しして「コピー」、Androidの「Googleレンズ」など）でコピーした文字を貼り付けることもできます。</p>',
   },
   {
     q: '入力した数字はどこかに送られますか？',
@@ -100,11 +101,15 @@ export default function render() {
   </div>
 
   <div class="field-head calc-head"><p class="label">材料と分量（レシピのとおり）</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
-  <button type="button" class="wide-btn" id="to-paste" aria-pressed="false" aria-controls="paste">${icon(ICONS.paste)}<span>レシピの文字を貼り付けて入力</span></button>
+  <button type="button" class="wide-btn" id="to-paste" aria-pressed="false" aria-controls="paste">${icon(ICONS.paste)}<span>レシピの文字・写真から入力</span></button>
   <div class="paste" id="paste" hidden>
-    <label for="paste-text">レシピの材料の文字を、ここに貼り付け</label>
+    <label class="wide-btn photo-btn" for="photo" id="photo-btn">${icon(ICONS.photo)}<span>写真・スクショから読み取る</span></label>
+    <input type="file" id="photo" accept="image/*" class="sr-only">
+    <p class="paste-help">写真は送信しません。この端末の中で文字を読み取ります（はじめて使うときだけ、読み取りの準備に少し時間がかかります）。</p>
+    <div class="ocr-status" id="ocr-status" role="status" hidden><p id="ocr-text"></p><div class="ocr-bar" aria-hidden="true"><span id="ocr-fill"></span></div></div>
+    <label for="paste-text">または、レシピの材料の文字を貼り付け</label>
     <textarea id="paste-text" rows="7" maxlength="3000" autocomplete="off" placeholder="材料（2人分）&#10;鶏もも肉 300g&#10;玉ねぎ 1個&#10;しょうゆ 大さじ2"></textarea>
-    <p class="paste-help">レシピサイトやメモの材料をコピーして貼り付けると、材料・分量・単位を読み取って入れます。写真やスクショの文字は、iPhoneなら写真アプリで文字を長押しして「コピー」、Androidなら「Googleレンズ」で文字をえらんで「コピー」してから貼り付けてください（手順は機種によって違うことがあります）。</p>
+    <p class="paste-help">レシピサイトやメモの材料をコピーして貼り付けると、材料・分量・単位を読み取って入れます。写真から読み取った文字もここに出るので、まちがいがあれば直してから「材料に入れる」を押してください。</p>
     <button type="button" class="wide-btn is-main" id="paste-go">材料に入れる</button>
   </div>
   <p class="paste-msg" id="paste-msg" hidden></p>
@@ -135,7 +140,7 @@ ${section(
   '使い方',
   `<ol>
 <li><strong>レシピは何人分？</strong>と<strong>何人分つくる？</strong>を、－・＋のボタンか数字で入れます。</li>
-<li>レシピに書いてある<strong>材料</strong>と<strong>分量</strong>を入れます（最初は5つ。使わない行は空のままでOK）。単位（g・ml・大さじ・小さじ・カップ・個など）は、分量の欄の右でえらびます。材料の名前は空でも計算できます。<strong>レシピの文字を貼り付けて入力</strong>を押して、レシピサイトなどの材料の文字を貼り付けると、まとめて入ります。</li>
+<li>レシピに書いてある<strong>材料</strong>と<strong>分量</strong>を入れます（最初は5つ。使わない行は空のままでOK）。単位（g・ml・大さじ・小さじ・カップ・個など）は、分量の欄の右でえらびます。材料の名前は空でも計算できます。<strong>レシピの文字・写真から入力</strong>を押すと、レシピの写真・スクショや、レシピサイトなどからコピーした文字から、まとめて入れられます。</li>
 <li>すぐに<strong>作る人数分の分量</strong>がメモに出ます。お皿の絵で、何人分から何人分にしたかもひと目でわかります。</li>
 </ol>
 <p>メモの下の3つのボタンで、こんなときにも使えます。</p>
@@ -225,7 +230,7 @@ ${relatedHtml(tool)}
     path,
     title: 'レシピの人数換算｜材料の分量を何人分にも計算',
     description:
-      '2人分のレシピを3人分・4人分に。レシピの人数と作る人数を入れるだけで、材料の分量を計算します。大さじ・小さじ・カップ・個にも対応し、大さじ½より少なければ小さじに直すなど、使いやすい量で出します。レシピの文字を貼り付けて、まとめて入力もできます。',
+      '2人分のレシピを3人分・4人分に。レシピの人数と作る人数を入れるだけで、材料の分量を計算します。大さじ・小さじ・カップ・個にも対応し、大さじ½より少なければ小さじに直すなど、使いやすい量で出します。レシピの写真・スクショや文字から、まとめて入力もできます。',
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

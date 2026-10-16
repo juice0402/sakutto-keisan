@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { peopleRatio, haveRatio, toFraction, formatAmount, rawAmount, scaleRecipe, parseRecipeText } from '../src/lib/recipe.mjs';
+import { peopleRatio, haveRatio, toFraction, formatAmount, rawAmount, scaleRecipe, parseRecipeText, cleanOcrText } from '../src/lib/recipe.mjs';
 
 const t = (v, u) => formatAmount(v, u).text;
 
@@ -131,4 +131,12 @@ test('貼り付け：このツールの「結果をコピー」をそのまま�
   const p = parseRecipeText('【3人分の材料】（2人分のレシピの1.5倍）\n・鶏もも肉　450g\n・玉ねぎ　1と½個\n・牛乳　約1と½カップ（300ml）\n・塩　少々');
   assert.equal(p.people, 3);
   assert.deepEqual(p.rows.map((r) => [r.name, r.amount, r.unit]), [['鶏もも肉', 450, 'g'], ['玉ねぎ', 1.5, '個'], ['牛乳', 1.5, 'カップ'], ['塩', null, '少々']]);
+});
+
+test('写真から読み取った文字を整える', () => {
+  const text = cleanOcrText('材 料 （ 2 人 分 ）\n\n鶏 も も 肉 300g\nし ょ う ゆ 大 さ じ 2\n塩 少 々  \n');
+  assert.equal(text, '材料（ 2 人分）\n鶏もも肉 300g\nしょうゆ大さじ 2\n塩少々'); // 数字のまわりの空白は読み取りのじゃまにならないので残す
+  const p = parseRecipeText(text);
+  assert.equal(p.people, 2);
+  assert.deepEqual(p.rows.map((r) => [r.name, r.amount, r.unit]), [['鶏もも肉', 300, 'g'], ['しょうゆ', 2, '大さじ'], ['塩', null, '少々']]);
 });

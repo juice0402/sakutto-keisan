@@ -9,6 +9,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 const { SITE } = await import(pathToFileURL(join(ROOT, 'src/site.mjs')));
 const { TOOLS } = await import(pathToFileURL(join(ROOT, 'src/tools.mjs')));
+const { OCR_VERSION } = await import(pathToFileURL(join(ROOT, 'src/client/ocr.mjs')));
 
 const errors = [];
 const fail = (file, msg) => errors.push(`${file}: ${msg}`);
@@ -82,7 +83,7 @@ for (const file of htmlFiles) {
   for (const m of html.matchAll(/<input\b[^>]*>/g)) {
     const tag = m[0];
     if (tag.includes('type="radio"')) continue;
-    if (!tag.includes('inputmode=')) fail(rel, `inputmode がない入力欄: ${tag}`);
+    if (!tag.includes('inputmode=') && !tag.includes('type="file"')) fail(rel, `inputmode がない入力欄: ${tag}`);
     const id = (tag.match(/id="([^"]+)"/) || [])[1];
     if (!id || !html.includes(`for="${id}"`)) fail(rel, `ラベルのない入力欄: ${tag}`);
   }
@@ -101,6 +102,14 @@ for (const t of TOOLS.filter((x) => x.published)) {
 }
 for (const t of TOOLS.filter((x) => !x.published)) {
   if (existsSync(join(DIST, t.slug))) fail(`/${t.slug}/`, '準備中なのにページがある');
+}
+// 写真の読み取りソフト（scripts/fetch-ocr.mjs が公開のときに置く）。GitHub Actions では必ずあること
+const ocrDir = join(DIST, 'ocr', OCR_VERSION);
+const ocrNeed = ['tesseract.min.js', 'worker.min.js', 'lang/jpn.traineddata.gz', ...['', '-simd', '-lstm', '-simd-lstm'].map((v) => `core/tesseract-core${v}.wasm.js`)];
+if (process.env.CI || existsSync(ocrDir)) {
+  for (const f of ocrNeed) if (!existsSync(join(ocrDir, f))) fail(`ocr/${OCR_VERSION}/${f}`, 'ない（scripts/fetch-ocr.mjs）');
+} else {
+  console.log(`（写真の読み取りソフト ocr/${OCR_VERSION}/ はこの環境にないので点検しません。GitHub Actions で点検します）`);
 }
 for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favicon.svg', 'apple-touch-icon.png', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png']) {
   if (!existsSync(join(DIST, need))) fail(need, 'ない');
