@@ -61,7 +61,9 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* ダブルタップでズームしない（指2本のズームはできる）。入力欄・選択欄は16px以上にして、iPhoneの自動ズームを防ぐ */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
+body { touch-action: manipulation; }
 body {
   margin: 0;
   background: var(--bg);
@@ -148,10 +150,10 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
   padding: 8px 0; min-height: 44px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
 }
 .row-opts { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.select { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.select { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
 .select select {
-  font: inherit; font-size: 14px; color: var(--text); background: var(--bg);
-  border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-height: 36px;
+  font: inherit; font-size: 16px; color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-height: 40px;
 }
 
 /* 結果 */
@@ -195,7 +197,7 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 /* 下の小さなリンク（逆算・さらに割引・クリア） */
 .calc-links {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px;
-  margin: 12px 0 0; padding-top: 4px; border-top: 1px dashed var(--border);
+  margin: 22px 0 0; padding-top: 6px; border-top: 1px dashed var(--border);
 }
 .link-btn {
   font: inherit; font-size: 14px; font-weight: 700; color: var(--accent-strong); background: none; border: 0;
@@ -204,9 +206,9 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .link-muted { color: var(--muted); font-weight: 600; margin-left: auto; }
 
 /* 値札（生活の結果表示）：ひもでぶら下がった黄色い値札 */
-.tag-stage { padding: 34px 0 4px; text-align: center; }
+.tag-stage { margin: 18px 0 0; padding: 40px 0 8px; text-align: center; }
 .tag-wrap {
-  position: relative; width: min(100%, 290px); margin: 0 auto;
+  position: relative; width: min(100% - 24px, 280px); margin: 0 auto;
   transform-origin: 50% 0; transform: rotate(-2deg);
   filter: drop-shadow(0 6px 10px rgb(120 70 20 / 0.16));
 }
@@ -237,7 +239,7 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
   padding: 3px 12px; border-radius: 999px;
 }
 .tag-badge { /* 赤い丸の「◯%OFF」 */
-  position: absolute; right: -8px; top: -18px; width: 74px; height: 74px; margin: 0;
+  position: absolute; right: -4px; top: -24px; width: 70px; height: 70px; margin: 0;
   display: grid; place-content: center; border-radius: 50%;
   background: var(--sale); color: #fff; font-weight: 800; line-height: 1.05; transform: rotate(10deg);
   box-shadow: 0 0 0 3px var(--surface); outline: 1.5px dashed rgb(255 255 255 / 0.7); outline-offset: -7px;

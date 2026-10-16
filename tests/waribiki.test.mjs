@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseNum, roundBy, fmt } from '../src/lib/number.mjs';
-import { calcDiscount, calcRate, wariLabel, parseRate } from '../src/lib/waribiki.mjs';
+import { calcDiscount, calcRate, wariLabel } from '../src/lib/waribiki.mjs';
 
 test('parseNum: 全角・カンマ・単位・空', () => {
   assert.equal(parseNum('１，２００円'), 1200);
@@ -71,15 +71,3 @@ test('◯割◯分引きの表示', () => {
   assert.equal(wariLabel(0), null);
 });
 
-test('割引率の入力：％・割・半額', () => {
-  assert.equal(parseRate('30'), 30);
-  assert.equal(parseRate('３０％オフ'), 30);
-  assert.equal(parseRate('3割'), 30);
-  assert.equal(parseRate('３割引き'), 30);
-  assert.equal(parseRate('2割5分'), 25);
-  assert.equal(parseRate('2割5分引'), 25);
-  assert.equal(parseRate('5分引き'), 5);
-  assert.equal(parseRate('半額'), 50);
-  assert.equal(parseRate(''), null);
-  assert.ok(Number.isNaN(parseRate('たくさん')));
-});

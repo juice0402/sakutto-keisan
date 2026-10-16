@@ -1,6 +1,6 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { calcDiscount, calcRate, parseRate } from '../lib/waribiki.mjs';
-import { $, enterToNext, bindChips, tidyOnBlur } from './ui.mjs';
+import { calcDiscount, calcRate } from '../lib/waribiki.mjs';
+import { $, enterToNext, bindChips, tidyOnBlur, numericOnly } from './ui.mjs';
 
 const els = {
   price: $('price'), rate: $('rate'), rate2: $('rate2'), sale: $('sale'), rounding: $('rounding'),
@@ -71,8 +71,8 @@ function update() {
     });
   }
 
-  const rate = parseRate(els.rate.value);
-  const rate2 = els.fRate2.hidden ? null : parseRate(els.rate2.value);
+  const rate = parseNum(els.rate.value);
+  const rate2 = els.fRate2.hidden ? null : parseNum(els.rate2.value);
   markErrors(
     [Number.isNaN(price) && 'price', Number.isNaN(rate) && 'rate', Number.isNaN(rate2) && 'rate2'].filter(Boolean),
   );
@@ -114,6 +114,7 @@ function toggleMore() {
   update();
 }
 
+numericOnly([els.price, els.rate, els.rate2, els.sale]);
 [els.price, els.rate, els.rate2, els.sale].forEach((el) => el.addEventListener('input', update));
 els.rounding.addEventListener('change', update);
 els.more.addEventListener('click', toggleMore);

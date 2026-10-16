@@ -1,20 +1,6 @@
-import { fix, roundBy, parseNum } from './number.mjs';
+import { fix, roundBy } from './number.mjs';
 
 // 割引計算（ブラウザとテストの両方で使う）
-
-/** 割引率の入力を％の数字に。「30」「30%オフ」に加えて「3割」「2割5分引き」「半額」も読む */
-export function parseRate(input) {
-  if (input === null || input === undefined) return null;
-  const s = String(input)
-    .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
-    .replace(/[．]/g, '.')
-    .replace(/\s/g, '');
-  if (s === '') return null;
-  if (/^半額$/.test(s)) return 50;
-  const m = s.match(/^(\d+(?:\.\d+)?)割(?:(\d)分)?(?:引き?)?$/) || s.match(/^(\d)分(?:引き?)?$/);
-  if (m) return m[0].startsWith(`${m[1]}分`) ? Number(m[1]) : fix(Number(m[1]) * 10 + (m[2] ? Number(m[2]) : 0));
-  return parseNum(s.replace(/(オフ|off|OFF|引き?)$/, ''));
-}
 
 /** 割引率（%）を「◯割◯分引き」に。小数第2位以下があるときは null */
 export function wariLabel(rate) {

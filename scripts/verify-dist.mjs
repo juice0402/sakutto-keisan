@@ -83,6 +83,23 @@ for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favico
   if (!existsSync(join(DIST, need))) fail(need, 'ない');
 }
 
+// iPhoneの自動ズームを防ぐ：入力欄・選択欄の文字は16px以上、ページ全体はダブルタップでズームしない
+for (const f of files.filter((x) => x.endsWith('.css'))) {
+  const css = readFileSync(f, 'utf8');
+  for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const sel = m[1];
+    const size = (m[2].match(/font-size:\s*(\d+(?:\.\d+)?)px/) || [])[1];
+    if (size && Number(size) < 16 && /(^|[\s,>+~])(input|select|textarea)\b/.test(sel)) {
+      fail(relative(DIST, f), `入力欄の文字が16px未満（自動ズームの原因）: ${sel.trim()} → ${size}px`);
+    }
+  }
+  if (!/html\s*\{[^}]*touch-action:\s*manipulation/.test(css)) fail(relative(DIST, f), 'html に touch-action: manipulation がない');
+}
+for (const file of htmlFiles) {
+  const vp = (readFileSync(file, 'utf8').match(/<meta name="viewport" content="([^"]+)">/) || [])[1] || '';
+  if (/user-scalable=no|maximum-scale/.test(vp)) fail(relative(DIST, file), '指2本のズームまで止めない（viewport に user-scalable / maximum-scale を書かない）');
+}
+
 // ブラウザ用スクリプトが文法的に正しいか（まとめたときの名前の重なりもここで見つかる）
 for (const f of files.filter((x) => x.endsWith('.js'))) {
   try { execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' }); }
