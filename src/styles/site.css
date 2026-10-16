@@ -192,6 +192,48 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .tool-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
 .tool-btn:disabled { opacity: .35; cursor: default; }
 
+/* 商品ごとの入力（実質単価など）：A・B・C を縦に並べ、値段と量は横並び */
+.calc-head { margin-bottom: 4px; }
+.calc-head .label { margin: 0; font-size: var(--label); font-weight: 700; }
+.item {
+  display: grid; grid-template-columns: 28px 1fr; column-gap: 10px; align-items: end;
+  padding: 12px 0 14px; border-bottom: 1px dashed var(--border);
+}
+.item > .pair { grid-column: 2; }
+.item-k {
+  grid-row: 1; display: grid; place-items: center; width: 28px; height: 28px; margin: 0 0 18px; border-radius: 50%;
+  background: var(--accent-strong); color: var(--on-accent); font-weight: 800; font-size: 14px;
+}
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pair > .field { margin: 0; min-width: 0; }
+.pair .input { padding: 0 12px; }
+.pair.extra { margin-top: 10px; }
+.input-sel { padding-right: 6px; }
+.unit-select {
+  font: inherit; font-size: 17px; font-weight: 800; color: var(--text); background-color: var(--bg);
+  border: 1px solid var(--border); border-radius: 10px; min-height: 44px; padding: 0 22px 0 10px; margin-left: 4px;
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(-45deg, transparent 50%, var(--muted) 50%);
+  background-position: right 11px center, right 6px center; background-size: 5px 5px; background-repeat: no-repeat;
+}
+
+/* 3つくらべるときの小さな値札 */
+.cmp-3 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cmp-3 .tag-mini .pricetag { padding: 24px 4px 10px; }
+.cmp-3 .tag-mini .tag-price { font-size: 21px; }
+.cmp-3 .tag-mini .tag-was, .cmp-3 .tag-mini .tag-save { font-size: 11px; }
+.cmp-3 .cmp-label { font-size: 12px; padding: 2px 6px; }
+
+/* 棒グラフ（安いほど短い） */
+.bars { margin: 18px auto 0; max-width: 420px; text-align: left; }
+.bars-title { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.bar-row { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 8px; margin: 6px 0; }
+.bar-k { font-weight: 800; font-size: 14px; }
+.bar-track { height: 14px; border-radius: 999px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
+.bar-fill { display: block; height: 100%; border-radius: 999px; background: color-mix(in srgb, var(--muted) 45%, transparent); transition: width .3s; }
+.bar-fill.is-best { background: var(--sale); }
+.bar-v { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 4.5em; text-align: right; }
+
 /* 2つくらべる：A・Bのタブ */
 .cmp-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 16px; }
 .cmp-tab {
@@ -231,6 +273,8 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .cmp-verdict { margin: 18px 0 0; font-size: 15px; color: var(--muted); }
 .cmp-verdict.is-result { font-size: 20px; font-weight: 800; color: var(--text); }
 .cmp-verdict strong { color: var(--sale); font-size: 24px; }
+.verdict-sub { display: block; margin-top: 4px; font-size: 16px; font-weight: 700; color: var(--muted); }
+.verdict-sub strong { font-size: 20px; }
 .tag-conv { margin-top: 8px !important; font-size: 13px; font-weight: 700; color: #7a6b5d; }
 
 /* 値札（生活の結果表示）：ひもでぶら下がった黄色い値札 */
