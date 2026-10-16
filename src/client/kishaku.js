@@ -6,6 +6,7 @@ let how = 'times'; // 薄め方 times：何倍 / parts：何対何 / pct：何�
 let basis = 'total'; // いま入れている量の欄 total：できあがり / conc：原液 / water：水（ほかの2つに答えを出す）
 let tileRatio = null; // えらんだマスの倍率（「その他」に入れたときは、そちらを使う）
 const AMOUNTS = ['total', 'conc', 'water'];
+const AMOUNT_NAME = { total: 'できあがり', conc: '原液', water: '水' };
 const FROM = { total: 'total', conc: 'concentrate', water: 'water' };
 const BOTTLE_FULL = 82; // ボトルの何％まで液を入れて見せるか
 const val = (id) => parseNum($(id).value);
@@ -46,16 +47,21 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
-/** 入れていない2つの欄に答えを出す（res が null なら空にする） */
+/** 入れていない2つの欄に答えを出す（res が null なら空にする）。計量スプーン・L の目安はボトルの下にまとめる */
 function showAmounts(res) {
   const ml = res && { total: res.total, conc: res.concentrate, water: res.water };
+  const hints = [];
   AMOUNTS.forEach((k) => {
     const out = k !== basis;
     $(`f-${k}`).classList.toggle('is-out', out && !!ml);
     if (out) $(`v-${k}`).value = ml ? mlValue(ml[k]) : '';
-    const spoon = ml && k === 'conc' ? spoonText(ml[k]) : '';
-    $(`s-${k}`).textContent = !ml ? '' : spoon ? `計量スプーンで ${spoon}` : literText(ml[k]);
+    if (!ml) return;
+    const spoon = k === 'conc' ? spoonText(ml[k]) : '';
+    const liter = literText(ml[k]);
+    if (spoon) hints.push(`原液は計量スプーンで ${spoon}`);
+    else if (liter) hints.push(`${AMOUNT_NAME[k]}${liter.startsWith('約') ? ' ' : ''}${liter}`);
   });
+  $('r-hints').textContent = hints.join('・');
   $('r-sr').textContent = ml ? `原液${volumeText(ml.conc)}、水${volumeText(ml.water)}、できあがり${volumeText(ml.total)}` : '';
 }
 

@@ -11,7 +11,7 @@ const numInput = (id, placeholder) =>
 
 // 量の欄（できあがり・原液・水）：わかっている欄に1つ入れると、ほかの2つに答えが出る
 const amountField = (key, cls, label) =>
-  `<div class="field mix-field ${cls}" id="f-${key}"><label for="v-${key}">${label}</label><div class="input">${numInput(`v-${key}`, '？')}<span class="unit">ml</span></div><small class="mix-sub" id="s-${key}"></small></div>`;
+  `<div class="field mix-field ${cls}" id="f-${key}"><label for="v-${key}">${label}</label><div class="input">${numInput(`v-${key}`, '？')}<span class="unit">ml</span></div></div>`;
 
 // 何対何：原液［ ］：水［ ］
 const partField = (id, label, placeholder) =>
@@ -95,8 +95,8 @@ export default function render() {
       ${amountField('total', 'is-total', 'できあがり')}
       ${amountField('conc', 'is-conc', '原液')}
       ${amountField('water', 'is-water', '水')}
-      <p class="mix-total" aria-live="polite"><span id="r-ratio">何倍に薄めるかをえらんでください</span><span class="sr-only" id="r-sr"></span></p>
     </div>
+    <p class="mix-foot" aria-live="polite"><span id="r-ratio">何倍に薄めるかをえらんでください</span><span id="r-hints"></span><span class="sr-only" id="r-sr"></span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>

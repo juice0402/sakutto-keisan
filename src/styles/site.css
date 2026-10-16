@@ -350,38 +350,43 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .pct-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pct-fields .field { margin: 0; }
 .pct-fields .input { padding: 0 12px; }
-/* 量：ボトルの絵（下に原液・上に水）と、できあがり・原液・水の欄。入れていない2つに答えが出る */
+/* 量：ボトルの絵（下に原液・上に水）と、できあがり・原液・水の欄。入れていない2つに答えが出る
+   ボトルは右の3つの欄と同じ高さ（ふたと首＝最初の見出しの高さ、胴＝最初の欄の上から最後の欄の下まで） */
 .mix-stage {
-  display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: center; padding: 14px 12px;
+  display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: stretch; padding: 14px 12px 12px;
   border-radius: var(--radius); background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface));
 }
-.bottle { width: 84px; margin: 0 auto; }
-.bottle-cap { width: 32px; height: 15px; margin: 0 auto; border-radius: 6px 6px 3px 3px; background: var(--accent-strong); }
-.bottle-neck { width: 26px; height: 12px; margin: 0 auto; border: solid #b6d6ea; border-width: 0 3px; background: rgb(255 255 255 / 0.8); }
+.bottle { display: flex; flex-direction: column; width: 84px; margin: 0 auto; }
+.bottle-cap { flex: none; width: 32px; height: 15px; margin: 0 auto; border-radius: 6px 6px 3px 3px; background: var(--accent-strong); }
+.bottle-neck { flex: none; width: 26px; height: 12px; margin: 0 auto; border: solid #b6d6ea; border-width: 0 3px; background: rgb(255 255 255 / 0.8); }
 .bottle-body {
-  position: relative; display: flex; flex-direction: column; justify-content: flex-end; height: 176px; overflow: hidden;
+  position: relative; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; min-height: 168px; overflow: hidden;
   border: 3px solid #b6d6ea; border-radius: 24px 24px 18px 18px; background: rgb(255 255 255 / 0.85);
 }
 .liq { flex: none; height: 0; transition: height .45s ease; }
 .liq-water { background: linear-gradient(#d4edff, #a8d5f4); box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.9); }
 .liq-conc { background: linear-gradient(#ffd27a, #f0a63a); }
 .bottle-label {
-  position: absolute; left: 6px; right: 6px; top: 40%; margin: 0; padding: 5px 2px; border-radius: 8px;
+  position: absolute; left: 6px; right: 6px; top: 38%; margin: 0; padding: 5px 2px; border-radius: 8px;
   background: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / 0.14); text-align: center;
   font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--tag-text); overflow-wrap: anywhere;
 }
-.mix-rows { min-width: 0; }
-.mix-field { margin: 0 0 10px; }
-.mix-field > label { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; }
+.mix-rows { display: grid; gap: 12px; min-width: 0; }
+.mix-field { margin: 0; }
+.mix-field > label { display: flex; align-items: center; gap: 6px; height: 20px; margin: 0 0 7px; line-height: 20px; }
 .mix-field > label::before { content: ""; flex: none; width: 14px; height: 14px; border-radius: 4px; background: #f0a63a; }
 .is-water > label::before { background: #a8d5f4; }
 .is-total > label::before { background: linear-gradient(#a8d5f4 50%, #f0a63a 50%); }
 .mix-field .input { padding: 0 12px; }
 .mix-field.is-out .input { background: color-mix(in srgb, var(--accent-soft) 35%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
 .mix-field.is-out input { color: var(--accent-strong); }
-.mix-sub { display: block; margin: 4px 0 0; font-size: 13px; font-weight: 700; line-height: 1.5; color: var(--muted); }
-.mix-sub:empty { display: none; }
-.mix-total { margin: 4px 0 0; font-size: 13.5px; font-weight: 700; line-height: 1.6; color: var(--muted); }
+/* ボトルと欄の下：倍率と、計量スプーン・L の目安 */
+.mix-foot {
+  grid-column: 1 / -1; margin: 0; padding: 10px 2px 0; border-top: 1px dashed color-mix(in srgb, var(--accent) 25%, var(--border));
+  font-size: 13.5px; font-weight: 700; line-height: 1.6; color: var(--muted);
+}
+.mix-foot span { display: block; }
+.mix-foot span:empty { display: none; }
 
 /* いちばんおトクの上の赤いラベル */
 .win-label {
