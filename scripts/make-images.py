@@ -88,7 +88,40 @@ def price_tag(img, cx, top):
     img.alpha_composite(b)
 
 
-VISUALS = {'waribiki': price_tag}
+def compare_tags(img, cx, top):
+    """実質単価：小さな値札を2つ並べて、安いほうに「おトク！」"""
+    d = ImageDraw.Draw(img)
+    w, h, gap = 230 * S, 230 * S, 36 * S
+    tags = [('A', '39.6', '198円 / 500g', False), ('B', '29.8', '298円 / 1kg', True)]
+    f_lab, f_base, f_price, f_yen, f_sub = font('black', 26), font('bold', 22), font('black', 64), font('black', 28), font('bold', 20)
+    for i, (k, per, sub, win) in enumerate(tags):
+        x0 = cx - w - gap // 2 + i * (w + gap)
+        y0 = top + 40 * S
+        layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        ld = ImageDraw.Draw(layer)
+        tx = x0 + w // 2
+        # ラベル（A / B がおトク！）
+        lab = f'{k} がおトク！' if win else k
+        lw = ld.textlength(lab, font=f_lab)
+        ld.rounded_rectangle([tx - lw / 2 - 18 * S, top - 30 * S, tx + lw / 2 + 18 * S, top + 14 * S], radius=22 * S,
+                             fill='#E03131' if win else '#FFFFFF', outline=None if win else '#E5E3DC', width=2 * S)
+        ld.text((tx - lw / 2, top - 28 * S), lab, font=f_lab, fill='#FFFFFF' if win else '#76675B')
+        ld.line([(tx, top + 14 * S), (tx, y0 + 26 * S)], fill='#9C8F84', width=3 * S)
+        bg, line, text = ('#FFF3BF', '#E9D48A', '#E03131') if win else ('#F1EFEA', '#DDD8CF', '#9C948A')
+        ld.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=24 * S, fill=bg, outline=line, width=3 * S)
+        ld.ellipse([tx - 10 * S, y0 + 14 * S, tx + 10 * S, y0 + 34 * S], fill='#FFFFFF')
+        for t, f, y, c in (('100gあたり', f_base, 56, '#7A6B5D'), (sub, f_sub, 184, '#7A6B5D')):
+            tw = ld.textlength(t, font=f)
+            ld.text((tx - tw / 2, y0 + y * S), t, font=f, fill=c)
+        pw, yw = ld.textlength(per, font=f_price), ld.textlength('円', font=f_yen)
+        px = tx - (pw + yw + 4 * S) / 2
+        ld.text((px, y0 + 84 * S), per, font=f_price, fill=text)
+        ld.text((px + pw + 4 * S, y0 + 120 * S), '円', font=f_yen, fill=text)
+        layer = layer.rotate(-2 if win else 2, center=(tx, top), resample=Image.BICUBIC)
+        img.alpha_composite(layer)
+
+
+VISUALS = {'waribiki': price_tag, 'tanka': compare_tags}
 
 
 def og(path, title, sub, theme, slug=None):
@@ -100,14 +133,14 @@ def og(path, title, sub, theme, slug=None):
     left = 80 * S
     logo(d, left, 64 * S, 64 * S)
     d.text((left + 84 * S, 68 * S), 'サクッと計算', font=font('black', 40), fill=t['text'])
-    max_w = (600 if has_visual else 1040) * S
+    max_w = (540 if has_visual else 1040) * S
     size = 108
     while d.textlength(title, font=font('black', size)) > max_w and size > 56:
         size -= 4
     d.text((left, 210 * S), title, font=font('black', size), fill=t['text'])
     # 説明は2行まで（長ければ折り返し）
     f_sub = font('bold', 34 if has_visual else 38)
-    max_w = (620 if has_visual else 1040) * S
+    max_w = (540 if has_visual else 1040) * S
     lines, cur = [], ''
     for ch in sub:
         if d.textlength(cur + ch, font=f_sub) > max_w:
@@ -121,7 +154,7 @@ def og(path, title, sub, theme, slug=None):
     d.text((left, 540 * S), 'sakutto-keisan.com', font=font('bold', 30), fill=t['muted'])
     d.rectangle([0, H - 14 * S, W, H], fill=BRAND)
     if has_visual:
-        VISUALS[slug](img, 900 * S, 200 * S)
+        VISUALS[slug](img, 910 * S, 200 * S)
     # 色数をへらして軽く（平らな絵なので見た目はほぼ変わらない）
     img.convert('RGB').resize((1200, 630), Image.LANCZOS).quantize(colors=256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(path, optimize=True)
     print('wrote', path.relative_to(ROOT))
@@ -146,7 +179,8 @@ def main():
     og(PUBLIC / 'og' / 'default.png', 'よく使う計算を、ひとつに。', '割引・単価・FXの証拠金など、スマホでサクッと使える無料の計算ツール集', 'home')
     for t in tools:
         if t.get('published'):
-            og(PUBLIC / 'og' / f"{t['slug']}.png", t['name'], t['short'], CATEGORY_THEME.get(t['category'], 'home'), t['slug'])
+            title = t['name'].split('（')[0]  # 「実質単価（どっちが得？）」→「実質単価」（説明文で補う）
+            og(PUBLIC / 'og' / f"{t['slug']}.png", title, t['short'], CATEGORY_THEME.get(t['category'], 'home'), t['slug'])
     icon(PUBLIC / 'icon-192.png', 192)
     icon(PUBLIC / 'icon-512.png', 512)
 

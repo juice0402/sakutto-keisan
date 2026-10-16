@@ -1,5 +1,6 @@
 // ビルドした dist/ の全ページを点検する（CI で毎回動く）
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve, dirname, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -126,11 +127,19 @@ for (const file of htmlFiles) {
   if (/user-scalable=no|maximum-scale/.test(vp)) fail(relative(DIST, file), '指2本のズームまで止めない（viewport に user-scalable / maximum-scale を書かない）');
 }
 
-// ブラウザ用スクリプトが文法的に正しいか（まとめたときの名前の重なりもここで見つかる）
-for (const f of files.filter((x) => x.endsWith('.js'))) {
-  try { execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' }); }
-  catch (e) { fail(relative(DIST, f), `スクリプトの文法エラー: ${String(e.stderr).split('\n').slice(0, 5).join(' ')}`); }
+// ブラウザ用スクリプト（各ページに埋め込み）が文法的に正しいか（まとめたときの名前の重なりもここで見つかる）
+const tmpDir = mkdtempSync(join(tmpdir(), 'sakutto-verify-'));
+for (const file of htmlFiles) {
+  const html = readFileSync(file, 'utf8');
+  if (/<script\b[^>]*\bsrc=/.test(html)) fail(relative(DIST, file), 'スクリプトは埋め込む（src で読み込まない）');
+  [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach((m, i) => {
+    const tmp = join(tmpDir, `s${i}.js`);
+    writeFileSync(tmp, m[1]);
+    try { execFileSync(process.execPath, ['--check', tmp], { stdio: 'pipe' }); }
+    catch (e) { fail(relative(DIST, file), `スクリプトの文法エラー: ${String(e.stderr).split('\n').slice(0, 5).join(' ')}`); }
+  });
 }
+rmSync(tmpDir, { recursive: true, force: true });
 
 if (errors.length) {
   console.error(`✗ ${errors.length} 件の問題:\n` + errors.map((e) => `  - ${e}`).join('\n'));

@@ -17,8 +17,10 @@ export const TOOLS = [
     slug: 'tanka',
     name: '実質単価（どっちが得？）',
     category: 'seikatsu',
-    short: '量と値段の違う商品をくらべる',
-    published: false,
+    short: '100gあたりの値段で、どっちが得かくらべる',
+    published: true,
+    updated: '2026-10-16',
+    related: ['waribiki', 'recipe', 'kishaku'],
     icon: '<path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0Zm14 0-3 7a3 3 0 0 0 6 0Z"/>',
   },
   {

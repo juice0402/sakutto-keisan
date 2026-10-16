@@ -1,13 +1,13 @@
 import { SITE } from './site.mjs';
 
-// ビルド時に scripts/build.mjs が、ハッシュ付きのファイル名をここに入れる
-const assets = {};
-export const setAssets = (map) => Object.assign(assets, map);
+// ビルド時に scripts/build.mjs が、まとめて小さくしたスクリプトをここに入れる（各ページに埋め込む）
+const inlineScripts = {};
+export const setInlineScripts = (map) => Object.assign(inlineScripts, map);
 let inlineCss = '';
 export const setInlineCss = (css) => { inlineCss = css; };
-export const asset = (name) => {
-  if (!assets[name]) throw new Error(`asset not found: ${name}`);
-  return assets[name];
+const scriptTag = (name) => {
+  if (!inlineScripts[name]) throw new Error(`script not found: ${name}`);
+  return `<script>${inlineScripts[name]}</script>`;
 };
 
 export const esc = (s) =>
@@ -59,7 +59,7 @@ export const breadcrumbLd = (items) => ({
  * @param {string} p.body       <main> の中身
  * @param {Array}  [p.breadcrumbs]
  * @param {Array}  [p.jsonLd]   構造化データ（オブジェクトの配列）
- * @param {Array}  [p.scripts]  読み込むスクリプト（asset 名）
+ * @param {Array}  [p.scripts]  埋め込むスクリプト（src/client の入口のファイル名）
  * @param {boolean}[p.noindex]
  * @param {string} [p.theme]    home / seikatsu / shigoto / fx（ツールはカテゴリのテーマ）
  * @param {string} [p.ogImage]  SNSで共有したときの画像（public/og/ の中。scripts/make-images.py で作る）
@@ -120,7 +120,7 @@ ${p.body}
     <p class="copy">© ${year === SITE.startYear ? year : `${SITE.startYear}–${year}`} ${esc(SITE.name)}</p>
   </div>
 </footer>
-${(p.scripts || []).map((s) => `<script src="${asset(s)}" defer></script>`).join('\n')}
+${(p.scripts || []).map(scriptTag).join('\n')}
 </body>
 </html>
 `;

@@ -192,6 +192,55 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .tool-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
 .tool-btn:disabled { opacity: .35; cursor: default; }
 
+/* 商品ごとの入力（実質単価など）：A・B・C を縦に並べ、値段と量は横並び */
+.calc-head { margin-bottom: 4px; }
+.calc-head .label { margin: 0; font-size: var(--label); font-weight: 700; }
+/* 表の見出し（値段・量）と、商品ごとの行 */
+.cols { display: grid; grid-template-columns: 28px 1fr 1fr; column-gap: 10px; margin: 6px 0 2px; font-size: var(--label); font-weight: 700; }
+.item { display: grid; grid-template-columns: 28px 1fr; column-gap: 10px; align-items: start; padding: 5px 0; }
+.item > .pair { grid-column: 2; grid-template-columns: 1fr 1.2fr; }
+.cols { grid-template-columns: 28px 1fr 1.2fr; }
+.item-k {
+  grid-row: 1; display: grid; place-items: center; width: 28px; height: 28px; margin: 18px 0 0; border-radius: 50%;
+  background: var(--accent-strong); color: var(--on-accent); font-weight: 800; font-size: 14px;
+}
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pair > .field { margin: 0; min-width: 0; }
+.pair .input { padding: 0 12px; }
+.pair.extra { margin-top: 8px; padding-bottom: 6px; }
+.input-sel { padding: 0 4px 0 10px; }
+.unit-select {
+  font: inherit; font-size: 16px; font-weight: 800; color: var(--text); background-color: var(--bg);
+  border: 1px solid var(--border); border-radius: 10px; min-height: 44px; padding: 0 18px 0 7px; margin-left: 2px;
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(-45deg, transparent 50%, var(--muted) 50%);
+  background-position: right 9px center, right 4px center; background-size: 5px 5px; background-repeat: no-repeat;
+}
+
+/* いちばんおトクの上の赤いラベル */
+.win-label {
+  display: inline-block; margin: -14px auto 30px; padding: 3px 14px; border-radius: 999px;
+  background: var(--sale); color: #fff; font-weight: 800; font-size: 14px;
+}
+
+/* 順位と棒グラフ（安いほど短い） */
+.rank-box { margin: 18px auto 0; max-width: 460px; text-align: left; }
+.bars-title { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.rank { list-style: none; margin: 0; padding: 0; }
+.rank-row {
+  display: grid; grid-template-columns: 34px 18px 1fr 90px; align-items: center; gap: 8px;
+  padding: 7px 0; border-bottom: 1px dashed var(--border);
+}
+.rank-row:last-child { border-bottom: 0; }
+.rank-no { font-size: 13px; font-weight: 800; color: var(--muted); }
+.rank-row.is-best .rank-no { color: var(--sale); }
+.rank-k { font-weight: 800; }
+.bar-track { height: 12px; border-radius: 999px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
+.bar-fill { display: block; height: 100%; border-radius: 999px; background: color-mix(in srgb, var(--muted) 45%, transparent); }
+.bar-fill.is-best { background: var(--sale); }
+.rank-v { text-align: right; font-weight: 800; font-size: 15px; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.rank-v small { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+
 /* 2つくらべる：A・Bのタブ */
 .cmp-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 16px; }
 .cmp-tab {
@@ -231,6 +280,8 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .cmp-verdict { margin: 18px 0 0; font-size: 15px; color: var(--muted); }
 .cmp-verdict.is-result { font-size: 20px; font-weight: 800; color: var(--text); }
 .cmp-verdict strong { color: var(--sale); font-size: 24px; }
+.verdict-sub { display: block; margin-top: 4px; font-size: 16px; font-weight: 700; color: var(--muted); }
+.verdict-sub strong { font-size: 20px; }
 .tag-conv { margin-top: 8px !important; font-size: 13px; font-weight: 700; color: #7a6b5d; }
 
 /* 値札（生活の結果表示）：ひもでぶら下がった黄色い値札 */
@@ -292,8 +343,8 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .cat-fx .tool-ico { background: #10302c; color: #2dd4bf; }
 .cat-shigoto .tool-ico { background: #e8eefb; color: #2349a6; }
 
-/* 本文 */
-.prose { margin: 36px 0 0; }
+/* 本文（画面の外にあるうちは描画を後回しにして、最初の表示を速く） */
+.prose { margin: 36px 0 0; content-visibility: auto; contain-intrinsic-size: auto 480px; }
 .prose h2 { font-size: 20px; line-height: 1.4; margin: 0 0 10px; padding-left: 12px; border-left: 4px solid var(--accent); }
 .prose h3 { font-size: 16px; margin: 18px 0 6px; }
 .prose p, .prose ul, .prose ol { margin: 0 0 12px; }
@@ -351,6 +402,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .foot-nav a { color: var(--muted); min-height: 32px; display: inline-flex; align-items: center; }
 .copy { margin: 0; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
 @media (min-width: 640px) {
