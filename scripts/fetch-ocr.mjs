@@ -24,6 +24,12 @@ function pack(spec) {
   return join(dir, 'package');
 }
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
+// ライセンスの文（あれば）。読み取りソフトと日本語のデータは Apache License 2.0 なので、いっしょに置く
+function putLicense(dir, files, to) {
+  const found = files.map((f) => join(dir, f)).find((f) => existsSync(f));
+  if (found) put(found, to);
+  else lines.push(`（ライセンスの文が見つからない: ${dir}）`);
+}
 function put(from, to) {
   if (!existsSync(from)) throw new Error(`見つからない: ${from}`);
   mkdirSync(dirname(join(OUT, to)), { recursive: true });
@@ -33,11 +39,14 @@ function put(from, to) {
 const main = pack(`tesseract.js@${OCR_VERSION}`);
 put(join(main, 'dist/tesseract.min.js'), 'tesseract.min.js');
 put(join(main, 'dist/worker.min.js'), 'worker.min.js');
+putLicense(main, ['LICENSE.md', 'LICENSE', 'LICENSE.txt'], 'LICENSE-tesseract.js.txt');
+for (const f of ['tesseract.min.js.LICENSE.txt', 'worker.min.js.LICENSE.txt']) if (existsSync(join(main, 'dist', f))) put(join(main, 'dist', f), f);
 
 const coreRange = JSON.parse(readFileSync(join(main, 'package.json'), 'utf8')).dependencies['tesseract.js-core'];
 const core = pack(`tesseract.js-core@${coreRange}`);
 // LSTM だけで読む（createWorker の oem=1）ので、使うのは -lstm の2つ（SIMD が使える端末は -simd-lstm）
 for (const v of ['-lstm', '-simd-lstm']) put(join(core, `tesseract-core${v}.wasm.js`), `core/tesseract-core${v}.wasm.js`);
+putLicense(core, ['LICENSE.md', 'LICENSE', 'LICENSE.txt'], 'core/LICENSE.txt');
 
 const jpn = pack(JPN_DATA);
 const data = walk(jpn).filter((f) => f.endsWith('/jpn.traineddata.gz'));
@@ -45,6 +54,7 @@ const best = data.find((f) => f.includes('4.0.0_best_int')) || data[0];
 if (!best) throw new Error('jpn.traineddata.gz が見つからない');
 lines.push(`日本語のデータ: ${best.slice(jpn.length + 1)}（ほか: ${data.map((f) => f.slice(jpn.length + 1)).join(', ')}）`);
 put(best, 'lang/jpn.traineddata.gz');
+putLicense(jpn, ['LICENSE.md', 'LICENSE', 'LICENSE.txt'], 'lang/LICENSE.txt');
 
 rmSync(TMP, { recursive: true, force: true });
 for (const f of walk(OUT)) {
