@@ -35,10 +35,12 @@ export const TOOLS = [
   },
   {
     slug: 'kishaku',
-    name: '希釈率',
+    name: '希釈率（何倍に薄める？）',
     category: 'seikatsu',
     short: '何倍に薄めるか・原液と水の量',
-    published: false,
+    published: true,
+    updated: '2026-10-16',
+    related: ['recipe', 'tanka', 'waribiki'],
     icon: '<path d="M8 3h8M9 3v6l-5 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-9V3M6 15h12"/>',
   },
   {

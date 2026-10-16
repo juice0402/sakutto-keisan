@@ -325,6 +325,42 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .memo-row.is-error .memo-amt { color: var(--error); }
 .memo-empty { margin: 6px 0 8px !important; font-size: 14px; color: var(--muted); text-align: center; }
 
+/* 希釈率 */
+.field-help { margin: 8px 0 0; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.pct-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pct-fields .input { padding: 0 12px; }
+/* 結果：ボトルの絵（下に原液・上に水）と、原液・水の量 */
+.mix-stage {
+  display: grid; grid-template-columns: 104px 1fr; gap: 16px; align-items: center; margin: 22px 0 0; padding: 18px 14px;
+  border-radius: var(--radius); background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface));
+}
+.bottle { width: 92px; margin: 0 auto; }
+.bottle-cap { width: 34px; height: 15px; margin: 0 auto; border-radius: 6px 6px 3px 3px; background: var(--accent-strong); }
+.bottle-neck { width: 28px; height: 12px; margin: 0 auto; border: solid #b6d6ea; border-width: 0 3px; background: rgb(255 255 255 / 0.8); }
+.bottle-body {
+  position: relative; display: flex; flex-direction: column; justify-content: flex-end; height: 168px; overflow: hidden;
+  border: 3px solid #b6d6ea; border-radius: 26px 26px 18px 18px; background: rgb(255 255 255 / 0.85);
+}
+.liq { flex: none; height: 0; transition: height .45s ease; }
+.liq-water { background: linear-gradient(#d4edff, #a8d5f4); box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.9); }
+.liq-conc { background: linear-gradient(#ffd27a, #f0a63a); }
+.bottle-label {
+  position: absolute; left: 9px; right: 9px; top: 40%; margin: 0; padding: 5px 2px; border-radius: 8px;
+  background: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / 0.14); text-align: center;
+  font-size: 17px; font-weight: 800; line-height: 1.3; color: var(--tag-text); overflow-wrap: anywhere;
+}
+.mix-rows p { margin: 0; }
+.mix-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.mix-k { display: inline-flex; align-items: center; gap: 6px; min-width: 3.4em; font-size: 15px; font-weight: 700; }
+.mix-k::before { content: ""; width: 14px; height: 14px; border-radius: 4px; background: #f0a63a; }
+.is-water .mix-k::before { background: #a8d5f4; }
+.mix-v { font-size: 28px; font-weight: 800; line-height: 1.2; color: var(--accent-strong); font-variant-numeric: tabular-nums; }
+.calc.is-empty .mix-v { color: color-mix(in srgb, var(--muted) 45%, transparent); }
+.mix-sub { width: 100%; padding-left: calc(3.4em + 8px); font-size: 13px; font-weight: 700; color: var(--muted); }
+.mix-sub:empty { display: none; }
+.mix-total { margin-top: 10px !important; font-size: 13.5px; font-weight: 700; line-height: 1.6; color: var(--muted); }
+.mix-total span { display: block; }
+
 /* いちばんおトクの上の赤いラベル */
 .win-label {
   display: inline-block; margin: -14px auto 30px; padding: 3px 14px; border-radius: 999px;

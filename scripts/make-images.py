@@ -172,7 +172,42 @@ def recipe_memo(img, cx, top):
     img.alpha_composite(tape)
 
 
-VISUALS = {'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo}
+def dilute_bottle(img, cx, top):
+    """希釈率：ボトルに原液（黄色）と水（水色）＋「10倍」のラベル、横に原液と水の量"""
+    d = ImageDraw.Draw(img)
+    bx = cx - 150 * S  # ボトルのまん中
+    bw, bh = 150 * S, 250 * S
+    x0, y0 = bx - bw // 2, top + 40 * S
+    d.rounded_rectangle([bx - 26 * S, top - 20 * S, bx + 26 * S, top + 4 * S], radius=8 * S, fill='#C2410C')  # ふた
+    d.rectangle([bx - 20 * S, top + 4 * S, bx + 20 * S, y0 + 4 * S], fill='#FFFFFF', outline='#B6D6EA', width=4 * S)
+    # 中身（下の1割が原液・その上が水）
+    body = Image.new('L', img.size, 0)
+    ImageDraw.Draw(body).rounded_rectangle([x0, y0, x0 + bw, y0 + bh], radius=38 * S, fill=255)
+    liq = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    ld = ImageDraw.Draw(liq)
+    ld.rectangle([x0, y0, x0 + bw, y0 + bh], fill='#FFFFFF')
+    full = y0 + bh * 0.16
+    conc = y0 + bh - bh * 0.84 * 0.1 - 18 * S
+    ld.rectangle([x0, full, x0 + bw, conc], fill='#B4DBF6')
+    ld.rectangle([x0, conc, x0 + bw, y0 + bh], fill='#F3B04A')
+    img.paste(liq, (0, 0), body)
+    d.rounded_rectangle([x0, y0, x0 + bw, y0 + bh], radius=38 * S, outline='#B6D6EA', width=5 * S)
+    # ラベル
+    f_lab = font('black', 40)
+    lw = d.textlength('10倍', font=f_lab)
+    d.rounded_rectangle([x0 + 16 * S, y0 + 92 * S, x0 + bw - 16 * S, y0 + 150 * S], radius=12 * S, fill='#FFFFFF')
+    d.text((bx - lw / 2, y0 + 96 * S), '10倍', font=f_lab, fill='#2B2420')
+    # 横の数字
+    f_k, f_v = font('bold', 30), font('black', 58)
+    for i, (k, v, color) in enumerate([('原液', '100ml', '#F0A63A'), ('水', '900ml', '#A8D5F4')]):
+        y = top + 60 * S + i * 120 * S
+        tx = cx - 30 * S
+        d.rounded_rectangle([tx, y + 12 * S, tx + 26 * S, y + 38 * S], radius=6 * S, fill=color)
+        d.text((tx + 38 * S, y + 4 * S), k, font=f_k, fill='#2B2420')
+        d.text((tx, y + 46 * S), v, font=f_v, fill='#C2410C')
+
+
+VISUALS = {'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle}
 
 
 def og(path, title, sub, theme, slug=None):
