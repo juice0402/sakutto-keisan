@@ -21,6 +21,10 @@ await new Promise((ok) => server.on('listening', ok));
 const BASE = `http://127.0.0.1:${server.address().port}`;
 
 const errors = [];
+// GitHub Actions では結果を「注釈」にも出す（ログを開かなくても API で読めるように）
+const notice = (title, text) => {
+  if (process.env.GITHUB_ACTIONS) console.log(`::notice title=${title}::${String(text).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')}`);
+};
 const check = (ok, msg) => { console.log(`${ok ? '✓' : '✗'} ${msg}`); if (!ok) errors.push(msg); };
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -42,12 +46,15 @@ for (const [file, strict] of [['recipe-screenshot.png', true], ['recipe-photo.jp
   }, null, { timeout: 240000 });
   const status = await page.textContent('#ocr-text');
   const text = await page.inputValue('#paste-text');
-  console.log(`\n--- ${file}（${((Date.now() - t0) / 1000).toFixed(1)}秒）\n${status}\n${text}\n---`);
+  const report = `${file}（${((Date.now() - t0) / 1000).toFixed(1)}秒）\n${status}\n${text}`;
+  console.log(`\n--- ${report}\n---`);
+  notice(`写真の読み取り ${file}`, report);
   if (!strict) continue;
   check(/読み取りました/.test(status), `${file}：読み取れた`);
   await page.click('#paste-go');
   const rows = await page.evaluate(() => [1, 2, 3, 4, 5, 6, 7].map((n) => [document.getElementById(`name-${n}`).value, document.getElementById(`amt-${n}`).value, document.getElementById(`unit-${n}`).value]));
   console.log('材料に入れた結果:', JSON.stringify(rows));
+  notice(`材料に入れた結果 ${file}`, rows.map((r) => r.join(' ')).join('\n'));
   const has = (name, amt, unit) => rows.some((r) => r[0].includes(name) && r[1] === amt && r[2] === unit);
   check(has('もも肉', '300', 'g'), `${file}：鶏もも肉 300g`);
   check(has('しょうゆ', '2', '大さじ'), `${file}：しょうゆ 大さじ2`);
