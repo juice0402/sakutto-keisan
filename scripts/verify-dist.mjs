@@ -105,7 +105,7 @@ for (const t of TOOLS.filter((x) => !x.published)) {
 }
 // 写真の読み取りソフト（scripts/fetch-ocr.mjs が公開のときに置く）。GitHub Actions では必ずあること
 const ocrDir = join(DIST, 'ocr', OCR_VERSION);
-const ocrNeed = ['tesseract.min.js', 'worker.min.js', 'lang/jpn.traineddata.gz', ...['', '-simd', '-lstm', '-simd-lstm'].map((v) => `core/tesseract-core${v}.wasm.js`)];
+const ocrNeed = ['tesseract.min.js', 'worker.min.js', 'lang/jpn.traineddata.gz', ...['-lstm', '-simd-lstm'].map((v) => `core/tesseract-core${v}.wasm.js`)];
 if (process.env.CI || existsSync(ocrDir)) {
   for (const f of ocrNeed) if (!existsSync(join(ocrDir, f))) fail(`ocr/${OCR_VERSION}/${f}`, 'ない（scripts/fetch-ocr.mjs）');
 } else {

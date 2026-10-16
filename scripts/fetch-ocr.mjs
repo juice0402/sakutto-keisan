@@ -36,7 +36,8 @@ put(join(main, 'dist/worker.min.js'), 'worker.min.js');
 
 const coreRange = JSON.parse(readFileSync(join(main, 'package.json'), 'utf8')).dependencies['tesseract.js-core'];
 const core = pack(`tesseract.js-core@${coreRange}`);
-for (const v of ['', '-simd', '-lstm', '-simd-lstm']) put(join(core, `tesseract-core${v}.wasm.js`), `core/tesseract-core${v}.wasm.js`);
+// LSTM だけで読む（createWorker の oem=1）ので、使うのは -lstm の2つ（SIMD が使える端末は -simd-lstm）
+for (const v of ['-lstm', '-simd-lstm']) put(join(core, `tesseract-core${v}.wasm.js`), `core/tesseract-core${v}.wasm.js`);
 
 const jpn = pack(JPN_DATA);
 const data = walk(jpn).filter((f) => f.endsWith('/jpn.traineddata.gz'));
