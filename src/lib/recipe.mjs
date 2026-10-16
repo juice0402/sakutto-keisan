@@ -133,7 +133,7 @@ const PEOPLE_RE = /(\d+(?:\.\d+)?)\s*(?:[~〜-]\s*\d+(?:\.\d+)?)?\s*人\s*(?:分
 const STOP_RE = /^(作り方|つくり方|作りかた|手順|下ごしらえ|下準備|ポイント|コツ)/;
 const CLOCK_RE = /\d{1,2}:\d{2}/;
 const JA_NAME_RE = /[\u3040-\u30ff\u3400-\u9fff々]/;
-const NOTE_RE = /(です|ます|ください)(。|$)|。.{0,2}$/;
+const NOTE_RE = /です|ください|ます(。|$)|。.{0,2}$|は、/;
 const HEADER_RE = /^(材料|調味料|合わせ調味料|下味|たれ|タレ|ソース|ドレッシング|トッピング|飾り|仕上げ|具|具材)$/;
 const VULGAR = { '½': '1/2', '⅓': '1/3', '⅔': '2/3', '¼': '1/4', '¾': '3/4' };
 
@@ -206,6 +206,10 @@ export function parseRecipeText(text) {
     .normalize('NFKC')
     .replace(/⁄/g, '/');
   for (const raw of normalized.split(/\r?\n/)) {
+    if (/^\s*※/.test(raw)) { // 「※」で始まる注意書き（「＊」は箇条書きにも使うので、文の形かどうかで見る）
+      flush();
+      continue;
+    }
     let line = raw
       .replace(/\t/g, ' ')
       .replace(/^[\s・●○◯◎◉◆◇■□★☆※＊*•▪\-–—>]+/, '')

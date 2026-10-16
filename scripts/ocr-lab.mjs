@@ -33,12 +33,10 @@ const PICS = [
   { name: '紙の写真', file: 'recipe-photo.jpg', expect: SEVEN },
 ];
 const CONFIGS = [
-  { name: '1 いま（PSM3）', psm: '3', prep: 'stretch', line: false },
-  { name: '2 PSM6', psm: '6', prep: 'stretch', line: false },
-  { name: '3 PSM6・下線を消す', psm: '6', prep: 'stretch', line: true },
-  { name: '4 PSM6・下線・1.5倍', psm: '6', prep: 'stretch', line: true, scale: 1.5 },
-  { name: '5 PSM6・二値化・下線', psm: '6', prep: 'otsu', line: true },
-  { name: '6 PSM4・下線', psm: '4', prep: 'stretch', line: true },
+  { name: 'A 前の前処理（白黒だけ）', psm: '6', opt: { lines: false, marks: false } },
+  { name: 'B ＋下線を消す', psm: '6', opt: { lines: true, marks: false } },
+  { name: 'C ＋下線と丸の印を消す（新しい既定）', psm: '6', opt: {} },
+  { name: 'D ＋丸の印だけ消す', psm: '6', opt: { lines: false, marks: true } },
 ];
 const out = [];
 for (const cfg of CONFIGS) {
@@ -59,40 +57,11 @@ for (const cfg of CONFIGS) {
       const ctx = c.getContext('2d');
       ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
-      const pic2 = ctx.getImageData(0, 0, w, h); const px = pic2.data; const hist = new Uint32Array(256);
-      for (let i = 0; i < px.length; i += 4) { const y = (px[i] * 77 + px[i + 1] * 150 + px[i + 2] * 29) >> 8; px[i] = y; hist[y]++; }
-      const total = px.length / 4;
-      let lo = 0, hi = 255, sum = 0;
-      for (let acc = 0; lo < 255 && acc + hist[lo] < total * 0.01; lo++) acc += hist[lo];
-      for (let acc = 0; hi > 0 && acc + hist[hi] < total * 0.01; hi--) acc += hist[hi];
-      for (let v = 0; v < 256; v++) sum += v * hist[v];
-      const invert = sum / total < 110; const span = Math.max(1, hi - lo);
-      let th = 128;
-      if (cfg.prep === 'otsu') { let best = -1, wB = 0, sB = 0; for (let t = 0; t < 256; t++) { wB += hist[t]; if (!wB) continue; const wF = total - wB; if (!wF) break; sB += t * hist[t]; const mB = sB / wB, mF = (sum - sB) / wF; const v = wB * wF * (mB - mF) ** 2; if (v > best) { best = v; th = t; } } }
-      for (let i = 0; i < px.length; i += 4) {
-        let y = cfg.prep === 'otsu' ? (px[i] > th ? 255 : 0) : Math.max(0, Math.min(255, ((px[i] - lo) * 255) / span));
-        if (invert) y = 255 - y;
-        px[i] = px[i + 1] = px[i + 2] = y;
-      }
-      if (cfg.line) {
-        // 下線などの細長い横線を消す（上下3pxが明るい、長い黒の並び）
-        const dark = (x, y) => px[(y * w + x) * 4] < 128;
-        const minRun = Math.max(24, Math.round(w * 0.03));
-        for (let y = 3; y < h - 3; y++) {
-          let x = 0;
-          while (x < w) {
-            if (!dark(x, y)) { x++; continue; }
-            let e = x;
-            while (e < w && dark(e, y)) e++;
-            if (e - x >= minRun) {
-              let thin = 0;
-              for (let k = x; k < e; k++) if (!dark(k, y - 3) && !dark(k, y + 3)) thin++;
-              if (thin >= (e - x) * 0.85) for (let k = x; k < e; k++) { const j = (y * w + k) * 4; px[j] = px[j + 1] = px[j + 2] = 255; }
-            }
-            x = e;
-          }
-        }
-      }
+      const pic2 = ctx.getImageData(0, 0, w, h);
+      const { cleanImage } = await import('/src/client/ocr.mjs');
+      const tc = performance.now();
+      cleanImage(pic2.data, w, h, cfg.opt);
+      const prepMs = Math.round(performance.now() - tc);
       ctx.putImageData(pic2, 0, 0);
       const t0 = performance.now();
       const wk = await Tesseract.createWorker('jpn', 1, { workerPath: '/ocr/5.1.1/worker.min.js', corePath: '/ocr/5.1.1/core', langPath: '/ocr/5.1.1/lang', workerBlobURL: false });
@@ -110,11 +79,11 @@ for (const cfg of CONFIGS) {
         const j = got.findIndex((g, k) => !used.has(k) && g[1] === e[1] && g[2] === e[2]);
         if (j >= 0) { used.add(j); qty++; }
       }
-      return { ms: Math.round(performance.now() - t0), exact, qty, extra: got.length - used.size, n: pic.expect.length, text };
+      return { ms: Math.round(performance.now() - t0), prepMs, exact, qty, extra: got.length - used.size, n: pic.expect.length, text };
     }, { cfg, pic });
     res.push({ pic, r });
   }
-  const line = `${cfg.name}：` + res.map(({ pic, r }) => `${pic.name} ${r.exact}+${r.qty}/${r.n}${r.extra ? `(余分${r.extra})` : ''}`).join('・') + `・${Math.round(res.reduce((a, x) => a + x.r.ms, 0) / res.length)}ms`;
+  const line = `${cfg.name}：` + res.map(({ pic, r }) => `${pic.name} ${r.exact}+${r.qty}/${r.n}${r.extra ? `(余分${r.extra})` : ''}[前処理${r.prepMs}ms]`).join('・') + `・${Math.round(res.reduce((a, x) => a + x.r.ms, 0) / res.length)}ms`;
   console.log(line);
   out.push(line);
   notice(`OCR実験 ${cfg.name}`, `${line}\n` + res.map(({ pic, r }) => `--- ${pic.name}\n${r.text}`).join('\n'));
