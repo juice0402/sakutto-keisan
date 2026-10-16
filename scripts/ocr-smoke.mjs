@@ -63,6 +63,7 @@ for (const [file, strict] of [['recipe-screenshot.png', true], ['recipe-dark.png
   check((await page.inputValue('#from')) === '2', `${file}：2人分のレシピ`);
   await page.click('#to-paste');
 }
+notice('読み込んだ読み取りソフトのファイル', [...new Set(requests.filter((u) => u.includes('/ocr/')).map((u) => u.slice(BASE.length)))].join('\n'));
 const others = [...new Set(requests.filter((u) => !u.startsWith(BASE) && !u.startsWith('data:') && !u.startsWith('blob:')))];
 check(others.length === 0, `このサイトのほかに通信しない ${others.join(' ')}`);
 
