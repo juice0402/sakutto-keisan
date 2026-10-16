@@ -131,6 +131,9 @@ const NUM_UNIT_RE = new RegExp(`(${QTY_RANGE})\\s*(${UNIT_ALT})`);
 const FEW_RE = /(少々|少量|ひとつまみ|ひとつかみ|少し|適量|適宜|お好みで|お好み|好みで)/;
 const PEOPLE_RE = /(\d+(?:\.\d+)?)\s*(?:[~〜-]\s*\d+(?:\.\d+)?)?\s*人\s*(?:分|前)/;
 const STOP_RE = /^(作り方|つくり方|作りかた|手順|下ごしらえ|下準備|ポイント|コツ)/;
+const CLOCK_RE = /\d{1,2}:\d{2}/;
+const JA_NAME_RE = /[\u3040-\u30ff\u3400-\u9fff々]/;
+const NOTE_RE = /(です|ます|ください)(。|$)|。.{0,2}$/;
 const HEADER_RE = /^(材料|調味料|合わせ調味料|下味|たれ|タレ|ソース|ドレッシング|トッピング|飾り|仕上げ|具|具材)$/;
 const VULGAR = { '½': '1/2', '⅓': '1/3', '⅔': '2/3', '¼': '1/4', '¾': '3/4' };
 
@@ -168,7 +171,13 @@ function readLine(line) {
   if (unit === 'kg') [amount, unit] = [amount * 1000, 'g'];
   if (unit === 'L') [amount, unit] = [amount * 1000, 'ml'];
   if (amount !== null) amount = Number(amount.toFixed(3));
-  const name = line.slice(0, hit.index).replace(/[\s…‥・.:：=＝\-─―~〜]+$/, '').replace(/約$/, '').trim();
+  const name = line
+    .slice(0, hit.index)
+    .replace(/[「」『』®™©]/g, '') // 商品名のかぎかっこ・®（写真では「?」に読まれやすい）
+    .replace(/^の(?=[\u30a0-\u30ff\u3400-\u9fff])/, '') // 黒い丸のⒶⒷは写真では「の」に読まれやすい（「のり」のようにひらがなが続くときはそのまま）
+    .replace(/[\s…‥・.:：=＝\-─―~〜?？]+$/, '')
+    .replace(/約$/, '')
+    .trim();
   return { name, amount, unit };
 }
 
@@ -183,7 +192,7 @@ export function parseRecipeText(text) {
   const skipped = [];
   let pending = null; // 分量がまだ見つかっていない材料の名前（次の行が分量のことがある）
   const flush = () => {
-    if (pending !== null && !isHeader(pending)) skipped.push(pending);
+    if (pending !== null && !isHeader(pending) && looksLikeName(pending)) skipped.push(pending);
     pending = null;
   };
   const push = (name, amount, unit) => {
@@ -205,13 +214,22 @@ export function parseRecipeText(text) {
       .trim();
     if (!line) continue;
     if (STOP_RE.test(line)) break; // ここから下は作り方
+    if (NOTE_RE.test(line)) { // 「＊ 固形1個は、顆粒で小さじ2杯です。」のような注意書きは材料にしない
+      flush();
+      continue;
+    }
     const pm = line.match(PEOPLE_RE);
     if (pm) {
       if (people === null) people = Number(pm[1]);
       flush();
       continue;
     }
+    if (CLOCK_RE.test(line)) continue; // 時刻の入った行（スクショのいちばん上の時計など）
     const r = readLine(line);
+    if (r.name && !JA_NAME_RE.test(r.name)) { // 日本語が1文字もない名前は、写真の読み取りのゴミ（「4G 74%」の 4G など）
+      flush();
+      continue;
+    }
     if (r.unit === null) {
       flush();
       pending = line;
@@ -229,6 +247,12 @@ export function parseRecipeText(text) {
   return { people, rows, skipped };
 }
 
+/** 材料の名前らしい行（日本語が多くて短い）。写真の読み取りで出たゴミのような行は、読み取れなかった行として出さない */
+function looksLikeName(line) {
+  const ja = (line.match(/[\u3040-\u30ff\u3400-\u9fff々]/g) || []).length;
+  return line.length <= 15 && ja >= Math.max(1, line.replace(/\s/g, '').length * 0.85);
+}
+
 /** 見出しの行（「調味料」「(A)」「【たれ】」など）は、読み取れなかった行に数えない */
 function isHeader(line) {
   return line.length <= 1 || /^[(\[<〈【《「]/.test(line) || /[:：]$/.test(line) || HEADER_RE.test(line);
@@ -238,11 +262,25 @@ function isHeader(line) {
 const JA_CHAR = '[\\u3000-\\u30ff\\u3400-\\u9fff\\uff00-\\uffef々〆]';
 const JA_GAP_RE = new RegExp(`(${JA_CHAR})[ \\t]+(?=${JA_CHAR})`, 'g');
 
-/** 写真から読み取った文字を整える（「鶏 も も 肉」のような日本語の間の空白を取る・続いた空白は1つに・空の行を取る） */
+// 写真では「1/2」の「/」が「7」に読まれやすい（「172個」「小さじ172」）。家庭のレシピでは 172個 はまずないので分数にもどす
+const SLASH7_RE = /(^|[^\d.\/])([1-3])7([2-4])(?=\s*(?:個|本|枚|片|カップ|袋|パック|束|缶|切れ|丁|玉|房|株|尾|杯|合))|((?:大さじ|小さじ)\s*)([1-3])7([2-4])(?!\d)/g;
+// 黒い丸のⒶⒷ・①などの印（写真では「の⑳」「の」に読まれやすい）
+const MARK_RE = /^(?:[の\u2460-\u24ff\u3251-\u32bf◎○●◯]{1,3}\s+)+/;
+
+/** 写真から読み取った文字を整える（「鶏 も も 肉」のような日本語の間の空白を取る・続いた空白は1つに・空の行を取る・よくある読みまちがいを直す） */
 export function cleanOcrText(text) {
   return String(text)
     .split(/\r?\n/)
-    .map((l) => l.replace(JA_GAP_RE, '$1').replace(JA_GAP_RE, '$1').replace(/[ \t\u3000]{2,}/g, ' ').trim())
+    .map((l) =>
+      l
+        .replace(MARK_RE, '')
+        .replace(/[\u2460-\u24ff]/g, '')
+        .replace(JA_GAP_RE, '$1')
+        .replace(JA_GAP_RE, '$1')
+        .replace(/[ \t\u3000]{2,}/g, ' ')
+        .replace(SLASH7_RE, (m, a, n, d, sp, n2, d2) => (sp !== undefined ? `${sp}${n2}/${d2}` : `${a}${n}/${d}`))
+        .trim(),
+    )
     .filter(Boolean)
     .join('\n');
 }
