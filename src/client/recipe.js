@@ -175,7 +175,7 @@ function addRow() {
 function refreshAdd() {
   const btn = $('to-add');
   btn.disabled = shown >= MAX;
-  btn.querySelector('span').textContent = shown >= MAX ? `${MAX}こまで` : '＋材料を追加';
+  btn.querySelector('span').textContent = shown >= MAX ? `${MAX}個まで` : '＋材料を追加';
 }
 function toggleMatch() {
   matchOn = !matchOn;
@@ -236,8 +236,8 @@ function fillRows(parsed, start, all, quiet) {
   baseKey = '';
   update();
   if (quiet) return;
-  const msg = [`${items.length}つの材料を入れました${parsed.people ? `（${persons(parsed.people)}のレシピ）` : ''}。ちがうところは直してください。`];
-  if (parsed.rows.length > items.length) msg.push(`材料は${MAX}こまでなので、残りの${parsed.rows.length - items.length}こは入れていません。`);
+  const msg = [`${items.length}個の材料を入れました${parsed.people ? `（${persons(parsed.people)}のレシピ）` : ''}。ちがうところは直してください。`];
+  if (parsed.rows.length > items.length) msg.push(`材料は${MAX}個までなので、残りの${parsed.rows.length - items.length}個は入れていません。`);
   if (parsed.skipped.length) msg.push(`分量が読み取れなかった行：${parsed.skipped.slice(0, 3).join('、')}${parsed.skipped.length > 3 ? ' など' : ''}`);
   showPasteMsg(msg.join('\n'));
 }
@@ -341,7 +341,7 @@ async function readPhoto() {
     const text = cleanOcrText(raw);
     $('paste-text').value = text;
     const found = parseRecipeText(text).rows.length;
-    if (found) ocrStatus(`読み取りました（材料が${found}つ見つかりました）。まちがいがあれば下の文字を直して、「材料に入れる」を押してください。`, null);
+    if (found) ocrStatus(`読み取りました（材料が${found}個見つかりました）。まちがいがあれば下の文字を直して、「材料に入れる」を押してください。`, null);
     else ocrStatus('材料と分量が見つかりませんでした。文字が大きく、はっきり写るように撮り直すか、文字を貼り付けてください。', null, true);
     $('paste-text').scrollIntoView({ block: 'center' });
   } catch {
