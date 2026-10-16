@@ -121,7 +121,58 @@ def compare_tags(img, cx, top):
         img.alpha_composite(layer)
 
 
-VISUALS = {'waribiki': price_tag, 'tanka': compare_tags}
+def plate(d, cx, cy, r, new=False):
+    """レシピのお皿（サイトのお皿と同じ見た目）"""
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill='#FFFFFF', outline='#E8590C' if new else '#EAD9C4', width=(5 if new else 3) * S)
+    ri = r * 16 / 22
+    d.ellipse([cx - ri, cy - ri, cx + ri, cy + ri], outline='#F3E6D6', width=3 * S)
+    k = r / 22
+    d.chord([cx - 12.5 * k, cy - 8 * k, cx + 12.5 * k, cy + 17 * k], 180, 360, fill='#FFC04D')
+    d.rounded_rectangle([cx - 12.5 * k, cy + 3.5 * k, cx + 12.5 * k, cy + 6.5 * k], radius=1.5 * k, fill='#FFC04D')
+    d.line([(cx - 8 * k, cy - 1.5 * k), (cx - 2.7 * k, cy - 3.2 * k), (cx + 2.7 * k, cy - 1.5 * k), (cx + 8 * k, cy - 3.2 * k)], fill='#E03131', width=3 * S, joint='curve')
+
+
+def recipe_memo(img, cx, top):
+    """レシピの人数換算：お皿（2人分→4人分）と、マスキングテープでとめた材料のメモ"""
+    d = ImageDraw.Draw(img)
+    r, gap = 34 * S, 14 * S
+    x = cx - (4 * 2 * r + 3 * gap) / 2 + r
+    for i in range(4):
+        plate(d, x + i * (2 * r + gap), top - 40 * S, r, new=i >= 2)
+    layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    ld = ImageDraw.Draw(layer)
+    w, h = 400 * S, 300 * S
+    x0, y0 = cx - w // 2, top + 30 * S
+    ld.rounded_rectangle([x0 + 6 * S, y0 + 10 * S, x0 + w + 6 * S, y0 + h + 10 * S], radius=10 * S, fill=(120, 70, 20, 28))  # 影
+    ld.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=10 * S, fill='#FFFDF8', outline='#EFE2D1', width=2 * S)
+    f_title, f_name, f_amt, f_unit = font('black', 34), font('bold', 30), font('black', 40), font('black', 26)
+    title = '4人分の材料'
+    tw = ld.textlength(title, font=f_title)
+    ld.text((cx - tw / 2, y0 + 30 * S), title, font=f_title, fill='#2B2420')
+    rows = [('鶏もも肉', '', '600g'), ('玉ねぎ', '', '2個'), ('しょうゆ', '大さじ', '4')]
+    for i, (name, pre, amt) in enumerate(rows):
+        y = y0 + (96 + i * 64) * S
+        ld.text((x0 + 30 * S, y + 6 * S), name, font=f_name, fill='#2B2420')
+        aw = ld.textlength(amt, font=f_amt)
+        pw = ld.textlength(pre, font=f_unit) if pre else 0
+        ax = x0 + w - 30 * S - aw
+        ld.text((ax, y), amt, font=f_amt, fill='#C2410C')
+        if pre:
+            ld.text((ax - pw - 2 * S, y + 12 * S), pre, font=f_unit, fill='#C2410C')
+        if i < len(rows) - 1:
+            for dx in range(int(x0 + 24 * S), int(x0 + w - 24 * S), 14 * S):
+                ld.line([(dx, y + 58 * S), (dx + 7 * S, y + 58 * S)], fill='#E8D8C4', width=2 * S)
+    # マスキングテープ
+    tape = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    td = ImageDraw.Draw(tape)
+    td.rectangle([cx - 70 * S, y0 - 16 * S, cx + 70 * S, y0 + 18 * S], fill=(232, 89, 12, 80))
+    tape = tape.rotate(3, center=(cx, y0), resample=Image.BICUBIC)
+    layer = layer.rotate(-2, center=(cx, y0), resample=Image.BICUBIC)
+    img.alpha_composite(layer)
+    img.alpha_composite(tape)
+
+
+VISUALS = {'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo}
 
 
 def og(path, title, sub, theme, slug=None):
