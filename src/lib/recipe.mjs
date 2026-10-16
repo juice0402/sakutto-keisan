@@ -230,7 +230,7 @@ export function parseRecipeText(text) {
     }
     if (CLOCK_RE.test(line)) continue; // 時刻の入った行（スクショのいちばん上の時計など）
     const r = readLine(line);
-    if (r.name && !JA_NAME_RE.test(r.name)) { // 日本語が1文字もない名前は、写真の読み取りのゴミ（「4G 74%」の 4G など）
+    if (r.name && r.name.length < 4 && !JA_NAME_RE.test(r.name)) { // 日本語のない短い名前は、写真の読み取りのゴミ（「ml 4G」の ml など）
       flush();
       continue;
     }

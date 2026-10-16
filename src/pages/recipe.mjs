@@ -5,13 +5,14 @@ import { RECIPE_UNITS } from '../lib/recipe.mjs';
 
 const tool = toolBySlug('recipe');
 const path = '/recipe/';
-const MAX = 15; // 材料は最初5つ、「＋材料を追加」で15まで
+const MAX = 20; // 材料は最初5つ、「＋材料を追加」で20まで
 const FIRST = 5;
 // 入力欄のうすい例（どの行にも入れて見た目をそろえる）[材料, 分量, 単位]。単位は最初からこの単位にしておく
 const RECIPE_EXAMPLES = [
   ['鶏もも肉', '300', 'g'], ['玉ねぎ', '1', '個'], ['しょうゆ', '2', '大さじ'], ['砂糖', '1', '大さじ'], ['水', '200', 'ml'],
   ['にんじん', '1', '本'], ['酒', '1', '大さじ'], ['みりん', '1', '大さじ'], ['しょうが', '1', '片'], ['塩', '0.5', '小さじ'],
   ['じゃがいも', '2', '個'], ['豚こま肉', '200', 'g'], ['牛乳', '1', 'カップ'], ['お米', '2', '合'], ['卵', '2', '個'],
+  ['ベーコン', '50', 'g'], ['ピーマン', '2', '個'], ['白ワイン', '1', '大さじ'], ['バター', '10', 'g'], ['豆腐', '1', '丁'],
 ];
 
 const numInput = (id, placeholder, extra = '') =>
@@ -71,7 +72,7 @@ const FAQS = [
   },
   {
     q: 'レシピサイトや写真から入力できますか？',
-    a: '<p>できます。「レシピの文字・写真から入力」を押して、「写真・スクショから読み取る」で写真をえらぶか、材料の文字を貼り付けると、材料・分量・単位を読み取って入れます。「鶏もも肉 300g」のように1行に書かれた形も、材料と分量が別の行に分かれた形も読めます。「材料（2人分）」のように人数が書いてあれば、レシピの人数も入ります。</p><p>写真の読み取りは、お使いの端末の中で行い、写真を送信しません。はじめて使うときだけ、読み取りの準備に少し時間がかかります。本や紙を撮った写真は読みまちがいが出ることがあるので、読み取った文字を確かめて、直してから入れてください。スマホの文字の読み取り機能（iPhoneの写真アプリで文字を長押しして「コピー」、Androidの「Googleレンズ」など）でコピーした文字を貼り付けることもできます。</p>',
+    a: '<p>できます。「レシピの文字・写真から入力」を押して、「写真・スクショから読み取る」で写真をえらぶか、材料の文字を貼り付けると、材料・分量・単位を読み取って入れます。「鶏もも肉 300g」のように1行に書かれた形も、材料と分量が別の行に分かれた形も読めます。「材料（2人分）」のように人数が書いてあれば、レシピの人数も入ります。</p><p>写真をえらんだら、四すみの丸を動かして材料のところだけを囲んでから読み取ると、読みまちがいが減ります。写真の読み取りは、お使いの端末の中で行い、写真を送信しません。はじめて使うときだけ、読み取りの準備に少し時間がかかります。本や紙を撮った写真は読みまちがいが出ることがあるので、読み取った文字を確かめて、直してから入れてください。スマホの文字の読み取り機能（iPhoneの写真アプリで文字を長押しして「コピー」、Androidの「Googleレンズ」など）でコピーした文字を貼り付けることもできます。</p>',
   },
   {
     q: '入力した数字はどこかに送られますか？',
@@ -106,6 +107,11 @@ export default function render() {
     <label class="wide-btn photo-btn" for="photo" id="photo-btn">${icon(ICONS.photo)}<span>写真・スクショから読み取る</span></label>
     <input type="file" id="photo" accept="image/*" class="sr-only">
     <p class="paste-help">写真は送信しません。この端末の中で文字を読み取ります（はじめて使うときだけ、読み取りの準備に少し時間がかかります）。</p>
+    <div class="crop" id="crop" hidden>
+      <p class="crop-help">材料のところだけを囲むと、読みまちがいが減ります。四すみの丸を動かしてください。</p>
+      <div class="crop-stage"><div class="crop-frame"><img id="crop-img" alt="えらんだ写真" draggable="false"><div class="crop-box" id="crop-box"><span class="crop-h" data-h="nw"></span><span class="crop-h" data-h="ne"></span><span class="crop-h" data-h="sw"></span><span class="crop-h" data-h="se"></span></div></div></div>
+      <button type="button" class="wide-btn is-main" id="crop-go">この範囲を読み取る</button>
+    </div>
     <div class="ocr-status" id="ocr-status" role="status" hidden><p id="ocr-text"></p><div class="ocr-bar" aria-hidden="true"><span id="ocr-fill"></span></div></div>
     <label for="paste-text">または、レシピの材料の文字を貼り付け</label>
     <textarea id="paste-text" rows="7" maxlength="3000" autocomplete="off" placeholder="材料（2人分）&#10;鶏もも肉 300g&#10;玉ねぎ 1個&#10;しょうゆ 大さじ2"></textarea>
@@ -145,7 +151,7 @@ ${section(
 </ol>
 <p>メモの下の3つのボタンで、こんなときにも使えます。</p>
 <ul>
-<li><strong>＋材料を追加</strong>：材料が6つ以上あるとき（15まで）。</li>
+<li><strong>＋材料を追加</strong>：材料が6つ以上あるとき（20まで）。</li>
 <li><strong>手元の量から</strong>：「鶏肉が450gある」のように、手元にある材料の量に合わせて、ほかの材料の分量を出します。何人分になるかもわかります。</li>
 <li><strong>結果をコピー</strong>：出た分量をコピーして、メモアプリや買い物リストに貼れます。</li>
 </ul>`,

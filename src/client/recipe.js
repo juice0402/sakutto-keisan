@@ -3,7 +3,7 @@ import { peopleRatio, haveRatio, scaleRecipe, rawAmount, parseRecipeText, cleanO
 import { $, enterToNext, numericOnly, copyText } from './ui.mjs';
 import { readImageText } from './ocr.mjs';
 
-const MAX = 15;
+const MAX = 20;
 const MAX_PLATES = 12; // お皿の絵はここまで（それより多いときは「＋◯」）
 const NO_QTY = ['少々', '適量']; // 分量を入れない単位
 const ROWS = Array.from({ length: MAX }, (_, i) => i + 1);
@@ -256,6 +256,7 @@ function pasteFromBox() {
   fillRows(parsed, 1, true, false);
   $('paste-text').value = '';
   ocrStatus('', null);
+  $('crop').hidden = true;
   togglePaste(false);
 }
 // 写真・スクショから読み取る（端末の中だけ）→ 読み取った文字を貼り付け欄に出して、直してから入れてもらう
@@ -267,17 +268,76 @@ function ocrStatus(text, progress, error = false) {
   $('ocr-text').textContent = text;
   $('ocr-fill').style.width = `${Math.round(Math.max(0, Math.min(1, progress || 0)) * 100)}%`;
 }
-async function readPhoto() {
+// 写真をえらんだら、読み取る範囲をえらんでもらう（四すみの丸を動かす。最初は写真全体）
+let photoFile = null;
+let photoUrl = '';
+let dragCorner = '';
+const cropBox = { x0: 0, y0: 0, x1: 1, y1: 1 };
+function drawCrop() {
+  const b = $('crop-box').style;
+  b.left = `${cropBox.x0 * 100}%`;
+  b.top = `${cropBox.y0 * 100}%`;
+  b.width = `${(cropBox.x1 - cropBox.x0) * 100}%`;
+  b.height = `${(cropBox.y1 - cropBox.y0) * 100}%`;
+}
+function choosePhoto() {
   const file = $('photo').files && $('photo').files[0];
+  $('photo').value = ''; // 同じ写真をもう一度えらべるように
   if (!file) return;
+  photoFile = file;
+  if (photoUrl) URL.revokeObjectURL(photoUrl);
+  photoUrl = URL.createObjectURL(file);
+  $('crop-img').src = photoUrl;
+  Object.assign(cropBox, { x0: 0, y0: 0, x1: 1, y1: 1 });
+  drawCrop();
+  $('crop').hidden = false;
+  $('crop').scrollIntoView({ block: 'start' }); // 範囲をえらぶ画面を見えるところに
+  $('photo-btn').querySelector('span').textContent = 'ほかの写真をえらぶ';
+  showPasteMsg('');
+  ocrStatus('', null);
+}
+$('crop-img').addEventListener('error', () => {
+  if (!photoFile) return;
+  $('crop').hidden = true;
+  photoFile = null;
+  ocrStatus('この写真は開けませんでした。スクショや、JPEG・PNG の写真でためしてください。', null, true);
+});
+document.querySelectorAll('.crop-h').forEach((h) => {
+  h.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    dragCorner = h.dataset.h;
+    h.setPointerCapture(e.pointerId);
+  });
+  h.addEventListener('pointermove', (e) => {
+    if (!dragCorner) return;
+    const r = $('crop-img').getBoundingClientRect();
+    const fx = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    const fy = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+    const MIN = 0.08; // 小さくなりすぎないように
+    if (dragCorner.includes('w')) cropBox.x0 = Math.min(fx, cropBox.x1 - MIN);
+    if (dragCorner.includes('e')) cropBox.x1 = Math.max(fx, cropBox.x0 + MIN);
+    if (dragCorner.includes('n')) cropBox.y0 = Math.min(fy, cropBox.y1 - MIN);
+    if (dragCorner.includes('s')) cropBox.y1 = Math.max(fy, cropBox.y0 + MIN);
+    drawCrop();
+  });
+  ['pointerup', 'pointercancel'].forEach((t) => h.addEventListener(t, () => { dragCorner = ''; }));
+});
+async function readPhoto() {
+  const file = photoFile;
+  if (!file) return;
+  $('crop-go').disabled = true;
   $('photo').disabled = true;
   $('photo-btn').classList.add('is-busy');
   showPasteMsg('');
   ocrStatus('読み取りの準備中…', 0.02);
   try {
-    const raw = await readImageText(file, (p, reading) => {
-      ocrStatus(reading ? `文字を読み取り中… ${Math.round(p * 100)}%` : '読み取りの準備中…（はじめてのときだけ少し時間がかかります）', p);
-    });
+    const raw = await readImageText(
+      file,
+      (p, reading) => {
+        ocrStatus(reading ? `文字を読み取り中… ${Math.round(p * 100)}%` : '読み取りの準備中…（はじめてのときだけ少し時間がかかります）', p);
+      },
+      { ...cropBox },
+    );
     const text = cleanOcrText(raw);
     $('paste-text').value = text;
     const found = parseRecipeText(text).rows.length;
@@ -287,12 +347,13 @@ async function readPhoto() {
   } catch {
     ocrStatus('読み取りできませんでした。電波のよいところでもう一度ためすか、スマホの文字の読み取り機能でコピーして貼り付けてください。', null, true);
   } finally {
-    $('photo').value = ''; // 同じ写真をもう一度えらべるように
+    $('crop-go').disabled = false;
     $('photo').disabled = false;
     $('photo-btn').classList.remove('is-busy');
   }
 }
-$('photo').addEventListener('change', readPhoto);
+$('photo').addEventListener('change', choosePhoto);
+$('crop-go').addEventListener('click', readPhoto);
 $('to-paste').addEventListener('click', () => togglePaste());
 $('paste-go').addEventListener('click', pasteFromBox);
 $('paste-text').addEventListener('paste', () => setTimeout(pasteFromBox, 0)); // 貼り付けたらすぐ入れる

@@ -52,11 +52,6 @@ jobs:
           npx playwright install --with-deps chromium
           node scripts/ocr-smoke.mjs
 
-      - name: （一時的）写真の読み取りの設定をくらべる
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        run: node scripts/ocr-lab.mjs
-
       - name: Cloudflare Pages へアップロード
         # フォークからのPRには秘密情報が渡らないので、アップロードしない
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository

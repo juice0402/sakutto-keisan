@@ -170,8 +170,17 @@ function minifyJs(src) {
   const multiLineTemplate = lines.some((l) => (l.match(/`/g) || []).length % 2 === 1);
   return lines
     .filter((l) => !/^\s*\/\//.test(l) && !/^\s*\/\*(?:(?!\*\/).)*\*\/\s*$/.test(l) && l.trim() !== '')
-    .map((l) => (multiLineTemplate ? l : l.trim()))
+    .map((l) => (multiLineTemplate ? l : stripTrailingComment(l).trim()))
     .join('\n');
+}
+// 行の後ろの「 // 説明」を取る。その前に ' " ` が閉じていない（文字列の中かもしれない）ときは何もしない
+function stripTrailingComment(line) {
+  const i = line.indexOf(' // ');
+  if (i <= 0) return line;
+  const before = line.slice(0, i);
+  const odd = (ch) => (before.split(ch).length - 1) % 2 === 1;
+  if (odd("'") || odd('"') || odd('`') || /\/[^/]*$/.test(before.replace(/\/\//g, ''))) return line;
+  return before;
 }
 const scripts = {};
 for (const f of readdirSync(join(ROOT, 'src/client'))) {

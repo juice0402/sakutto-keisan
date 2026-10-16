@@ -37,10 +37,31 @@ await page.waitForTimeout(500);
 check(!requests.some((u) => u.includes('/ocr/')), 'ページを開いただけでは読み取りソフトを読み込まない');
 await page.click('#to-paste');
 
-// スクショ（白い背景・ダークモード）は必ず読めること。紙を撮った写真は結果を出すだけ（読みまちがいが出やすい）
-for (const [file, strict] of [['recipe-screenshot.png', true], ['recipe-dark.png', true], ['recipe-photo.jpg', false]]) {
+// スクショ（白い背景・ダークモード・iPadの画面分割を材料のところだけ切り抜き）は必ず読めること。紙を撮った写真は結果を出すだけ
+const SEVEN = [['もも肉', '300', 'g'], ['しょうゆ', '2', '大さじ'], ['水', '200', 'ml']];
+const IPAD = [['鶏もも肉', '1', '枚'], ['ブロッコリー', '0.5', '個'], ['牛乳', '2.5', 'カップ'], ['ローリエ', '1', '枚'], ['こしょう', '', '少々'], ['サラダ油', '1', '大さじ']];
+const PICS = [
+  ['recipe-screenshot.png', SEVEN, 7, 2],
+  ['recipe-dark.png', SEVEN, 7, 2],
+  ['recipe-ipad.png', IPAD, 16, 4, [228 / 1500, 280 / 2000, 1, 1880 / 2000]],
+  ['recipe-photo.jpg', null],
+];
+for (const [file, expect, count, people, crop] of PICS) {
   const t0 = Date.now();
   await page.setInputFiles('#photo', join(ROOT, 'tests/fixtures', file));
+  await page.waitForFunction(() => document.getElementById('crop-img').complete && document.getElementById('crop-img').naturalWidth > 0);
+  if (crop) {
+    // 四すみの丸を動かして、材料のところだけを囲む
+    const box = await page.locator('#crop-img').boundingBox();
+    for (const [h, fx, fy] of [['nw', crop[0], crop[1]], ['se', crop[2], crop[3]]]) {
+      const hb = await page.locator(`.crop-h[data-h="${h}"]`).boundingBox();
+      await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width * fx, box.y + box.height * fy, { steps: 6 });
+      await page.mouse.up();
+    }
+  }
+  await page.click('#crop-go');
   await page.waitForFunction(() => {
     const s = document.getElementById('ocr-text').textContent;
     return /読み取りました|見つかりませんでした|できませんでした/.test(s) && !document.getElementById('photo-btn').classList.contains('is-busy');
@@ -50,17 +71,15 @@ for (const [file, strict] of [['recipe-screenshot.png', true], ['recipe-dark.png
   const report = `${file}（${((Date.now() - t0) / 1000).toFixed(1)}秒）\n${status}\n${text}`;
   console.log(`\n--- ${report}\n---`);
   notice(`写真の読み取り ${file}`, report);
-  if (!strict) continue;
+  if (!expect) continue;
   check(/読み取りました/.test(status), `${file}：読み取れた`);
   await page.click('#paste-go');
-  const rows = await page.evaluate(() => [1, 2, 3, 4, 5, 6, 7].map((n) => [document.getElementById(`name-${n}`).value, document.getElementById(`amt-${n}`).value, document.getElementById(`unit-${n}`).value]));
+  const rows = await page.evaluate(() => Array.from({ length: 20 }, (_, i) => i + 1).map((n) => [document.getElementById(`name-${n}`).value, document.getElementById(`amt-${n}`).value, document.getElementById(`unit-${n}`).value]).filter((r) => r[0] || r[1]));
   console.log('材料に入れた結果:', JSON.stringify(rows));
-  notice(`材料に入れた結果 ${file}`, rows.map((r) => r.join(' ')).join('\n'));
   const has = (name, amt, unit) => rows.some((r) => r[0].includes(name) && r[1] === amt && r[2] === unit);
-  check(has('もも肉', '300', 'g'), `${file}：鶏もも肉 300g`);
-  check(has('しょうゆ', '2', '大さじ'), `${file}：しょうゆ 大さじ2`);
-  check(has('水', '200', 'ml'), `${file}：水 200ml`);
-  check((await page.inputValue('#from')) === '2', `${file}：2人分のレシピ`);
+  for (const [name, amt, unit] of expect) check(has(name, amt, unit), `${file}：${name} ${amt}${unit}`);
+  check(rows.length === count, `${file}：材料の数 ${rows.length}（${count}）`);
+  check((await page.inputValue('#from')) === String(people), `${file}：${people}人分のレシピ`);
   await page.click('#to-paste');
 }
 notice('読み込んだ読み取りソフトのファイル', [...new Set(requests.filter((u) => u.includes('/ocr/')).map((u) => u.slice(BASE.length)))].join('\n'));
