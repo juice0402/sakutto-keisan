@@ -2,7 +2,7 @@
 //   GitHub Actions で、ビルドのあとに動かす（Claude の作業環境からは npm に届かないので、ここでは動かさない）
 //   版は src/client/ocr.mjs の OCR_VERSION。取ってきたファイルの版・大きさ・SHA-256 をログに出す
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, readdirSync, statSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, readdirSync, statSync, existsSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
@@ -54,7 +54,14 @@ const best = data.find((f) => f.includes('4.0.0_best_int')) || data[0];
 if (!best) throw new Error('jpn.traineddata.gz が見つからない');
 lines.push(`日本語のデータ: ${best.slice(jpn.length + 1)}（ほか: ${data.map((f) => f.slice(jpn.length + 1)).join(', ')}）`);
 put(best, 'lang/jpn.traineddata.gz');
-putLicense(jpn, ['LICENSE.md', 'LICENSE', 'LICENSE.txt'], 'lang/LICENSE.txt');
+// 日本語のデータの npm パッケージにはライセンスの文が入っていないので、出どころとライセンスを書いて置く
+if (!['LICENSE.md', 'LICENSE', 'LICENSE.txt'].some((f) => existsSync(join(jpn, f)))) {
+  mkdirSync(join(OUT, 'lang'), { recursive: true });
+  writeFileSync(
+    join(OUT, 'lang/LICENSE.txt'),
+    `jpn.traineddata.gz（${JPN_DATA} の 4.0.0_best_int）\nTesseract OCR の学習済みデータ（https://github.com/tesseract-ocr/tessdata_best ）\nLicensed under the Apache License, Version 2.0: https://www.apache.org/licenses/LICENSE-2.0\n`,
+  );
+} else putLicense(jpn, ['LICENSE.md', 'LICENSE', 'LICENSE.txt'], 'lang/LICENSE.txt');
 
 rmSync(TMP, { recursive: true, force: true });
 for (const f of walk(OUT)) {
