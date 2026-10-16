@@ -85,3 +85,21 @@ test('単価：8つまでの順位（空の商品は飛ばす・同じ値段は�
   assert.deepEqual(rank.map((x) => x.index), [4, 0, 3, 7, 2, 6]);
   assert.deepEqual(rank.map((x) => x.rank), [1, 2, 2, 2, 5, 6]);
 });
+
+test('単価：100gより少ない商品があるときは1gあたりでくらべる', () => {
+  const r = compareUnitPrices([
+    { price: 100, qty: 1, unit: 'g' },
+    { price: 1000, qty: 1, unit: 'g' },
+  ]);
+  assert.equal(r.base.label, '1g');
+  assert.equal(r.results[0].per, 100);
+  assert.equal(r.results[1].per, 1000);
+  assert.equal(r.diff, 900);
+  assert.equal(r.pct, 90);
+  const big = compareUnitPrices([{ price: 198, qty: 500, unit: 'g' }, { price: 298, qty: 1, unit: 'kg' }]);
+  assert.equal(big.base.label, '100g');
+  const spice = compareUnitPrices([{ price: 128, qty: 20, unit: 'g' }, { price: 398, qty: 100, unit: 'g' }]);
+  assert.equal(spice.base.label, '1g');
+  assert.equal(spice.results[0].per, 6.4);
+  assert.equal(spice.results[1].per, 3.98);
+});

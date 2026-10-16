@@ -57,7 +57,8 @@ function update() {
   const firstOk = r.results.findIndex((x) => x.ok);
   const ref = firstOk >= 0 ? firstOk : 0;
   const dim = firstOk >= 0 ? r.results[firstOk].dim : UNITS[items[0].unit].dim;
-  const base = baseLabel(dim, items[ref].unit);
+  // 基準（100gあたり・1gあたり・1個あたりなど）。くらべられたときは計算で決まった基準を使う
+  const base = r.base ? (dim === 'count' ? baseLabel(dim, items[ref].unit) : r.base.label) : baseLabel(dim, items[ref].unit);
 
   // 入力まちがいの印
   keys.forEach((k, i) => {

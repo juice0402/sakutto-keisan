@@ -60,9 +60,16 @@ export function compareUnitPrices(items) {
   const ok = results.map((r, i) => ({ r, i })).filter((x) => x.r.ok);
   if (ok.length < 2) return { ok: false, results };
   if (new Set(ok.map((x) => x.r.dim)).size > 1) return { ok: false, results, mismatch: true };
+  // 基準を決める：ふつうは100gあたり。100g（100ml）より少ない商品があるときは1gあたりにする
+  // （1gの商品を「100gあたり」にすると、ありえない大きな金額に見えるため）
+  const dim = ok[0].r.dim;
+  const minAmount = Math.min(...ok.map((x) => x.r.amount));
+  const small = (dim === 'weight' || dim === 'volume') && minAmount < BASES[dim].n;
+  const base = small ? { n: 1, label: dim === 'weight' ? '1g' : '1ml' } : { ...BASES[dim] };
+  for (const x of ok) x.r.per = fix((x.r.pay / x.r.amount) * base.n);
   const min = Math.min(...ok.map((x) => x.r.per));
   const best = ok.filter((x) => x.r.per === min).map((x) => x.i);
-  if (best.length === ok.length) return { ok: true, results, best, same: true };
+  if (best.length === ok.length) return { ok: true, results, best, same: true, base };
   // いちばん安いものと、2番目に安いものをくらべる
   const others = ok.filter((x) => !best.includes(x.i)).sort((a, b) => a.r.per - b.r.per);
   const second = others[0];
@@ -70,8 +77,8 @@ export function compareUnitPrices(items) {
   const diff = fix(second.r.per - min);
   const pct = fix((diff / second.r.per) * 100);
   // 安いほうの量を、2番目の単価で買ったときとの差額
-  const saving = fix((win.amount / BASES[win.dim].n) * second.r.per - win.pay);
-  return { ok: true, results, best, second: second.i, diff, pct, saving };
+  const saving = fix((win.amount / base.n) * second.r.per - win.pay);
+  return { ok: true, results, best, second: second.i, diff, pct, saving, base };
 }
 
 /** 入っている商品を、基準あたりの値段が安い順に並べる（同じ値段は同じ順位） */
