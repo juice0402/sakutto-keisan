@@ -39,8 +39,9 @@ test('分量の書き方：g・ml・大さじ・小さじ・カップ・個・�
   assert.equal(t(3.5, '小さじ'), '小さじ3と½'); // 大さじだと半端
   assert.equal(t(0.5, '大さじ'), '大さじ½');
   assert.equal(t(0.125, '小さじ'), '少々');
-  assert.equal(t(1.5, 'カップ'), '1と½カップ');
-  assert.equal(formatAmount(1.5, 'カップ').sub, '300ml');
+  assert.equal(t(1.5, 'カップ'), '300ml'); // カップは ml を大きく、カップの量は小さく添える
+  assert.equal(formatAmount(1.5, 'カップ').sub, '1と½カップ');
+  assert.deepEqual(formatAmount(1.2, 'カップ'), { text: '240ml', approx: false, sub: '約1と¼カップ' });
   assert.equal(t(2.5, '小さじ'), '小さじ2と½'); // 大さじだと半端なので小さじのまま
   assert.deepEqual(formatAmount(1.6, '大さじ'), { text: '大さじ1と⅔', approx: true });
   assert.equal(t(0.1, 'カップ'), '20ml');
@@ -62,8 +63,6 @@ test('レシピ2人分 → 3人分（ページの計算例）', () => {
   ];
   const out = scaleRecipe(rows, peopleRatio(2, 3).ratio);
   assert.deepEqual(out.map((r) => r.to), ['450g', '1と½個', '大さじ3', '大さじ1と½', '300ml', '少々']);
-  assert.equal(out[0].from, '300g');
-  assert.equal(out[2].from, '大さじ2');
   assert.equal(scaleRecipe([{ name: '', amount: 100, unit: 'g' }], 2)[0].name, '材料1');
   assert.ok(scaleRecipe([{ name: '卵', amount: 0, unit: '個' }], 2)[0].error);
   assert.equal(scaleRecipe([{ name: '', amount: null, unit: '適量' }], 2).length, 0);
@@ -160,4 +159,10 @@ test('写真から読み取った文字：® の読みまちがい（$ ?）', ()
 
 test('写真から読み取った文字：よくある読みまちがい（1/2 → 172・丸の印）', () => {
   assert.equal(cleanOcrText('ブロッコリー 172個 (150g)\nの⑳ 牛乳 2・172カップ\nの 固形コンソメ 1個\n塩 小さじ174\n鶏肉 172g\n水 1720ml'), 'ブロッコリー 1/2個 (150g)\n牛乳 2・1/2カップ\n固形コンソメ 1個\n塩小さじ1/4\n鶏肉 172g\n水 1720ml');
+});
+
+test('お米の合は重さ、お酒の合は ml を添える', () => {
+  const out = scaleRecipe([{ name: 'お米', amount: 2, unit: '合' }, { name: '日本酒', amount: 1, unit: '合' }], 1.5);
+  assert.deepEqual(out.map((r) => [r.to, r.sub]), [['3合', '約450g'], ['1と½合', '270ml']]);
+  assert.deepEqual(scaleRecipe([{ name: '牛乳', amount: 2.5, unit: 'カップ' }], 0.5).map((r) => [r.to, r.sub]), [['250ml', '1と¼カップ']]);
 });

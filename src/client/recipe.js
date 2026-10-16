@@ -134,8 +134,7 @@ function update() {
       if (x.error) return `<li class="memo-row is-error"><span class="memo-name">${escText(x.name)}</span><span class="memo-amt">？</span></li>`;
       const approx = x.approx ? '<small class="memo-approx">約</small>' : '';
       const sub = x.sub ? `<small class="memo-sub">（${x.sub}）</small>` : '';
-      const was = x.from && x.from !== x.to ? `<small class="memo-was">元 ${escText(x.from)}</small>` : '';
-      return `<li class="memo-row"><span class="memo-name">${escText(x.name)}</span><span class="memo-amt">${approx}${escText(x.to)}${sub}${was}</span></li>`;
+      return `<li class="memo-row"><span class="memo-name">${escText(x.name)}</span><span class="memo-amt">${approx}${escText(x.to)}${sub}</span></li>`;
     })
     .join('');
 

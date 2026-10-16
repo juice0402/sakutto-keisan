@@ -322,7 +322,6 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .memo-amt { text-align: right; font-size: 22px; font-weight: 800; line-height: 1.25; color: var(--accent-strong); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .memo-approx { font-size: 14px; margin-right: 2px; }
 .memo-sub { font-size: 13px; color: var(--muted); }
-.memo-was { display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
 .memo-row.is-error .memo-amt { color: var(--error); }
 .memo-empty { margin: 6px 0 8px !important; font-size: 14px; color: var(--muted); text-align: center; }
 

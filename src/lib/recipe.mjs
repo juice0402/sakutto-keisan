@@ -44,7 +44,7 @@ export function toFraction(x) {
   return { text, approx };
 }
 
-/** 分量を、料理で使いやすい書き方にする（大さじ⇔小さじ、分数、少々）。approx：ちょうどでないので「約」をつける。sub：カップのml */
+/** 分量を、料理で使いやすい書き方にする（大さじ⇔小さじ、分数、少々、カップは ml）。approx：ちょうどでないので「約」をつける。sub：小さく添える書き方 */
 export function formatAmount(value, unit) {
   if (NO_AMOUNT.has(unit)) return { text: unit, approx: false };
   if (DECIMAL_UNITS.has(unit)) {
@@ -63,10 +63,11 @@ export function formatAmount(value, unit) {
     return useBig ? { text: `大さじ${big.text}`, approx: big.approx } : { text: `小さじ${small.text}`, approx: small.approx };
   }
   if (unit === 'カップ') {
-    const ml = `${fmt(Math.round(value * 200), 0)}ml`; // 1カップ＝200ml
-    if (value < 0.25 - 1e-9) return { text: ml, approx: false };
+    // 「1と¼カップ」はピンとこないので ml を大きく出し、カップは小さく添える（1カップ＝200ml）
+    const ml = formatAmount(value * 200, 'ml');
+    if (value < 0.25 - 1e-9) return ml;
     const f = toFraction(value);
-    return { text: `${f.text}カップ`, approx: f.approx, sub: ml };
+    return { text: ml.text, approx: false, sub: `${f.approx ? '約' : ''}${f.text}カップ` };
   }
   if (PIECE.has(unit)) {
     const f = toFraction(value);
@@ -87,10 +88,12 @@ export function rawAmount(value, unit) {
   return unit === '大さじ' || unit === '小さじ' ? `${unit}${v}` : `${v}${unit}`;
 }
 
+const RICE_RE = /米|こめ|コメ|ごはん|ご飯|ライス/;
+
 /**
  * 材料の分量に倍率をかける
  * @param {{name:string, amount:number|null, unit:string}[]} rows
- * @returns {{name:string, unit:string, from?:string, to:string, approx:boolean, sub?:string, error?:string}[]} 空の行は入れない
+ * @returns {{name:string, unit:string, to:string, approx:boolean, sub?:string, error?:string}[]} 空の行は入れない（sub：カップの量・お米の重さなど、小さく添える）
  */
 export function scaleRecipe(rows, ratio) {
   const out = [];
@@ -105,8 +108,11 @@ export function scaleRecipe(rows, ratio) {
       out.push({ name, unit: r.unit, to: '', approx: false, error: '分量は0より大きい数字で入れてください。' });
       return;
     }
-    const f = formatAmount(fix(r.amount * ratio), r.unit);
-    out.push({ name, unit: r.unit, from: rawAmount(r.amount, r.unit), to: f.text, approx: f.approx, sub: f.sub });
+    const value = fix(r.amount * ratio);
+    const f = formatAmount(value, r.unit);
+    // 合は、お米なら重さの目安（1合＝約150g）、ほか（お酒など）は ml（1合＝180ml）を添える
+    if (r.unit === '合') f.sub = RICE_RE.test(name) ? `約${fmt(Math.round(value * 150), 0)}g` : `${fmt(Math.round(value * 180), 0)}ml`;
+    out.push({ name, unit: r.unit, to: f.text, approx: f.approx, sub: f.sub });
   });
   return out;
 }
