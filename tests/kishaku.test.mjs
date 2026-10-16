@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dilute, ratioFromPercent, waterPart, volumeText, spoonText } from '../src/lib/kishaku.mjs';
+import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText } from '../src/lib/kishaku.mjs';
 
 const r = (p) => {
   const x = dilute(p);
@@ -28,6 +28,16 @@ test('濃度（%）から倍率（ページの計算例：6％を0.05％に）',
   assert.ok(ratioFromPercent(0.05, 6).error); // 濃くはできない
   assert.ok(ratioFromPercent(120, 1).error);
   assert.equal(ratioFromPercent(null, 1).empty, true);
+});
+
+test('何対何から倍率（ページの計算例：1対3で800ml）', () => {
+  assert.equal(ratioFromParts(1, 3).ratio, 4);
+  assert.deepEqual(r({ ratio: ratioFromParts(1, 3).ratio, amount: 800 }), ['200ml', '600ml', '800ml']);
+  assert.equal(ratioFromParts(2, 3).ratio, 2.5);
+  assert.equal(ratioFromParts(1, 0).ratio, 1); // 水なし＝薄めない
+  assert.ok(ratioFromParts(0, 3).error);
+  assert.ok(ratioFromParts(1, NaN).error);
+  assert.equal(ratioFromParts(1, null).empty, true);
 });
 
 test('まちがった入力', () => {

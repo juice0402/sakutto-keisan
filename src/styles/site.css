@@ -82,7 +82,7 @@ body {
 a { color: var(--accent-strong); text-underline-offset: 3px; }
 a, button, input, select, summary, label { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 /* 押す部品は長押しで文字が選ばれないように */
-.tile, .tool-btn, .cmp-tab, .cmp-item, .clear-btn, .step-btn, .wide-btn { -webkit-user-select: none; user-select: none; }
+.tile, .tool-btn, .cmp-tab, .cmp-item, .clear-btn, .step-btn, .wide-btn, .seg-btn { -webkit-user-select: none; user-select: none; }
 img, svg { display: block; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 
@@ -326,6 +326,18 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .memo-empty { margin: 6px 0 8px !important; font-size: 14px; color: var(--muted); text-align: center; }
 
 /* 希釈率 */
+/* 3つから1つをえらぶ大きなボタン（薄め方・わかっている量） */
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 14px; }
+.seg-btn {
+  font: inherit; font-size: 16px; font-weight: 800; color: var(--text); background: var(--surface); cursor: pointer;
+  min-height: var(--ctl-h); padding: 4px; border: 1.5px solid var(--border); border-radius: var(--ctl-r);
+}
+.seg-btn:active { transform: scale(0.97); }
+.seg-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); box-shadow: inset 0 0 0 1px var(--accent); }
+.seg-label { margin: 6px 0 8px; font-size: var(--label); font-weight: 700; }
+.parts { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: end; }
+.parts .field { margin: 0; min-width: 0; }
+.parts-colon { font-size: 28px; font-weight: 800; line-height: var(--ctl-h); color: var(--muted); }
 .field-help { margin: 8px 0 0; font-size: 13px; line-height: 1.6; color: var(--muted); }
 .pct-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pct-fields .input { padding: 0 12px; }

@@ -44,6 +44,14 @@ export function ratioFromPercent(src, target) {
   return { ok: true, ratio: fix(src / target) };
 }
 
+/** 何対何（原液：水）から倍率を出す：（原液 ＋ 水）÷ 原液。1対3なら4倍 */
+export function ratioFromParts(conc, water) {
+  if (conc === null || water === null) return { ok: false, empty: true };
+  if (Number.isNaN(conc) || conc <= 0) return { ok: false, error: '原液の割合は、0より大きい数字で入れてください。', field: 'pc' };
+  if (Number.isNaN(water) || water < 0) return { ok: false, error: '水の割合は、0以上の数字で入れてください。', field: 'pw' };
+  return { ok: true, ratio: fix((conc + water) / conc) };
+}
+
 /** 「原液1：水9」の水のぶん（倍率 − 1） */
 export const waterPart = (ratio) => fmt(ratio - 1, 2);
 
