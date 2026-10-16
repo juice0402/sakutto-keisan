@@ -51,6 +51,7 @@ jobs:
           npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.48.2
           npx playwright install --with-deps chromium
           node scripts/ocr-smoke.mjs
+          node scripts/ocr-lab.mjs || true
 
       - name: Cloudflare Pages へアップロード
         # フォークからのPRには秘密情報が渡らないので、アップロードしない
