@@ -23,6 +23,76 @@ const css = readFileSync(join(ROOT, 'src/styles/site.css'), 'utf8')
   .replace(/\s*([{};,>])\s*/g, '$1') // 「:」はさわらない（:hover などのセレクタを壊さないため）
   .replace(/;}/g, '}');
 
+// --- CSS をページごとに小さく：そのページの HTML とスクリプトに出てこないクラス・id のルールを落とす
+//   決まり：クラス名は HTML か JS にそのままの形で書く（'is-' + x のように組み立てない）
+//   [data-theme="…"] はそのページのテーマだけ残す。@keyframes は残ったルールが使うものだけ
+const CSS_TOKEN = /[.#](-?[A-Za-z_][\w-]*)/g;
+function splitTop(text, sep) {
+  // かっこ（:has(...) など）の中の区切りでは切らない
+  const out = [];
+  let depth = 0;
+  let cur = '';
+  for (const c of text) {
+    if (c === '(') depth++;
+    if (c === ')') depth--;
+    if (c === sep && depth === 0) {
+      out.push(cur);
+      cur = '';
+    } else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+function pruneCss(cssText, html) {
+  const text = html.replace(/<style>[\s\S]*?<\/style>/, '');
+  const theme = (html.match(/<body data-theme="([^"]+)"/) || [])[1];
+  const memo = new Map();
+  const has = (name) => {
+    if (!memo.has(name)) memo.set(name, new RegExp(`(?<![\\w-])${name}(?![\\w-])`).test(text));
+    return memo.get(name);
+  };
+  const keepSel = (sel) => {
+    for (const m of sel.matchAll(/\[data-theme="([^"]+)"\]/g)) if (m[1] !== theme) return false;
+    return [...sel.replace(/\[[^\]]*\]/g, '').replace(/\([^)]*\)/g, (m) => m.replace(/[.#]/g, ' ')).matchAll(CSS_TOKEN)].every((m) => has(m[1]));
+  };
+  const keyframes = [];
+  const walk = (src) => {
+    let out = '';
+    let i = 0;
+    while (i < src.length) {
+      const open = src.indexOf('{', i);
+      if (open < 0) break;
+      const prelude = src.slice(i, open);
+      let depth = 0;
+      let j = open;
+      for (; j < src.length; j++) {
+        if (src[j] === '{') depth++;
+        else if (src[j] === '}' && --depth === 0) break;
+      }
+      const block = src.slice(open + 1, j);
+      if (/^@(media|supports)/.test(prelude)) {
+        const inner = walk(block);
+        if (inner) out += `${prelude}{${inner}}`;
+      } else if (/^@keyframes/.test(prelude)) {
+        keyframes.push([prelude, block]);
+      } else if (prelude.startsWith('@')) {
+        out += `${prelude}{${block}}`;
+      } else {
+        const sels = splitTop(prelude, ',').filter(keepSel);
+        if (sels.length) out += `${sels.join(',')}{${block}}`;
+      }
+      i = j + 1;
+    }
+    return out;
+  };
+  let out = walk(cssText);
+  for (const [prelude, block] of keyframes) {
+    const name = prelude.replace('@keyframes', '').trim();
+    if (new RegExp(`animation(-name)?:[^;}]*(?<![\\w-])${name}(?![\\w-])`).test(out)) out += `${prelude}{${block}}`;
+  }
+  return out;
+}
+
 // --- ブラウザ用スクリプト：import をたどって1つにまとめる（小さなバンドラー）
 //   決まり：import は1行で `import { a, b } from './x.mjs';` の形。まとめると同じスコープになるので名前を重ねない
 //   部品のファイル（src/lib・src/client/*.mjs）は、入口から使われている関数・定数だけを残す（ツリーシェイキング）
@@ -126,8 +196,9 @@ for (const p of pages) {
   seenPaths.add(p.path);
   const file = p.file ? join(DIST, p.file) : join(DIST, p.path, 'index.html');
   mkdirSync(dirname(file), { recursive: true });
-  // 行頭の字下げと空行を取る（<pre> や <textarea> は使っていない）
-  writeFileSync(file, p.html.split('\n').map((l) => l.trim()).filter(Boolean).join('\n') + '\n');
+  // そのページで使う CSS だけにして、行頭の字下げと空行を取る（<pre> や <textarea> は使っていない）
+  const html = p.html.replace(/<style>([\s\S]*?)<\/style>/, (_, c) => `<style>${pruneCss(c, p.html)}</style>`);
+  writeFileSync(file, html.split('\n').map((l) => l.trim()).filter(Boolean).join('\n') + '\n');
 }
 
 // --- public/ と sitemap

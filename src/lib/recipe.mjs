@@ -73,6 +73,12 @@ export function formatAmount(value, unit) {
   return { text: `${fmt(value, 2)}${unit}`, approx: false };
 }
 
+/** 入れたままの分量の書き方（「元 大さじ2」「元 1.2カップ」の表示用。きりのいい量には直さない） */
+export function rawAmount(value, unit) {
+  if (NO_AMOUNT.has(unit)) return unit;
+  return unit === '大さじ' || unit === '小さじ' ? `${unit}${fmt(value, 3)}` : `${fmt(value, 3)}${unit}`;
+}
+
 /**
  * 材料の分量に倍率をかける
  * @param {{name:string, amount:number|null, unit:string}[]} rows
@@ -92,7 +98,7 @@ export function scaleRecipe(rows, ratio) {
       return;
     }
     const f = formatAmount(fix(r.amount * ratio), r.unit);
-    out.push({ name, unit: r.unit, from: formatAmount(r.amount, r.unit).text, to: f.text, approx: f.approx, sub: f.sub });
+    out.push({ name, unit: r.unit, from: rawAmount(r.amount, r.unit), to: f.text, approx: f.approx, sub: f.sub });
   });
   return out;
 }

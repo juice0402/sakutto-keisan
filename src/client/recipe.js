@@ -1,5 +1,5 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { peopleRatio, haveRatio, scaleRecipe, formatAmount } from '../lib/recipe.mjs';
+import { peopleRatio, haveRatio, scaleRecipe, rawAmount } from '../lib/recipe.mjs';
 import { $, enterToNext, numericOnly, copyText } from './ui.mjs';
 
 const MAX = 15;
@@ -48,7 +48,7 @@ function drawPlates(from, to) {
 function refreshBase(rows) {
   const sel = $('base');
   const usable = rows.filter((r) => !NO_QTY.includes(r.unit) && r.amount !== null && !Number.isNaN(r.amount) && r.amount > 0);
-  const opts = usable.map((r) => [String(r.n), `${r.name.trim() || `材料${r.n}`}（${formatAmount(r.amount, r.unit).text}）`]);
+  const opts = usable.map((r) => [String(r.n), `${r.name.trim() || `材料${r.n}`}（${rawAmount(r.amount, r.unit)}）`]);
   const sig = JSON.stringify(opts);
   if (sel.dataset.sig !== sig) {
     sel.innerHTML = opts.length
@@ -115,8 +115,9 @@ function update() {
   const to = from * ratio; // 作る人数（手元の量に合わせるときは計算で出る）
   const toText = Math.abs(to - Math.round(to * 10) / 10) > 1e-9 ? `約${persons(to)}` : persons(to);
   drawPlates(from, matchOn ? Math.max(0.5, Math.round(to * 2) / 2) : to);
-  const ratioText = Math.abs(ratio - Math.round(ratio * 100) / 100) > 1e-9 ? `約${fmt(ratio, 2)}` : fmt(ratio, 2);
-  $('ratio').innerHTML = `<span class="ratio-pp">${persons(from)} → ${toText}</span><span class="ratio-x">×<strong>${ratioText}</strong>倍</span>`;
+  const approxRatio = Math.abs(ratio - Math.round(ratio * 100) / 100) > 1e-9;
+  const ratioText = `${approxRatio ? '約' : ''}${fmt(ratio, 2)}`;
+  $('ratio').innerHTML = `<span class="ratio-pp">${persons(from)} → ${toText}</span><span class="ratio-x">${approxRatio ? '約' : ''}<strong>${fmt(ratio, 2)}</strong>倍</span>`;
 
   const out = scaleRecipe(rows, ratio);
   const title = matchOn ? `手元の量に合わせた材料（${toText}）` : `${toText}の材料`;
@@ -129,7 +130,7 @@ function update() {
   $('memo-empty').hidden = true;
   $('memo-list').innerHTML = out
     .map((x) => {
-      if (x.error) return `<li class="memo-row is-error"><span class="memo-name">${escText(x.name)}</span><span class="memo-amt"><small>${x.error}</small></span></li>`;
+      if (x.error) return `<li class="memo-row is-error"><span class="memo-name">${escText(x.name)}</span><span class="memo-amt">？</span></li>`;
       const approx = x.approx ? '<small class="memo-approx">約</small>' : '';
       const sub = x.sub ? `<small class="memo-sub">（${x.sub}）</small>` : '';
       const was = x.from && x.from !== x.to ? `<small class="memo-was">元 ${escText(x.from)}</small>` : '';
@@ -139,9 +140,10 @@ function update() {
 
   const ok = out.filter((x) => !x.error);
   const lines = [];
-  if (ok.some((x) => x.approx)) lines.push('「約」は、¼・⅓・½などのきりのいい量に近づけた目安です。');
-  if (out.some((x) => x.error)) lines.push('分量は0より大きい数字で入れてください。');
-  setNote(lines.join(''), out.some((x) => x.error));
+  const bad = out.filter((x) => x.error).map((x) => `「${x.name}」`);
+  if (bad.length) lines.push(`${bad.join('')}の分量は、0より大きい数字で入れてください。`);
+  else if (ok.some((x) => x.approx)) lines.push('「約」は、¼・⅓・½などのきりのいい量に近づけた目安です。');
+  setNote(lines.join(''), bad.length > 0);
 
   lastText = [`【${title}】（${persons(from)}のレシピの${ratioText}倍）`, ...ok.map((x) => `・${x.name}　${x.approx ? '約' : ''}${x.to}${x.sub ? `（${x.sub}）` : ''}`)].join('\n');
   refreshCopy();

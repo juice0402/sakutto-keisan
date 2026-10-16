@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { peopleRatio, haveRatio, toFraction, formatAmount, scaleRecipe } from '../src/lib/recipe.mjs';
+import { peopleRatio, haveRatio, toFraction, formatAmount, rawAmount, scaleRecipe } from '../src/lib/recipe.mjs';
 
 const t = (v, u) => formatAmount(v, u).text;
 
@@ -63,9 +63,17 @@ test('レシピ2人分 → 3人分（ページの計算例）', () => {
   const out = scaleRecipe(rows, peopleRatio(2, 3).ratio);
   assert.deepEqual(out.map((r) => r.to), ['450g', '1と½個', '大さじ3', '大さじ1と½', '300ml', '少々']);
   assert.equal(out[0].from, '300g');
+  assert.equal(out[2].from, '大さじ2');
   assert.equal(scaleRecipe([{ name: '', amount: 100, unit: 'g' }], 2)[0].name, '材料1');
   assert.ok(scaleRecipe([{ name: '卵', amount: 0, unit: '個' }], 2)[0].error);
   assert.equal(scaleRecipe([{ name: '', amount: null, unit: '適量' }], 2).length, 0);
+});
+
+test('元の分量は入れたままの書き方で出す', () => {
+  assert.equal(rawAmount(1.2, 'カップ'), '1.2カップ'); // 1と¼カップ に直さない
+  assert.equal(rawAmount(0.5, '小さじ'), '小さじ0.5');
+  assert.equal(rawAmount(1000, 'g'), '1,000g');
+  assert.equal(rawAmount(null, '少々'), '少々');
 });
 
 test('レシピ4人分 → 1人分（少ない量）', () => {
