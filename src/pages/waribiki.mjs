@@ -18,7 +18,7 @@ const TILES = `<div class="tiles" role="group" aria-labelledby="l-rate">${[10, 2
       ? `<button type="button" class="tile" data-pct="50" aria-pressed="false"><b>半額</b><small>50%・5割引き</small></button>`
       : `<button type="button" class="tile" data-pct="${v}" aria-pressed="false"><b>${v}%</b><small>${v / 10}割引き</small></button>`,
   )
-  .join('')}<div class="tile tile-input" id="f-rate"><div class="tile-box"><input id="rate" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="入力" aria-describedby="l-rate"><span>%</span></div><label for="rate">ほかの割引</label></div></div>`;
+  .join('')}<div class="tile tile-input" id="f-rate"><div class="tile-box"><input id="rate" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="?" aria-describedby="l-rate"><span>%</span></div><label for="rate">その他（％）</label></div></div>`;
 
 const ICONS = {
   more: '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9-9-9Z"/><path d="M8 7.5h3M9.5 6v3"/>',
@@ -75,7 +75,7 @@ export default function render() {
   </div>
   ${field('sale', '割引後の値段', '円', '1,400', ' data-mode="rate" hidden')}
   <div class="field" data-mode="off compare">
-    <p class="label" id="l-rate">割引をえらぶ</p>
+    <p class="label" id="l-rate">値引きをえらぶ</p>
     ${TILES}
   </div>
   ${field('rate2', 'さらに割引（クーポンなど）', '％オフ', '10', ' hidden')}
@@ -109,7 +109,7 @@ ${section(
   '使い方',
   `<ol>
 <li><strong>元の値段</strong>を入れます（定価・税込価格など、知りたいほうの値段）。</li>
-<li><strong>割引をえらびます。</strong>ボタンには「30%」と「3割引き」の両方を書いてあります。15％などは右下の「ほかの割引」に入れます。</li>
+<li><strong>値引きをえらびます。</strong>ボタンには「30%」と「3割引き」の両方を書いてあります。15％などは右下の「その他（％）」に、％の数字で入れます。</li>
 <li>すぐに、<strong>割引後の値段</strong>と<strong>おトクになる額</strong>が値札で表示されます。</li>
 </ol>
 <p>値札の下の3つのボタンで、こんな計算もできます。</p>

@@ -80,10 +80,15 @@ function drawMini(k, r, price) {
 }
 
 /* ---- 入力欄とタイル ---- */
+/** 「その他」のマスの数字の幅を中身に合わせる（「75%」がほかのタイルと同じに見えるように） */
+function fitRate() {
+  inRate.style.width = `${Math.max(1, inRate.value.length) + 0.2}ch`;
+}
+
 function syncInputs() {
   const it = item();
   if (document.activeElement !== inPrice) inPrice.value = it.price;
-  // タイルにある割引なら「ほかの割引」は空にしておく（入力中はさわらない）
+  // タイルにある割引なら「その他」は空にしておく（入力中はさわらない）
   const r = num(it.rate);
   const isTile = TILE_PCTS.includes(r);
   if (document.activeElement !== inRate) inRate.value = isTile ? '' : it.rate;
@@ -92,7 +97,8 @@ function syncInputs() {
   // ラベル・タブ
   const k = S.mode === 'compare' ? S.active.toUpperCase() : '';
   $('l-price').textContent = k ? `${k}の値段` : '元の値段';
-  $('l-rate').textContent = k ? `${k}の割引をえらぶ` : '割引をえらぶ';
+  $('l-rate').textContent = k ? `${k}の値引きをえらぶ` : '値引きをえらぶ';
+  fitRate();
   ['a', 'b'].forEach((key) => {
     const v = S.items[key];
     const p = num(v.price);
@@ -229,7 +235,7 @@ document.querySelector('.tiles').addEventListener('click', (e) => {
   update();
 });
 inPrice.addEventListener('input', () => { item().price = inPrice.value; update(); });
-inRate.addEventListener('input', () => { item().rate = inRate.value; update(); });
+inRate.addEventListener('input', () => { item().rate = inRate.value; fitRate(); update(); });
 [inRate2, inSale].forEach((el) => el.addEventListener('input', update));
 $('f-rate').addEventListener('click', () => inRate.focus());
 document.querySelectorAll('.cmp-tab, .cmp-item').forEach((el) => el.addEventListener('click', () => setActive(el.dataset.item)));
