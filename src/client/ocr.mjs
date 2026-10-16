@@ -68,7 +68,7 @@ export function cleanImage(px, w, h, opt = {}) {
         if (e - x >= minRun) {
           let thin = 0;
           for (let k = x; k < e; k++) if (!dark[(y - 3) * w + k] && !dark[(y + 3) * w + k]) thin++;
-          if (thin >= (e - x) * 0.85) for (let k = x; k < e; k++) erase(y * w + k);
+          if (thin >= (e - x) * (opt.thin || 0.85)) for (let k = x; k < e; k++) erase(y * w + k);
         }
         x = e;
       }

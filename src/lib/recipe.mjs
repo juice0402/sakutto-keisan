@@ -278,7 +278,8 @@ export function cleanOcrText(text) {
     .map((l) =>
       l
         .replace(MARK_RE, '')
-        .replace(/[\u2460-\u24ff]/g, '')
+        .replace(/[\u2460-\u24ff$®™©]/g, '') // 丸の印・®（写真では「$」に読まれやすい）
+        .replace(/([\u3040-\u30ff\u3400-\u9fff」』])[?？](?=\s|$)/g, '$1') // 「ほんじお®」の ® →「?」
         .replace(JA_GAP_RE, '$1')
         .replace(JA_GAP_RE, '$1')
         .replace(/[ \t\u3000]{2,}/g, ' ')
