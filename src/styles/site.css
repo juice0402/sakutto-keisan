@@ -74,7 +74,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 a { color: var(--accent-strong); text-underline-offset: 3px; }
-a, button, input, select, summary, label { touch-action: manipulation; }
+a, button, input, select, summary, label { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+/* 押す部品は長押しで文字が選ばれないように */
+.tile, .tool-btn, .cmp-tab, .cmp-item, .chip, .clear-btn, .seg label { -webkit-user-select: none; user-select: none; }
 img, svg { display: block; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 
@@ -191,28 +193,74 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .grid2 .field { margin: 0; min-width: 0; }
 .grid2 .input { padding: 0 12px; }
 .grid2 .input .unit { font-size: 13px; margin-left: 4px; white-space: nowrap; }
-.calc > .chips { margin-top: 10px; }
 #f-rate2 { margin: 12px 0 0; }
 
-/* 欄の見出し＋単位の切り替え（％／割） */
-.field-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 0 0 6px; min-height: 34px; }
+/* 欄の見出し（右にクリア） */
+.field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 6px; }
 .field-head label { font-size: 14px; font-weight: 600; }
-.unit-switch { display: inline-flex; padding: 2px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); }
-.unit-switch button {
-  font: inherit; font-size: 13px; font-weight: 700; min-width: 34px; min-height: 28px; padding: 0 8px;
-  border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer;
+.clear-btn {
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: 0;
+  min-height: 32px; padding: 0 2px 0 12px; cursor: pointer;
 }
-.unit-switch button[aria-pressed="true"] { background: var(--accent-strong); color: var(--on-accent); }
-.grid2 .field-head + .input, .grid2 label + .input { margin-top: 0; }
-.grid2 > .field > label { min-height: 34px; display: flex; align-items: center; margin-bottom: 6px; }
-.field.is-target .input { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field > .label { display: block; font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+
+/* 割引のタイル（「30%」と「3割引き」を両方表示）。押しやすい大きさ */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile {
+  font: inherit; color: var(--text); background: var(--surface);
+  min-height: 64px; padding: 6px 4px; border: 1.5px solid var(--border); border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  cursor: pointer; transition: background .12s, border-color .12s, transform .08s;
+}
+.tile b { font-size: 21px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.tile small { font-size: 12px; line-height: 1.3; color: var(--muted); font-weight: 600; }
+.tile:active { transform: scale(0.96); }
+.tile[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+.tile[aria-pressed="true"] small { color: rgb(255 255 255 / 0.88); }
+.tile-input { cursor: text; padding: 4px 8px; }
+.tile-box { display: flex; align-items: baseline; justify-content: center; gap: 2px; }
+.tile-box input {
+  width: 3.4em; min-width: 0; border: 0; background: transparent; color: var(--text); outline: none; padding: 0;
+  font: inherit; font-size: 21px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums;
+}
+.tile-box input::placeholder { color: var(--muted); opacity: .6; font-size: 16px; font-weight: 700; }
+.tile-box span { font-size: 15px; font-weight: 800; color: var(--muted); }
+.tile-input label { font-size: 12px; font-weight: 600; color: var(--muted); line-height: 1.3; }
+.tile-input.is-on { border-color: var(--accent-strong); background: var(--accent-soft); }
+.tile-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.tile-input.has-error { border-color: var(--error); }
+#f-rate2 { margin: 14px 0 0; }
+
+/* 値札の下の3つのボタン */
+.calc-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 24px 0 0; }
+.tool-btn {
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--text); background: var(--bg);
+  min-height: 62px; padding: 6px 4px; border: 1.5px solid var(--border); border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer;
+}
+.tool-btn .ico { width: 22px; height: 22px; color: var(--accent-strong); }
+.tool-btn:active { transform: scale(0.96); }
+.tool-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
+.tool-btn:disabled { opacity: .35; cursor: default; }
+
+/* 2つくらべる：A・Bのタブ */
+.cmp-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 16px; }
+.cmp-tab {
+  font: inherit; color: var(--text); background: var(--bg); text-align: left;
+  min-height: 54px; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 14px;
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+}
+.cmp-tab-k {
+  flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--muted); color: var(--surface); font-weight: 800; font-size: 14px;
+}
+.cmp-tab-v { font-size: 13px; font-weight: 700; line-height: 1.35; min-width: 0; overflow-wrap: anywhere; }
+.cmp-tab[aria-pressed="true"] { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.cmp-tab[aria-pressed="true"] .cmp-tab-k { background: var(--accent-strong); }
+.cmp-item { cursor: pointer; }
+.cmp-item.is-active .cmp-label { border-color: var(--accent); color: var(--accent-strong); }
 
 /* 2つくらべる */
-.row-tag {
-  display: inline-block; margin: 0 0 8px; padding: 1px 10px; border-radius: 999px;
-  background: var(--text); color: var(--surface); font-size: 13px; font-weight: 800; letter-spacing: .04em;
-}
-.cmp-row { margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--border); }
 .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; margin-top: -16px; }
 .cmp-item { min-width: 0; transition: opacity .2s; }
 .cmp-label {
@@ -235,17 +283,6 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .cmp-verdict.is-result { font-size: 20px; font-weight: 800; color: var(--text); }
 .cmp-verdict strong { color: var(--sale); font-size: 24px; }
 .tag-conv { margin-top: 8px !important; font-size: 13px; font-weight: 700; color: #7a6b5d; }
-
-/* 下の小さなリンク（逆算・さらに割引・クリア） */
-.calc-links {
-  display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 0 10px;
-  margin: 22px 0 0; padding-top: 6px; border-top: 1px dashed var(--border);
-}
-.link-btn {
-  font: inherit; font-size: 13.5px; font-weight: 700; color: var(--accent-strong); background: none; border: 0;
-  padding: 8px 0; min-height: 44px; cursor: pointer; white-space: nowrap;
-}
-.link-muted { color: var(--muted); font-weight: 600; margin-left: auto; }
 
 /* 値札（生活の結果表示）：ひもでぶら下がった黄色い値札 */
 .tag-stage { margin: 18px 0 0; padding: 40px 0 8px; text-align: center; }
