@@ -2,9 +2,12 @@ import { fix, fmt } from './number.mjs';
 
 // レシピの人数換算（ブラウザとテストの両方で使う）
 
-export const RECIPE_UNITS = ['g', 'ml', '大さじ', '小さじ', 'カップ', '個', '本', '枚', '片', '合', '少々', '適量'];
+// 数える単位（½・⅓ などの分数で出す）
+const PIECE_UNITS = ['個', '本', '枚', '片', '合', '袋', 'パック', '束', '缶', '切れ', '丁', '玉', '房', '株', '尾', '杯'];
+export const RECIPE_UNITS = ['g', 'ml', '大さじ', '小さじ', 'カップ', ...PIECE_UNITS, 'cm', '少々', '適量'];
 const NO_AMOUNT = new Set(['少々', '適量']); // 分量を入れない単位（人数が変わってもそのまま）
-const PIECE = new Set(['個', '本', '枚', '片', '合']); // 数える単位（½・⅓ などの分数で出す）
+const PIECE = new Set(PIECE_UNITS);
+const DECIMAL_UNITS = new Set(['g', 'ml', 'cm']); // 小数で出す単位
 
 const FRACS = [
   [0, ''], [1 / 4, '¼'], [1 / 3, '⅓'], [1 / 2, '½'], [2 / 3, '⅔'], [3 / 4, '¾'], [1, ''],
@@ -44,7 +47,7 @@ export function toFraction(x) {
 /** 分量を、料理で使いやすい書き方にする（大さじ⇔小さじ、分数、少々）。approx：ちょうどでないので「約」をつける。sub：カップのml */
 export function formatAmount(value, unit) {
   if (NO_AMOUNT.has(unit)) return { text: unit, approx: false };
-  if (unit === 'g' || unit === 'ml') {
+  if (DECIMAL_UNITS.has(unit)) {
     const v = value < 1 ? fmt(value, 2) : value < 10 ? fmt(value, 1) : fmt(Math.round(value), 0);
     return { text: `${v}${unit}`, approx: false };
   }
@@ -73,10 +76,15 @@ export function formatAmount(value, unit) {
   return { text: `${fmt(value, 2)}${unit}`, approx: false };
 }
 
-/** 入れたままの分量の書き方（「元 大さじ2」「元 1.2カップ」の表示用。きりのいい量には直さない） */
+/** 入れたままの分量の書き方（「元 大さじ2」「元 1.2カップ」の表示用）。0.5→½ のようにちょうどの分数だけ分数にする */
 export function rawAmount(value, unit) {
   if (NO_AMOUNT.has(unit)) return unit;
-  return unit === '大さじ' || unit === '小さじ' ? `${unit}${fmt(value, 3)}` : `${fmt(value, 3)}${unit}`;
+  let v = fmt(value, 3);
+  if (!DECIMAL_UNITS.has(unit)) {
+    const f = toFraction(value);
+    if (!f.approx && f.text !== '0') v = f.text;
+  }
+  return unit === '大さじ' || unit === '小さじ' ? `${unit}${v}` : `${v}${unit}`;
 }
 
 /**
@@ -101,4 +109,127 @@ export function scaleRecipe(rows, ratio) {
     out.push({ name, unit: r.unit, from: rawAmount(r.amount, r.unit), to: f.text, approx: f.approx, sub: f.sub });
   });
   return out;
+}
+
+/* ---- レシピの文字から材料を読み取る（貼り付け入力。端末の中だけで読む） ---- */
+
+// 分量の数字：1と1/2・1・1/2・1 1/2・1/2・1.5
+const QTY_NUM = '\\d+\\s*(?:と|・|\\s)\\s*\\d+\\/\\d+|\\d+\\/\\d+|\\d+(?:\\.\\d+)?';
+const QTY_RANGE = `(?:${QTY_NUM})(?:\\s*[~〜\\-]\\s*(?:${QTY_NUM}))?`; // 2〜3個 は 2 で読む
+// 書き方のゆれ → このツールの単位（kg・L はあとで g・ml に直す）
+const UNIT_ALIAS = {
+  キログラム: 'kg', キロ: 'kg', kg: 'kg', グラム: 'g', g: 'g',
+  ミリリットル: 'ml', ml: 'ml', cc: 'ml', リットル: 'L', l: 'L', カップ: 'カップ', cup: 'カップ',
+  個: '個', こ: '個', コ: '個', 本: '本', 枚: '枚', 片: '片', かけ: '片', 合: '合',
+  袋: '袋', パック: 'パック', 束: '束', 缶: '缶', 切れ: '切れ', 切: '切れ', 丁: '丁', 玉: '玉', 房: '房', 株: '株', 尾: '尾', 杯: '杯',
+  センチ: 'cm', cm: 'cm',
+};
+const UNIT_ALT = Object.keys(UNIT_ALIAS).sort((a, b) => b.length - a.length).join('|');
+const SPOON_RE = new RegExp(`(大さじ|小さじ|大匙|小匙|大|小)\\s*(${QTY_RANGE})(?!\\s*(?:個|本|枚|切れ|玉|房|株|尾|丁|袋|パック|缶|束))`);
+const CUP_FIRST_RE = new RegExp(`(?:カップ|cup)\\s*(${QTY_RANGE})`);
+const NUM_UNIT_RE = new RegExp(`(${QTY_RANGE})\\s*(${UNIT_ALT})`);
+const FEW_RE = /(少々|少量|ひとつまみ|ひとつかみ|少し|適量|適宜|お好みで|お好み|好みで)/;
+const PEOPLE_RE = /(\d+(?:\.\d+)?)\s*(?:[~〜-]\s*\d+(?:\.\d+)?)?\s*人\s*(?:分|前)/;
+const STOP_RE = /^(作り方|つくり方|作りかた|手順|下ごしらえ|下準備|ポイント|コツ)/;
+const HEADER_RE = /^(材料|調味料|合わせ調味料|下味|たれ|タレ|ソース|ドレッシング|トッピング|飾り|仕上げ|具|具材)$/;
+const VULGAR = { '½': '1/2', '⅓': '1/3', '⅔': '2/3', '¼': '1/4', '¾': '3/4' };
+
+/** 「1と1/2」「1/2」「2〜3」などを数字に */
+function qtyValue(text) {
+  const first = text.split(/[~〜-]/)[0].trim();
+  const m = first.match(/^(\d+)\s*(?:と|・|\s)\s*(\d+)\/(\d+)$/);
+  if (m) return Number(m[1]) + Number(m[2]) / Number(m[3]);
+  const f = first.match(/^(\d+)\/(\d+)$/);
+  if (f) return Number(f[2]) > 0 ? Number(f[1]) / Number(f[2]) : NaN;
+  return Number(first);
+}
+
+/** 1行を { name, amount, unit } に。分量が見つからなければ unit は null */
+function readLine(line) {
+  // かっこの中（「1枚（300g）」の 300g など）より、かっこの外の分量を先に使う
+  const outside = line.replace(/[(（[【][^)）\]】]*[)）\]】]/g, (m) => ' '.repeat(m.length));
+  const lower = (t) => t.toLowerCase();
+  const find = (t) => {
+    const hits = [];
+    const sp = lower(t).match(SPOON_RE);
+    if (sp) hits.push({ index: sp.index, len: sp[0].length, unit: sp[1].startsWith('大') ? '大さじ' : '小さじ', qty: sp[2] });
+    const cf = lower(t).match(CUP_FIRST_RE);
+    if (cf) hits.push({ index: cf.index, len: cf[0].length, unit: 'カップ', qty: cf[1] });
+    const nu = lower(t).match(NUM_UNIT_RE);
+    if (nu) hits.push({ index: nu.index, len: nu[0].length, unit: UNIT_ALIAS[nu[2]], qty: nu[1] });
+    const fw = t.match(FEW_RE);
+    if (fw) hits.push({ index: fw.index, len: fw[0].length, unit: /少|ひとつ/.test(fw[1]) ? '少々' : '適量', qty: null });
+    return hits.sort((a, b) => a.index - b.index)[0];
+  };
+  const hit = find(outside) || find(line);
+  if (!hit) return { name: line, amount: null, unit: null };
+  let amount = hit.qty === null ? null : qtyValue(hit.qty);
+  let unit = hit.unit;
+  if (unit === 'kg') [amount, unit] = [amount * 1000, 'g'];
+  if (unit === 'L') [amount, unit] = [amount * 1000, 'ml'];
+  if (amount !== null) amount = Number(amount.toFixed(3));
+  const name = line.slice(0, hit.index).replace(/[\s…‥・.:：=＝\-─―~〜]+$/, '').replace(/約$/, '').trim();
+  return { name, amount, unit };
+}
+
+/**
+ * 貼り付けたレシピの文字から、人数と材料を読み取る
+ * 「鶏もも肉 300g」の1行の形も、「鶏もも肉」「300g」が2行に分かれた形（レシピサイトをコピーしたとき）も読む
+ * @returns {{ people: number|null, rows: {name:string, amount:number|null, unit:string}[], skipped: string[] }}
+ */
+export function parseRecipeText(text) {
+  let people = null;
+  const rows = [];
+  const skipped = [];
+  let pending = null; // 分量がまだ見つかっていない材料の名前（次の行が分量のことがある）
+  const flush = () => {
+    if (pending !== null && !isHeader(pending)) skipped.push(pending);
+    pending = null;
+  };
+  const push = (name, amount, unit) => {
+    // 「しょうゆ・みりん 各大さじ1」→ 2つに分ける
+    const names = /各$/.test(name) ? name.replace(/各$/, '').split(/[、,・/]/).map((x) => x.trim()).filter(Boolean) : [name];
+    (names.length ? names : ['']).forEach((nm) => rows.push({ name: nm.slice(0, 20), amount, unit }));
+  };
+  const normalized = String(text)
+    .replace(/(\d)([½⅓⅔¼¾])/g, '$1と$2')
+    .replace(/[½⅓⅔¼¾]/g, (c) => VULGAR[c])
+    .normalize('NFKC')
+    .replace(/⁄/g, '/');
+  for (const raw of normalized.split(/\r?\n/)) {
+    let line = raw
+      .replace(/\t/g, ' ')
+      .replace(/^[\s・●○◯◎◉◆◇■□★☆※＊*•▪\-–—>]+/, '')
+      .replace(/^[(\[<〈【]\s*[a-z]\s*[)\]>〉】]\s*/i, '') // (A) 【B】 などの印
+      .replace(/^[a-z]\s+(?=\S)/i, '')
+      .trim();
+    if (!line) continue;
+    if (STOP_RE.test(line)) break; // ここから下は作り方
+    const pm = line.match(PEOPLE_RE);
+    if (pm) {
+      if (people === null) people = Number(pm[1]);
+      flush();
+      continue;
+    }
+    const r = readLine(line);
+    if (r.unit === null) {
+      flush();
+      pending = line;
+      continue;
+    }
+    if (!r.name && pending !== null) {
+      push(pending, r.amount, r.unit); // 「鶏もも肉」の次の行が「300g」
+      pending = null;
+      continue;
+    }
+    flush();
+    push(r.name, r.amount, r.unit);
+  }
+  flush();
+  return { people, rows, skipped };
+}
+
+/** 見出しの行（「調味料」「(A)」「【たれ】」など）は、読み取れなかった行に数えない */
+function isHeader(line) {
+  return line.length <= 1 || /^[(\[<〈【《「]/.test(line) || /[:：]$/.test(line) || HEADER_RE.test(line);
 }

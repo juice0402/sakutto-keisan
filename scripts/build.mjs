@@ -164,12 +164,12 @@ function bundle(entry) {
   return minifyJs(`(() => {\n'use strict';\n${code}\n})();\n`);
 }
 
-// 行だけのコメント・説明コメント・字下げ・空行を取る（文字列の中身は変えない。複数行のテンプレート文字列があれば字下げは残す）
+// 行だけのコメント（// と /* */）・説明コメント・字下げ・空行を取る（文字列の中身は変えない。複数行のテンプレート文字列があれば字下げは残す）
 function minifyJs(src) {
   const lines = src.replace(/^\s*\/\*\*[\s\S]*?\*\/\s*$/gm, '').split('\n');
   const multiLineTemplate = lines.some((l) => (l.match(/`/g) || []).length % 2 === 1);
   return lines
-    .filter((l) => !/^\s*\/\//.test(l) && l.trim() !== '')
+    .filter((l) => !/^\s*\/\//.test(l) && !/^\s*\/\*(?:(?!\*\/).)*\*\/\s*$/.test(l) && l.trim() !== '')
     .map((l) => (multiLineTemplate ? l : l.trim()))
     .join('\n');
 }

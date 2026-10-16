@@ -1,5 +1,5 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { peopleRatio, haveRatio, scaleRecipe, rawAmount } from '../lib/recipe.mjs';
+import { peopleRatio, haveRatio, scaleRecipe, rawAmount, parseRecipeText } from '../lib/recipe.mjs';
 import { $, enterToNext, numericOnly, copyText } from './ui.mjs';
 
 const MAX = 15;
@@ -203,6 +203,76 @@ $('to-add').addEventListener('click', addRow);
 $('to-match').addEventListener('click', toggleMatch);
 $('to-copy').addEventListener('click', copyResult);
 
+/* ---- レシピの文字を貼り付けて入力（読み取りは端末の中だけ。どこにも送らない） ---- */
+function showPasteMsg(text, error = false) {
+  $('paste-msg').hidden = !text;
+  $('paste-msg').textContent = text;
+  $('paste-msg').classList.toggle('is-error', error);
+}
+/** 読み取った材料を start 行目から入れる。all：ほかの行は空にする（貼り付け欄から） */
+function fillRows(parsed, start, all, quiet) {
+  const items = parsed.rows.slice(0, MAX - start + 1);
+  items.forEach((r, i) => {
+    const n = start + i;
+    if (r.name || all) $(`name-${n}`).value = r.name;
+    $(`unit-${n}`).value = r.unit;
+    syncUnit(n);
+    $(`amt-${n}`).value = r.amount === null ? '' : String(r.amount);
+  });
+  const last = start + items.length - 1;
+  if (all) {
+    for (let n = last + 1; n <= MAX; n++) {
+      $(`name-${n}`).value = '';
+      $(`amt-${n}`).value = '';
+      $(`unit-${n}`).value = firstUnit[n];
+      syncUnit(n);
+    }
+  }
+  shown = Math.max(all ? 5 : shown, last);
+  ROWS.forEach((n) => { $(`row-${n}`).hidden = n > shown; });
+  refreshAdd();
+  if (parsed.people) $('from').value = String(parsed.people);
+  baseKey = '';
+  update();
+  if (quiet) return;
+  const msg = [`${items.length}つの材料を入れました${parsed.people ? `（${persons(parsed.people)}のレシピ）` : ''}。ちがうところは直してください。`];
+  if (parsed.rows.length > items.length) msg.push(`材料は${MAX}こまでなので、残りの${parsed.rows.length - items.length}こは入れていません。`);
+  if (parsed.skipped.length) msg.push(`分量が読み取れなかった行：${parsed.skipped.slice(0, 3).join('、')}${parsed.skipped.length > 3 ? ' など' : ''}`);
+  showPasteMsg(msg.join('\n'));
+}
+function togglePaste(open = $('paste').hidden) {
+  $('paste').hidden = !open;
+  $('to-paste').setAttribute('aria-pressed', String(open));
+  if (!open) return;
+  showPasteMsg('');
+  $('paste-text').focus();
+}
+function pasteFromBox() {
+  const text = $('paste-text').value;
+  if (!text.trim()) return showPasteMsg('レシピの材料の文字を貼り付けてください。', true);
+  const parsed = parseRecipeText(text);
+  if (!parsed.rows.length) return showPasteMsg('材料と分量を読み取れませんでした。「鶏もも肉 300g」のように、材料と分量が書いてある文字を貼り付けてください。', true);
+  fillRows(parsed, 1, true, false);
+  $('paste-text').value = '';
+  togglePaste(false);
+}
+$('to-paste').addEventListener('click', () => togglePaste());
+$('paste-go').addEventListener('click', pasteFromBox);
+$('paste-text').addEventListener('paste', () => setTimeout(pasteFromBox, 0)); // 貼り付けたらすぐ入れる
+// 材料の欄に「鶏もも肉 300g」や何行ものレシピを貼ったときも、読み取って入れる（読めないときはふつうに貼る）
+ROWS.forEach((n) =>
+  [$(`name-${n}`), $(`amt-${n}`)].forEach((el) =>
+    el.addEventListener('paste', (e) => {
+      const text = e.clipboardData ? e.clipboardData.getData('text') : '';
+      const parsed = parseRecipeText(text);
+      if (!parsed.rows.length) return;
+      e.preventDefault();
+      const multi = /\n/.test(text.trim());
+      fillRows(parsed, n, false, !multi && parsed.rows.length === 1);
+    }),
+  ),
+);
+
 /* ---- 入力 ---- */
 const numInputs = [$('from'), $('to'), $('have'), ...ROWS.map((n) => $(`amt-${n}`))];
 numericOnly(numInputs);
@@ -236,6 +306,7 @@ $('clear').addEventListener('click', () => {
   });
   $('have').value = '';
   baseKey = '';
+  showPasteMsg('');
   update();
   $('name-1').focus();
 });
