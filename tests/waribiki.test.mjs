@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseNum, roundBy, fmt } from '../src/lib/number.mjs';
-import { calcDiscount, calcRate, wariLabel } from '../src/lib/waribiki.mjs';
+import { calcDiscount, calcRate, wariLabel, wariToPct, compareDiscounts } from '../src/lib/waribiki.mjs';
 
 test('parseNum: 全角・カンマ・単位・空', () => {
   assert.equal(parseNum('１，２００円'), 1200);
@@ -71,3 +71,20 @@ test('◯割◯分引きの表示', () => {
   assert.equal(wariLabel(0), null);
 });
 
+
+test('割 → ％', () => {
+  assert.equal(wariToPct(3), 30);
+  assert.equal(wariToPct(2.5), 25);
+  assert.equal(wariToPct(null), null);
+});
+
+test('2つくらべる：2000円の3割引きと1500円の20%オフ', () => {
+  const r = compareDiscounts({ price: 2000, rate: 30 }, { price: 1500, rate: 20 });
+  assert.equal(r.a.final, 1400);
+  assert.equal(r.b.final, 1200);
+  assert.equal(r.cheaper, 'b');
+  assert.equal(r.diff, 200);
+  assert.equal(r.tricky, true); // 割引額は A（600円）が大きいのに、B のほうが安い
+  assert.equal(compareDiscounts({ price: 1000, rate: 50 }, { price: 500, rate: 0 }).cheaper, 'same');
+  assert.equal(compareDiscounts({ price: 1000, rate: null }, { price: 500, rate: 0 }).ok, false);
+});

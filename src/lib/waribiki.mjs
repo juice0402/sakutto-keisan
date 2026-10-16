@@ -49,3 +49,22 @@ export function calcRate({ price, sale }) {
   const rate = fix((off / price) * 100);
   return { ok: true, off, rate, increase: sale > price };
 }
+
+/** 「割」の数字を％に（3 → 30、2.5 → 25） */
+export const wariToPct = (w) => (w === null || Number.isNaN(w) ? w : fix(w * 10));
+
+/**
+ * 2つの割引後の値段をくらべる
+ * @param {{price:number|null, rate:number|null}} a
+ * @param {{price:number|null, rate:number|null}} b
+ */
+export function compareDiscounts(a, b, rounding = 'floor') {
+  const ra = calcDiscount({ ...a, rounding });
+  const rb = calcDiscount({ ...b, rounding });
+  if (!ra.ok || !rb.ok) return { ok: false, a: ra, b: rb };
+  const diff = fix(Math.abs(ra.final - rb.final));
+  const cheaper = ra.final === rb.final ? 'same' : ra.final < rb.final ? 'a' : 'b';
+  // 割引額は大きいのに、払う金額は高い（よくある勘ちがい）
+  const bigOff = ra.off === rb.off ? null : ra.off > rb.off ? 'a' : 'b';
+  return { ok: true, a: ra, b: rb, cheaper, diff, tricky: cheaper !== 'same' && bigOff !== null && bigOff !== cheaper };
+}

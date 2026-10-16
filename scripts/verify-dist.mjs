@@ -43,6 +43,9 @@ for (const file of htmlFiles) {
     const canon = (html.match(/<link rel="canonical" href="([^"]+)">/) || [])[1];
     if (canon !== SITE.url + rel) fail(rel, `canonical がちがう: ${canon}`);
   }
+  const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+  const dup = ids.filter((id, i) => ids.indexOf(id) !== i);
+  if (dup.length) fail(rel, `同じ id が2回以上ある（同じ見出しや部品の重複）: ${[...new Set(dup)].join(', ')}`);
   const text = html.replace(/<script[\s\S]*?<\/script>/g, '');
   for (const bad of ['undefined', 'NaN', '[object Object]']) if (text.includes(bad)) fail(rel, `「${bad}」が出ている`);
 
