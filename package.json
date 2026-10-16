@@ -1,0 +1,15 @@
+{
+  "name": "sakutto-keisan",
+  "private": true,
+  "type": "module",
+  "description": "サクッと計算 — よく使う計算ツールをまとめた静的サイト（依存パッケージなし）",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "verify": "node scripts/verify-dist.mjs",
+    "check": "npm test && npm run build && npm run verify"
+  }
+}
