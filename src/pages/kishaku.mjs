@@ -17,10 +17,10 @@ const amountField = (id, label, placeholder) =>
 const partField = (id, label, placeholder) =>
   `<div class="field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${numInput(id, placeholder)}</div></div>`;
 
-// 大きな切り替えボタン（3つから1つ）
+// 大きな切り替えボタン（3つから1つ）。読み上げの名前（「？：？」→「何対何」）があれば aria-label に
 const seg = (labelId, key, items) =>
   `<div class="seg" role="group" aria-labelledby="${labelId}">${items
-    .map(([v, text], i) => `<button type="button" class="seg-btn" data-${key}="${v}" aria-pressed="${i === 0}">${text}</button>`)
+    .map(([v, text, name], i) => `<button type="button" class="seg-btn" data-${key}="${v}" aria-pressed="${i === 0}"${name ? ` aria-label="${name}"` : ''}>${text}</button>`)
     .join('')}</div>`;
 
 const pctField = (id, label, placeholder) =>
@@ -38,11 +38,11 @@ const FAQS = [
   },
   {
     q: '「1対3で薄める」は何倍ですか？',
-    a: '<p>原液1に水3を足すので、全体は原液の4倍、つまり4倍に薄めることになります（倍率 ＝（原液 ＋ 水）÷ 原液）。薄め方の「何対何」をえらんで、原液と水の割合を入れると、そのまま計算できます。</p>',
+    a: '<p>原液1に水3を足すので、全体は原液の4倍、つまり4倍に薄めることになります（倍率 ＝（原液 ＋ 水）÷ 原液）。薄め方の「？：？」をえらんで、原液と水の割合を入れると、そのまま計算できます。</p>',
   },
   {
     q: '濃度（％）から薄め方を知りたいときは？',
-    a: '<p>薄め方の「何％」をえらんで、原液の濃度と作りたい濃度を入れてください。倍率は「原液の濃度 ÷ 作りたい濃度」で、たとえば6％の原液から0.05％の液を作るなら120倍（原液1：水119）です。</p>',
+    a: '<p>薄め方の「？％」をえらんで、原液の濃度と作りたい濃度を入れてください。倍率は「原液の濃度 ÷ 作りたい濃度」で、たとえば6％の原液から0.05％の液を作るなら120倍（原液1：水119）です。</p>',
   },
   {
     q: '「3倍濃縮」のめんつゆは、どう薄めますか？',
@@ -65,7 +65,7 @@ export default function render() {
 
 <div class="calc" id="calc">
   <div class="field-head calc-head"><p class="label" id="l-how">薄め方</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
-  ${seg('l-how', 'how', [['times', '何倍'], ['parts', '何対何'], ['pct', '何％']])}
+  ${seg('l-how', 'how', [['times', '？倍', '何倍'], ['parts', '？：？', '何対何'], ['pct', '？％', '何％']])}
   <div class="field" id="f-tiles">
     <p class="sr-only" id="l-ratio">何倍に薄める？</p>
     ${TILES}
@@ -113,9 +113,9 @@ ${section(
   `<ol>
 <li><strong>薄め方</strong>をえらびます。
 <ul>
-<li><strong>何倍</strong>：「100倍に薄める」のとき。マスをえらびます（ないときは「その他」に数字を入れます）。</li>
-<li><strong>何対何</strong>：「原液1：水3で薄める」のとき。原液と水の割合を入れます。</li>
-<li><strong>何％</strong>：「6％の原液から0.05％の液を作る」のとき。原液の濃度と作りたい濃度を入れます。</li>
+<li><strong>？倍</strong>（何倍）：「100倍に薄める」のとき。マスをえらびます（ないときは「その他」に数字を入れます）。</li>
+<li><strong>？：？</strong>（何対何）：「原液1：水3で薄める」のとき。原液と水の割合を入れます。</li>
+<li><strong>？％</strong>（何％）：「6％の原液から0.05％の液を作る」のとき。原液の濃度と作りたい濃度を入れます。</li>
 </ul></li>
 <li><strong>わかっている量</strong>をえらんで、量を入れます。単位（ml・L）は欄の右でえらびます。
 <ul>
