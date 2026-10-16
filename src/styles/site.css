@@ -343,8 +343,8 @@ h1 { font-size: 26px; line-height: 1.35; margin: 10px 0 4px; letter-spacing: 0.0
 .cat-fx .tool-ico { background: #10302c; color: #2dd4bf; }
 .cat-shigoto .tool-ico { background: #e8eefb; color: #2349a6; }
 
-/* 本文 */
-.prose { margin: 36px 0 0; }
+/* 本文（画面の外にあるうちは描画を後回しにして、最初の表示を速く） */
+.prose { margin: 36px 0 0; content-visibility: auto; contain-intrinsic-size: auto 480px; }
 .prose h2 { font-size: 20px; line-height: 1.4; margin: 0 0 10px; padding-left: 12px; border-left: 4px solid var(--accent); }
 .prose h3 { font-size: 16px; margin: 18px 0 6px; }
 .prose p, .prose ul, .prose ol { margin: 0 0 12px; }

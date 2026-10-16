@@ -6,7 +6,7 @@
 ## しくみ
 - **依存パッケージなし**の Node だけのビルド（`scripts/build.mjs`）。npm install は不要。クラウド環境では npm レジストリに届かないことがあるので、パッケージを足さない
 - コマンド：`npm run check`（テスト → ビルド → 全ページ点検）。PR前に必ず緑にする
-- 軽さ：CSS は各ページの `<style>` に埋め込み（読み込みはHTMLとスクリプトの2回だけ）、スクリプトとHTMLはビルドでコメント・字下げを取る。使わなくなったCSS・関数はその場で消す
+- 軽さ：CSS とスクリプトは各ページに埋め込み（読み込みはHTMLの1回だけ）。スクリプトはまとめるときに使われていない関数を自動で落とし（ツリーシェイキング。部品のファイルは行頭の宣言だけで書く）、コメント・字下げを取る。画面外の本文は `content-visibility` で後回し。使わなくなったCSS・関数はその場で消す
 - 公開：GitHub Actions（`.github/workflows/deploy.yml`）が Cloudflare Pages へ **Direct Upload**。Cloudflare 側のビルドは使わない（あそびトーク・FANZA・ヤセ活と共有の「月500回」のビルド枠を使わないため）
   - PR → プレビュー（PRに自動でURLのコメント）／ main → 本番
   - Secrets：`CLOUDFLARE_API_TOKEN`（Pages の編集だけ）・`CLOUDFLARE_ACCOUNT_ID`
