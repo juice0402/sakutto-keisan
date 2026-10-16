@@ -13,13 +13,14 @@ const { OCR_VERSION } = await import(pathToFileURL(join(ROOT, 'src/client/ocr.mj
 const OUT = join(ROOT, 'dist', 'ocr', OCR_VERSION);
 const JPN_DATA = '@tesseract.js-data/jpn@1'; // 日本語のデータ（4.0.0_best_int を使う）
 const TMP = mkdtempSync(join(tmpdir(), 'ocr-'));
+const lines = []; // 用意したものの記録（ログと注釈に出す）
 
 function pack(spec) {
   const info = JSON.parse(execFileSync('npm', ['pack', spec, '--json', '--pack-destination', TMP], { encoding: 'utf8' }))[0];
   const dir = join(TMP, info.name.replace(/[@/]/g, '_'));
   mkdirSync(dir, { recursive: true });
   execFileSync('tar', ['-xzf', join(TMP, info.filename), '-C', dir]);
-  console.log(`- ${info.name}@${info.version}（${info.integrity}）`);
+  lines.push(`${info.name}@${info.version}`);
   return join(dir, 'package');
 }
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
@@ -29,7 +30,6 @@ function put(from, to) {
   copyFileSync(from, join(OUT, to));
 }
 
-console.log('写真の読み取りソフトを用意します:');
 const main = pack(`tesseract.js@${OCR_VERSION}`);
 put(join(main, 'dist/tesseract.min.js'), 'tesseract.min.js');
 put(join(main, 'dist/worker.min.js'), 'worker.min.js');
@@ -42,11 +42,14 @@ const jpn = pack(JPN_DATA);
 const data = walk(jpn).filter((f) => f.endsWith('/jpn.traineddata.gz'));
 const best = data.find((f) => f.includes('4.0.0_best_int')) || data[0];
 if (!best) throw new Error('jpn.traineddata.gz が見つからない');
-console.log(`  日本語のデータ: ${best.slice(jpn.length + 1)}（ほか: ${data.map((f) => f.slice(jpn.length + 1)).join(', ')}）`);
+lines.push(`日本語のデータ: ${best.slice(jpn.length + 1)}（ほか: ${data.map((f) => f.slice(jpn.length + 1)).join(', ')}）`);
 put(best, 'lang/jpn.traineddata.gz');
 
 rmSync(TMP, { recursive: true, force: true });
 for (const f of walk(OUT)) {
   const buf = readFileSync(f);
-  console.log(`  ${f.slice(OUT.length + 1)}  ${(buf.length / 1024 / 1024).toFixed(2)}MB  sha256:${createHash('sha256').update(buf).digest('hex').slice(0, 16)}…`);
+  lines.push(`${f.slice(OUT.length + 1)}  ${(buf.length / 1024 / 1024).toFixed(2)}MB  sha256:${createHash('sha256').update(buf).digest('hex').slice(0, 16)}`);
 }
+console.log(`写真の読み取りソフトを用意しました:\n${lines.join('\n')}`);
+// GitHub Actions では「注釈」にも出す（ログを開かなくても API で読めるように）
+if (process.env.GITHUB_ACTIONS) console.log(`::notice title=写真の読み取りソフト::${lines.join('%0A')}`);

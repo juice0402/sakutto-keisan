@@ -134,7 +134,7 @@ test('貼り付け：このツールの「結果をコピー」をそのまま�
 });
 
 test('写真から読み取った文字を整える', () => {
-  const text = cleanOcrText('材 料 （ 2 人 分 ）\n\n鶏 も も 肉 300g\nし ょ う ゆ 大 さ じ 2\n塩 少 々  \n');
+  const text = cleanOcrText('材 料 （ 2 人 分 ）\n\n鶏 も も 肉        300g\nし ょ う ゆ 大 さ じ 2\n塩 少 々  \n');
   assert.equal(text, '材料（ 2 人分）\n鶏もも肉 300g\nしょうゆ大さじ 2\n塩少々'); // 数字のまわりの空白は読み取りのじゃまにならないので残す
   const p = parseRecipeText(text);
   assert.equal(p.people, 2);

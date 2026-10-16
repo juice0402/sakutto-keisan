@@ -22,7 +22,10 @@ function loadOcrScript() {
   return ocrScript;
 }
 
-/** 大きすぎる写真は小さく、小さすぎるスクショは大きくして読みやすくする（白い背景に描く） */
+/**
+ * 読みやすい画像にする：大きすぎる写真は小さく、小さすぎるスクショは大きく。
+ * 白黒にして、うすい・暗い写真はくっきりさせる（明るさの幅を広げる）。黒い背景（ダークモードのスクショ）は白黒を反転
+ */
 async function prepareImage(file) {
   const url = URL.createObjectURL(file);
   try {
@@ -41,6 +44,29 @@ async function prepareImage(file) {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, c.width, c.height);
     ctx.drawImage(img, 0, 0, c.width, c.height);
+    const pic = ctx.getImageData(0, 0, c.width, c.height);
+    const px = pic.data;
+    const hist = new Uint32Array(256);
+    for (let i = 0; i < px.length; i += 4) {
+      const y = (px[i] * 77 + px[i + 1] * 150 + px[i + 2] * 29) >> 8; // 明るさ
+      px[i] = y;
+      hist[y]++;
+    }
+    const total = px.length / 4;
+    let lo = 0;
+    let hi = 255;
+    let sum = 0;
+    for (let acc = 0; lo < 255 && acc + hist[lo] < total * 0.01; lo++) acc += hist[lo];
+    for (let acc = 0; hi > 0 && acc + hist[hi] < total * 0.01; hi--) acc += hist[hi];
+    for (let v = 0; v < 256; v++) sum += v * hist[v];
+    const invert = sum / total < 110; // 暗い背景に明るい文字
+    const span = Math.max(1, hi - lo);
+    for (let i = 0; i < px.length; i += 4) {
+      let y = Math.max(0, Math.min(255, ((px[i] - lo) * 255) / span));
+      if (invert) y = 255 - y;
+      px[i] = px[i + 1] = px[i + 2] = y;
+    }
+    ctx.putImageData(pic, 0, 0);
     return c;
   } finally {
     URL.revokeObjectURL(url);

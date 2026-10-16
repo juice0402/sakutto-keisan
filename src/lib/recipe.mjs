@@ -238,11 +238,11 @@ function isHeader(line) {
 const JA_CHAR = '[\\u3000-\\u30ff\\u3400-\\u9fff\\uff00-\\uffef々〆]';
 const JA_GAP_RE = new RegExp(`(${JA_CHAR})[ \\t]+(?=${JA_CHAR})`, 'g');
 
-/** 写真から読み取った文字を整える（「鶏 も も 肉」のような日本語の間の空白を取る・空の行を取る） */
+/** 写真から読み取った文字を整える（「鶏 も も 肉」のような日本語の間の空白を取る・続いた空白は1つに・空の行を取る） */
 export function cleanOcrText(text) {
   return String(text)
     .split(/\r?\n/)
-    .map((l) => l.replace(JA_GAP_RE, '$1').replace(JA_GAP_RE, '$1').trim())
+    .map((l) => l.replace(JA_GAP_RE, '$1').replace(JA_GAP_RE, '$1').replace(/[ \t\u3000]{2,}/g, ' ').trim())
     .filter(Boolean)
     .join('\n');
 }

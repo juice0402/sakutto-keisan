@@ -37,7 +37,8 @@ await page.waitForTimeout(500);
 check(!requests.some((u) => u.includes('/ocr/')), 'ページを開いただけでは読み取りソフトを読み込まない');
 await page.click('#to-paste');
 
-for (const [file, strict] of [['recipe-screenshot.png', true], ['recipe-photo.jpg', false]]) {
+// スクショ（白い背景・ダークモード）は必ず読めること。紙を撮った写真は結果を出すだけ（読みまちがいが出やすい）
+for (const [file, strict] of [['recipe-screenshot.png', true], ['recipe-dark.png', true], ['recipe-photo.jpg', false]]) {
   const t0 = Date.now();
   await page.setInputFiles('#photo', join(ROOT, 'tests/fixtures', file));
   await page.waitForFunction(() => {
