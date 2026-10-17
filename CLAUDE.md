@@ -21,6 +21,7 @@
 - 公開：GitHub Actions（`.github/workflows/deploy.yml`）が Cloudflare Pages へ **Direct Upload**。Cloudflare 側のビルドは使わない（あそびトーク・FANZA・ヤセ活と共有の「月500回」のビルド枠を使わないため）
   - PR → プレビュー（PRに自動でURLのコメント）／ main → 本番
   - Secrets：`CLOUDFLARE_API_TOKEN`（Pages の編集だけ）・`CLOUDFLARE_ACCOUNT_ID`
+  - 本番では、アップロードの前後に `scripts/indexnow.mjs` が動き、**中身が変わったページだけ**を IndexNow（Bing・Yandex・Naver・Seznam・Yep）に知らせる。前回の指紋は本番の `/indexnow-pages.json`、鍵は `SITE.indexnowKey`（ビルドが `/<鍵>.txt` を置く）。結果は Actions の注意書き（IndexNow）で見る。Google は IndexNow に入っていないので、サイトマップとリンクで見つけてもらう
 - 流れ：ブランチ `claude/...` → PR → CI が緑・プレビューで確認 → **しょーくんに知らせてから Merge**
 
 ## ファイル
