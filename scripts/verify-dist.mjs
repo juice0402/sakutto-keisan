@@ -42,6 +42,11 @@ for (const file of htmlFiles) {
       if (textWidth(text) > max) fail(rel, `.${cls} が1行に入らない（${textWidth(text).toFixed(1)}／${max}）: ${text}`);
     }
   }
+  // 絵文字は使わない（しょーくんの方針・10/17）。© ® ™ はよい
+  // 見える文字と、検索・SNS に出る文字（title・description・構造化データ）を見る。スクリプトの中の記号（貼り付けた文字の「★」を消す処理など）は見ない
+  const shown = html.replace(/<script>[\s\S]*?<\/script>/g, '').replace(/<style>[\s\S]*?<\/style>/g, '');
+  const emoji = [...shown.matchAll(/\p{Extended_Pictographic}/gu)].map((m) => m[0]).filter((c) => !'©®™'.includes(c));
+  if (emoji.length) fail(rel, `絵文字がある: ${[...new Set(emoji)].join(' ')}`);
 
   if (!html.startsWith('<!doctype html>')) fail(rel, 'doctype がない');
   if (!html.includes('<html lang="ja">')) fail(rel, 'lang="ja" がない');
