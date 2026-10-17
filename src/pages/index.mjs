@@ -1,6 +1,6 @@
 import { SITE, CATEGORIES } from '../site.mjs';
 import { TOOLS, toolUrl } from '../tools.mjs';
-import { page, esc, icon, absUrl } from '../layout.mjs';
+import { page, esc, absUrl } from '../layout.mjs';
 
 export default function render() {
   const published = TOOLS.filter((t) => t.published);
@@ -13,7 +13,7 @@ export default function render() {
   <h2 id="cat-${c.id}">${esc(c.name)}</h2>
   <ul class="tool-list">${tools
     .map(
-      (t) => `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-ico">${icon(t.icon)}</span><span><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></span>${icon('<path d="m9 6 6 6-6 6"/>', 'ico go')}</a></li>`,
+      (t) => `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></a></li>`,
     )
     .join('')}</ul>
 </section>`;
@@ -21,23 +21,21 @@ export default function render() {
 
   const body = `
 <div class="hero">
-  <h1>よく使う計算を、<br>ひとつのブックマークで。</h1>
-  <p class="lead">割引・単価・レシピの分量・FXの証拠金など、ふだんの「ちょっと計算したい」をまとめた無料のツール集です。数字を入れるだけで、すぐに答えが出ます。</p>
+  <h1>${esc(SITE.name)}</h1>
+  <p class="lead">買い物や家事で使う計算ツールです。</p>
 </div>
 ${cats}
 ${
   upcoming.length
-    ? `<section class="cat" aria-labelledby="cat-soon"><h2 id="cat-soon">これから増えるツール</h2><ul class="soon">${upcoming
-        .map((t) => `<li>${esc(t.name)}</li>`)
-        .join('')}</ul></section>`
+    ? `<section class="cat" aria-labelledby="cat-soon"><h2 id="cat-soon">準備中</h2><p class="soon">${upcoming.map((t) => esc(t.name)).join('、')}</p></section>`
     : ''
 }
-<div class="tip"><strong>ホーム画面に追加すると、アプリのように使えます</strong>iPhoneは共有ボタンの「ホーム画面に追加」、Androidはメニューの「ホーム画面に追加」から。</div>
+<div class="tip"><strong>ホーム画面に追加できます</strong>共有ボタンかメニューの「ホーム画面に追加」から。</div>
 `;
 
   const html = page({
     path: '/',
-    title: `${SITE.name}｜割引・単価・レシピ・FXの計算をひとつに。無料の計算ツール集`,
+    title: `${SITE.name}｜割引・単価の比較・レシピの分量・希釈の計算ツール`,
     description: SITE.description,
     body,
     jsonLd: [

@@ -40,7 +40,6 @@ function setNote(text = '', error = false) {
 }
 
 function showEmpty(base, msg) {
-  $('t-label').hidden = true;
   $('t-badge').hidden = true;
   $('tag').classList.add('is-empty');
   $('t-base').textContent = `${base}あたり`;
@@ -75,7 +74,7 @@ function update() {
       return setNote(`${dims.join('と')}はくらべられません。同じ種類の単位にしてください。`, true);
     }
     const okCount = r.results.filter((x) => x.ok).length;
-    showEmpty(base, okCount === 1 ? 'もう1つ入れると、くらべられます' : '値段と量を2つ以上入れると、いちばんおトクな商品がわかります');
+    showEmpty(base, okCount === 1 ? 'もう1つ入れると、くらべられます' : '2つ以上入れると、安い順に並びます');
     return setNote(errIndex >= 0 ? `${K(keys[errIndex])}：${r.results[errIndex].error}` : '', errIndex >= 0);
   }
 
@@ -99,13 +98,11 @@ function update() {
   $('t-base').textContent = `${base}あたり`;
   $('t-price').textContent = perText(win.per);
   $('t-sub').textContent = `${yen(win.pay)} ／ ${amountText(win.amount, win.unit)}`;
-  $('t-label').hidden = false;
   $('t-badge').hidden = !!r.same;
   const v = $('verdict');
   v.hidden = false;
 
   if (r.same) {
-    $('t-label').textContent = 'どれも同じ単価';
     v.classList.add('is-result');
     v.innerHTML = 'どれも<strong>同じ単価</strong>です';
     setNote(errIndex >= 0 ? `${K(keys[errIndex])}：${r.results[errIndex].error}` : '', errIndex >= 0);
@@ -114,16 +111,10 @@ function update() {
   }
   const W = winKeys.join('と');
   const S = K(keys[r.second]);
-  $('t-label').textContent = `${W} がいちばんおトク！`;
+  $('t-base').textContent = `${W}の${base}あたり`;
   v.classList.add('is-result');
   v.innerHTML = `2位の${S}より <strong>${perText(r.diff)}円</strong> 安い<span class="verdict-sub">${base}あたり・約${fmt(r.pct, 0)}％おトク</span>`;
-  const lines = [];
-  if (r.saving >= 1 && winKeys.length === 1) {
-    lines.push(`${W}の${amountText(win.amount, win.unit)}を${S}の単価で買うと${yen(Math.round(win.pay + r.saving))}なので、${yen(Math.round(r.saving))}おトクです。`);
-  }
-  if (winKeys.length === 1 && win.amount >= r.results[r.second].amount * 2) lines.push('量が2倍以上あるので、使い切れるかも考えてね。');
-  if (errIndex >= 0) lines.push(`（${K(keys[errIndex])}は入力にまちがいがあるので、くらべていません）`);
-  setNote(lines.join(''));
+  setNote(errIndex >= 0 ? `${K(keys[errIndex])}は入力がまちがっているので、くらべていません` : '');
   // いちばんおトクが変わったら値札をゆらす
   const key = `${W}|${win.per}`;
   if (key !== lastWin) {

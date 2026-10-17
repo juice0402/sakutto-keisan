@@ -100,19 +100,19 @@ export function scaleRecipe(rows, ratio) {
   rows.forEach((r, i) => {
     const name = (r.name || '').trim() || `材料${i + 1}`;
     if (NO_AMOUNT.has(r.unit)) {
-      if ((r.name || '').trim() || r.amount !== null) out.push({ name, unit: r.unit, to: r.unit, approx: false });
+      if ((r.name || '').trim() || r.amount !== null) out.push({ name, unit: r.unit, to: r.unit, approx: false, n: r.n });
       return;
     }
     if (r.amount === null) return;
     if (Number.isNaN(r.amount) || r.amount <= 0) {
-      out.push({ name, unit: r.unit, to: '', approx: false, error: '分量は0より大きい数字で入れてください。' });
+      out.push({ name, unit: r.unit, to: '', approx: false, error: '分量は0より大きい数字で入れてください。', n: r.n });
       return;
     }
     const value = fix(r.amount * ratio);
     const f = formatAmount(value, r.unit);
     // 合は、お米なら重さの目安（1合＝約150g）、ほか（お酒など）は ml（1合＝180ml）を添える
     if (r.unit === '合') f.sub = RICE_RE.test(name) ? `約${fmt(Math.round(value * 150), 0)}g` : `${fmt(Math.round(value * 180), 0)}ml`;
-    out.push({ name, unit: r.unit, to: f.text, approx: f.approx, sub: f.sub });
+    out.push({ name, unit: r.unit, to: f.text, approx: f.approx, sub: f.sub, n: r.n });
   });
   return out;
 }

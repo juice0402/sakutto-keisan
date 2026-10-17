@@ -20,12 +20,13 @@ export const esc = (s) =>
 export const absUrl = (path) => SITE.url + path;
 
 // ブラウザのバーの色（各テーマの背景色）
-const THEME_COLOR = { home: '#faf9f6', seikatsu: '#fff8ef', shigoto: '#f4f6fa', fx: '#0d1117' };
+const THEME_COLOR = { home: '#fbfcfd', seikatsu: '#fbfcfd', shigoto: '#1f2b40', fx: '#0e0f11' };
 
 export const icon = (inner, cls = 'ico') =>
   `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
 
-const LOGO = `<svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#E8590C"/><path d="M9 10.5h6M12 7.5v6M17.5 10.5h6M9.6 19.6l4.8 4.8M14.4 19.6l-4.8 4.8M17.5 20h6M17.5 24h6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+// ロゴ：「計」の赤いはんこ（public/favicon.svg と同じ形。scripts/make-images.py のアイコンもこれに合わせる）
+export const LOGO_SVG = `<svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-8 16 16)"><circle cx="16" cy="16" r="13.6" fill="#fff" stroke="#c8323c" stroke-width="2.4"/><text x="16" y="21.6" text-anchor="middle" font-size="16" font-weight="700" fill="#c8323c" font-family="'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif">計</text></g></svg>`;
 
 // breadcrumbs: [{ name, path }]（最後が今のページ）
 const breadcrumbHtml = (items) =>
@@ -102,15 +103,15 @@ ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceA
 </head>
 <body data-theme="${theme}">
 <header class="site-header">
-  <a class="brand" href="/">${LOGO}<span>${esc(SITE.name)}</span></a>
+  <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>
 <main class="wrap">
-${breadcrumbHtml(crumbs)}
 ${p.body}
+${breadcrumbHtml(crumbs)}
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p class="foot-note">${icon('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 'ico ico-s')}計算はお使いの端末の中だけで行い、入力した数字は送信・保存しません。</p>
+    <p class="foot-note">入力した数字は送信・保存しません。</p>
     <nav class="foot-nav" aria-label="サイトの情報">
       <a href="/">ツール一覧</a>
       <a href="/about/">このサイトについて</a>

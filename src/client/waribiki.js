@@ -70,7 +70,7 @@ function drawMini(k, r, price) {
   const ok = r && r.ok;
   $(`cw-${k}`).innerHTML = ok ? `<s>${yen(price)}</s>` : '';
   $(`cp-${k}`).textContent = ok ? fmt(r.final) : '？';
-  $(`cs-${k}`).textContent = ok ? (r.off > 0 ? `${yen(r.off)}引き` : '割引なし') : '入力してください';
+  $(`cs-${k}`).textContent = ok ? (r.off > 0 ? `${yen(r.off)}引き` : '割引なし') : '未入力';
   show(`cb-${k}`, ok && r.off > 0);
   $(`cr-${k}`).textContent = ok ? `${fmt(r.totalRate, 1)}%` : '';
   const el = $(`cmp-${k}`);
@@ -119,7 +119,7 @@ function update() {
     const sale = num(inSale.value);
     markErrors(nanIds({ price, sale }));
     const r = calcRate({ price, sale });
-    if (r.empty) return drawTag({ save: '元の値段と割引後の値段を入れると、何％オフかわかります' });
+    if (r.empty) return drawTag({ save: '2つの値段を入れると、何％オフかわかります' });
     if (!r.ok) return drawTag({ note: r.error, error: true });
     if (r.increase) {
       return drawTag({
@@ -174,7 +174,7 @@ function updateCompare() {
   const err = (r.a && r.a.error) || (r.b && r.b.error);
   v.classList.toggle('is-result', r.ok);
   if (!r.ok) {
-    v.textContent = err ? '' : 'AとBの値段と割引を入れると、どっちが安いかわかります';
+    v.textContent = err ? '' : 'AとBを入れると、どっちが安いかわかります';
     setNote(err || '', !!err);
     lastKey = '';
     return;
@@ -191,11 +191,7 @@ function updateCompare() {
   $(`cmp-${lose}`).classList.add('is-lose');
   $(`cl-${win}`).textContent = `${win.toUpperCase()} が安い！`;
   v.innerHTML = `<b>${win.toUpperCase()}</b> のほうが <strong>${yen(r.diff)}</strong> 安い！`;
-  setNote(
-    r.tricky ? `割引の額は${lose.toUpperCase()}のほうが大きいですが、支払う金額は${win.toUpperCase()}のほうが安くなります。` : '',
-    false,
-    rounded,
-  );
+  setNote('', false, rounded);
   swing($(`cmp-${win}`).querySelector('.tag-wrap'), `${r.a.final}|${r.b.final}`);
 }
 

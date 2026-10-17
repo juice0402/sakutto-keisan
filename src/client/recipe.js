@@ -71,7 +71,19 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
+/** 材料の行のすぐ下に、作る人数分の量を出す（list が null なら消す）。少々・適量は出さない */
+function showRowOut(list) {
+  const by = new Map((list || []).map((x) => [x.n, x]));
+  ROWS.forEach((n) => {
+    const x = by.get(n);
+    const el = $(`out-${n}`);
+    if (!x || x.error || NO_QTY.includes(x.unit)) { el.innerHTML = ''; return; }
+    el.innerHTML = `→ ${x.approx ? '約' : ''}${escText(x.to)}${x.sub ? `<small>（${escText(x.sub)}）</small>` : ''}`;
+  });
+}
+
 function showEmpty(title, msg, plates) {
+  showRowOut(null);
   $('memo').classList.add('is-empty');
   $('memo-title').textContent = title;
   $('memo-list').innerHTML = '';
@@ -105,7 +117,7 @@ function update() {
     $('ratio').innerHTML = '';
     const fromOk = pr.ok ? from : 2;
     if (matchOn) {
-      showEmpty('手元の量に合わせた材料', base ? '手元にある量を入れると、ほかの材料の分量が出ます' : 'まず材料の分量を入れて、合わせる材料をえらんでください', [fromOk, fromOk]);
+      showEmpty('手元の量に合わせた材料', base ? '手元にある量を入れてください' : '先に材料の分量を入れてください', [fromOk, fromOk]);
     } else {
       showEmpty('作る人数分の材料', '人数を入れると、材料の分量が出ます', [fromOk, fromOk]);
     }
@@ -123,9 +135,10 @@ function update() {
   const out = scaleRecipe(rows, ratio);
   const title = matchOn ? `手元の量に合わせた材料（${toText}）` : `${toText}の材料`;
   if (!out.length) {
-    showEmpty(title, '材料の分量を入れると、ここに作る人数分の量が出ます');
+    showEmpty(title, '材料を入れると、ここに出ます');
     return setNote('');
   }
+  showRowOut(out);
   $('memo').classList.remove('is-empty');
   $('memo-title').textContent = title;
   $('memo-empty').hidden = true;
@@ -142,7 +155,7 @@ function update() {
   const lines = [];
   const bad = out.filter((x) => x.error).map((x) => `「${x.name}」`);
   if (bad.length) lines.push(`${bad.join('')}の分量は、0より大きい数字で入れてください。`);
-  else if (ok.some((x) => x.approx)) lines.push('「約」は、¼・⅓・½などのきりのいい量に近づけた目安です。');
+  else if (ok.some((x) => x.approx)) lines.push('「約」は近い量に丸めた目安です。');
   setNote(lines.join(''), bad.length > 0);
 
   lastText = [`【${title}】（${persons(from)}のレシピの${ratioText}倍）`, ...ok.map((x) => `・${x.name}　${x.approx ? '約' : ''}${x.to}${x.sub ? `（${x.sub}）` : ''}`)].join('\n');
@@ -235,9 +248,9 @@ function fillRows(parsed, start, all, quiet) {
   baseKey = '';
   update();
   if (quiet) return;
-  const msg = [`${items.length}個の材料を入れました${parsed.people ? `（${persons(parsed.people)}のレシピ）` : ''}。ちがうところは直してください。`];
-  if (parsed.rows.length > items.length) msg.push(`材料は${MAX}個までなので、残りの${parsed.rows.length - items.length}個は入れていません。`);
-  if (parsed.skipped.length) msg.push(`分量が読み取れなかった行：${parsed.skipped.slice(0, 3).join('、')}${parsed.skipped.length > 3 ? ' など' : ''}`);
+  const msg = [`${items.length}個の材料を入れました${parsed.people ? `（${persons(parsed.people)}）` : ''}`];
+  if (parsed.rows.length > items.length) msg.push(`${MAX}個をこえた${parsed.rows.length - items.length}個は入れていません`);
+  if (parsed.skipped.length) msg.push(`読めなかった行：${parsed.skipped.slice(0, 3).join('、')}${parsed.skipped.length > 3 ? ' など' : ''}`);
   showPasteMsg(msg.join('\n'));
 }
 function togglePaste(open = $('paste').hidden) {
@@ -251,7 +264,7 @@ function pasteFromBox() {
   const text = $('paste-text').value;
   if (!text.trim()) return showPasteMsg('レシピの材料の文字を貼り付けてください。', true);
   const parsed = parseRecipeText(text);
-  if (!parsed.rows.length) return showPasteMsg('材料と分量を読み取れませんでした。「鶏もも肉 300g」のように、材料と分量が書いてある文字を貼り付けてください。', true);
+  if (!parsed.rows.length) return showPasteMsg('材料と分量を読み取れませんでした。', true);
   fillRows(parsed, 1, true, false);
   $('paste-text').value = '';
   ocrStatus('', null);
@@ -299,7 +312,7 @@ $('crop-img').addEventListener('error', () => {
   if (!photoFile) return;
   $('crop').hidden = true;
   photoFile = null;
-  ocrStatus('この写真は開けませんでした。スクショや、JPEG・PNG の写真でためしてください。', null, true);
+  ocrStatus('この写真は開けませんでした。', null, true);
 });
 document.querySelectorAll('.crop-h').forEach((h) => {
   h.addEventListener('pointerdown', (e) => {
@@ -333,18 +346,18 @@ async function readPhoto() {
     const raw = await readImageText(
       file,
       (p, reading) => {
-        ocrStatus(reading ? `文字を読み取り中… ${Math.round(p * 100)}%` : '読み取りの準備中…（はじめてのときだけ少し時間がかかります）', p);
+        ocrStatus(reading ? `文字を読み取り中… ${Math.round(p * 100)}%` : '読み取りの準備中…', p);
       },
       { ...cropBox },
     );
     const text = cleanOcrText(raw);
     $('paste-text').value = text;
     const found = parseRecipeText(text).rows.length;
-    if (found) ocrStatus(`読み取りました（材料が${found}個見つかりました）。まちがいがあれば下の文字を直して、「材料に入れる」を押してください。`, null);
-    else ocrStatus('材料と分量が見つかりませんでした。文字が大きく、はっきり写るように撮り直すか、文字を貼り付けてください。', null, true);
+    if (found) ocrStatus(`材料が${found}個見つかりました`, null);
+    else ocrStatus('材料が見つかりませんでした。', null, true);
     $('paste-text').scrollIntoView({ block: 'center' });
   } catch {
-    ocrStatus('読み取りできませんでした。電波のよいところでもう一度ためすか、スマホの文字の読み取り機能でコピーして貼り付けてください。', null, true);
+    ocrStatus('読み取れませんでした。もう一度ためしてください。', null, true);
   } finally {
     $('crop-go').disabled = false;
     $('photo').disabled = false;

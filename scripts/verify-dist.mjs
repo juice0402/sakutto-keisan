@@ -18,6 +18,9 @@ const walk = (dir) =>
 const files = walk(DIST);
 const htmlFiles = files.filter((f) => f.endsWith('.html'));
 const count = (s, re) => (s.match(re) || []).length;
+// 1行にしたい説明（しょーくんの方針・10/17「見ればわかる所に説明を入れない。入れても1行」）と、その文字数の上限
+const ONE_LINE = [['lead', 21], ['paste-help', 21], ['crop-help', 20], ['note', 22]];
+const textWidth = (t) => [...t].reduce((w, c) => w + (/[\x20-\x7e]/.test(c) ? 0.55 : 1), 0);
 
 // 内部リンク先が dist にあるか
 const resolves = (href) => {
@@ -31,6 +34,19 @@ for (const file of htmlFiles) {
   const rel = '/' + relative(DIST, file).replace(/index\.html$/, '');
   const html = readFileSync(file, 'utf8');
   const noindex = html.includes('<meta name="robots" content="noindex">');
+
+  // 説明は1行（スマホの幅 360px で1行におさまる長さ。全角1・半角0.55で数える）
+  for (const [cls, max] of ONE_LINE) {
+    for (const m of html.matchAll(new RegExp(`<p class="${cls}"[^>]*>([\\s\\S]*?)</p>`, 'g'))) {
+      const text = m[1].replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, '&');
+      if (textWidth(text) > max) fail(rel, `.${cls} が1行に入らない（${textWidth(text).toFixed(1)}／${max}）: ${text}`);
+    }
+  }
+  // 絵文字は使わない（しょーくんの方針・10/17）。© ® ™ はよい
+  // 見える文字と、検索・SNS に出る文字（title・description・構造化データ）を見る。スクリプトの中の記号（貼り付けた文字の「★」を消す処理など）は見ない
+  const shown = html.replace(/<script>[\s\S]*?<\/script>/g, '').replace(/<style>[\s\S]*?<\/style>/g, '');
+  const emoji = [...shown.matchAll(/\p{Extended_Pictographic}/gu)].map((m) => m[0]).filter((c) => !'©®™'.includes(c));
+  if (emoji.length) fail(rel, `絵文字がある: ${[...new Set(emoji)].join(' ')}`);
 
   if (!html.startsWith('<!doctype html>')) fail(rel, 'doctype がない');
   if (!html.includes('<html lang="ja">')) fail(rel, 'lang="ja" がない');
