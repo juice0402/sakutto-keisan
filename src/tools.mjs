@@ -9,7 +9,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
     published: true,
-    updated: '2026-10-16',
+    updated: '2026-10-17',
     related: ['tanka', 'percent', 'shohizei'],
   },
   {
@@ -18,7 +18,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '100gあたりの値段で、どれがいちばん安いか',
     published: true,
-    updated: '2026-10-16',
+    updated: '2026-10-17',
     related: ['waribiki', 'recipe', 'kishaku'],
   },
   {
@@ -27,7 +27,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '2人分のレシピを3人分にするときの分量',
     published: true,
-    updated: '2026-10-16',
+    updated: '2026-10-17',
     related: ['tanka', 'waribiki', 'kishaku'],
   },
   {
@@ -36,7 +36,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '原液と水を何mlずつ入れるか',
     published: true,
-    updated: '2026-10-16',
+    updated: '2026-10-17',
     related: ['recipe', 'tanka', 'waribiki'],
   },
   {

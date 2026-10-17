@@ -2,8 +2,8 @@ import { SITE } from '../site.mjs';
 import { page, section } from '../layout.mjs';
 
 // 固定ページ（このサイトについて・プライバシーポリシー・免責事項・404）
-const UPDATED = '2026-10-16';
-const UPDATED_JA = '2026年10月16日';
+const UPDATED = '2026-10-17'; // sitemap の更新日（中身を変えたら直す）
+const ESTABLISHED_JA = '2026年10月16日'; // プライバシーポリシー・免責事項の制定日
 
 const info = (path, name, description, body) => ({
   path,
@@ -65,7 +65,7 @@ ${section(
   'change',
   'このポリシーの変更',
   `<p>このポリシーは、必要に応じて変更することがあります。変更したときは、このページでお知らせします。</p>
-<p class="note">制定日：${UPDATED_JA}</p>`,
+<p class="note">制定日：${ESTABLISHED_JA}</p>`,
 )}`,
     ),
     info(
@@ -87,7 +87,7 @@ ${section(
   'links',
   'リンク先について',
   `<p>当サイトからリンクしているほかのサイトの内容について、当サイトは責任を負いません。</p>
-<p class="note">制定日：${UPDATED_JA}</p>`,
+<p class="note">制定日：${ESTABLISHED_JA}</p>`,
 )}`,
     ),
     {

@@ -315,7 +315,8 @@ def icon(path, px):
         d.line([(0, i * step), (big, i * step)], fill=(70, 120, 190, 36), width=max(1, big // 160))
     img.alpha_composite(layer)
     logo(img, big / 2, big / 2, big * 0.64)
-    img.convert('RGB').resize((px, px), Image.LANCZOS).save(path, optimize=True)
+    # 色数をへらして軽く（方眼の線とはんこだけなので、64色で見た目は変わらない）
+    img.convert('RGB').resize((px, px), Image.LANCZOS).quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(path, optimize=True)
     print('wrote', path.relative_to(ROOT))
 
 
