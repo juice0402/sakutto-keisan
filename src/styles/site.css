@@ -415,6 +415,16 @@ h1 {
 }
 .mix-foot span { display: block; }
 .mix-foot span:empty { display: none; }
+/* 使いみち別のページ：めんつゆは茶色のつゆ。漂白剤の濃度は1行に。最後のマスの「1：？」 */
+.bottle-label.is-long { font-size: 13px; }
+.is-tsuyu .liq-conc { background: linear-gradient(#b67a43, #8a5426); }
+.is-tsuyu .is-conc > label::before { background: #8a5426; }
+.is-tsuyu .is-total > label::before { background: linear-gradient(#aed5f0 50%, #8a5426 50%); }
+.src-row { display: grid; grid-template-columns: 1fr 132px; align-items: center; gap: 10px; margin: 8px 0 0; }
+.src-row > label { margin: 0; color: var(--muted); }
+.src-row .input { padding: 0 12px; }
+.calc-note { margin: 10px 0 0; }
+.tile-box span + input { text-align: left; }
 
 /* 順位と棒グラフ（安いほど短い） */
 .rank-box { margin: 18px auto 0; max-width: 460px; text-align: left; }

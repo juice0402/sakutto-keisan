@@ -71,6 +71,13 @@ export function literText(ml) {
   return `${Math.abs(Number(l.replace(/,/g, '')) - ml / 1000) > 1e-9 ? '約' : '＝'}${l}L`;
 }
 
+/** キャップで量るときの杯数（花王のハイターはキャップ1杯が約25ml）。0.1杯より少ないときは出さない */
+export function capText(ml, capMl) {
+  const cups = ml / capMl;
+  if (cups < 0.1 - 1e-9) return '';
+  return `約${fmt(cups, 1)}杯`;
+}
+
 /** 計量スプーンでの目安（小さじ¼〜大さじ3のとき）。大さじ1＝15ml・小さじ1＝5ml */
 export function spoonText(ml) {
   if (ml < 1.25 - 1e-9 || ml > 45 + 1e-9) return '';
