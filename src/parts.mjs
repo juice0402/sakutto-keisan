@@ -18,7 +18,8 @@ export function relatedHtml(tool, max = 4) {
   const picked = (tool.related || []).map(toolBySlug).filter((t) => t && t.published);
   for (const t of TOOLS) {
     if (picked.length >= max) break;
-    if (t.published && t.slug !== tool.slug && t.category === tool.category && !picked.includes(t)) picked.push(t);
+    // 足りない分は同じカテゴリの親のツールから（使いみち別のページは親のページからリンクする）
+    if (t.published && !t.parent && t.slug !== tool.slug && t.category === tool.category && !picked.includes(t)) picked.push(t);
   }
   const list = picked.length ? toolListHtml(picked.slice(0, max)) : '';
   return `<section class="prose" aria-labelledby="related"><h2 id="related">ほかの計算ツール</h2>${list}<p><a href="/">ツール一覧へ</a></p></section>`;

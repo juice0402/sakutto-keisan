@@ -6,14 +6,23 @@ export default function render() {
   const published = TOOLS.filter((t) => t.published);
   const upcoming = TOOLS.filter((t) => !t.published);
 
+  // 目次の行は親のツールだけ。使いみち別のページ（parent があるもの）は、親の行の下に短いリンクで並べる
+  const children = (t) => published.filter((x) => x.parent === t.slug);
+  const subLinks = (t) =>
+    children(t).length
+      ? `<p class="sub-links">${children(t)
+          .map((x) => `<a href="${toolUrl(x)}">${esc(x.name.replace(/の薄め方$/, ''))}</a>`)
+          .join('')}</p>`
+      : '';
   const cats = CATEGORIES.map((c) => {
-    const tools = published.filter((t) => t.category === c.id);
+    const tools = published.filter((t) => t.category === c.id && !t.parent);
     if (!tools.length) return '';
     return `<section class="cat cat-${c.theme}" aria-labelledby="cat-${c.id}">
   <h2 id="cat-${c.id}">${esc(c.name)}</h2>
   <ul class="tool-list">${tools
     .map(
-      (t) => `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></a></li>`,
+      (t) =>
+        `<li${children(t).length ? ' class="has-sub"' : ''}><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></a>${subLinks(t)}</li>`,
     )
     .join('')}</ul>
 </section>`;
