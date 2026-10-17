@@ -67,7 +67,7 @@ for (const [file, expect, count, people, crop] of PICS) {
   await page.click('#crop-go');
   await page.waitForFunction(() => {
     const s = document.getElementById('ocr-text').textContent;
-    return /読み取りました|見つかりませんでした|できませんでした/.test(s) && !document.getElementById('photo-btn').classList.contains('is-busy');
+    return /見つかりました|見つかりませんでした|読み取れませんでした/.test(s) && !document.getElementById('photo-btn').classList.contains('is-busy');
   }, null, { timeout: 240000 });
   const status = await page.textContent('#ocr-text');
   const text = await page.inputValue('#paste-text');
@@ -75,7 +75,7 @@ for (const [file, expect, count, people, crop] of PICS) {
   console.log(`\n--- ${report}\n---`);
   notice(`写真の読み取り ${file}`, report);
   if (!expect) continue;
-  check(/読み取りました/.test(status), `${file}：読み取れた`);
+  check(/個見つかりました/.test(status), `${file}：読み取れた`);
   await page.click('#paste-go');
   const rows = await page.evaluate(() => Array.from({ length: 20 }, (_, i) => i + 1).map((n) => [document.getElementById(`name-${n}`).value, document.getElementById(`amt-${n}`).value, document.getElementById(`unit-${n}`).value]).filter((r) => r[0] || r[1]));
   console.log('材料に入れた結果:', JSON.stringify(rows));

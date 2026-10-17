@@ -45,38 +45,34 @@ const toolBtn = (id, label, toggle = true) =>
 const FAQS = [
   {
     q: '調味料も人数分そのままかけ算していいですか？',
-    a: '<p>基本は材料と同じ割合で増やしたり減らしたりします。ただ、煮物やスープは鍋の大きさで蒸発する水分の量が変わり、味が濃くなったり薄くなったりします。塩やしょうゆは少なめに入れて、味をみながら足してください。</p>',
+    a: '<p>基本はそのままで大丈夫です。煮物は味が濃くなりやすいので、少なめに入れて味をみてください。</p>',
   },
   {
     q: '大さじ1・小さじ1・1カップは何mlですか？',
-    a: '<p>大さじ1は15ml、小さじ1は5mlで、大さじ1は小さじ3と同じです。日本の計量カップの1カップは200mlです。お米の1合は180mlで、白米ならおよそ150gです。</p>',
+    a: '<p>大さじ1＝15ml、小さじ1＝5ml、1カップ＝200mlです。</p>',
   },
   {
     q: '「1と½個」のような半端な数になったら？',
-    a: '<p>卵なら溶いてから半分だけ使う、野菜なら大きさで加減するなど、だいたいの量でかまいません。「約」がついている量は、¼・⅓・½などの近い量に丸めた目安です。</p>',
+    a: '<p>だいたいの量で大丈夫です。「約」は近い量に丸めた目安です。</p>',
   },
   {
     q: '加熱時間も人数に合わせて変えますか？',
-    a: '<p>加熱時間は人数に比例しません。量が増えると煮立つまでに時間がかかることがあるので、レシピの時間を目安に、様子を見て調整してください。</p>',
-  },
-  {
-    q: '「少々」「適量」はどうなりますか？',
-    a: '<p>そのまま「少々」「適量」と出します。計算して小さじ¼より少なくなったときも「少々」になります。</p>',
+    a: '<p>変えません。量が多いと時間がかかるので、様子を見て調整してください。</p>',
   },
   {
     q: 'レシピサイトや写真から入力できますか？',
-    a: '<p>できます。「レシピの文字・写真から入力」を押して、写真をえらぶか、材料の文字を貼り付けてください。「鶏もも肉 300g」のように1行に書かれた形も、材料と分量が別々の行に分かれた形も読めます。「材料（2人分）」と書いてあれば、レシピの人数も入ります。</p><p>写真は、四すみの丸を動かして材料のところだけを囲むと、読みまちがいが減ります。読み取りはこの端末の中で行い、写真は送信しません。最初の1回だけ、準備に少し時間がかかります。読み取った文字はまちがっていることもあるので、確かめてから材料に入れてください。</p><p>iPhoneの写真アプリやAndroidのGoogleレンズで文字をコピーして、貼り付けることもできます。</p>',
+    a: '<p>できます。「レシピの文字・写真から入力」から、写真をえらぶか文字を貼り付けてください。写真は送信しません。</p>',
   },
   {
     q: '入力した数字はどこかに送られますか？',
-    a: '<p>送られません。計算も、写真や貼り付けた文字の読み取りも、この端末のブラウザの中で行います。入力した材料や数字は保存もしません。</p>',
+    a: '<p>送られません。計算も写真の読み取りも、この端末の中だけで行います。</p>',
   },
 ];
 
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
-<p class="lead">レシピに書いてある人数と作りたい人数から、材料ごとの分量を計算します。大さじ½より少なくなれば小さじに直すなど、計量スプーンで量れる形で出します。</p>
+<p class="lead">レシピの分量を、作る人数に合わせて直します。</p>
 
 <div class="calc" id="calc">
   <div class="people">
@@ -99,16 +95,16 @@ export default function render() {
   <div class="paste" id="paste" hidden>
     <label class="wide-btn photo-btn" for="photo" id="photo-btn"><span>写真・スクショから読み取る</span></label>
     <input type="file" id="photo" accept="image/*" class="sr-only">
-    <p class="paste-help">写真は送信せず、この端末の中で文字を読み取ります。最初の1回だけ、準備に少し時間がかかります。</p>
+    <p class="paste-help">写真は送信せず、端末の中で読み取ります。</p>
     <div class="crop" id="crop" hidden>
-      <p class="crop-help">材料のところだけを囲むと、読みまちがいが減ります。四すみの丸を動かしてください。</p>
+      <p class="crop-help">材料のところを、四すみの丸で囲んでください</p>
       <div class="crop-stage"><div class="crop-frame"><img id="crop-img" alt="えらんだ写真" draggable="false"><div class="crop-box" id="crop-box"><span class="crop-h" data-h="nw"></span><span class="crop-h" data-h="ne"></span><span class="crop-h" data-h="sw"></span><span class="crop-h" data-h="se"></span></div></div></div>
       <button type="button" class="wide-btn is-main" id="crop-go">この範囲を読み取る</button>
     </div>
     <div class="ocr-status" id="ocr-status" role="status" hidden><p id="ocr-text"></p><div class="ocr-bar" aria-hidden="true"><span id="ocr-fill"></span></div></div>
     <label for="paste-text">または、レシピの材料の文字を貼り付け</label>
     <textarea id="paste-text" rows="7" maxlength="3000" autocomplete="off" placeholder="材料（2人分）&#10;鶏もも肉 300g&#10;玉ねぎ 1個&#10;しょうゆ 大さじ2"></textarea>
-    <p class="paste-help">レシピサイトやメモの材料をコピーして貼り付けると、材料と分量と単位を読み取ります。写真から読み取った文字もここに出ます。まちがっているところを直してから「材料に入れる」を押してください。</p>
+    <p class="paste-help">読み取った文字は、直してから入れてください。</p>
     <button type="button" class="wide-btn is-main" id="paste-go">材料に入れる</button>
   </div>
   <p class="paste-msg" id="paste-msg" hidden></p>
@@ -135,47 +131,24 @@ export default function render() {
 </div>
 
 ${section(
-  'howto',
-  '使い方',
-  `<ol>
-<li>「レシピは何人分？」と「何人分つくる？」を、−と＋のボタンか数字で入れます。</li>
-<li>レシピの材料と分量を入れます。最初は5行あり、使わない行は空のままでかまいません。単位は分量の欄の右でえらびます。材料の名前は空でも計算できます。</li>
-<li>作る人数分の分量が、下のメモに出ます。</li>
-</ol>
-<p>材料が多いときは「レシピの文字・写真から入力」を使うと、まとめて入れられます。レシピサイトの材料をコピーして貼り付けるか、レシピの写真やスクリーンショットをえらんでください。</p>
-<p>メモの下のボタンは、次のようなときに使います。</p>
-<ul>
-<li>＋材料を追加：材料が6つ以上あるとき。20まで増やせます</li>
-<li>手元の量から：「鶏肉が450gある」のように、手元の材料の量に合わせてほかの材料を計算したいとき。何人分になるかも出ます</li>
-<li>結果をコピー：計算した分量を、メモアプリや買い物リストに貼りたいとき</li>
-</ul>`,
-)}
-
-${section(
   'formula',
   '計算式',
   `<div class="formula">
 <span>倍率 ＝ 作る人数 ÷ レシピの人数</span>
 <span>作る分量 ＝ レシピの分量 × 倍率</span>
-<span>手元の量に合わせるとき：倍率 ＝ 手元にある量 ÷ レシピの分量</span>
 </div>
-<p>2人分のレシピで3人分作るなら、3 ÷ 2 で1.5倍です。鶏もも肉300gは、300 × 1.5 で450gになります。</p>
-<h3>量の直し方</h3>
+<p>例：2人分を3人分にするなら1.5倍。鶏もも肉300g → 450g。</p>
 <ul>
-<li>大さじ½より少なくなったら小さじに、小さじ3以上になったら大さじに直します。大さじ1は小さじ3です。</li>
-<li>小さじ¼より少なくなったら「少々」にします。</li>
-<li>大さじ・小さじ・個などは、¼・⅓・½・⅔・¾のうちいちばん近い量にします。ちょうどでないときは「約」をつけます。</li>
-<li>gとmlは、10より少ないときは小数第1位まで、それ以上は整数で出します。</li>
-<li>カップはmlに直し、カップでの量を小さく添えます。1カップは200mlです。</li>
-<li>お米の合には重さの目安を添えます。1合は180mlで、約150gです。</li>
+<li>大さじ½未満は小さじに、小さじ3以上は大さじに直します</li>
+<li>小さじ¼未満は「少々」にします</li>
+<li>半端な量は¼・⅓・½などに丸めて「約」をつけます</li>
 </ul>`,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<h3>2人分のレシピで3人分（1.5倍）</h3>
-<div class="tbl-wrap"><table>
+  `<div class="tbl-wrap"><table>
 <thead><tr><th>材料</th><th class="num">2人分</th><th class="num">3人分</th></tr></thead>
 <tbody>
 <tr><td>鶏もも肉</td><td class="num">300g</td><td class="num">450g</td></tr>
@@ -185,7 +158,6 @@ ${section(
 <tr><td>水</td><td class="num">200ml</td><td class="num">300ml</td></tr>
 </tbody>
 </table></div>
-<h3>4人分のレシピで1人分（¼）</h3>
 <div class="tbl-wrap"><table>
 <thead><tr><th>材料</th><th class="num">4人分</th><th class="num">1人分</th></tr></thead>
 <tbody>
@@ -193,8 +165,7 @@ ${section(
 <tr><td>酒</td><td class="num">大さじ1</td><td class="num">小さじ¾</td></tr>
 <tr><td>卵</td><td class="num">3個</td><td class="num">¾個</td></tr>
 </tbody>
-</table></div>
-<p class="note">手元の量に合わせる例：2人分のレシピで鶏もも肉300gのところ、450gあるなら 450 ÷ 300 ＝ 1.5倍で、3人分になります。</p>`,
+</table></div>`,
 )}
 
 ${section(
@@ -206,17 +177,9 @@ ${section(
 <tr><td>大さじ1</td><td class="num">15ml</td><td>小さじ3</td></tr>
 <tr><td>小さじ1</td><td class="num">5ml</td><td>大さじ⅓</td></tr>
 <tr><td>1カップ</td><td class="num">200ml</td><td>大さじ13と⅓</td></tr>
-<tr><td>お米1合</td><td class="num">180ml</td><td>白米で約150g。計量カップ1杯（200ml）とは違います</td></tr>
+<tr><td>お米1合</td><td class="num">180ml</td><td>白米で約150g</td></tr>
 </tbody>
-</table></div>
-<p class="note">大さじ・小さじは「量（ml）」なので、同じ大さじ1でも、材料によって重さ（g）は違います。</p>`,
-)}
-
-${section(
-  'tips',
-  '人数を変えて作るとき',
-  `<p>量を増やしたときは、塩やしょうゆを少し控えめに入れて、味をみてから足すと失敗が少なくなります。2倍の量を作るなら、鍋もひとまわり大きいものにしてください。鍋がいっぱいだと火の通りにむらが出ます。</p>
-<p>パンやお菓子は分量の割合で仕上がりが変わるので、gで量れる材料ははかりで量るのが確実です。</p>`,
+</table></div>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

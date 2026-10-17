@@ -92,8 +92,7 @@ function update() {
   drawBottle(res);
   showAmounts(res);
   const notes = [];
-  if (how === 'pct') notes.push(`${fmt(val('src'), 4)}％の原液を${fmt(val('target'), 4)}％にするには、${fmt(res.ratio, 2)}倍に薄めます。`);
-  if (res.concentrate < 1.25) notes.push('原液がとても少ないので、作る量をふやすと量りやすくなります。');
+  if (res.concentrate < 1.25) notes.push('原液が少ないので、多めに作ると量りやすいです。');
   setNote(notes.join(''));
 }
 

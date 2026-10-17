@@ -22,7 +22,7 @@ export default function render() {
   const body = `
 <div class="hero">
   <h1>${esc(SITE.name)}</h1>
-  <p class="lead">割引後の値段、100gあたりの値段、レシピの分量、洗剤や肥料の薄め方を計算できます。スマホのブラウザで開けば、アプリを入れなくても使えます。登録もいりません。</p>
+  <p class="lead">買い物や家事で使う計算ツールです。</p>
 </div>
 ${cats}
 ${
@@ -30,7 +30,7 @@ ${
     ? `<section class="cat" aria-labelledby="cat-soon"><h2 id="cat-soon">準備中</h2><p class="soon">${upcoming.map((t) => esc(t.name)).join('、')}</p></section>`
     : ''
 }
-<div class="tip"><strong>ホーム画面に追加できます</strong>iPhoneはSafariの共有ボタンから、Androidはメニューから「ホーム画面に追加」を選んでください。次からはアイコンで開けます。</div>
+<div class="tip"><strong>ホーム画面に追加できます</strong>共有ボタンかメニューの「ホーム画面に追加」から。</div>
 `;
 
   const html = page({

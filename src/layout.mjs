@@ -20,7 +20,7 @@ export const esc = (s) =>
 export const absUrl = (path) => SITE.url + path;
 
 // ブラウザのバーの色（各テーマの背景色）
-const THEME_COLOR = { home: '#fbfcfd', seikatsu: '#fbfcfd', shigoto: '#fbfcfd', fx: '#16191e' };
+const THEME_COLOR = { home: '#fbfcfd', seikatsu: '#fbfcfd', shigoto: '#1f2b40', fx: '#0e0f11' };
 
 export const icon = (inner, cls = 'ico') =>
   `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
@@ -111,7 +111,7 @@ ${p.body}
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p class="foot-note">計算はこの端末のブラウザの中で行っています。入力した数字は、どこにも送らず、保存もしません。</p>
+    <p class="foot-note">入力した数字は送信・保存しません。</p>
     <nav class="foot-nav" aria-label="サイトの情報">
       <a href="/">ツール一覧</a>
       <a href="/about/">このサイトについて</a>

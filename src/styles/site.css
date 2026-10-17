@@ -1,8 +1,9 @@
 /* サクッと計算 — 共通スタイル（色は下の名前で管理） */
-/* 見た目は「家計簿の方眼ノート」：白い紙に青い方眼、紺のペンの字と線、えらんだものは赤ペンの丸、
-   オンにしたものと見出しは黄色のマーカー、計算カードはマスキングテープでとめた紙。
-   テーマはページの <body data-theme="..."> で切り替える（端末のダークモードには連動しない）
-   home・seikatsu: 方眼ノート / shigoto: 罫線ノート / fx: 黒いノート */
+/* 見た目は「ノートと手帳」。部品と操作はどのページも同じで、紙・インク・表紙をテーマごとに変える。
+   home・seikatsu（生活）: 家計簿の方眼ノート。紺のペン、えらんだものは赤ペンの丸、黄色のマーカー、マスキングテープ
+   shigoto（お仕事）: 紺の革のシステム手帳と万年筆。罫線のリフィルと穴、ブルーブラックとボルドーのインク、明朝の見出し
+   fx（FX）: 黒の革のシステム手帳。暗い紙に白いインク、金のペン
+   テーマはページの <body data-theme="..."> で切り替える（端末のダークモードには連動しない） */
 :root {
   --bg: #fbfcfd;        /* 紙 */
   --surface: #ffffff;   /* 計算カードの紙 */
@@ -35,30 +36,42 @@
   color-scheme: light;
 }
 [data-theme="shigoto"] {
-  /* 罫線ノート：横の線だけ。赤ペンのかわりに青ペン */
-  --paper: linear-gradient(transparent 27px, rgb(70 120 190 / 0.13) 27px);
+  /* 紺の革のシステム手帳：白いリフィルに罫線、ブルーブラックの万年筆、えらんだものはボルドー */
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --text: #1e2a44;
+  --muted: #5d6676;
+  --border: #b9c0cc;
+  --rule: #dde1e8;
+  --red: #7d2333;
+  --marker: #e3e8f1;
+  --accent-soft: #eef1f6;
+  --paper: linear-gradient(transparent 27px, rgb(30 42 68 / 0.07) 27px);
   --paper-size: 100% 28px;
-  --red: #1f55b8;
-  --marker: #cfe8ff;
-  --accent-soft: #e6f2ff;
+  --leather: #1f2b40;
+  --leather-text: #ece9e2;
+  --stitch: rgb(236 233 226 / 0.38);
 }
 [data-theme="fx"] {
-  /* 黒いノート：点の方眼に白いペン。えらんだものは黄色のペン */
-  --bg: #16191e;
-  --surface: #1d2127;
-  --text: #e9edf2;
-  --muted: #9aa4b1;
-  --border: #3d4550;
-  --rule: #2d333c;
-  --red: #ffd84d;
-  --marker: #4a4220;
-  --paper: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1.5px);
-  --paper-size: 18px 18px;
-  --accent-soft: #2c2a1c;
-  --on-accent: #16191e;
+  /* 黒の革のシステム手帳：暗いリフィルに白いインク、えらんだものは金のペン */
+  --bg: #1b1d21;
+  --surface: #222529;
+  --text: #e8e4da;
+  --muted: #a19e95;
+  --border: #4a4d53;
+  --rule: #34373d;
+  --red: #c9a45c;
+  --marker: #3b3426;
+  --accent-soft: #2a2720;
+  --on-accent: #1b1d21;
   --error: #ff7b72;
   --up: #3fb950;
   --down: #f85149;
+  --paper: linear-gradient(transparent 27px, rgb(255 255 255 / 0.045) 27px);
+  --paper-size: 100% 28px;
+  --leather: #0e0f11;
+  --leather-text: #e8e4da;
+  --stitch: rgb(201 164 92 / 0.5);
   color-scheme: dark;
 }
 
@@ -365,17 +378,17 @@ h1 {
 .mix-stage { display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: stretch; }
 .bottle { display: flex; flex-direction: column; width: 84px; margin: 0 auto; }
 .bottle-cap { flex: none; width: 32px; height: 15px; margin: 0 auto; border-radius: 4px 4px 2px 2px; background: var(--text); }
-.bottle-neck { flex: none; width: 26px; height: 12px; margin: 0 auto; border: solid #a9c8de; border-width: 0 3px; background: #fff; }
+.bottle-neck { flex: none; width: 26px; height: 12px; margin: 0 auto; border: solid #a9c8de; border-width: 0 3px; background: var(--surface); }
 .bottle-body {
   position: relative; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; min-height: 168px; overflow: hidden;
-  border: 3px solid #a9c8de; border-radius: 22px 22px 14px 14px; background: #fff;
+  border: 3px solid #a9c8de; border-radius: 22px 22px 14px 14px; background: var(--surface);
 }
 .liq { flex: none; height: 0; transition: height .45s ease; }
 .liq-water { background: linear-gradient(#d9eefc, #aed5f0); box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.9); }
 .liq-conc { background: linear-gradient(#ffd27a, #f0a63a); }
 .bottle-label {
   position: absolute; left: 6px; right: 6px; top: 38%; margin: 0; padding: 4px 2px; border-radius: 2px;
-  background: #fff; border: 1px solid var(--rule); text-align: center;
+  background: var(--surface); border: 1px solid var(--rule); text-align: center;
   font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text); overflow-wrap: anywhere;
 }
 .mix-rows { display: grid; gap: 12px; min-width: 0; }
@@ -552,7 +565,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .hero h1 { font-size: 27px; }
 .cat { margin: 30px 0 0; }
 .cat h2 { font-size: 15px; color: var(--red); margin: 0; padding: 0 0 3px; font-weight: 800; border-bottom: 1.5px solid var(--red); }
-.tool-list { list-style: none; margin: 0; padding: 0; display: grid; column-gap: 24px; }
+.tool-list, .prose .tool-list { list-style: none; margin: 0; padding: 0; display: grid; column-gap: 24px; }
 .tool-card { display: block; min-height: 64px; padding: 11px 2px 10px; border-bottom: 1px dashed var(--border); color: var(--text); text-decoration: none; }
 .tool-card:active { background: var(--marker); }
 .tool-name { display: block; font-size: 17px; font-weight: 800; line-height: 1.45; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px; }
@@ -570,6 +583,35 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .foot-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 12px; }
 .foot-nav a { color: var(--muted); min-height: 32px; display: inline-flex; align-items: center; }
 .copy { margin: 0; }
+
+/* お仕事・FX：システム手帳（部品は同じ。表紙の革・リフィルの穴・明朝の見出し・万年筆の下線） */
+[data-theme="shigoto"] .site-header, [data-theme="fx"] .site-header,
+[data-theme="shigoto"] .site-footer, [data-theme="fx"] .site-footer { position: relative; background: var(--leather); border: 0; }
+[data-theme="shigoto"] .site-header::after, [data-theme="fx"] .site-header::after,
+[data-theme="shigoto"] .site-footer::before, [data-theme="fx"] .site-footer::before {
+  content: ""; position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--stitch);
+}
+[data-theme="shigoto"] .site-header::after, [data-theme="fx"] .site-header::after { bottom: 5px; }
+[data-theme="shigoto"] .site-footer::before, [data-theme="fx"] .site-footer::before { top: 5px; }
+[data-theme="shigoto"] .site-header .wrap, [data-theme="fx"] .site-header .wrap { padding-bottom: 12px; }
+[data-theme="shigoto"] .brand, [data-theme="fx"] .brand,
+[data-theme="shigoto"] .site-footer, [data-theme="fx"] .site-footer,
+[data-theme="shigoto"] .foot-nav a, [data-theme="fx"] .foot-nav a { color: var(--leather-text); }
+[data-theme="shigoto"] .site-footer, [data-theme="fx"] .site-footer { padding-top: 24px; }
+[data-theme="shigoto"] h1, [data-theme="fx"] h1,
+[data-theme="shigoto"] .prose h2, [data-theme="fx"] .prose h2 { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; letter-spacing: 0.04em; }
+[data-theme="shigoto"] h1, [data-theme="fx"] h1 {
+  background: none; text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 1.5px; text-underline-offset: 9px;
+}
+[data-theme="shigoto"] .prose h2, [data-theme="fx"] .prose h2 { border-bottom: 3px double var(--border); }
+/* 計算カード：テープのかわりに、リフィルの穴を左に */
+[data-theme="shigoto"] .calc, [data-theme="fx"] .calc { padding-left: 34px; border-width: 1px; }
+[data-theme="shigoto"] .calc::before, [data-theme="fx"] .calc::before {
+  top: 10px; bottom: 10px; left: 9px; width: 14px; height: auto; margin: 0; transform: none;
+  background: radial-gradient(circle at 7px 7px, var(--bg) 5px, var(--border) 5.5px, transparent 6.5px) 0 0 / 14px 46px repeat-y;
+}
+[data-theme="shigoto"] .tile[aria-pressed="true"]::after, [data-theme="fx"] .tile[aria-pressed="true"]::after,
+[data-theme="shigoto"] .seg-btn[aria-pressed="true"]::after, [data-theme="fx"] .seg-btn[aria-pressed="true"]::after { border-width: 1.8px; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }

@@ -75,7 +75,7 @@ function update() {
       return setNote(`${dims.join('と')}はくらべられません。同じ種類の単位にしてください。`, true);
     }
     const okCount = r.results.filter((x) => x.ok).length;
-    showEmpty(base, okCount === 1 ? 'もう1つ入れると、くらべられます' : '値段と量を2つ以上入れると、いちばんおトクな商品がわかります');
+    showEmpty(base, okCount === 1 ? 'もう1つ入れると、くらべられます' : '2つ以上入れると、安い順に並びます');
     return setNote(errIndex >= 0 ? `${K(keys[errIndex])}：${r.results[errIndex].error}` : '', errIndex >= 0);
   }
 
@@ -117,13 +117,7 @@ function update() {
   $('t-label').textContent = `${W} がいちばんおトク！`;
   v.classList.add('is-result');
   v.innerHTML = `2位の${S}より <strong>${perText(r.diff)}円</strong> 安い<span class="verdict-sub">${base}あたり・約${fmt(r.pct, 0)}％おトク</span>`;
-  const lines = [];
-  if (r.saving >= 1 && winKeys.length === 1) {
-    lines.push(`${W}の${amountText(win.amount, win.unit)}を${S}の単価で買うと${yen(Math.round(win.pay + r.saving))}なので、${yen(Math.round(r.saving))}おトクです。`);
-  }
-  if (winKeys.length === 1 && win.amount >= r.results[r.second].amount * 2) lines.push('量が2倍以上あるので、使い切れるかも考えてください。');
-  if (errIndex >= 0) lines.push(`（${K(keys[errIndex])}は入力にまちがいがあるので、くらべていません）`);
-  setNote(lines.join(''));
+  setNote(errIndex >= 0 ? `${K(keys[errIndex])}は入力がまちがっているので、くらべていません` : '');
   // いちばんおトクが変わったら値札をゆらす
   const key = `${W}|${win.per}`;
   if (key !== lastWin) {
