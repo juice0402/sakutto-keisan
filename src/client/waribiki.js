@@ -70,7 +70,7 @@ function drawMini(k, r, price) {
   const ok = r && r.ok;
   $(`cw-${k}`).innerHTML = ok ? `<s>${yen(price)}</s>` : '';
   $(`cp-${k}`).textContent = ok ? fmt(r.final) : '？';
-  $(`cs-${k}`).textContent = ok ? (r.off > 0 ? `${yen(r.off)}引き` : '割引なし') : '入力してください';
+  $(`cs-${k}`).textContent = ok ? (r.off > 0 ? `${yen(r.off)}引き` : '割引なし') : '未入力';
   show(`cb-${k}`, ok && r.off > 0);
   $(`cr-${k}`).textContent = ok ? `${fmt(r.totalRate, 1)}%` : '';
   const el = $(`cmp-${k}`);

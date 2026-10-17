@@ -52,10 +52,6 @@ const FAQS = [
     q: 'ポイント還元も入れられますか？',
     a: '<p>ポイントの欄はありません。値段からポイント分を引いて入れてください。</p>',
   },
-  {
-    q: '入力した数字はどこかに送られますか？',
-    a: '<p>送られません。計算はこの端末の中だけで行い、保存もしません。</p>',
-  },
 ];
 
 export default function render() {
@@ -64,17 +60,15 @@ export default function render() {
 <p class="lead">100gあたりの値段で、安い順に並べます。</p>
 
 <div class="calc" id="calc">
-  <div class="field-head calc-head"><p class="label">くらべる商品</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
-  <div class="cols" aria-hidden="true"><span></span><span>値段（円）</span><span>量</span></div>
+  <div class="cols"><span></span><span aria-hidden="true">値段（円）</span><span class="cols-r"><span aria-hidden="true">量</span><button type="button" class="clear-btn" id="clear">クリア</button></span></div>
   ${KEYS.map(item).join('\n')}
 
   <div class="tag-stage" aria-live="polite">
-    <p class="win-label" id="t-label" hidden></p>
     <div class="tag-wrap is-empty" id="tag">
       <div class="pricetag">
         <p class="tag-was" id="t-base">100gあたり</p>
         <p class="tag-price"><span id="t-price">？</span><small>円</small></p>
-        <p class="tag-save" id="t-sub">値段と量を入れると、いちばんおトクな商品がわかります</p>
+        <p class="tag-save" id="t-sub">2つ以上入れると、安い順に並びます</p>
       </div>
       <p class="tag-badge" id="t-badge" hidden><span>1位</span><small>おトク</small></p>
     </div>

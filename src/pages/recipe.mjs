@@ -18,8 +18,8 @@ const RECIPE_EXAMPLES = [
 const numInput = (id, placeholder, extra = '') =>
   `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"${extra}>`;
 
-// 人数：大きな −／＋ ボタンと入力欄
-const stepper = (id, label, value, who) => `<div class="field" id="f-${id}">
+// 人数：見出しは左、大きな −／＋ ボタンと入力欄（1段にして、計算の部分を1画面におさめる）
+const stepper = (id, label, value, who) => `<div class="field people-row" id="f-${id}">
   <label for="${id}">${label}</label>
   <div class="stepper">
     <button type="button" class="step-btn" id="${id}-minus" aria-label="${who}を1人へらす">${icon('<path d="M5 12h14"/>')}</button>
@@ -36,6 +36,7 @@ const row = ([name, amount, unit], i) => {
     <div class="field"><label class="sr-only" for="name-${n}">材料${n}の名前</label><div class="input input-name"><input id="name-${n}" type="text" inputmode="text" autocomplete="off" enterkeyhint="next" maxlength="20" placeholder="${name}"></div></div>
     <div class="field" id="f-amt-${n}"><label class="sr-only" for="amt-${n}">材料${n}の分量</label><div class="input input-sel">${numInput(`amt-${n}`, amount)}<select id="unit-${n}" class="unit-select" aria-label="材料${n}の単位">${RECIPE_UNITS.map((u) => `<option value="${u}"${u === unit ? ' selected' : ''}>${u}</option>`).join('')}</select></div></div>
   </div>
+  <p class="ing-out" id="out-${n}" aria-hidden="true"></p>
 </div>`;
 };
 
@@ -63,21 +64,17 @@ const FAQS = [
     q: 'レシピサイトや写真から入力できますか？',
     a: '<p>できます。「レシピの文字・写真から入力」から、写真をえらぶか文字を貼り付けてください。写真は送信しません。</p>',
   },
-  {
-    q: '入力した数字はどこかに送られますか？',
-    a: '<p>送られません。計算も写真の読み取りも、この端末の中だけで行います。</p>',
-  },
 ];
 
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
-<p class="lead">レシピの分量を、作る人数に合わせて直します。</p>
+<p class="lead">レシピの分量を、人数に合わせて直します。</p>
 
 <div class="calc" id="calc">
   <div class="people">
-    ${stepper('from', 'レシピは何人分？', 2, 'レシピの人数')}
-    ${stepper('to', '何人分つくる？', 4, '作る人数')}
+    ${stepper('from', 'レシピ', 2, 'レシピの人数')}
+    ${stepper('to', 'つくる', 4, '作る人数')}
     <div class="match" id="match" hidden>
       <div class="field">
         <label for="base">どの材料に合わせる？</label>
@@ -90,25 +87,24 @@ export default function render() {
     </div>
   </div>
 
-  <div class="field-head calc-head"><p class="label">材料と分量（レシピのとおり）</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
   <button type="button" class="wide-btn" id="to-paste" aria-pressed="false" aria-controls="paste">レシピの文字・写真から入力</button>
   <div class="paste" id="paste" hidden>
     <label class="wide-btn photo-btn" for="photo" id="photo-btn"><span>写真・スクショから読み取る</span></label>
     <input type="file" id="photo" accept="image/*" class="sr-only">
     <p class="paste-help">写真は送信せず、端末の中で読み取ります。</p>
     <div class="crop" id="crop" hidden>
-      <p class="crop-help">材料のところを、四すみの丸で囲んでください</p>
+      <p class="crop-help">四すみの丸で材料のところを囲んでください</p>
       <div class="crop-stage"><div class="crop-frame"><img id="crop-img" alt="えらんだ写真" draggable="false"><div class="crop-box" id="crop-box"><span class="crop-h" data-h="nw"></span><span class="crop-h" data-h="ne"></span><span class="crop-h" data-h="sw"></span><span class="crop-h" data-h="se"></span></div></div></div>
       <button type="button" class="wide-btn is-main" id="crop-go">この範囲を読み取る</button>
     </div>
     <div class="ocr-status" id="ocr-status" role="status" hidden><p id="ocr-text"></p><div class="ocr-bar" aria-hidden="true"><span id="ocr-fill"></span></div></div>
     <label for="paste-text">または、レシピの材料の文字を貼り付け</label>
     <textarea id="paste-text" rows="7" maxlength="3000" autocomplete="off" placeholder="材料（2人分）&#10;鶏もも肉 300g&#10;玉ねぎ 1個&#10;しょうゆ 大さじ2"></textarea>
-    <p class="paste-help">読み取った文字は、直してから入れてください。</p>
+    <p class="paste-help">読み取った文字は直してから入れてください</p>
     <button type="button" class="wide-btn is-main" id="paste-go">材料に入れる</button>
   </div>
   <p class="paste-msg" id="paste-msg" hidden></p>
-  <div class="cols cols-ing" aria-hidden="true"><span>材料</span><span>分量</span></div>
+  <div class="cols cols-ing"><span aria-hidden="true">材料</span><span class="cols-r"><span aria-hidden="true">レシピの分量</span><button type="button" class="clear-btn" id="clear">クリア</button></span></div>
   ${RECIPE_EXAMPLES.slice(0, MAX).map(row).join('\n')}
 
   <div class="dish-stage" aria-live="polite">
@@ -117,7 +113,7 @@ export default function render() {
     <div class="memo is-empty" id="memo">
       <p class="memo-title" id="memo-title">4人分の材料</p>
       <ul class="memo-list" id="memo-list"></ul>
-      <p class="memo-empty" id="memo-empty">材料と分量を入れると、ここに作る人数分の量が出ます</p>
+      <p class="memo-empty" id="memo-empty">材料を入れると、ここに出ます</p>
     </div>
     <p class="tag-note" id="r-note" hidden></p>
   </div>
@@ -139,9 +135,8 @@ ${section(
 </div>
 <p>例：2人分を3人分にするなら1.5倍。鶏もも肉300g → 450g。</p>
 <ul>
-<li>大さじ½未満は小さじに、小さじ3以上は大さじに直します</li>
-<li>小さじ¼未満は「少々」にします</li>
-<li>半端な量は¼・⅓・½などに丸めて「約」をつけます</li>
+<li>大さじ½未満は小さじに、小さじ¼未満は「少々」に直します</li>
+<li>半端な量は¼・½などに丸めて「約」をつけます</li>
 </ul>`,
 )}
 

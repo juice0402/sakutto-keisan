@@ -71,7 +71,19 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
+/** 材料の行のすぐ下に、作る人数分の量を出す（list が null なら消す）。少々・適量は出さない */
+function showRowOut(list) {
+  const by = new Map((list || []).map((x) => [x.n, x]));
+  ROWS.forEach((n) => {
+    const x = by.get(n);
+    const el = $(`out-${n}`);
+    if (!x || x.error || NO_QTY.includes(x.unit)) { el.innerHTML = ''; return; }
+    el.innerHTML = `→ ${x.approx ? '約' : ''}${escText(x.to)}${x.sub ? `<small>（${escText(x.sub)}）</small>` : ''}`;
+  });
+}
+
 function showEmpty(title, msg, plates) {
+  showRowOut(null);
   $('memo').classList.add('is-empty');
   $('memo-title').textContent = title;
   $('memo-list').innerHTML = '';
@@ -126,6 +138,7 @@ function update() {
     showEmpty(title, '材料を入れると、ここに出ます');
     return setNote('');
   }
+  showRowOut(out);
   $('memo').classList.remove('is-empty');
   $('memo-title').textContent = title;
   $('memo-empty').hidden = true;

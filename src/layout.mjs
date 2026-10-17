@@ -106,8 +106,8 @@ ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceA
   <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>
 <main class="wrap">
-${breadcrumbHtml(crumbs)}
 ${p.body}
+${breadcrumbHtml(crumbs)}
 </main>
 <footer class="site-footer">
   <div class="wrap">

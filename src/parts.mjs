@@ -23,7 +23,7 @@ export function relatedHtml(tool, max = 4) {
         )
         .join('')}</ul>`
     : '';
-  return `<section class="prose" aria-labelledby="related"><h2 id="related">ほかの計算ツール</h2>${list}<p><a href="/">${esc(SITE.name)}のツール一覧を見る</a></p></section>`;
+  return `<section class="prose" aria-labelledby="related"><h2 id="related">ほかの計算ツール</h2>${list}<p><a href="/">ツール一覧へ</a></p></section>`;
 }
 
 /** ツールページの構造化データ（WebApplication） */

@@ -26,10 +26,10 @@ const seg = (labelId, key, items) =>
 const pctField = (id, label, placeholder) =>
   `<div class="field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${numInput(id, placeholder)}<span class="unit">％</span></div></div>`;
 
-// 何倍のタイル：「10倍」と「1：9」（原液：水）を両方書く。最後のマスは自分で入力。1000倍はせまい画面では字を少し小さく
-const TILES = `<div class="tiles" role="group" aria-labelledby="l-ratio">${DILUTE_TILES.map(
+// 何倍のタイル（4列×2段）：「10倍」と「1：9」（原液：水）を両方書く。最後のマスは自分で入力。1000倍は字を少し小さく
+const TILES = `<div class="tiles tiles-4" role="group" aria-labelledby="l-ratio">${DILUTE_TILES.map(
   (v) => `<button type="button" class="tile${v >= 1000 ? ' tile-long' : ''}" data-ratio="${v}" aria-pressed="false"><b>${v}倍</b><small>1：${(v - 1).toLocaleString('ja-JP')}</small></button>`,
-).join('')}<div class="tile tile-input" id="f-ratio"><div class="tile-box"><input id="ratio" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="?" aria-describedby="l-ratio"><span>倍</span></div><label for="ratio">その他（倍）</label></div></div>`;
+).join('')}<div class="tile tile-input" id="f-ratio"><div class="tile-box"><input id="ratio" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="?" aria-describedby="l-ratio"><span>倍</span></div><label for="ratio">その他</label></div></div>`;
 
 const FAQS = [
   {
@@ -48,10 +48,6 @@ const FAQS = [
     q: '「3倍濃縮」のめんつゆは、どう薄めますか？',
     a: '<p>「3倍」をえらぶと、つゆ1：水2の量が出ます。</p>',
   },
-  {
-    q: '入力した数字はどこかに送られますか？',
-    a: '<p>送られません。計算はこの端末の中だけで行い、保存もしません。</p>',
-  },
 ];
 
 export default function render() {
@@ -60,7 +56,7 @@ export default function render() {
 <p class="lead">原液と水を何mlずつ入れるか計算します。</p>
 
 <div class="calc" id="calc">
-  <div class="field-head calc-head"><p class="label step" id="l-how"><span class="step-no" aria-hidden="true">1</span>薄め方</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
+  <div class="field-head calc-head"><p class="label" id="l-how">薄め方</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
   ${seg('l-how', 'how', [['times', '？倍', '何倍'], ['parts', '？：？', '何対何'], ['pct', '？％', '何％']])}
   <div class="field" id="f-tiles">
     <p class="sr-only" id="l-ratio">何倍に薄める？</p>
@@ -76,8 +72,7 @@ export default function render() {
     ${pctField('target', '作りたい濃度', '0.05')}
   </div>
 
-  <p class="label step step-2" id="l-amount"><span class="step-no" aria-hidden="true">2</span>わかっている量を1つ入れる</p>
-  <div class="mix-stage" role="group" aria-labelledby="l-amount">
+  <div class="mix-stage" role="group" aria-label="できあがり・原液・水の量（わかっている量を1つ入れる）">
     <div class="bottle" aria-hidden="true">
       <div class="bottle-cap"></div>
       <div class="bottle-neck"></div>

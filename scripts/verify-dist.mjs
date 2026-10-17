@@ -19,7 +19,7 @@ const files = walk(DIST);
 const htmlFiles = files.filter((f) => f.endsWith('.html'));
 const count = (s, re) => (s.match(re) || []).length;
 // 1行にしたい説明（しょーくんの方針・10/17「見ればわかる所に説明を入れない。入れても1行」）と、その文字数の上限
-const ONE_LINE = [['lead', 22], ['paste-help', 22], ['crop-help', 21], ['note', 23]];
+const ONE_LINE = [['lead', 21], ['paste-help', 21], ['crop-help', 20], ['note', 22]];
 const textWidth = (t) => [...t].reduce((w, c) => w + (/[\x20-\x7e]/.test(c) ? 0.55 : 1), 0);
 
 // 内部リンク先が dist にあるか

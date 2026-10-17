@@ -15,7 +15,7 @@ const field = (id, label, unit, placeholder, attrs = '') =>
 const TILES = `<div class="tiles" role="group" aria-labelledby="l-rate">${[10, 20, 30, 40, 50]
   .map((v) =>
     v === 50
-      ? `<button type="button" class="tile" data-pct="50" aria-pressed="false"><b>半額</b><small>50%・5割引き</small></button>`
+      ? `<button type="button" class="tile" data-pct="50" aria-pressed="false"><b>半額</b><small>5割・50%</small></button>`
       : `<button type="button" class="tile" data-pct="${v}" aria-pressed="false"><b>${v}%</b><small>${v / 10}割引き</small></button>`,
   )
   .join('')}<div class="tile tile-input" id="f-rate"><div class="tile-box"><input id="rate" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="?" aria-describedby="l-rate"><span>%</span></div><label for="rate">その他（％）</label></div></div>`;
@@ -48,10 +48,6 @@ const FAQS = [
   {
     q: '「2割引き」と「20％オフ」は同じですか？',
     a: '<p>同じです。1割が10％なので、2割5分引きは25％オフです。</p>',
-  },
-  {
-    q: '入力した数字はどこかに送られますか？',
-    a: '<p>送られません。計算はこの端末の中だけで行い、保存もしません。</p>',
   },
 ];
 

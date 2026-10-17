@@ -4,7 +4,7 @@ import { formatAmount } from './recipe.mjs';
 // 希釈率（ブラウザとテストの両方で使う）
 // 「◯倍に薄める」＝原液に水を足して、全体を原液の◯倍の量にする（10倍なら 原液1：水9）
 
-export const DILUTE_TILES = [2, 3, 5, 10, 20, 50, 100, 1000];
+export const DILUTE_TILES = [2, 3, 5, 10, 50, 100, 1000]; // 「その他」と合わせて4列×2段
 
 /**
  * 原液と水の量（ml）を出す

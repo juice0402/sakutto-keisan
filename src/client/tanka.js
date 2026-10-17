@@ -40,7 +40,6 @@ function setNote(text = '', error = false) {
 }
 
 function showEmpty(base, msg) {
-  $('t-label').hidden = true;
   $('t-badge').hidden = true;
   $('tag').classList.add('is-empty');
   $('t-base').textContent = `${base}あたり`;
@@ -99,13 +98,11 @@ function update() {
   $('t-base').textContent = `${base}あたり`;
   $('t-price').textContent = perText(win.per);
   $('t-sub').textContent = `${yen(win.pay)} ／ ${amountText(win.amount, win.unit)}`;
-  $('t-label').hidden = false;
   $('t-badge').hidden = !!r.same;
   const v = $('verdict');
   v.hidden = false;
 
   if (r.same) {
-    $('t-label').textContent = 'どれも同じ単価';
     v.classList.add('is-result');
     v.innerHTML = 'どれも<strong>同じ単価</strong>です';
     setNote(errIndex >= 0 ? `${K(keys[errIndex])}：${r.results[errIndex].error}` : '', errIndex >= 0);
@@ -114,7 +111,7 @@ function update() {
   }
   const W = winKeys.join('と');
   const S = K(keys[r.second]);
-  $('t-label').textContent = `${W} がいちばんおトク！`;
+  $('t-base').textContent = `${W}の${base}あたり`;
   v.classList.add('is-result');
   v.innerHTML = `2位の${S}より <strong>${perText(r.diff)}円</strong> 安い<span class="verdict-sub">${base}あたり・約${fmt(r.pct, 0)}％おトク</span>`;
   setNote(errIndex >= 0 ? `${K(keys[errIndex])}は入力がまちがっているので、くらべていません` : '');
