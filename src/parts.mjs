@@ -1,6 +1,6 @@
 import { SITE, CATEGORIES } from './site.mjs';
 import { TOOLS, toolBySlug, toolUrl } from './tools.mjs';
-import { esc, icon, absUrl } from './layout.mjs';
+import { esc, absUrl } from './layout.mjs';
 
 // ツールページの共通部品
 
@@ -19,7 +19,7 @@ export function relatedHtml(tool, max = 4) {
         .slice(0, max)
         .map(
           (t) =>
-            `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-ico">${icon(t.icon)}</span><span><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></span>${icon('<path d="m9 6 6 6-6 6"/>', 'ico go')}</a></li>`,
+            `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></a></li>`,
         )
         .join('')}</ul>`
     : '';

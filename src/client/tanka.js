@@ -121,7 +121,7 @@ function update() {
   if (r.saving >= 1 && winKeys.length === 1) {
     lines.push(`${W}の${amountText(win.amount, win.unit)}を${S}の単価で買うと${yen(Math.round(win.pay + r.saving))}なので、${yen(Math.round(r.saving))}おトクです。`);
   }
-  if (winKeys.length === 1 && win.amount >= r.results[r.second].amount * 2) lines.push('量が2倍以上あるので、使い切れるかも考えてね。');
+  if (winKeys.length === 1 && win.amount >= r.results[r.second].amount * 2) lines.push('量が2倍以上あるので、使い切れるかも考えてください。');
   if (errIndex >= 0) lines.push(`（${K(keys[errIndex])}は入力にまちがいがあるので、くらべていません）`);
   setNote(lines.join(''));
   // いちばんおトクが変わったら値札をゆらす

@@ -1,5 +1,5 @@
 import { toolBySlug } from '../tools.mjs';
-import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
+import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 
 const tool = toolBySlug('waribiki');
@@ -20,13 +20,7 @@ const TILES = `<div class="tiles" role="group" aria-labelledby="l-rate">${[10, 2
   )
   .join('')}<div class="tile tile-input" id="f-rate"><div class="tile-box"><input id="rate" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="?" aria-describedby="l-rate"><span>%</span></div><label for="rate">その他（％）</label></div></div>`;
 
-const ICONS = {
-  more: '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9-9-9Z"/><path d="M8 7.5h3M9.5 6v3"/>',
-  cmp: '<rect x="2.5" y="6" width="8" height="12" rx="2"/><rect x="13.5" y="6" width="8" height="12" rx="2"/><path d="M6.5 3v3M17.5 3v3"/>',
-  rate: '<circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M19 5 5 19"/>',
-};
-const toolBtn = (id, iconKey, label) =>
-  `<button type="button" class="tool-btn" id="${id}" aria-pressed="false">${icon(ICONS[iconKey])}<span>${label}</span></button>`;
+const toolBtn = (id, label) => `<button type="button" class="tool-btn" id="${id}" aria-pressed="false"><span>${label}</span></button>`;
 
 const miniTag = (k) =>
   `<div class="cmp-item" id="cmp-${k}" data-item="${k}"><p class="cmp-label" id="cl-${k}">${k.toUpperCase()}</p><div class="tag-wrap tag-mini"><div class="pricetag"><p class="tag-was" id="cw-${k}"></p><p class="tag-price"><span id="cp-${k}">？</span><small>円</small></p><p class="tag-save" id="cs-${k}"></p></div><p class="tag-badge" id="cb-${k}" hidden><span id="cr-${k}"></span><small>OFF</small></p></div></div>`;
@@ -37,34 +31,34 @@ const cmpTab = (k) =>
 const FAQS = [
   {
     q: '2,000円の3割引きと1,500円の20％オフ、どっちが安いですか？',
-    a: '<p>1,500円の20％オフ（1,200円）のほうが、2,000円の3割引き（1,400円）より200円安いです。割引の額は3割引きのほうが大きい（600円）ので、割引額ではなく割引後の値段でくらべましょう。このツールの「2つくらべる」で確かめられます。</p>',
+    a: '<p>1,500円の20％オフです。1,200円になり、2,000円の3割引き（1,400円）より200円安くなります。</p>',
   },
   {
     q: '30％オフのあと、さらに20％オフにすると50％オフになりますか？',
-    a: '<p>なりません。2回目の20％オフは「30％オフ後の値段」にかかるので、合計は44％オフです（元の値段 × 0.7 × 0.8 = 元の値段 × 0.56）。このツールの「さらに割引」で確かめられます。</p>',
+    a: '<p>なりません。2回目の20％は、30％引いたあとの値段にかかります。元の値段に0.7と0.8をかけると0.56なので、合わせて44％オフです。</p>',
   },
   {
     q: '1円未満の端数はどうなりますか？',
-    a: '<p>はじめは「切り捨て」で計算します。お店によっては四捨五入や切り上げのこともあるので、値札の下の「1円未満は」で切り替えてください（端数が出たときだけ表示されます）。「さらに割引」をするときは、1回ごとに端数を処理します。</p>',
+    a: '<p>最初は切り捨てで計算します。四捨五入や切り上げのお店もあるので、端数が出たときは値札の下で切り替えられます。さらに割引をするときは、1回ごとに端数を処理します。</p>',
   },
   {
     q: '税込と税抜、どちらの値段を入れればいいですか？',
-    a: '<p>知りたいほうの値段をそのまま入れてください。税込の値段から割り引いても、税抜の値段から割り引いてあとで消費税を足しても、答えはほぼ同じです（端数の処理で1円ほどずれることがあります）。</p>',
+    a: '<p>知りたいほうの値段を入れてください。税込の値段から割り引いても、税抜で割り引いてから消費税を足しても、端数のちがいで1円ずれるくらいで、ほぼ同じ金額になります。</p>',
   },
   {
     q: '「2割引き」と「20％オフ」は同じですか？',
-    a: '<p>同じです。1割＝10％、1分＝1％なので、2割5分引きは25％オフです。半額は5割引き（50％オフ）です。このツールのボタンには、「30%」と「3割引き」の両方を書いてあります。</p>',
+    a: '<p>同じです。1割が10％なので、2割5分引きは25％オフ、半額は5割引きです。</p>',
   },
   {
     q: '入力した数字はどこかに送られますか？',
-    a: '<p>送られません。計算はお使いの端末（ブラウザ）の中だけで行い、入力した数字を保存することもありません。</p>',
+    a: '<p>送られません。計算はこの端末のブラウザの中で行い、入力した数字は保存もしません。</p>',
   },
 ];
 
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
-<p class="lead">値段と割引率を入れるだけ。割引後の値段が、値札ですぐわかります。</p>
+<p class="lead">「3割引き」や「20％オフ」の値段を計算します。元の値段を入れて、割引をえらんでください。</p>
 
 <div class="calc" id="calc">
   <div class="cmp-tabs" data-mode="compare" hidden role="group" aria-label="入力する商品">${cmpTab('a')}${cmpTab('b')}</div>
@@ -97,9 +91,9 @@ export default function render() {
   </div>
 
   <div class="calc-tools">
-    ${toolBtn('more', 'more', 'さらに割引')}
-    ${toolBtn('to-cmp', 'cmp', '2つくらべる')}
-    ${toolBtn('to-rate', 'rate', '何％オフ？')}
+    ${toolBtn('more', 'さらに割引')}
+    ${toolBtn('to-cmp', '2つくらべる')}
+    ${toolBtn('to-rate', '何％オフ？')}
   </div>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
@@ -108,15 +102,15 @@ ${section(
   'howto',
   '使い方',
   `<ol>
-<li><strong>元の値段</strong>を入れます（定価・税込価格など、知りたいほうの値段）。</li>
-<li><strong>値引きをえらびます。</strong>ボタンには「30%」と「3割引き」の両方を書いてあります。15％などは右下の「その他（％）」に、％の数字で入れます。</li>
-<li>すぐに、<strong>割引後の値段</strong>と<strong>おトクになる額</strong>が値札で表示されます。</li>
+<li>元の値段を入れます。税込でも税抜でも、知りたいほうの値段でかまいません。</li>
+<li>割引をえらびます。ボタンには「30%」と「3割引き」を並べて書いています。15％のように一覧にない割引は、右下のマスに数字を入れます。</li>
+<li>割引後の値段と、いくら安くなるかが値札に出ます。</li>
 </ol>
-<p>値札の下の3つのボタンで、こんな計算もできます。</p>
+<p>値札の下のボタンは、次のようなときに使います。もう一度押すと元にもどります。</p>
 <ul>
-<li><strong>さらに割引</strong>：「30％オフからさらに10％オフ」のような二重割引。</li>
-<li><strong>2つくらべる</strong>：「2,000円の3割引き」と「1,500円の20％オフ」のどっちが安いか。上のA・Bを押して、それぞれの値段と割引を入れます。</li>
-<li><strong>何％オフ？</strong>：元の値段と割引後の値段から、何％オフかを調べます。</li>
+<li>さらに割引：30％オフの商品に、さらに10％オフのクーポンを使うとき</li>
+<li>2つくらべる：「2,000円の3割引き」と「1,500円の20％オフ」のどちらが安いか知りたいとき。上のAとBを切り替えて、それぞれ入れます</li>
+<li>何％オフ？：元の値段と割引後の値段から、割引率を出したいとき</li>
 </ul>`,
 )}
 
@@ -128,7 +122,7 @@ ${section(
 <span>安くなる額 ＝ 元の値段 × 割引率 ÷ 100</span>
 <span>割引率 ＝（元の値段 − 割引後の値段）÷ 元の値段 × 100</span>
 </div>
-<p>たとえば5,000円の30％オフは、5,000 × 70 ÷ 100 ＝ <strong>3,500円</strong>。安くなる額は5,000 × 30 ÷ 100 ＝ 1,500円です。</p>`,
+<p>5,000円の30％オフなら、5,000 × 70 ÷ 100 で3,500円です。安くなるのは1,500円です。</p>`,
 )}
 
 ${section(
@@ -144,24 +138,24 @@ ${section(
 <tr><td>999円</td><td>15％オフ</td><td class="num">849円</td><td class="num">150円</td></tr>
 </tbody>
 </table></div>
-<p class="note">999円の15％オフは849.15円なので、1円未満を切り捨てて849円です。</p>`,
+<p class="note">999円の15％オフは849.15円で、1円未満を切り捨てると849円です。</p>`,
 )}
 
 ${section(
   'compare',
-  'どっちが安い？割引のくらべ方',
-  `<p>「2,000円の3割引き」と「1,500円の20％オフ」では、どちらが安いでしょうか。</p>
+  '割引率が大きいほうが安いとは限りません',
+  `<p>2,000円の3割引きと、1,500円の20％オフをくらべてみます。</p>
 <div class="formula">
-<span>A：2,000円 × 0.7 ＝ 1,400円（600円引き）</span>
-<span>B：1,500円 × 0.8 ＝ 1,200円（300円引き）</span>
+<span>2,000円 × 0.7 ＝ 1,400円（600円引き）</span>
+<span>1,500円 × 0.8 ＝ 1,200円（300円引き）</span>
 </div>
-<p>割引の額はAのほうが大きいのに、支払う金額は<strong>Bのほうが200円安い</strong>です。割引率や割引額ではなく、<strong>割引後の値段</strong>でくらべるのがコツ。このツールの「2つくらべる」なら、値札を並べてひと目でわかります。</p>`,
+<p>値引きの額は2,000円の3割引きのほうが大きいのですが、払う金額は1,500円の20％オフのほうが200円少なくなります。くらべるときは割引後の値段を見てください。このページの「2つくらべる」で、値札を2枚並べて確かめられます。</p>`,
 )}
 
 ${section(
   'wari',
-  '「割」と「％」のちがい',
-  `<p>1割＝10％、1分＝1％です。「3割引き」と「30％オフ」は同じ意味で、「3％オフ」とは違うので気をつけましょう。</p>
+  '割と％の換算',
+  `<p>1割は10％、1分は1％です。3割引きと30％オフは同じですが、3％オフとはちがいます。</p>
 <div class="tbl-wrap"><table>
 <thead><tr><th>割</th><th>％</th><th>支払う割合</th></tr></thead>
 <tbody>
@@ -175,12 +169,9 @@ ${section(
 
 ${section(
   'mental',
-  '暗算のコツ',
-  `<ul>
-<li><strong>10％オフ</strong>は、値段の0を1つ取った額を引くだけ（3,980円 → 398円引き → 3,582円）。</li>
-<li><strong>◯割引き</strong>は「残る割合」をかけると早い（3割引き → 0.7倍、25％オフ → 0.75倍）。</li>
-<li><strong>半額からさらに半額</strong>は75％オフ（元の値段の4分の1）。</li>
-</ul>`,
+  '暗算するとき',
+  `<p>10％オフなら、値段の一の位を消した額を引きます。3,980円なら398円引きで3,582円です。</p>
+<p>2割引きや3割引きは、残る割合をかけたほうが早く計算できます。3割引きなら0.7倍、25％オフなら0.75倍です。半額のさらに半額は、元の値段の4分の1になります。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}
@@ -190,14 +181,14 @@ ${relatedHtml(tool)}
 
   const html = page({
     path,
-    title: '割引計算｜何％オフ・何割引きの値段がすぐわかる',
+    title: '割引計算｜何％オフ・何割引きの値段を計算',
     description:
-      '値段と割引率を入れるだけで、割引後の値段と安くなる額が値札でわかる無料の割引計算ツール。「3割引き」と「20％オフ」どっちが安いかの比較、何％オフかの逆算、二重割引にも対応。',
+      '「3割引き」「20％オフ」の割引後の値段と、いくら安くなるかを計算します。2つの割引のどちらが安いかの比較、割引後の値段から何％オフかの逆算、クーポンを重ねた二重割引にも使えます。',
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },
     ],
-    jsonLd: [toolLd(tool, '値段と割引率から割引後の値段・安くなる額を計算。2つの割引の比較・割引率の逆算・二重割引にも対応。'), faqLd(FAQS)],
+    jsonLd: [toolLd(tool, '元の値段と割引率から、割引後の値段と値引きの額を計算するツール。2つの割引の比較、割引率の逆算、二重割引に対応。'), faqLd(FAQS)],
     theme: themeOf(tool),
     ogImage: `/og/${tool.slug}.png`,
     scripts: ['waribiki.js'],
