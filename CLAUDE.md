@@ -32,7 +32,7 @@
 | `src/layout.mjs` | ページの外側（head・ヘッダー・フッター・構造化データ）と本文の部品 |
 | `src/parts.mjs` | ツールページの共通部品（関連ツール・WebApplication の構造化データ） |
 | `src/pages/*.mjs` | 1ファイル＝1ページ（`info.mjs` は固定ページ、`kishaku-uses.mjs` は希釈の使いみち別のページをまとめて）。default 関数が `{ path, html, sitemap, updated }`（またはその配列）を返す |
-| `src/mix.mjs` | 希釈の計算カードの部品（希釈率の計算と、使いみち別の「めんつゆ・塩素系漂白剤・液体肥料」で共通）。動きは `src/client/kishaku.js` 1つで、ページごとのちがい（マス・原液の呼び名・ボトルのラベル・キャップの目安）は `#calc` の `data-*` で渡す |
+| `src/mix.mjs` | 希釈の計算カードの部品（希釈率の計算と、使いみち別の「めんつゆ・次亜塩素酸ナトリウム・液体肥料」で共通）。動きは `src/client/kishaku.js` 1つで、ページごとのちがい（マス・原液の呼び名・ボトルのラベル・キャップの目安）は `#calc` の `data-*` で渡す |
 | `src/lib/*.mjs` | 計算のロジック（DOM を触らない。テストとブラウザの両方で使う） |
 | `src/client/*.js` | ブラウザ用の入口（1ツール1ファイル）。`*.mjs` は共通部品 |
 | `src/styles/site.css` | デザイン（色はテーマごとに `[data-theme]` で管理） |
