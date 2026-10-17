@@ -207,8 +207,8 @@ def recipe_memo(img, cx, top):
     tape(img, cx, y0, 150 * S, 34 * S, 3)
 
 
-def dilute_bottle(img, cx, top):
-    """希釈率：ボトルに原液（黄色）と水（水色）＋「10倍」のラベル、横に原液と水の量"""
+def dilute_bottle(img, cx, top, label='10倍', rows=(('原液', '100ml'), ('水', '900ml')), conc_color='#F3B04A', conc_key='#F0A63A', share=0.1):
+    """希釈率：ボトルに原液（黄色）と水（水色）＋「10倍」のラベル、横に原液と水の量（使いみち別のページは中身を変える）"""
     d = ImageDraw.Draw(img)
     bx = cx - 150 * S  # ボトルのまん中
     bw, bh = 150 * S, 250 * S
@@ -222,19 +222,21 @@ def dilute_bottle(img, cx, top):
     ld = ImageDraw.Draw(liq)
     ld.rectangle([x0, y0, x0 + bw, y0 + bh], fill='#FFFFFF')
     full = y0 + bh * 0.16
-    conc = y0 + bh - bh * 0.84 * 0.1 - 18 * S
+    conc = y0 + bh - bh * 0.84 * share - 18 * S
     ld.rectangle([x0, full, x0 + bw, conc], fill='#AED5F0')
-    ld.rectangle([x0, conc, x0 + bw, y0 + bh], fill='#F3B04A')
+    ld.rectangle([x0, conc, x0 + bw, y0 + bh], fill=conc_color)
     img.paste(liq, (0, 0), body)
     d.rounded_rectangle([x0, y0, x0 + bw, y0 + bh], radius=38 * S, outline='#A9C8DE', width=5 * S)
     # ラベル
     f_lab = font('black', 40)
-    lw = d.textlength('10倍', font=f_lab)
+    while d.textlength(label, font=f_lab) > bw - 40 * S:
+        f_lab = font('black', f_lab.size // S - 2)
+    lw = d.textlength(label, font=f_lab)
     d.rectangle([x0 + 16 * S, y0 + 92 * S, x0 + bw - 16 * S, y0 + 150 * S], fill='#FFFFFF', outline='#D3DCE8', width=2 * S)
-    d.text((bx - lw / 2, y0 + 96 * S), '10倍', font=f_lab, fill=INK)
+    d.text((bx - lw / 2, y0 + 96 * S), label, font=f_lab, fill=INK)
     # 横の数字
     f_k, f_v = font('bold', 30), font('black', 58)
-    for i, (k, v, color) in enumerate([('原液', '100ml', '#F0A63A'), ('水', '900ml', '#AED5F0')]):
+    for i, ((k, v), color) in enumerate(zip(rows, (conc_key, '#AED5F0'))):
         y = top + 60 * S + i * 120 * S
         tx = cx - 30 * S
         d.rectangle([tx, y + 12 * S, tx + 26 * S, y + 38 * S], fill=color)
@@ -242,7 +244,13 @@ def dilute_bottle(img, cx, top):
         d.text((tx, y + 46 * S), v, font=f_v, fill=RED)
 
 
-VISUALS = {'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle}
+VISUALS = {
+    'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
+    # 希釈率の使いみち別
+    'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
+    'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),
+    'ekihi': lambda img, cx, top: dilute_bottle(img, cx, top, '1000倍', (('原液', '1ml'), ('水', '1L')), share=0.02),
+}
 
 
 def wrap2(d, text, f, max_w):

@@ -6,8 +6,9 @@ export default function render() {
   const published = TOOLS.filter((t) => t.published);
   const upcoming = TOOLS.filter((t) => !t.published);
 
+  // 目次は親のツールだけ。使いみち別のページ（parent があるもの）は検索から直接来てもらうページなので、親のページの中からだけリンクする
   const cats = CATEGORIES.map((c) => {
-    const tools = published.filter((t) => t.category === c.id);
+    const tools = published.filter((t) => t.category === c.id && !t.parent);
     if (!tools.length) return '';
     return `<section class="cat cat-${c.theme}" aria-labelledby="cat-${c.id}">
   <h2 id="cat-${c.id}">${esc(c.name)}</h2>

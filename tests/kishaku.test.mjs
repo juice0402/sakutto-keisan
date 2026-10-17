@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText, mlValue, literText } from '../src/lib/kishaku.mjs';
+import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText, capText, mlValue, literText } from '../src/lib/kishaku.mjs';
 
 const r = (p) => {
   const x = dilute(p);
@@ -68,4 +68,51 @@ test('量の欄の数字と L の添え書き', () => {
   assert.equal(literText(1000), '＝1L');
   assert.equal(literText(2002.002), '約2L');
   assert.equal(literText(1500), '＝1.5L');
+});
+
+// ---- 使いみち別のページの表（src/pages/kishaku-uses.mjs）
+const ml = (x) => `${mlValue(x)}ml`;
+const fromWater = (ratio, water) => dilute({ ratio, amount: water, from: 'water' });
+
+test('めんつゆ：つけつゆ・かけつゆの量（本文の例：3倍濃縮で100ml）', () => {
+  const row = (ratio, amount) => {
+    const x = dilute({ ratio, amount });
+    return [ml(x.concentrate), ml(x.water)];
+  };
+  assert.deepEqual(row(ratioFromParts(1, 1).ratio, 100), ['50ml', '50ml']); // 2倍濃縮のつけつゆ
+  assert.deepEqual(row(ratioFromParts(1, 3).ratio, 200), ['50ml', '150ml']); // 2倍濃縮のかけつゆ
+  assert.deepEqual(row(3, 100), ['33ml', '67ml']); // 3倍濃縮のつけつゆ（1：2）
+  assert.deepEqual(row(4, 100), ['25ml', '75ml']); // 4倍濃縮のつけつゆ（1：3）
+  assert.equal(waterPart(3), '2');
+});
+
+test('塩素系漂白剤の表：6％から0.02・0.05・0.1％（水500ml・1L）', () => {
+  const row = (target) => {
+    const r = ratioFromPercent(6, target).ratio;
+    return [ml(fromWater(r, 500).concentrate), ml(fromWater(r, 1000).concentrate)];
+  };
+  assert.deepEqual(row(0.02), ['1.7ml', '3.3ml']);
+  assert.deepEqual(row(0.05), ['4.2ml', '8.4ml']);
+  assert.deepEqual(row(0.1), ['8.5ml', '17ml']);
+  // 花王の目安（作ったときの6％）：0.02％は水3Lに約10ml・0.05％は水3Lに約25ml・0.1％は水3Lに約50ml
+  assert.equal(Math.round(fromWater(ratioFromPercent(6, 0.02).ratio, 3000).concentrate), 10);
+  assert.equal(Math.round(fromWater(ratioFromPercent(6, 0.05).ratio, 3000).concentrate), 25);
+  assert.equal(Math.round(fromWater(ratioFromPercent(6, 0.1).ratio, 3000).concentrate), 51);
+});
+
+test('ハイターのキャップの杯数（1杯 約25ml）', () => {
+  assert.equal(capText(10, 25), '約0.4杯');
+  assert.equal(capText(25, 25), '約1杯');
+  assert.equal(capText(50.8, 25), '約2杯');
+  assert.equal(capText(2, 25), ''); // 0.1杯より少ないときは出さない
+});
+
+test('液体肥料の表とマス：水1L・2L・10Lに入れる原液', () => {
+  const row = (ratio) => [1000, 2000, 10000].map((w) => ml(fromWater(ratio, w).concentrate));
+  assert.deepEqual(row(250), ['4ml', '8ml', '40ml']);
+  assert.deepEqual(row(500), ['2ml', '4ml', '20ml']);
+  assert.deepEqual(row(1000), ['1ml', '2ml', '10ml']);
+  assert.deepEqual(row(2000), ['0.5ml', '1ml', '5ml']);
+  // マスの「1Lに◯ml」
+  assert.deepEqual([50, 100, 200].map((r) => ml(fromWater(r, 1000).concentrate)), ['20ml', '10ml', '5ml']);
 });

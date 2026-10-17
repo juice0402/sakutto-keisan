@@ -20,6 +20,9 @@ CASES = {
     'tanka': (lambda pg: (pg.fill('#price-a', '198'), pg.fill('#qty-a', '500'), pg.fill('#price-b', '298'), pg.fill('#qty-b', '1000')), '#tag .tag-price'),
     'recipe': (lambda pg: pg.fill('#amt-1', '300'), '#out-1'),
     'kishaku': (lambda pg: (pg.click('.tile[data-ratio="100"]'), pg.fill('#v-total', '500')), '#f-water'),
+    'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),
+    'hyohakuzai': (lambda pg: (pg.click('.tile[data-target="0.05"]'), pg.fill('#v-water', '1000')), '#r-hints'),
+    'ekihi': (lambda pg: (pg.click('.tile[data-ratio="1000"]'), pg.fill('#v-water', '2000')), '#f-water'),
 }
 
 bad = 0

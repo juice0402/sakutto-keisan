@@ -1,17 +1,11 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, toolListHtml } from '../parts.mjs';
 import { DILUTE_TILES } from '../lib/kishaku.mjs';
+import { numInput, mixTiles, mixStage } from '../mix.mjs';
 
 const tool = toolBySlug('kishaku');
 const path = '/kishaku/';
-
-const numInput = (id, placeholder) =>
-  `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}">`;
-
-// 量の欄（できあがり・原液・水）：わかっている欄に1つ入れると、ほかの2つに答えが出る
-const amountField = (key, cls, label) =>
-  `<div class="field mix-field ${cls}" id="f-${key}"><label for="v-${key}">${label}</label><div class="input">${numInput(`v-${key}`, '？')}<span class="unit">ml</span></div></div>`;
 
 // 何対何：原液［ ］：水［ ］
 const partField = (id, label, placeholder) =>
@@ -27,9 +21,14 @@ const pctField = (id, label, placeholder) =>
   `<div class="field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${numInput(id, placeholder)}<span class="unit">％</span></div></div>`;
 
 // 何倍のタイル（4列×2段）：「10倍」と「1：9」（原液：水）を両方書く。最後のマスは自分で入力。1000倍は字を少し小さく
-const TILES = `<div class="tiles tiles-4" role="group" aria-labelledby="l-ratio">${DILUTE_TILES.map(
-  (v) => `<button type="button" class="tile${v >= 1000 ? ' tile-long' : ''}" data-ratio="${v}" aria-pressed="false"><b>${v}倍</b><small>1：${(v - 1).toLocaleString('ja-JP')}</small></button>`,
-).join('')}<div class="tile tile-input" id="f-ratio"><div class="tile-box"><input id="ratio" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="?" aria-describedby="l-ratio"><span>倍</span></div><label for="ratio">その他</label></div></div>`;
+const TILES = mixTiles(
+  'l-ratio',
+  DILUTE_TILES.map((v) => ({ key: 'ratio', value: v, big: `${v}倍`, small: `1：${(v - 1).toLocaleString('ja-JP')}`, long: v >= 1000 })),
+  { id: 'ratio', post: '倍', label: 'その他' },
+);
+
+// 使いみち別のページ（めんつゆ・漂白剤・液体肥料）
+const USES = ['mentsuyu', 'hyohakuzai', 'ekihi'].map(toolBySlug).filter((t) => t && t.published);
 
 const FAQS = [
   {
@@ -72,26 +71,10 @@ export default function render() {
     ${pctField('target', '作りたい濃度', '0.05')}
   </div>
 
-  <div class="mix-stage" role="group" aria-label="できあがり・原液・水の量（わかっている量を1つ入れる）">
-    <div class="bottle" aria-hidden="true">
-      <div class="bottle-cap"></div>
-      <div class="bottle-neck"></div>
-      <div class="bottle-body">
-        <div class="liq liq-water" id="b-water"></div>
-        <div class="liq liq-conc" id="b-conc"></div>
-        <p class="bottle-label" id="b-label">？倍</p>
-      </div>
-    </div>
-    <div class="mix-rows">
-      ${amountField('total', 'is-total', 'できあがり')}
-      ${amountField('conc', 'is-conc', '原液')}
-      ${amountField('water', 'is-water', '水')}
-    </div>
-    <p class="mix-foot" aria-live="polite"><span id="r-ratio">何倍に薄めるかをえらんでください</span><span id="r-hints"></span><span class="sr-only" id="r-sr"></span></p>
-  </div>
-  <p class="tag-note" id="r-note" hidden></p>
-  <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
+${mixStage({ hint: '何倍に薄めるかをえらんでください' })}
 </div>
+
+${USES.length ? section('uses', '使いみち別の薄め方', toolListHtml(USES)) : ''}
 
 ${section(
   'formula',
