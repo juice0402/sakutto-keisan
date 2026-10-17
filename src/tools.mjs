@@ -51,13 +51,14 @@ export const TOOLS = [
     related: ['kishaku', 'recipe', 'hyohakuzai', 'ekihi'],
   },
   {
-    slug: 'hyohakuzai',
-    name: '塩素系漂白剤の薄め方',
+    slug: 'hyohakuzai', // URL は公開したまま（名前は 10/18 に「塩素系漂白剤」から変えた）
+    name: '次亜塩素酸ナトリウムの薄め方',
+    ogTitle: '次亜塩素酸\nナトリウムの薄め方', // 共有画像の題は2行で（scripts/make-images.py）
     category: 'seikatsu',
     parent: 'kishaku',
-    short: '0.05％などの消毒液を作るときの量',
+    short: 'ハイターで0.02％・0.1％の消毒液を作る量',
     published: true,
-    updated: '2026-10-17',
+    updated: '2026-10-18',
     related: ['kishaku', 'mentsuyu', 'ekihi', 'tanka'],
   },
   {

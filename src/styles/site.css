@@ -122,6 +122,7 @@ h1 {
   background: linear-gradient(transparent 60%, var(--marker) 60%);
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
+@media (max-width: 374px) { h1.is-long { font-size: 21px; } } /* 長い名前（次亜塩素酸ナトリウムの薄め方）を1行に */
 .lead { margin: 6px 0 16px; color: var(--muted); font-size: 15px; line-height: 1.6; }
 .ico { width: 22px; height: 22px; flex: none; }
 

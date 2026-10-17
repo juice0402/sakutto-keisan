@@ -291,18 +291,29 @@ def og(path, title, sub, theme, slug=None):
     # 題：黄色のマーカーを引いたように
     max_w = (540 if has_visual else 1040) * S
     size = 100
-    while d.textlength(title, font=font('black', size)) > max_w and size > 56:
+    while '\n' not in title and d.textlength(title, font=font('black', size)) > max_w and size > 56:
         size -= 4
+    titles = [title]
+    if '\n' in title or d.textlength(title, font=font('black', size)) > max_w:
+        # 56 でも入らない長い題は2行に（tools.mjs の ogTitle の改行で切る。なければ助詞のあと）
+        titles = title.split('\n')[:2] if '\n' in title else wrap2(d, title, font('black', 64), max_w)[:2]
+        size = 64
+        while max(d.textlength(x, font=font('black', size)) for x in titles) > max_w and size > 40:
+            size -= 4
     f_title = font('black', size)
-    tw = d.textlength(title, font=f_title)
     ty = 214 * S
-    d.rectangle([left - 6 * S, ty + size * S * 0.78, left + tw + 6 * S, ty + size * S * 1.32], fill=t['marker'])
-    d.text((left, ty), title, font=f_title, fill=t['text'])
+    step = round(size * 1.25)
+    for i, line in enumerate(titles):
+        y = ty + i * step * S
+        tw = d.textlength(line, font=f_title)
+        d.rectangle([left - 6 * S, y + size * S * 0.78, left + tw + 6 * S, y + size * S * 1.32], fill=t['marker'])
+        d.text((left, y), line, font=f_title, fill=t['text'])
     # 説明は2行まで。折り返すときは「、」や助詞のあとで、2行の長さがなるべくそろう所で切る
     f_sub = font('bold', 34 if has_visual else 38)
     lines = wrap2(d, sub, f_sub, max_w)
+    top_sub = ty // S + size + (len(titles) - 1) * step + (30 if len(titles) > 1 else 44)
     for i, line in enumerate(lines[:2]):
-        d.text((left, (ty // S + size + 44 + i * 56) * S), line, font=f_sub, fill=t['muted'])
+        d.text((left, (top_sub + i * 56) * S), line, font=f_sub, fill=t['muted'])
     d.text((left, 540 * S), 'sakutto-keisan.com', font=font('bold', 30), fill=t['muted'])
     if has_visual:
         VISUALS[slug](img, 890 * S, 240 * S)
@@ -336,7 +347,7 @@ def main():
     og(PUBLIC / 'og' / 'default.png', '生活の計算ツール', '割引後の値段、100gあたりの値段、レシピの分量、薄め方を計算できる無料のツール集', 'home')
     for t in tools:
         if t.get('published'):
-            title = t['name'].split('（')[0]
+            title = t.get('ogTitle') or t['name'].split('（')[0]
             og(PUBLIC / 'og' / f"{t['slug']}.png", title, t['short'], CATEGORY_THEME.get(t['category'], 'home'), t['slug'])
     icon(PUBLIC / 'icon-192.png', 192)
     icon(PUBLIC / 'icon-512.png', 512)

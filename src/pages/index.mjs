@@ -43,6 +43,6 @@ ${
       { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: absUrl('/'), inLanguage: 'ja' },
     ],
   });
-  const updated = published.map((t) => t.updated).sort().at(-1);
+  const updated = published.filter((t) => !t.parent).map((t) => t.updated).sort().at(-1); // トップに出ているツールだけ
   return { path: '/', html, sitemap: true, updated };
 }
