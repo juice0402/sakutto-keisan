@@ -1,6 +1,7 @@
 name: Build and Deploy
 
 # テスト → ビルド → 写真の読み取りソフトを用意 → 全ページ点検 →（PRでは写真の読み取りのテスト）→ Cloudflare Pages へ直接アップロード（Direct Upload）
+# →（本番では）変わったページを IndexNow で検索エンジンに知らせる
 # Cloudflare 側ではビルドしないので、アカウント共有の「月500回のビルド枠」を使わない
 #   main への push        → 本番（https://sakutto-keisan.com）
 #   プルリクエスト        → プレビュー（PRにURLをコメント）
@@ -52,6 +53,11 @@ jobs:
           npx playwright install --with-deps chromium
           node scripts/ocr-smoke.mjs
 
+      - name: 検索エンジンに知らせるページをえらぶ（本番のとき）
+        # 本番にある前回の指紋とくらべて、中身が変わったページ・新しいページだけをえらぶ
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: node scripts/indexnow.mjs prepare
+
       - name: Cloudflare Pages へアップロード
         # フォークからのPRには秘密情報が渡らないので、アップロードしない
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
@@ -71,6 +77,11 @@ jobs:
             echo "### Cloudflare Pages（$BRANCH）"
             sed 's/^/- /' urls.txt
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 検索エンジンに知らせる（IndexNow・本番のとき）
+        # Bing・Yandex・Naver・Seznam・Yep に、変わったページだけを知らせる。失敗しても公開は止めない
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: node scripts/indexnow.mjs send
 
       - name: PRにプレビューURLをコメント
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository

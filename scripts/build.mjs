@@ -221,5 +221,7 @@ writeFileSync(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`,
 );
 writeFileSync(join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
+// IndexNow の鍵のファイル（検索エンジンが「このサイトの持ち主からの知らせか」を確かめる）
+if (SITE.indexnowKey) writeFileSync(join(DIST, `${SITE.indexnowKey}.txt`), SITE.indexnowKey);
 
 console.log(`built ${pages.length} pages, ${Object.keys(scripts).length} scripts → dist/`);
