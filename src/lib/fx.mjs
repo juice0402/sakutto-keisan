@@ -16,6 +16,9 @@ export function qtyText(qty) {
   return `${fmt(qty, 0)}通貨`;
 }
 
+/** 維持率の書き方（0.1％単位で切り捨て。99.99％を100％と見せない） */
+export const ratioText = (r) => `${fmt(Math.floor(fix(r * 10)) / 10, 1)}％`;
+
 /** お金の書き方（1円未満は切り捨て） */
 export const yenText = (x) => `${fmt(Math.floor(fix(x)), 0)}円`;
 
@@ -31,7 +34,7 @@ export function cutPriceText(price, side) {
 function check({ money, qty, rate }) {
   if ([money, qty, rate].some((v) => v === null)) return { ok: false, empty: true };
   if (Number.isNaN(money) || money < 0) return { ok: false, error: '口座のお金は、0以上の数字で入れてください。', field: 'money' };
-  if (Number.isNaN(qty) || qty <= 0) return { ok: false, error: '通貨の量は、0より大きい数字で入れてください。', field: 'qty' };
+  if (Number.isNaN(qty) || qty < 1) return { ok: false, error: '通貨の量は、1通貨以上で入れてください。', field: 'qty' };
   if (Number.isNaN(rate) || rate <= 0) return { ok: false, error: 'レートは、0より大きい数字で入れてください。', field: 'rate' };
   return null;
 }
@@ -41,30 +44,38 @@ function check({ money, qty, rate }) {
  * @param {{money:number|null, qty:number|null, rate:number|null, cut?:number|null}} p
  *   money：口座のお金（有効証拠金。含み損益こみ）　qty：通貨の量　rate：いまのレート（円）
  *   cut：ロスカットになる維持率（％。会社で違う）
+ * 取引に必要なお金をレートに合わせて計算し直す会社では、売りはレートが上がるほど必要なお金も増え、少し早くロスカットになる。
+ * 見せる答えは早いほうにそろえる：買いはいまのレートの必要なお金のまま（下がると必要なお金は減るので、実際より早め）、
+ * 売りは上がったレートで計算し直した必要なお金で出す。「あと何円の損」は買いと売りの少ないほう
  */
 export function fxPosition({ money, qty, rate, cut = 100 }) {
   const bad = check({ money, qty, rate });
   if (bad) return bad;
-  if (cut === null || Number.isNaN(cut) || cut <= 0) return { ok: false, error: 'ロスカットの基準は、0より大きい数字で入れてください。', field: 'cut' };
+  if (cut === null) return { ok: false, empty: true, missing: 'cut' }; // 基準の欄を打ち直している途中
+  if (Number.isNaN(cut) || cut <= 0) return { ok: false, error: 'ロスカットの基準は、0より大きい数字で入れてください。', field: 'cut' };
   const need = fxNeed(rate, qty);
   const ratio = fix((money / need) * 100);
-  const cutMoney = fix((need * cut) / 100); // ロスカットになるときの口座のお金
-  const room = fix(money - cutMoney); // あと何円の損まで大丈夫か（マイナスならもうロスカットの水準）
-  const move = fix(room / qty); // あと何円動くとロスカットか（1通貨あたり）。買いなら下がる、売りなら上がる
-  const buyPrice = fix(rate - move);
-  const sellPrice = fix(rate + move);
-  return { ok: true, need, ratio, cut, cutMoney, room, move, buyPrice, sellPrice, over: room <= 0, never: buyPrice <= 0 };
+  const cutMoney = fix((need * cut) / 100); // ロスカットになるときの口座のお金（いまのレート）
+  const buyRoom = fix(money - cutMoney); // 買い：あと何円の損まで（マイナスならもう基準より下）
+  const buyPrice = fix(rate - buyRoom / qty);
+  // 売り：損 qty×(p−rate) のあと、口座のお金が p の必要なお金×基準 になるレート p
+  const sellPrice = fix((money / qty + rate) / (1 + (FX_MARGIN_RATE * cut) / 100));
+  const sellRoom = fix(qty * (sellPrice - rate));
+  const room = Math.min(buyRoom, sellRoom);
+  return { ok: true, need, ratio, cut, cutMoney, room, buyRoom, sellRoom, buyPrice, sellPrice, over: room < 0, edge: room === 0, never: buyPrice <= 0 };
 }
 
 /**
  * 追証：足りないお金
  *   維持率を level％ にもどすのに足りないお金（追証の目安）
- *   target を入れたとき：そのレートまで動いてもロスカットにならないために、あと入れるお金
+ *   target を入れたとき：そのレートまで動いても、維持率が level％ を下回らないために、あと入れるお金
+ *   （取引に必要なお金は、いまのレートと耐えたいレートの高いほうで計算する。売りで上がるときに少なく見せない）
  */
 export function fxAddMoney({ money, qty, rate, level = 100, cut = 100, target = null }) {
   const bad = check({ money, qty, rate });
   if (bad) return bad;
-  if (level === null || Number.isNaN(level) || level <= 0) return { ok: false, error: '追証の基準は、0より大きい数字で入れてください。', field: 'level' };
+  if (level === null) return { ok: false, empty: true, missing: 'level' };
+  if (Number.isNaN(level) || level <= 0) return { ok: false, error: '追証の基準は、0より大きい数字で入れてください。', field: 'level' };
   const pos = fxPosition({ money, qty, rate, cut });
   if (!pos.ok) return pos;
   const levelMoney = fix((pos.need * level) / 100);
@@ -73,8 +84,9 @@ export function fxAddMoney({ money, qty, rate, level = 100, cut = 100, target = 
   if (target === null) return res;
   if (Number.isNaN(target) || target <= 0) return { ok: false, error: '耐えたいレートは、0より大きい数字で入れてください。', field: 'target' };
   const loss = fix(qty * Math.abs(rate - target)); // そのレートまで動いたときの損（いまより下なら買い、上なら売りの損）
-  const deposit = Math.max(0, fix(pos.cutMoney + loss - money)); // ロスカットにならないために入れるお金
-  return { ...res, target, loss, deposit };
+  const keep = fix((fxNeed(Math.max(rate, target), qty) * level) / 100); // そのときに口座に残したいお金
+  const deposit = Math.max(0, fix(keep + loss - money)); // 維持率 level％ を下回らないために入れるお金
+  return { ...res, target, loss, keep, deposit };
 }
 
 /** スワップの期間のマス（日数はカレンダーの日数。土日の分もつく） */
@@ -92,7 +104,7 @@ export const SWAP_PERIODS = [
 export function fxSwap({ perDay, qty, days }) {
   if ([perDay, qty, days].some((v) => v === null)) return { ok: false, empty: true };
   if (Number.isNaN(perDay) || perDay < 0) return { ok: false, error: 'スワップは、0以上の数字で入れてください。', field: 'swap' };
-  if (Number.isNaN(qty) || qty <= 0) return { ok: false, error: '通貨の量は、0より大きい数字で入れてください。', field: 'qty' };
+  if (Number.isNaN(qty) || qty < 1) return { ok: false, error: '通貨の量は、1通貨以上で入れてください。', field: 'qty' };
   if (Number.isNaN(days) || days <= 0 || !Number.isInteger(days)) return { ok: false, error: '日数は、1以上の整数で入れてください。', field: 'days' };
   const day = fix((perDay * qty) / 10000);
   return { ok: true, day, days, total: fix(day * days), month: fix(day * 30), year: fix(day * 365) };

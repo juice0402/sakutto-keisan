@@ -32,7 +32,8 @@ function drawBars(res) {
   const bars = res ? swapBars(res.days, res.day) : [];
   const max = bars.length ? bars.at(-1).value : 0;
   $('s-bars').innerHTML = bars.map((b) => `<span class="swap-bar" style="height:${max > 0 ? (b.value / max) * 100 : 0}%"></span>`).join('');
-  $('s-end').textContent = `${fmt(res ? res.days : currentDays() || 0, 0)}日`;
+  const d = res ? res.days : currentDays();
+  $('s-end').textContent = Number.isInteger(d) && d > 0 ? `${fmt(d, 0)}日` : '？日';
 }
 
 function update() {

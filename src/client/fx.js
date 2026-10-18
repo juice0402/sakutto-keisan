@@ -1,5 +1,5 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { fxPosition, fxAddMoney, yenText, cutPriceText, qtyText } from '../lib/fx.mjs';
+import { fxPosition, fxAddMoney, yenText, cutPriceText, qtyText, ratioText } from '../lib/fx.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 
 // 証拠金維持率（data-tool="iji"）と追証（data-tool="oisho"）。入力は同じで、答えの見せ方だけちがう
@@ -28,13 +28,15 @@ function setBig(num, unit, error = false) {
 }
 
 const EMPTY = '通貨の量・口座のお金・レートを入れてください';
+const MISSING = { cut: 'ロスカットの基準を入れてください', level: '追証の基準を入れてください' };
+const emptyText = (res) => (res.empty ? MISSING[res.missing] || EMPTY : '');
 
 /* ---- 証拠金維持率：メーターと「ロスカットまで あと◯円の損」 ---- */
 function drawGauge(res) {
   const ratio = res ? Math.min(GAUGE_MAX, Math.max(0, res.ratio)) : 0;
   $('g-needle').style.transform = `rotate(${(ratio / GAUGE_MAX) * 180}deg)`;
   $('g-cut').setAttribute('stroke-dasharray', `${Math.min(GAUGE_MAX, val('cut') || 0)} 600`);
-  $('r-ratio').textContent = res ? `${fmt(res.ratio, 1)}%` : '？';
+  $('r-ratio').textContent = res ? ratioText(res.ratio) : '？';
 }
 
 function showIji(res) {
@@ -43,13 +45,14 @@ function showIji(res) {
   if (!res.ok) {
     $('r-cap').textContent = 'ロスカットまで、あと';
     setBig('？', '円の損');
-    $('r-need').textContent = res.empty ? EMPTY : '';
+    $('r-need').textContent = emptyText(res);
     return;
   }
   $('r-need').textContent = `取引に必要なお金 ${yenText(res.need)}（${qtyText(currentQty())}）`;
-  if (res.over) {
+  if (res.over || res.edge) {
     $('r-cap').textContent = 'ロスカットの基準まで';
-    setBig(fmt(Math.ceil(-res.room), 0), '円 足りません', true);
+    if (res.edge) setBig('ちょうど', '基準です', true);
+    else setBig(fmt(Math.ceil(-res.room), 0), '円 足りません', true);
     return;
   }
   $('r-cap').textContent = 'ロスカットまで、あと';
@@ -75,7 +78,7 @@ function showOisho(res) {
     setBig('？', '円');
     drawBar(0, 0);
     $('b-right').textContent = '基準';
-    $('r-need').textContent = res.empty ? EMPTY : '';
+    $('r-need').textContent = emptyText(res);
     return;
   }
   const level = `維持率${fmt(res.level, 1)}％`;
@@ -85,16 +88,16 @@ function showOisho(res) {
     setBig(fmt(Math.ceil(res.short), 0), '円');
     drawBar(val('money'), res.levelMoney);
     $('b-right').textContent = `${level} ${yenText(res.levelMoney)}`;
-    $('r-target').textContent = res.short > 0 ? '' : `いまの維持率は${fmt(res.ratio, 1)}％です`;
+    $('r-target').textContent = res.short > 0 ? '' : `いまの維持率は${ratioText(res.ratio)}です`;
     return;
   }
-  // 耐えたいレートがあるとき：いまより下なら買い、上なら売りとして、そこまで動いても基準を下回らない入金額
+  // 耐えたいレートがあるとき：いまより下なら買い、上なら売りとして、そこまで動いても維持率が基準を下回らない入金額
   const way = res.target < val('rate') ? '下がっても' : '上がっても';
-  $('r-cap').textContent = `${fmt(res.target, 3)}円まで${way}大丈夫にするには`;
+  $('r-cap').textContent = `${fmt(res.target, 3)}円まで${way}${level}を保つには`;
   setBig(fmt(Math.ceil(res.deposit), 0), '円 入金');
-  drawBar(val('money'), res.cutMoney + res.loss);
-  $('b-right').textContent = `必要 ${yenText(res.cutMoney + res.loss)}`;
-  $('r-target').textContent = `${level}までは ${yenText(Math.ceil(res.short))} 足りません`;
+  drawBar(val('money'), res.keep + res.loss);
+  $('b-right').textContent = `必要 ${yenText(Math.ceil(res.keep + res.loss))}`;
+  $('r-target').textContent = res.short > 0 ? `いまのままでも ${yenText(Math.ceil(res.short))} 足りません` : '';
 }
 
 function update() {
