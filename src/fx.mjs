@@ -1,7 +1,7 @@
 // FX の計算カードの部品（証拠金維持率・追証・スワップで共通）
 // むずかしい言葉は使わない：証拠金 → 口座のお金、必要証拠金 → 取引に必要なお金、ロット → 通貨の量
 
-import { FX_QTY_TILES } from './lib/fx.mjs';
+import { FX_QTY_TILES, FX_PAIRS } from './lib/fx.mjs';
 
 const num = (id, placeholder, value = '') =>
   `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"${value ? ` value="${value}"` : ''}>`;
@@ -13,6 +13,12 @@ export const boxField = (id, label, unit, placeholder, value = '') =>
 /** 見出しとクリア */
 export const fxHead = (labelId, label) =>
   `<div class="field-head calc-head"><p class="label" id="${labelId}">${label}</p><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
+
+/** いちばん上の1段：通貨ペア（円がつくもの）・買いか売りか・クリア */
+export const fxTop = () =>
+  `<div class="fx-top"><label class="sr-only" for="pair">通貨ペア</label><select id="pair" class="big-select">${FX_PAIRS.map(
+    (p) => `<option value="${p.id}">${p.name}</option>`,
+  ).join('')}</select><div class="seg seg-2" role="group" aria-label="買いか売りか"><button type="button" class="seg-btn" data-side="buy" aria-pressed="true">買い</button><button type="button" class="seg-btn" data-side="sell" aria-pressed="false">売り</button></div><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
 
 /** 通貨の量のマス：1,000通貨・1万通貨・10万通貨・その他（万通貨） */
 export const qtyTiles = (labelId) =>

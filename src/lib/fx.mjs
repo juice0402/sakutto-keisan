@@ -7,14 +7,29 @@ import { fix, fmt } from './number.mjs';
 export const FX_MARGIN_RATE = 0.04;
 export const FX_QTY_TILES = [1000, 10000, 100000]; // 1,000通貨・1万通貨・10万通貨（その他は万通貨で入れる）
 
+/**
+ * 通貨ペア（円がつくものだけ。どれも「1通貨＝何円」なので計算は同じ）。example はレートの欄のうすい例
+ * 名前は、スマホの幅に入るように短い呼び方（ランド円＝南アフリカランド円・ペソ円＝メキシコペソ円・リラ円＝トルコリラ円）
+ * ユーロドルのような円のつかない通貨ペアは、取引に必要なお金を円にするのにドル円のレートも要るので、いまは入れない
+ */
+export const FX_PAIRS = [
+  { id: 'usdjpy', name: 'ドル円', example: 150 },
+  { id: 'eurjpy', name: 'ユーロ円', example: 165 },
+  { id: 'gbpjpy', name: 'ポンド円', example: 195 },
+  { id: 'audjpy', name: '豪ドル円', example: 98 },
+  { id: 'nzdjpy', name: 'NZドル円', example: 88 },
+  { id: 'cadjpy', name: 'カナダ円', example: 108 },
+  { id: 'chfjpy', name: 'スイス円', example: 185 },
+  { id: 'zarjpy', name: 'ランド円', example: 8.5 },
+  { id: 'mxnjpy', name: 'ペソ円', example: 8 },
+  { id: 'tryjpy', name: 'リラ円', example: 4 },
+];
+
+/** レートの小数のけた：10円より低い通貨ペア（ランド円・ペソ円・リラ円）は0.001円まで、ほかは0.01円まで */
+export const rateDigits = (rate) => (rate < 10 ? 3 : 2);
+
 /** 取引に必要なお金（必要証拠金）＝ レート × 量 × 4％ */
 export const fxNeed = (rate, qty) => fix(rate * qty * FX_MARGIN_RATE);
-
-/** 量の書き方：10000 → 1万通貨、1000 → 1,000通貨、15000 → 1.5万通貨 */
-export function qtyText(qty) {
-  if (qty >= 10000) return `${fmt(qty / 10000, 4)}万通貨`;
-  return `${fmt(qty, 0)}通貨`;
-}
 
 /** 維持率の書き方（0.1％単位で切り捨て。99.99％を100％と見せない） */
 export const ratioText = (r) => `${fmt(Math.floor(fix(r * 10)) / 10, 1)}％`;
@@ -23,12 +38,13 @@ export const ratioText = (r) => `${fmt(Math.floor(fix(r * 10)) / 10, 1)}％`;
 export const yenText = (x) => `${fmt(Math.floor(fix(x)), 0)}円`;
 
 /**
- * ロスカットになるレートの書き方。0.01円単位で、いまのレートに近いほうへ丸める
- * （買いなら切り上げ、売りなら切り捨て。実際より遠くに見せない）
+ * ロスカットになるレートの書き方。いまのレートに近いほうへ丸める（買いなら切り上げ、売りなら切り捨て。実際より遠くに見せない）
+ * digits：小数のけた（rateDigits で決める）
  */
-export function cutPriceText(price, side) {
-  const p = side === 'sell' ? Math.floor(fix(price * 100)) / 100 : Math.ceil(fix(price * 100)) / 100;
-  return `${p.toFixed(2)}円`;
+export function cutPriceText(price, side, digits = 2) {
+  const k = 10 ** digits;
+  const p = side === 'sell' ? Math.floor(fix(price * k)) / k : Math.ceil(fix(price * k)) / k;
+  return `${p.toFixed(digits)}円`;
 }
 
 function check({ money, qty, rate }) {
@@ -41,14 +57,14 @@ function check({ money, qty, rate }) {
 
 /**
  * 証拠金維持率とロスカットまでの余裕
- * @param {{money:number|null, qty:number|null, rate:number|null, cut?:number|null}} p
+ * @param {{money:number|null, qty:number|null, rate:number|null, cut?:number|null, side?:'buy'|'sell'}} p
  *   money：口座のお金（有効証拠金。含み損益こみ）　qty：通貨の量　rate：いまのレート（円）
- *   cut：ロスカットになる維持率（％。会社で違う）
+ *   cut：ロスカットになる維持率（％。会社で違う）　side：買いか売りか
  * 取引に必要なお金をレートに合わせて計算し直す会社では、売りはレートが上がるほど必要なお金も増え、少し早くロスカットになる。
  * 見せる答えは早いほうにそろえる：買いはいまのレートの必要なお金のまま（下がると必要なお金は減るので、実際より早め）、
- * 売りは上がったレートで計算し直した必要なお金で出す。「あと何円の損」は買いと売りの少ないほう
+ * 売りは上がったレートで計算し直した必要なお金で出す
  */
-export function fxPosition({ money, qty, rate, cut = 100 }) {
+export function fxPosition({ money, qty, rate, cut = 100, side = 'buy' }) {
   const bad = check({ money, qty, rate });
   if (bad) return bad;
   if (cut === null) return { ok: false, empty: true, missing: 'cut' }; // 基準の欄を打ち直している途中
@@ -61,30 +77,34 @@ export function fxPosition({ money, qty, rate, cut = 100 }) {
   // 売り：損 qty×(p−rate) のあと、口座のお金が p の必要なお金×基準 になるレート p
   const sellPrice = fix((money / qty + rate) / (1 + (FX_MARGIN_RATE * cut) / 100));
   const sellRoom = fix(qty * (sellPrice - rate));
-  const room = Math.min(buyRoom, sellRoom);
-  return { ok: true, need, ratio, cut, cutMoney, room, buyRoom, sellRoom, buyPrice, sellPrice, over: room < 0, edge: room === 0, never: buyPrice <= 0 };
+  const room = side === 'sell' ? sellRoom : buyRoom; // あと何円の損まで（えらんだほう）
+  const price = side === 'sell' ? sellPrice : buyPrice; // ロスカットになるレート
+  return { ok: true, side, need, ratio, cut, cutMoney, room, price, buyRoom, sellRoom, buyPrice, sellPrice, over: room < 0, edge: room === 0, never: side === 'buy' && buyPrice <= 0 };
 }
 
 /**
  * 追証：足りないお金
  *   維持率を level％ にもどすのに足りないお金（追証の目安）
  *   target を入れたとき：そのレートまで動いても、維持率が level％ を下回らないために、あと入れるお金
- *   （取引に必要なお金は、いまのレートと耐えたいレートの高いほうで計算する。売りで上がるときに少なく見せない）
+ *   （売りは、上がった耐えたいレートで取引に必要なお金を計算する。少なく見せない）
  */
-export function fxAddMoney({ money, qty, rate, level = 100, cut = 100, target = null }) {
+export function fxAddMoney({ money, qty, rate, level = 100, cut = 100, target = null, side = 'buy' }) {
   const bad = check({ money, qty, rate });
   if (bad) return bad;
   if (level === null) return { ok: false, empty: true, missing: 'level' };
   if (Number.isNaN(level) || level <= 0) return { ok: false, error: '追証の基準は、0より大きい数字で入れてください。', field: 'level' };
-  const pos = fxPosition({ money, qty, rate, cut });
+  const pos = fxPosition({ money, qty, rate, cut, side });
   if (!pos.ok) return pos;
   const levelMoney = fix((pos.need * level) / 100);
   const short = Math.max(0, fix(levelMoney - money)); // 維持率 level％ までに足りないお金
   const res = { ...pos, level, levelMoney, short };
   if (target === null) return res;
   if (Number.isNaN(target) || target <= 0) return { ok: false, error: '耐えたいレートは、0より大きい数字で入れてください。', field: 'target' };
-  const loss = fix(qty * Math.abs(rate - target)); // そのレートまで動いたときの損（いまより下なら買い、上なら売りの損）
-  const keep = fix((fxNeed(Math.max(rate, target), qty) * level) / 100); // そのときに口座に残したいお金
+  if (side === 'sell' ? target <= rate : target >= rate) {
+    return { ok: false, error: side === 'sell' ? '売りなら、いまより高いレートを入れてください。' : '買いなら、いまより低いレートを入れてください。', field: 'target' };
+  }
+  const loss = fix(qty * Math.abs(rate - target)); // そのレートまで動いたときの損
+  const keep = fix((fxNeed(side === 'sell' ? target : rate, qty) * level) / 100); // そのときに口座に残したいお金
   const deposit = Math.max(0, fix(keep + loss - money)); // 維持率 level％ を下回らないために入れるお金
   return { ...res, target, loss, keep, deposit };
 }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fxNeed, fxPosition, fxAddMoney, fxSwap, swapBars, qtyText, yenText, cutPriceText, ratioText } from '../src/lib/fx.mjs';
+import { fxNeed, fxPosition, fxAddMoney, fxSwap, swapBars, yenText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../src/lib/fx.mjs';
 
 test('取引に必要なお金：レート × 量 × 4％', () => {
   assert.equal(fxNeed(150, 10000), 60000); // 1ドル150円で1万通貨 → 6万円
@@ -8,14 +8,22 @@ test('取引に必要なお金：レート × 量 × 4％', () => {
   assert.equal(fxNeed(162.35, 20000), 129880);
 });
 
-test('量とお金の書き方', () => {
-  assert.equal(qtyText(10000), '1万通貨');
-  assert.equal(qtyText(15000), '1.5万通貨');
-  assert.equal(qtyText(1000), '1,000通貨');
+test('お金とレートの書き方', () => {
   assert.equal(yenText(52000.9), '52,000円');
   assert.equal(cutPriceText(144.803, 'buy'), '144.81円'); // 買い：いまのレートに近いほうへ（切り上げ）
   assert.equal(cutPriceText(155.197, 'sell'), '155.19円'); // 売り：切り捨て
   assert.equal(cutPriceText(144.8, 'buy'), '144.80円');
+  // ランド円・ペソ円・リラ円は0.001円まで
+  assert.equal(rateDigits(8.5), 3);
+  assert.equal(rateDigits(150), 2);
+  assert.equal(cutPriceText(7.65432, 'buy', 3), '7.655円');
+  assert.equal(cutPriceText(9.34567, 'sell', 3), '9.345円');
+});
+
+test('通貨ペアは円がつくものだけ（名前が重ならない）', () => {
+  assert.ok(FX_PAIRS.every((p) => p.name.endsWith('円') && p.example > 0));
+  assert.equal(new Set(FX_PAIRS.map((p) => p.id)).size, FX_PAIRS.length);
+  assert.equal(FX_PAIRS[0].name, 'ドル円'); // はじめはドル円
 });
 
 test('証拠金維持率とロスカットまでの余裕（ページの計算例）', () => {
@@ -27,13 +35,18 @@ test('証拠金維持率とロスカットまでの余裕（ページの計算�
   // 売り：上がると必要なお金も増える。(10 + 150) ÷ 1.04 ＝ 153.846…円
   assert.equal(cutPriceText(r.sellPrice, 'sell'), '153.84円');
   assert.equal(Math.floor(r.sellRoom), 38461);
-  assert.equal(Math.floor(r.room), 38461); // 大きく出すのは少ないほう（約3.8万円）
+  assert.equal(r.room, 40000); // 買い（はじめは買い）
+  const s1 = fxPosition({ money: 100000, qty: 10000, rate: 150, cut: 100, side: 'sell' });
+  assert.equal(Math.floor(s1.room), 38461); // 売り：約3.8万円
+  assert.equal(cutPriceText(s1.price, 'sell'), '153.84円');
   const r2 = fxPosition({ money: 300000, qty: 10000, rate: 150, cut: 100 });
   assert.equal(r2.ratio, 500);
-  assert.equal(Math.floor(r2.room), 230769); // 約23万円
+  assert.equal(r2.room, 240000); // 買い：24万円
+  assert.equal(Math.floor(r2.sellRoom), 230769); // 売り：約23万円
   const r3 = fxPosition({ money: 100000, qty: 1000, rate: 150, cut: 100 });
   assert.equal(ratioText(r3.ratio), '1,666.6％');
-  assert.equal(Math.floor(r3.room), 90384); // 約9万円
+  assert.equal(r3.room, 94000); // 買い：9.4万円
+  assert.equal(Math.floor(r3.sellRoom), 90384); // 売り：約9万円
   // ロスカットの基準50％：買いは3万円まで減るとロスカット → あと7万円・143円
   const r4 = fxPosition({ money: 100000, qty: 10000, rate: 150, cut: 50 });
   assert.equal(r4.buyRoom, 70000);
@@ -71,7 +84,9 @@ test('追証：足りないお金と、耐えたいレートまでの入金（�
   assert.equal(fxAddMoney({ ...base, target: 148 }).loss, 20000);
   assert.equal(fxAddMoney({ ...base, target: 148 }).deposit, 30000); // 148円まで：3万円
   assert.equal(fxAddMoney({ ...base, target: 145 }).deposit, 60000); // 145円まで：6万円
-  assert.equal(fxAddMoney({ ...base, target: 152 }).deposit, 30800); // 売り：152円の必要なお金 60,800円 ＋ 損2万円 − 5万円
+  assert.equal(fxAddMoney({ ...base, target: 152, side: 'sell' }).deposit, 30800); // 売り：152円の必要なお金 60,800円 ＋ 損2万円 − 5万円
+  assert.equal(fxAddMoney({ ...base, target: 152 }).field, 'target'); // 買いで、いまより高いレートはまちがい
+  assert.equal(fxAddMoney({ ...base, target: 148, side: 'sell' }).field, 'target'); // 売りで、いまより低いレートはまちがい
   assert.equal(fxAddMoney({ ...base, level: null }).missing, 'level'); // 基準を打ち直している途中
   assert.equal(fxAddMoney({ ...base, money: 200000 }).short, 0); // 足りている
   assert.equal(fxAddMoney({ ...base, money: 200000, target: 148 }).deposit, 0);

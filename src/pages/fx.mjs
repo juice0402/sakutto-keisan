@@ -4,12 +4,10 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
-import { boxField, fxHead, qtyTiles, noteAndNoscript } from '../fx.mjs';
+import { boxField, fxHead, fxTop, qtyTiles, noteAndNoscript } from '../fx.mjs';
 import { SWAP_PERIODS } from '../lib/fx.mjs';
 
 const CAUTION = '<p class="note">FXの会社ごとにルールが違うので、目安です。</p>';
-// ドル円・ユーロ円など、円がつく通貨ペアだけの計算（ユーロドルなどは、取引に必要なお金が円にならない）
-const JPY_ONLY = '<p class="note calc-note">ドル円など、円がつく通貨ペアの計算です</p>';
 // 取引に必要なお金（取引額の4％）の出典
 const SRC_FSA = '<p class="note">出典：<a href="https://www.fsa.go.jp/news/21/syouken/20090731-6.html">金融庁</a></p>';
 
@@ -24,12 +22,12 @@ const PAGES = [
     slug: 'fx-iji-ritsu',
     title: '証拠金維持率の計算｜ロスカットまであと何円の損か',
     description:
-      'FXの証拠金維持率と、ロスカットまであと何円の損まで耐えられるかを計算します。通貨の量・口座のお金・いまのレートを入れると、ロスカットになるレートもわかります。',
+      'FXの証拠金維持率と、ロスカットまであと何円の損まで耐えられるかを計算します。通貨ペアと買いか売りかをえらび、通貨の量・口座のお金・いまのレートを入れると、ロスカットになるレートもわかります。',
     lead: 'ロスカットまで、あと何円の損か計算します。',
     ld: '口座のお金・通貨の量・レートから、証拠金維持率とロスカットまでの金額を出す計算ツール。',
     calc: `<div class="calc" id="calc" data-tool="iji">
-  ${fxHead('l-qty', '通貨の量')}
-  <div class="field" id="f-tiles">${qtyTiles('l-qty')}</div>
+  ${fxTop()}
+  <div class="field" id="f-tiles"><p class="sr-only" id="l-qty">通貨の量</p>${qtyTiles('l-qty')}</div>
   <div class="fx-inputs">
     ${boxField('money', '口座のお金', '円', '100,000')}
     <div class="pair">${boxField('rate', 'いまのレート', '円', '150.00')}${boxField('cut', 'ロスカットの基準', '％', '100', '100')}</div>
@@ -37,10 +35,9 @@ const PAGES = [
   <div class="fx-result" aria-live="polite">
     ${GAUGE}
     <div class="fx-answer"><p class="fx-cap" id="r-cap">ロスカットまで、あと</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円の損</small></p></div>
-    <p class="mix-foot"><span id="r-buy"></span><span id="r-sell"></span><span id="r-need">通貨の量・口座のお金・レートを入れてください</span></p>
+    <p class="mix-foot"><span id="r-price"></span><span id="r-need">通貨の量・口座のお金・レートを入れてください</span></p>
   </div>
   ${noteAndNoscript}
-  ${JPY_ONLY}
 </div>`,
     body: `${section(
       'formula',
@@ -51,7 +48,7 @@ const PAGES = [
 <span>ロスカットまでの損 ＝ 口座のお金 − 取引に必要なお金 × 基準</span>
 </div>
 <p>例：口座のお金10万円で、150円のドルを1万通貨。取引に必要なお金は6万円、維持率は約167％です。</p>
-<p>売りは、レートが上がると取引に必要なお金も増えるので、少し早くロスカットになります。答えは、早いほうに合わせて出しています。</p>
+<p>売りは、レートが上がると取引に必要なお金も増えるので、少し早くロスカットになります。その分も入れて計算しています。</p>
 ${CAUTION}
 ${SRC_FSA}`,
     )}
@@ -59,14 +56,14 @@ ${section(
   'examples',
   '計算例',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>口座のお金・量</th><th class="num">維持率</th><th class="num">損の余裕</th></tr></thead>
+<thead><tr><th>口座のお金・量</th><th class="num">買い</th><th class="num">売り</th></tr></thead>
 <tbody>
-<tr><td>10万円・1万通貨</td><td class="num">166.6％</td><td class="num">約3.8万円</td></tr>
-<tr><td>30万円・1万通貨</td><td class="num">500％</td><td class="num">約23万円</td></tr>
-<tr><td>10万円・1,000通貨</td><td class="num">1,666.6％</td><td class="num">約9万円</td></tr>
+<tr><td>10万円・1万通貨</td><td class="num">4万円</td><td class="num">約3.8万円</td></tr>
+<tr><td>30万円・1万通貨</td><td class="num">24万円</td><td class="num">約23万円</td></tr>
+<tr><td>10万円・1,000通貨</td><td class="num">9.4万円</td><td class="num">約9万円</td></tr>
 </tbody>
 </table></div>
-<p>レート150円、ロスカットの基準100％のときです。損の余裕は、買いと売りの少ないほうです。</p>`,
+<p>ドル円150円、ロスカットの基準100％のときの、ロスカットまでに耐えられる損の額です。</p>`,
 )}`,
     faqs: [
       {
@@ -99,12 +96,11 @@ ${section(
     lead: 'あといくら入金すればいいか計算します。',
     ld: '口座のお金・通貨の量・レートから、追証の目安と、入金するといいお金を出す計算ツール。',
     calc: `<div class="calc" id="calc" data-tool="oisho">
-  ${fxHead('l-qty', '通貨の量')}
-  <div class="field" id="f-tiles">${qtyTiles('l-qty')}</div>
+  ${fxTop()}
+  <div class="field" id="f-tiles"><p class="sr-only" id="l-qty">通貨の量</p>${qtyTiles('l-qty')}</div>
   <div class="fx-inputs">
-    ${boxField('money', 'いまの口座のお金', '円', '50,000')}
-    <div class="pair">${boxField('rate', 'いまのレート', '円', '150.00')}${boxField('level', '追証の基準', '％', '100', '100')}</div>
-    <div class="field src-row" id="f-target"><label for="target">耐えたいレート</label><div class="input"><input id="target" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="145.00"><span class="unit">円</span></div></div>
+    <div class="pair">${boxField('money', 'いまの口座のお金', '円', '50,000')}${boxField('level', '追証の基準', '％', '100', '100')}</div>
+    <div class="pair">${boxField('rate', 'いまのレート', '円', '150.00')}${boxField('target', '耐えたいレート', '円', '145.00')}</div>
   </div>
   <div class="fx-result is-wide" aria-live="polite">
     <div class="fx-answer"><p class="fx-cap" id="r-cap">維持率100％までに足りないお金</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円</small></p></div>
@@ -115,7 +111,6 @@ ${section(
     <p class="mix-foot"><span id="r-target"></span><span id="r-need">通貨の量・口座のお金・レートを入れてください</span></p>
   </div>
   ${noteAndNoscript}
-  ${JPY_ONLY}
 </div>`,
     body: `${section(
       'formula',
@@ -141,7 +136,7 @@ ${section(
 <tr><td>145円まで下がっても</td><td class="num">5万円</td><td class="num">6万円</td></tr>
 </tbody>
 </table></div>
-<p>150円のドルを1万通貨・口座のお金5万円・基準100％のときです。</p>`,
+<p>ドル円150円で1万通貨の買い、口座のお金5万円、基準100％のときです。</p>`,
 )}`,
     faqs: [
       {
@@ -154,7 +149,7 @@ ${section(
       },
       {
         q: '「耐えたいレート」は何を入れますか？',
-        a: '<p>ここまで動いても、維持率が基準を下回らないようにしたいレートです。いまより下なら買い、上なら売りとして計算します。</p>',
+        a: '<p>ここまで動いても、維持率が基準を下回らないようにしたいレートです。買いならいまより低いレート、売りなら高いレートを入れます。</p>',
       },
       {
         q: '入金のかわりに、取引を減らしてもいいですか？',
