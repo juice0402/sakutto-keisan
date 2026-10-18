@@ -1,11 +1,60 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fxNeed, fxPosition, fxAddMoney, fxSwap, swapBars, yenText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../src/lib/fx.mjs';
+import { fxNeed, fxRatio, fxPosition, fxSwap, swapBars, yenText, qtyText, levText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../src/lib/fx.mjs';
 
 test('取引に必要なお金：レート × 量 × 4％', () => {
   assert.equal(fxNeed(150, 10000), 60000); // 1ドル150円で1万通貨 → 6万円
   assert.equal(fxNeed(150, 1000), 6000);
   assert.equal(fxNeed(162.35, 20000), 129880);
+});
+
+test('証拠金維持率：レバレッジから（ページの計算例）', () => {
+  const r = fxRatio({ money: 100000, rate: 150, lev: 10 });
+  assert.equal(r.amount, 1000000); // 取引額100万円
+  assert.equal(qtyText(r.qty), '6,666'); // 約6,666通貨（切り捨て）
+  assert.equal(r.need, 40000);
+  assert.equal(ratioText(r.ratio), '250％');
+  // 計算例の表：口座のお金10万円・ドル円150円
+  const row = (lev) => {
+    const x = fxRatio({ money: 100000, rate: 150, lev });
+    return [qtyText(x.qty), ratioText(x.ratio)];
+  };
+  assert.deepEqual(row(1), ['666', '2,500％']);
+  assert.deepEqual(row(5), ['3,333', '500％']);
+  assert.deepEqual(row(10), ['6,666', '250％']);
+  assert.deepEqual(row(25), ['16,666', '100％']);
+  assert.equal(ratioText(fxRatio({ money: 100000, rate: 150, lev: 3 }).ratio), '833.3％'); // 2,500 ÷ 3 は切り捨て
+});
+
+test('証拠金維持率：通貨の量から', () => {
+  const r = fxRatio({ money: 100000, rate: 150, qty: 10000, from: 'qty' });
+  assert.equal(r.amount, 1500000);
+  assert.equal(levText(r.lev), '15');
+  assert.equal(r.need, 60000);
+  assert.equal(ratioText(r.ratio), '166.6％');
+  assert.equal(r.short, 0);
+  assert.equal(levText(fxRatio({ money: 100000, rate: 150, qty: 1000, from: 'qty' }).lev), '1.5');
+  assert.equal(levText(fxRatio({ money: 300000, rate: 150, qty: 10000, from: 'qty' }).lev), '5');
+  assert.equal(levText(fxRatio({ money: 70000, rate: 150, qty: 10000, from: 'qty' }).lev), '21.43'); // 21.428… は切り上げ
+  // 25倍より大きい量：取引に必要なお金が足りない
+  const over = fxRatio({ money: 100000, rate: 150, qty: 20000, from: 'qty' });
+  assert.equal(levText(over.lev), '30');
+  assert.equal(ratioText(over.ratio), '83.3％');
+  assert.equal(over.short, 20000);
+});
+
+test('証拠金維持率：まちがった入力', () => {
+  assert.equal(fxRatio({ money: null, rate: 150, lev: 10 }).empty, true);
+  assert.equal(fxRatio({ money: 100000, rate: 150, lev: null }).empty, true);
+  assert.equal(fxRatio({ money: 100000, rate: 150, qty: null, from: 'qty' }).empty, true);
+  assert.equal(fxRatio({ money: 0, rate: 150, lev: 10 }).field, 'money');
+  assert.equal(fxRatio({ money: 100000, rate: 0, lev: 10 }).field, 'rate');
+  assert.equal(fxRatio({ money: 100000, rate: 150, lev: 0 }).field, 'lev');
+  assert.equal(fxRatio({ money: 100000, rate: 150, lev: 26 }).field, 'lev'); // 25倍まで
+  assert.equal(fxRatio({ money: 100000, rate: 150, lev: 25 }).ok, true);
+  assert.equal(fxRatio({ money: 100, rate: 150, lev: 1 }).field, 'lev'); // 1通貨も買えない
+  assert.equal(fxRatio({ money: 100000, rate: 150, qty: 0.5, from: 'qty' }).field, 'qty');
+  assert.equal(fxRatio({ money: 100000, rate: 150, lev: NaN }).field, 'lev');
 });
 
 test('お金とレートの書き方', () => {
@@ -26,7 +75,7 @@ test('通貨ペアは円がつくものだけ（名前が重ならない）', ()
   assert.equal(FX_PAIRS[0].name, 'ドル円'); // はじめはドル円
 });
 
-test('証拠金維持率とロスカットまでの余裕（ページの計算例）', () => {
+test('ロスカットまでの余裕（ページの計算例）', () => {
   const r = fxPosition({ money: 100000, qty: 10000, rate: 150, cut: 100 });
   assert.equal(r.need, 60000);
   assert.equal(ratioText(r.ratio), '166.6％'); // 166.66…％ は切り捨て
@@ -61,7 +110,7 @@ test('維持率の表示は切り捨て（99.99％を100％と見せない）', 
   assert.equal(ratioText(100), '100％');
 });
 
-test('維持率：もう基準より下・まちがった入力', () => {
+test('ロスカット：もう基準より下・まちがった入力', () => {
   const r = fxPosition({ money: 50000, qty: 10000, rate: 150, cut: 100 });
   assert.equal(r.over, true);
   assert.equal(r.room, -10000); // 1万円足りない
@@ -76,21 +125,6 @@ test('維持率：もう基準より下・まちがった入力', () => {
   assert.equal(fxPosition({ money: 1000, qty: 10000, rate: 150, cut: 0 }).field, 'cut');
   // とても少ない量なら、買いは0円まで下がっても大丈夫
   assert.equal(fxPosition({ money: 1000000, qty: 1000, rate: 150, cut: 100 }).never, true);
-});
-
-test('追証：足りないお金と、耐えたいレートまでの入金（ページの計算例）', () => {
-  const base = { money: 50000, qty: 10000, rate: 150, level: 100, cut: 100 };
-  assert.equal(fxAddMoney(base).short, 10000); // いまのまま：1万円
-  assert.equal(fxAddMoney({ ...base, target: 148 }).loss, 20000);
-  assert.equal(fxAddMoney({ ...base, target: 148 }).deposit, 30000); // 148円まで：3万円
-  assert.equal(fxAddMoney({ ...base, target: 145 }).deposit, 60000); // 145円まで：6万円
-  assert.equal(fxAddMoney({ ...base, target: 152, side: 'sell' }).deposit, 30800); // 売り：152円の必要なお金 60,800円 ＋ 損2万円 − 5万円
-  assert.equal(fxAddMoney({ ...base, target: 152 }).field, 'target'); // 買いで、いまより高いレートはまちがい
-  assert.equal(fxAddMoney({ ...base, target: 148, side: 'sell' }).field, 'target'); // 売りで、いまより低いレートはまちがい
-  assert.equal(fxAddMoney({ ...base, level: null }).missing, 'level'); // 基準を打ち直している途中
-  assert.equal(fxAddMoney({ ...base, money: 200000 }).short, 0); // 足りている
-  assert.equal(fxAddMoney({ ...base, money: 200000, target: 148 }).deposit, 0);
-  assert.equal(fxAddMoney({ ...base, target: NaN }).field, 'target');
 });
 
 test('スワップ（ページの計算例）', () => {

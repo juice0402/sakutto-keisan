@@ -1,10 +1,11 @@
 import { fix, fmt } from './number.mjs';
 
-// FX の計算（証拠金維持率・追証・スワップ。ブラウザとテストの両方で使う）
+// FX の計算（証拠金維持率・ロスカット・スワップ。ブラウザとテストの両方で使う）
 // 画面ではむずかしい言葉を使わない：証拠金 → 口座のお金、必要証拠金 → 取引に必要なお金、ロット → 通貨の量
 // 日本の個人のFXはレバレッジが25倍まで。取引に必要なお金は、取引額（レート × 量）の4％
 
 export const FX_MARGIN_RATE = 0.04;
+export const FX_MAX_LEV = 25;
 export const FX_QTY_TILES = [1000, 10000, 100000]; // 1,000通貨・1万通貨・10万通貨（その他は万通貨で入れる）
 
 /**
@@ -56,7 +57,45 @@ function check({ money, qty, rate }) {
 }
 
 /**
- * 証拠金維持率とロスカットまでの余裕
+ * 証拠金維持率：口座のお金といまのレートに、レバレッジか通貨の量のどちらか（from）を入れて、もう片方と維持率を出す
+ * @param {{money:number|null, rate:number|null, lev?:number|null, qty?:number|null, from?:'lev'|'qty'}} p
+ *   from 'lev'：lev 倍で取引したときの通貨の量と維持率　from 'qty'：qty 通貨を取引したときのレバレッジと維持率
+ * 維持率 ＝ 口座のお金 ÷ 取引に必要なお金 × 100（取引した直後。レバレッジ10倍なら 2,500 ÷ 10 ＝ 250％）
+ */
+export function fxRatio({ money, rate, lev = null, qty = null, from = 'lev' }) {
+  const x = from === 'qty' ? qty : lev;
+  if ([money, rate, x].some((v) => v === null)) return { ok: false, empty: true };
+  if (Number.isNaN(money) || money <= 0) return { ok: false, error: '口座のお金は、0より大きい数字で入れてください。', field: 'money' };
+  if (Number.isNaN(rate) || rate <= 0) return { ok: false, error: 'レートは、0より大きい数字で入れてください。', field: 'rate' };
+  if (from === 'qty') {
+    if (Number.isNaN(qty) || qty < 1) return { ok: false, error: '通貨の量は、1通貨以上で入れてください。', field: 'qty' };
+  } else {
+    if (Number.isNaN(lev) || lev <= 0) return { ok: false, error: 'レバレッジは、0より大きい数字で入れてください。', field: 'lev' };
+    if (lev > FX_MAX_LEV) return { ok: false, error: '日本の個人のFXは、レバレッジ25倍までです。', field: 'lev' };
+    if ((money * lev) / rate < 1) return { ok: false, error: 'このレバレッジだと、1通貨も買えません。', field: 'lev' };
+  }
+  const amount = fix(from === 'qty' ? rate * qty : money * lev); // 取引額
+  const need = fix(amount * FX_MARGIN_RATE);
+  return {
+    ok: true,
+    from,
+    amount,
+    qty: from === 'qty' ? qty : fix(amount / rate),
+    lev: from === 'qty' ? fix(amount / money) : lev,
+    need,
+    ratio: fix((money / need) * 100),
+    short: Math.max(0, fix(need - money)), // 取引に必要なお金に足りない分（レバレッジ25倍より大きいとき）
+  };
+}
+
+/** 通貨の量の書き方（1通貨未満は切り捨て。レバレッジから出した量を、多く見せない） */
+export const qtyText = (q) => fmt(Math.floor(fix(q)), 0);
+
+/** レバレッジの書き方（0.01倍単位で切り上げ。低く見せない） */
+export const levText = (l) => fmt(Math.ceil(fix(l * 100)) / 100, 2);
+
+/**
+ * ロスカットまでの余裕（ロスカットの計算）
  * @param {{money:number|null, qty:number|null, rate:number|null, cut?:number|null, side?:'buy'|'sell'}} p
  *   money：口座のお金（有効証拠金。含み損益こみ）　qty：通貨の量　rate：いまのレート（円）
  *   cut：ロスカットになる維持率（％。会社で違う）　side：買いか売りか
@@ -80,33 +119,6 @@ export function fxPosition({ money, qty, rate, cut = 100, side = 'buy' }) {
   const room = side === 'sell' ? sellRoom : buyRoom; // あと何円の損まで（えらんだほう）
   const price = side === 'sell' ? sellPrice : buyPrice; // ロスカットになるレート
   return { ok: true, side, need, ratio, cut, cutMoney, room, price, buyRoom, sellRoom, buyPrice, sellPrice, over: room < 0, edge: room === 0, never: side === 'buy' && buyPrice <= 0 };
-}
-
-/**
- * 追証：足りないお金
- *   維持率を level％ にもどすのに足りないお金（追証の目安）
- *   target を入れたとき：そのレートまで動いても、維持率が level％ を下回らないために、あと入れるお金
- *   （売りは、上がった耐えたいレートで取引に必要なお金を計算する。少なく見せない）
- */
-export function fxAddMoney({ money, qty, rate, level = 100, cut = 100, target = null, side = 'buy' }) {
-  const bad = check({ money, qty, rate });
-  if (bad) return bad;
-  if (level === null) return { ok: false, empty: true, missing: 'level' };
-  if (Number.isNaN(level) || level <= 0) return { ok: false, error: '追証の基準は、0より大きい数字で入れてください。', field: 'level' };
-  const pos = fxPosition({ money, qty, rate, cut, side });
-  if (!pos.ok) return pos;
-  const levelMoney = fix((pos.need * level) / 100);
-  const short = Math.max(0, fix(levelMoney - money)); // 維持率 level％ までに足りないお金
-  const res = { ...pos, level, levelMoney, short };
-  if (target === null) return res;
-  if (Number.isNaN(target) || target <= 0) return { ok: false, error: '耐えたいレートは、0より大きい数字で入れてください。', field: 'target' };
-  if (side === 'sell' ? target <= rate : target >= rate) {
-    return { ok: false, error: side === 'sell' ? '売りなら、いまより高いレートを入れてください。' : '買いなら、いまより低いレートを入れてください。', field: 'target' };
-  }
-  const loss = fix(qty * Math.abs(rate - target)); // そのレートまで動いたときの損
-  const keep = fix((fxNeed(side === 'sell' ? target : rate, qty) * level) / 100); // そのときに口座に残したいお金
-  const deposit = Math.max(0, fix(keep + loss - money)); // 維持率 level％ を下回らないために入れるお金
-  return { ...res, target, loss, keep, deposit };
 }
 
 /** スワップの期間のマス（日数はカレンダーの日数。土日の分もつく） */

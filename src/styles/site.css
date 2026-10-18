@@ -407,8 +407,8 @@ h1 {
 .is-water > label::before { background: #aed5f0; }
 .is-total > label::before { background: linear-gradient(#aed5f0 50%, #f0a63a 50%); }
 .mix-field .input { padding: 0 12px; }
-.mix-field.is-out .input { border-style: dashed; }
-.mix-field.is-out input { color: var(--red); }
+.mix-field.is-out .input, .box-field.is-out .input { border-style: dashed; }
+.mix-field.is-out input, .box-field.is-out input { color: var(--red); }
 /* ボトルと欄の下：倍率と、計量スプーン・L の目安 */
 .mix-foot {
   grid-column: 1 / -1; margin: 0; padding: 10px 2px 0; border-top: 1px solid var(--rule);
@@ -433,16 +433,19 @@ h1 {
 .box-field .input { padding: 0 12px; }
 .box-field .input input { padding: 20px 0 2px; }
 .fx-inputs { display: grid; gap: 8px; margin: 8px 0 0; }
-/* いちばん上の1段：通貨ペア・買いか売りか・クリア */
+/* いちばん上の1段：通貨ペア・買いか売りか（維持率のページは、いまのレート）・クリア */
 .fx-top { display: grid; grid-template-columns: 1.15fr 1fr auto; gap: 8px; align-items: center; margin: 0 0 8px; }
 .fx-top .big-select { min-width: 0; padding: 0 28px 0 12px; font-size: 18px; font-weight: 800; background-position: right 17px center, right 11px center; }
 .fx-top .seg { margin: 0; }
 .fx-top .clear-btn { padding-left: 2px; }
+.fx-top-rate { grid-template-columns: 1fr 1fr auto; }
+@media (max-width: 374px) { .fx-top-rate .big-select { font-size: 16px; padding: 0 24px 0 10px; background-position: right 15px center, right 9px center; } }
 .seg-2 { grid-template-columns: 1fr 1fr; }
 .fx-inputs .src-row { margin: 0; }
 .fx-inputs .pair { grid-template-columns: 1.3fr 1fr; gap: 8px; }
+.fx-inputs .pair-lev { grid-template-columns: 1fr 1.25fr; } /* レバレッジ｜通貨の量（どちらかを入れると、もう片方に答え） */
 @media (max-width: 374px) { .box-field .input input { font-size: 21px; } .box-field .unit { font-size: 14px; margin-left: 3px; } }
-/* 答え：左にメーター（維持率）、右に「ロスカットまで あと◯円の損」 */
+/* 答え：左にメーター（維持率）、右に大きな数字（維持率・ロスカットまで あと◯円の損） */
 .fx-result { display: grid; grid-template-columns: 112px 1fr; gap: 6px 12px; align-items: center; margin: 14px 0 0; }
 .fx-result.is-wide { grid-template-columns: 1fr; }
 .gauge { width: 112px; margin: 0; text-align: center; }
@@ -458,14 +461,6 @@ h1 {
 .fx-big { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.2; color: var(--red); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .fx-big small { font-size: 15px; font-weight: 700; color: var(--text); margin-left: 2px; }
 .fx-big.is-error { color: var(--error); }
-/* 追証：口座のお金と、基準まで足りない分のバー */
-.short-bar { grid-column: 1 / -1; margin: 0; }
-.short-track { position: relative; display: flex; height: 26px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); overflow: hidden; }
-.short-have { flex: none; height: 100%; width: 0; background: var(--muted); opacity: .55; transition: width .45s ease; }
-.short-need { flex: none; height: 100%; width: 0; transition: width .45s ease;
-  background: repeating-linear-gradient(-45deg, var(--down, var(--error)) 0 4px, transparent 4px 8px); }
-.short-line { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px solid var(--text); transition: left .45s ease; }
-.short-legend { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 /* スワップ：たまっていく額の棒グラフ */
 .swap-chart { grid-column: 1 / -1; margin: 0; }
 .swap-bars { display: flex; align-items: flex-end; gap: 3px; height: 92px; padding: 0 0 2px; border-bottom: 1px solid var(--border); }

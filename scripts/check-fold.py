@@ -23,8 +23,8 @@ CASES = {
     'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),
     'hyohakuzai': (lambda pg: (pg.click('.tile[data-target="0.05"]'), pg.fill('#v-water', '1000')), '#r-hints'),
     'ekihi': (lambda pg: (pg.click('.tile[data-ratio="1000"]'), pg.fill('#v-water', '2000')), '#f-water'),
-    'fx-iji-ritsu': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-price'),
-    'fx-oisho': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '50000'), pg.fill('#rate', '150'), pg.fill('#target', '145')), '.short-bar'),
+    'fx-iji-ritsu': (lambda pg: (pg.fill('#rate', '150'), pg.fill('#money', '100000'), pg.fill('#lev', '10')), '#r-need'),
+    'fx-losscut': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-price'),
     'fx-swap': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#swap', '150')), '.swap-chart'),
 }
 
