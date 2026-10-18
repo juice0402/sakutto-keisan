@@ -61,11 +61,11 @@ ${src([
   },
   {
     slug: 'hyohakuzai',
-    title: '塩素系漂白剤の薄め方｜ハイターで0.05％・0.1％の消毒液を作る',
+    title: '次亜塩素酸ナトリウムの薄め方｜ハイターで作るノロウイルスの消毒液',
     description:
-      'ハイターなどの塩素系漂白剤（約6％）で、0.02％・0.05％・0.1％の消毒液を作るときの、漂白剤と水の量を計算します。水の量やできあがりの量から計算できます。',
-    lead: '0.05%などの消毒液の作り方を計算します。',
-    ld: '塩素系漂白剤の濃度と作りたい濃度から、漂白剤と水の量を出す計算ツール。',
+      'ノロウイルス対策などで、ハイターなどの塩素系漂白剤（次亜塩素酸ナトリウム約6％）から0.02％・0.05％・0.1％の消毒液を作るときの、漂白剤と水の量を計算します。水の量やできあがりの量から計算できます。',
+    lead: 'ハイターで作る消毒液の量を計算します。',
+    ld: '塩素系漂白剤（次亜塩素酸ナトリウム）の濃度と作りたい濃度から、漂白剤と水の量を出す計算ツール。',
     calc: `<div class="calc" id="calc" data-how="pct" data-conc="漂白剤" data-label="pct" data-cap="25" data-cap-name="ハイターのキャップ" data-spoon="0" data-empty="作りたい濃度をえらんでください">
   ${head('l-target', '作りたい濃度')}
   <div class="field" id="f-tiles">
@@ -107,6 +107,7 @@ ${section(
 <tr><td>0.1％</td><td>吐いたもの・便の処理</td></tr>
 </tbody>
 </table></div>
+<p>ノロウイルスの対策では、調理器具やトイレなどの消毒に0.02％、吐いたものや便の処理に0.1％を使います。</p>
 ${src([
   ['厚生労働省', 'https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuchu/kanren/yobou/040204-1.html'],
   ['目黒区', 'https://www.city.meguro.tokyo.jp/smph/kurashi/hoken_eisei/shinryo/yobo/jiaensosannatoriumuekinotukurika.html'],
@@ -139,6 +140,10 @@ ${src([
       {
         q: '漂白剤の濃度がわからないときは？',
         a: '<p>ボトルの表示を見てください。花王のハイターとキッチンハイターは、作ったときに6％です。</p>',
+      },
+      {
+        q: '「次亜塩素酸水」と同じものですか？',
+        a: '<p>ちがうものです。次亜塩素酸ナトリウムを水で薄めても、次亜塩素酸水にはなりません。</p>',
       },
       {
         q: '手の消毒に使えますか？',
@@ -225,7 +230,7 @@ export default function render() {
     const tool = toolBySlug(p.slug);
     const path = `/${tool.slug}/`;
     const body = `
-<h1>${tool.name}</h1>
+<h1${tool.name.length > 12 ? ' class="is-long"' : ''}>${tool.name}</h1>
 <p class="lead">${p.lead}</p>
 
 ${p.calc}
