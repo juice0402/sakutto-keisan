@@ -460,19 +460,25 @@ h1 {
 .fx-big { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.2; color: var(--red); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .fx-big small { font-size: 15px; font-weight: 700; color: var(--text); margin-left: 2px; }
 .fx-big.is-error { color: var(--error); }
-/* 利益率：売値｜原価、利益率｜クリア。答えは、売値の帯を原価と利益に分けた絵（赤字は足りない分をしまで） */
-.rieki-inputs { display: grid; gap: 12px; }
-.rieki-inputs .pair { gap: 10px; }
-.rieki-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
-.rieki-row .clear-btn { padding-left: 2px; }
-.rieki-result { margin: 18px 0 0; }
+/* 名前を欄の中に書いた欄を並べるカード（利益率・清掃の作業時間）：欄の段、欄｜クリアの段、答え */
+.box-rows { display: grid; gap: 12px; }
+.box-rows .pair { gap: 10px; }
+.box-row-clear { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+.box-row-clear .clear-btn { padding-left: 2px; }
+.box-result { margin: 18px 0 0; }
+/* 利益率：売値の帯を原価と利益に分けた絵（赤字は足りない分をしまで） */
 .rieki-bar { margin: 8px 0 0; }
 .rb-track { display: flex; height: 28px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); overflow: hidden; }
 .rb-cost, .rb-profit, .rb-loss { flex: none; height: 100%; width: 0; transition: width .45s ease; }
 .rb-cost { background: var(--muted); opacity: .35; }
 .rb-profit { background: var(--red); }
 .rb-loss { background: repeating-linear-gradient(-45deg, var(--error) 0 4px, transparent 4px 8px); }
-.rb-legend { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.rb-legend { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 8px; margin: 4px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; }
+/* 清掃の作業時間：床を人数で分けた絵（1人ずつの帯） */
+.floor-plan { margin: 8px 0 0; }
+.floor-strips { display: flex; gap: 2px; height: 40px; padding: 2px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); }
+.floor-strip { flex: 1; min-width: 0; background: var(--red); opacity: .8; }
+.floor-strip:nth-child(even) { opacity: .45; }
 /* スワップ：たまっていく額の棒グラフ */
 .swap-chart { grid-column: 1 / -1; margin: 0; }
 .swap-bars { display: flex; align-items: flex-end; gap: 3px; height: 92px; padding: 0 0 2px; border-bottom: 1px solid var(--border); }

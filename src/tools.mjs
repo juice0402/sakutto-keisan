@@ -37,7 +37,7 @@ export const TOOLS = [
     short: '原液と水を何mlずつ入れるか',
     published: true,
     updated: '2026-10-17',
-    related: ['recipe', 'tanka', 'waribiki'],
+    related: ['recipe', 'tanka', 'waribiki', 'seisou-jikan'],
   },
   // 希釈率の使いみち別（parent のページの下に並べる）
   {
@@ -85,7 +85,16 @@ export const TOOLS = [
     short: '売値と原価から利益率、利益率から売値',
     published: true,
     updated: '2026-10-20',
-    related: ['waribiki', 'tanka'],
+    related: ['waribiki', 'tanka', 'seisou-jikan'],
+  },
+  {
+    slug: 'seisou-jikan',
+    name: '清掃の作業時間の計算',
+    category: 'shigoto',
+    short: '面積と人数から、何時間かかるか',
+    published: true,
+    updated: '2026-10-20',
+    related: ['kishaku', 'rieki-ritsu'],
   },
   {
     slug: 'shakai-hoken',

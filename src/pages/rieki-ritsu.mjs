@@ -37,11 +37,11 @@ export default function render() {
 <p class="lead">利益率や、利益率から売値を計算します。</p>
 
 <div class="calc" id="calc">
-  <div class="rieki-inputs">
+  <div class="box-rows">
     <div class="pair">${boxField('price', '売値', '円', '1,500')}${boxField('cost', '原価', '円', '1,000')}</div>
-    <div class="rieki-row">${boxField('rate', '利益率', '％', '30')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    <div class="box-row-clear">${boxField('rate', '利益率', '％', '30')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
   </div>
-  <div class="rieki-result" aria-live="polite">
+  <div class="box-result" aria-live="polite">
     <p class="fx-cap" id="r-cap">利益</p>
     <p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円</small></p>
     <div class="rieki-bar" aria-hidden="true">

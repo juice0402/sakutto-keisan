@@ -321,10 +321,29 @@ def rieki_bar(img, cx, top):
     d.text((x1 - d.textlength(lab, font=f), y0 + h + 14 * S), lab, font=f, fill=t['red'])
 
 
+def seisou_floor(img, cx, top):
+    """清掃の作業時間：床を3人で分けた帯＋「3時間20分」（ページの計算例：1人1時間に100㎡で、1,000㎡を3人）"""
+    t = THEMES['shigoto']
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 236 * S, cx + 266 * S
+    d.text((x0, top + 20 * S), 'かかる時間', font=font('bold', 28), fill=t['muted'])
+    d.text((x0, top + 56 * S), '3時間20分', font=font('black', 72), fill=t['red'])
+    y0, h, n, gap = top + 190 * S, 88 * S, 3, 6 * S
+    d.rectangle([x0, y0, x1, y0 + h], outline=t['muted'], width=2 * S)
+    w = ((x1 - x0) - 2 * gap - gap * (n - 1)) / n
+    for i in range(n):
+        bx = x0 + gap + i * (w + gap)
+        d.rectangle([bx, y0 + gap, bx + w, y0 + h - gap], fill=t['red'] if i % 2 == 0 else '#B9848D')
+    f = font('bold', 26)
+    d.text((x0, y0 + h + 14 * S), '1人あたり 333.3㎡', font=f, fill=t['muted'])
+    lab = '3人・1,000㎡'
+    d.text((x1 - d.textlength(lab, font=f), y0 + h + 14 * S), lab, font=f, fill=t['muted'])
+
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_bars,
-    'rieki-ritsu': rieki_bar,
+    'rieki-ritsu': rieki_bar, 'seisou-jikan': seisou_floor,
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),
