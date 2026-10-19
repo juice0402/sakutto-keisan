@@ -14,17 +14,16 @@ export const boxField = (id, label, unit, placeholder, value = '') =>
 export const fxHead = (labelId, label) =>
   `<div class="field-head calc-head"><p class="label" id="${labelId}">${label}</p><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
 
-/** いちばん上の1段の通貨ペア（円がつくもの） */
+/** いちばん上の1段の通貨ペア（円がつくもの）。ほかの欄と同じく、名前を欄の中に書く */
 const pairSelect = () =>
-  `<label class="sr-only" for="pair">通貨ペア</label><select id="pair" class="big-select">${FX_PAIRS.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}</select>`;
+  `<div class="box-field sel-field"><label for="pair">通貨ペア</label><select id="pair" class="big-select">${FX_PAIRS.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}</select></div>`;
 
 /** いちばん上の1段：通貨ペア・買いか売りか・クリア（ロスカット） */
 export const fxTop = () =>
   `<div class="fx-top">${pairSelect()}<div class="seg seg-2" role="group" aria-label="買いか売りか"><button type="button" class="seg-btn" data-side="buy" aria-pressed="true">買い</button><button type="button" class="seg-btn" data-side="sell" aria-pressed="false">売り</button></div><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
 
-/** いちばん上の1段：通貨ペア・いまのレート・クリア（証拠金維持率。買いでも売りでも維持率は同じ） */
-export const fxTopRate = () =>
-  `<div class="fx-top fx-top-rate">${pairSelect()}${boxField('rate', 'いまのレート', '円', '150')}<button type="button" class="clear-btn" id="clear">クリア</button></div>`;
+/** いちばん上の1段：通貨ペア・クリア（証拠金維持率。買いでも売りでも維持率は同じ） */
+export const fxTopPair = () => `<div class="fx-top fx-top-pair">${pairSelect()}<button type="button" class="clear-btn" id="clear">クリア</button></div>`;
 
 /** 通貨の量のマス：1,000通貨・1万通貨・10万通貨・その他（万通貨） */
 export const qtyTiles = (labelId) =>

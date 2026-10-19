@@ -5,7 +5,7 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
-import { boxField, fxHead, fxTop, fxTopRate, qtyTiles, noteAndNoscript } from '../fx.mjs';
+import { boxField, fxHead, fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
 import { SWAP_PERIODS } from '../lib/fx.mjs';
 
 const CAUTION = '<p class="note">FXの会社ごとにルールが違うので、目安です。</p>';
@@ -28,8 +28,9 @@ const PAGES = [
     lead: 'レバレッジや量から、維持率を計算します。',
     ld: '口座のお金・レート・レバレッジか通貨の量から、取引したときの証拠金維持率を出す計算ツール。',
     calc: `<div class="calc" id="calc" data-tool="iji">
-  ${fxTopRate()}
+  ${fxTopPair()}
   <div class="fx-inputs">
+    ${boxField('rate', 'いまのレート', '円', '150.00')}
     ${boxField('money', '口座のお金', '円', '100,000')}
     <div class="pair pair-lev">${boxField('lev', 'レバレッジ', '倍', '10')}${boxField('qty', '通貨の量', '通貨', '10,000')}</div>
   </div>

@@ -1,5 +1,5 @@
 import { parseNum } from '../lib/number.mjs';
-import { fxRatio, yenText, ratioText, qtyText, levText, FX_PAIRS } from '../lib/fx.mjs';
+import { fxRatio, yenText, ratioText, qtyText, levText, rateDigits, FX_PAIRS } from '../lib/fx.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 
 // 証拠金維持率：口座のお金といまのレートに、レバレッジか通貨の量のどちらかを入れる。入れた欄から、もう片方の欄と維持率を出す
@@ -46,7 +46,7 @@ function update() {
 /* ---- 通貨ペア：レートの欄のうすい例を、その通貨ペアらしい数字にする ---- */
 $('pair').addEventListener('change', () => {
   const ex = (FX_PAIRS.find((p) => p.id === $('pair').value) || FX_PAIRS[0]).example;
-  $('rate').placeholder = String(ex); // せまいので、小数のけたはそろえない
+  $('rate').placeholder = ex.toFixed(rateDigits(ex));
   update();
 });
 
