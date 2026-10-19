@@ -10,7 +10,7 @@ export const TOOLS = [
     short: '割引後の値段と、いくら安くなるか',
     published: true,
     updated: '2026-10-17',
-    related: ['tanka', 'percent', 'shohizei'],
+    related: ['tanka', 'rieki-ritsu', 'percent', 'shohizei'],
   },
   {
     slug: 'tanka',
@@ -77,6 +77,15 @@ export const TOOLS = [
     category: 'shigoto',
     short: '有給1日あたりの金額を計算',
     published: false,
+  },
+  {
+    slug: 'rieki-ritsu',
+    name: '利益率の計算',
+    category: 'shigoto',
+    short: '売値と原価から利益率、利益率から売値',
+    published: true,
+    updated: '2026-10-20',
+    related: ['waribiki', 'tanka'],
   },
   {
     slug: 'shakai-hoken',

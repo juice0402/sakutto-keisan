@@ -26,7 +26,7 @@ GRID = (70, 120, 190, 22)  # 方眼の線
 THEMES = {
     'home': dict(bg=PAPER, text=INK, muted=PENCIL, red=RED, marker=MARKER, paper='grid'),
     'seikatsu': dict(bg=PAPER, text=INK, muted=PENCIL, red=RED, marker=MARKER, paper='grid'),
-    'shigoto': dict(bg=PAPER, text=INK, muted=PENCIL, red='#1F55B8', marker='#CFE8FF', paper='ruled'),
+    'shigoto': dict(bg='#F6F6F4', text='#1E2A44', muted='#5D6676', red='#7D2333', marker='#E3E8F1', paper='ruled'),  # 紺の革のシステム手帳（site.css と同じ）
     'fx': dict(bg='#16191E', text='#E9EDF2', muted='#9AA4B1', red='#FFD84D', marker='#4A4220', paper='dots'),
 }
 CATEGORY_THEME = {'seikatsu': 'seikatsu', 'shigoto': 'shigoto', 'fx': 'fx'}
@@ -301,9 +301,30 @@ def fx_swap_bars(img, cx, top):
     d.line([(x0, base + 2 * S), (x1, base + 2 * S)], fill=FX_RULE, width=3 * S)
 
 
+def rieki_bar(img, cx, top):
+    """利益率：売値の帯を原価（灰色）と利益（ボルドー）に分けた絵＋「利益率 33.3%」（ページの計算例と同じ数字）"""
+    t = THEMES['shigoto']
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 236 * S, cx + 266 * S
+    d.text((x0, top + 20 * S), '利益率', font=font('bold', 28), fill=t['muted'])
+    f_big = font('black', 84)
+    d.text((x0, top + 56 * S), '33.3', font=f_big, fill=t['red'])
+    d.text((x0 + d.textlength('33.3', font=f_big) + 8 * S, top + 100 * S), '%', font=font('black', 40), fill=t['text'])
+    y0, h = top + 200 * S, 64 * S
+    split = x0 + (x1 - x0) * 2 / 3
+    d.rectangle([x0, y0, split, y0 + h], fill='#C9CDD4')
+    d.rectangle([split, y0, x1, y0 + h], fill=t['red'])
+    d.rectangle([x0, y0, x1, y0 + h], outline=t['muted'], width=2 * S)
+    f = font('bold', 26)
+    d.text((x0, y0 + h + 14 * S), '原価 1,000円', font=f, fill=t['muted'])
+    lab = '利益 500円'
+    d.text((x1 - d.textlength(lab, font=f), y0 + h + 14 * S), lab, font=f, fill=t['red'])
+
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_bars,
+    'rieki-ritsu': rieki_bar,
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),

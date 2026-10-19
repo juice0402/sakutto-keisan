@@ -5,7 +5,8 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
-import { boxField, fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
+import { fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
+import { boxField } from '../fields.mjs';
 import { FX_PAIRS, fxSwapEstimate, swapText } from '../lib/fx.mjs';
 import { fmt } from '../lib/number.mjs';
 import { POLICY_RATES, FX_RATES_CHECKED, FX_SPOT_DATE, FX_SPOT_URL } from '../data/fx-swap.mjs';
