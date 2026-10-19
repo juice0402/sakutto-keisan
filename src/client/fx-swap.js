@@ -1,25 +1,16 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { fxSwap, swapBars, SWAP_PERIODS } from '../lib/fx.mjs';
-import { $, enterToNext, numericOnly } from './ui.mjs';
+import { fxSwapEstimate, swapBars, swapText } from '../lib/fx.mjs';
+import { $, numericOnly } from './ui.mjs';
 
-// スワップポイント：1日の額 × 通貨の量 × 日数。たまっていく額を棒グラフで
-let tileQty = null; // えらんだマスの通貨の量（「その他」に入れたときは、そちらを使う）
-let tileDays = 365; // えらんだ期間（はじめは1年）
-const val = (id) => parseNum($(id).value);
-const INPUTS = [...document.querySelectorAll('#calc input')];
+// スワップポイントの目安：通貨ペア・買いか売りか・通貨の量から、金利の差で1日の額。1年でたまる（払う）額を棒グラフで
+const DEFAULT_QTY = 10000; // はじめは1万通貨
+let side = 'buy';
+let tileQty = DEFAULT_QTY;
 
 function currentQty() {
-  const custom = val('qty');
+  const custom = parseNum($('qty').value);
   if (custom !== null) return Number.isNaN(custom) ? NaN : custom * 10000; // その他は万通貨で入れる
   return tileQty;
-}
-
-const currentDays = () => (val('days') !== null ? val('days') : tileDays);
-
-/** 期間の呼び名：1か月・半年・1年。その他は「◯日」 */
-function periodName(days) {
-  const p = SWAP_PERIODS.find((x) => x.days === days);
-  return p ? p.label : `${fmt(days, 0)}日`;
 }
 
 function setNote(text = '', error = false) {
@@ -29,71 +20,77 @@ function setNote(text = '', error = false) {
 }
 
 function drawBars(res) {
-  const bars = res ? swapBars(res.days, res.day) : [];
+  const bars = res && res.day !== 0 ? swapBars(365, Math.abs(res.day)) : [];
   const max = bars.length ? bars.at(-1).value : 0;
   $('s-bars').innerHTML = bars.map((b) => `<span class="swap-bar" style="height:${max > 0 ? (b.value / max) * 100 : 0}%"></span>`).join('');
-  const d = res ? res.days : currentDays();
-  $('s-end').textContent = Number.isInteger(d) && d > 0 ? `${fmt(d, 0)}日` : '？日';
 }
 
 function update() {
-  const days = currentDays();
-  const res = fxSwap({ perDay: val('swap'), qty: currentQty(), days });
-  ['swap', 'qty', 'days'].forEach((id) => $(`f-${id}`).classList.toggle('has-error', res.field === id));
-  const customQty = $('qty').value !== '';
-  document.querySelectorAll('.tile[data-qty]').forEach((t) => t.setAttribute('aria-pressed', String(!customQty && Number(t.dataset.qty) === tileQty)));
-  $('f-qty').classList.toggle('is-on', customQty);
-  const customDays = $('days').value !== '';
-  document.querySelectorAll('.tile[data-days]').forEach((t) => t.setAttribute('aria-pressed', String(!customDays && Number(t.dataset.days) === tileDays)));
-  $('f-days').classList.toggle('is-on', customDays);
+  const pair = $('pair').value;
+  const res = fxSwapEstimate({ pair, side, qty: currentQty() });
+  $('f-qty').classList.toggle('has-error', res.field === 'qty');
+  const custom = $('qty').value !== '';
+  document.querySelectorAll('.tile[data-qty]').forEach((t) => t.setAttribute('aria-pressed', String(!custom && Number(t.dataset.qty) === tileQty)));
+  $('f-qty').classList.toggle('is-on', custom);
   setNote(res.error || '', !!res.error);
-  $('r-cap').textContent = Number.isInteger(days) && days > 0 ? `${periodName(days)}で` : '持つ期間で';
+  const pay = res.ok && res.day < 0;
+  $('r-big').classList.toggle('is-error', pay);
+  $('s-bars').classList.toggle('is-pay', pay);
+  drawBars(res.ok ? res : null);
   if (!res.ok) {
     $('r-num').textContent = '？';
-    drawBars(null);
-    $('r-per').textContent = res.empty ? '通貨の量とスワップを入れてください' : '';
+    $('r-unit').textContent = '円';
+    $('r-per').textContent = res.empty ? '通貨の量をえらんでください' : '';
+    $('r-base').textContent = '';
     return;
   }
-  $('r-num').textContent = fmt(Math.floor(res.total), 0);
-  drawBars(res);
-  $('r-per').textContent = `1日 ${fmt(res.day, 2)}円・1か月 ${fmt(Math.floor(res.month), 0)}円・1年 ${fmt(Math.floor(res.year), 0)}円`;
+  $('r-cap').textContent = '1日に';
+  $('r-num').textContent = res.day === 0 ? '0' : `約${swapText(res.day)}`;
+  $('r-unit').textContent = res.day === 0 ? '円' : pay ? '円 払う' : '円 もらえる';
+  $('r-per').textContent = res.day === 0 ? '金利の差がないので、ほとんどつきません' : `1か月 約${swapText(res.month)}円・1年 約${swapText(res.year)}円`;
+  $('r-base').textContent = `金利の差 ${fmt(Math.abs(res.diff), 3)}％・1${res.pair.unit} ${fmt(res.rate, 3)}円で計算`;
 }
 
-/* ---- 入力 ---- */
-function fitTile(id) {
-  $(id).style.width = `${Math.max(1, $(id).value.length) + 0.2}ch`;
-}
-document.querySelectorAll('.tiles').forEach((box) =>
-  box.addEventListener('click', (e) => {
-    const t = e.target.closest('.tile[data-qty], .tile[data-days]');
-    if (!t) return;
-    if (t.dataset.qty) {
-      tileQty = Number(t.dataset.qty);
-      $('qty').value = '';
-    } else {
-      tileDays = Number(t.dataset.days);
-      $('days').value = '';
-    }
-    fitTile('qty');
-    fitTile('days');
+/* ---- 通貨ペア・買いか売りか ---- */
+$('pair').addEventListener('change', update);
+document.querySelectorAll('.seg-btn[data-side]').forEach((b) =>
+  b.addEventListener('click', () => {
+    side = b.dataset.side;
+    document.querySelectorAll('.seg-btn[data-side]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
     update();
   }),
 );
-['qty', 'days'].forEach((id) => {
-  $(`f-${id}`).addEventListener('click', () => $(id).focus());
-  $(id).addEventListener('input', () => fitTile(id));
-});
-numericOnly(INPUTS);
-INPUTS.forEach((el) => el.addEventListener('input', update));
-$('clear').addEventListener('click', () => {
-  INPUTS.forEach((el) => { el.value = ''; });
-  tileQty = null;
-  tileDays = 365;
-  fitTile('qty');
-  fitTile('days');
+
+/* ---- 通貨の量 ---- */
+function fitQty() {
+  $('qty').style.width = `${Math.max(1, $('qty').value.length) + 0.2}ch`;
+}
+document.querySelector('.tiles').addEventListener('click', (e) => {
+  const t = e.target.closest('.tile[data-qty]');
+  if (!t) return;
+  tileQty = Number(t.dataset.qty);
+  $('qty').value = '';
+  fitQty();
   update();
 });
-enterToNext(INPUTS);
-fitTile('qty');
-fitTile('days');
+$('f-qty').addEventListener('click', () => $('qty').focus());
+numericOnly([$('qty')]);
+$('qty').addEventListener('input', () => {
+  fitQty();
+  update();
+});
+$('qty').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.isComposing) {
+    e.preventDefault();
+    $('qty').blur();
+  }
+});
+// クリア：はじめの1万通貨にもどす（通貨ペアと買い・売りはそのまま）
+$('clear').addEventListener('click', () => {
+  $('qty').value = '';
+  tileQty = DEFAULT_QTY;
+  fitQty();
+  update();
+});
+fitQty();
 update();

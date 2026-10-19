@@ -5,10 +5,19 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
-import { boxField, fxHead, fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
-import { SWAP_PERIODS } from '../lib/fx.mjs';
+import { boxField, fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
+import { FX_PAIRS, fxSwapEstimate, swapText } from '../lib/fx.mjs';
+import { fmt } from '../lib/number.mjs';
+import { POLICY_RATES, FX_RATES_CHECKED, FX_SPOT_DATE, FX_SPOT_URL } from '../data/fx-swap.mjs';
 
 const CAUTION = '<p class="note">FXの会社ごとにルールが違うので、目安です。</p>';
+const jpDate = (iso) => { const [, m, d] = iso.split('-').map(Number); return `${m}月${d}日`; };
+// スワップの目安の表：通貨ペアごとに、その通貨の政策金利（中央銀行へのリンク＝出典）と、1万通貨を買ったときの1日の額（src/data/fx-swap.mjs から作る）
+const bankLink = (c) => `<a href="${POLICY_RATES[c].url.replace(/&/g, '&amp;')}">${fmt(POLICY_RATES[c].rate, 3)}％</a>`;
+const SWAP_ROWS = FX_PAIRS.map((p) => {
+  const r = fxSwapEstimate({ pair: p.id, side: 'buy', qty: 10000 });
+  return `<tr><td>${p.name}</td><td class="num">${bankLink(p.cur)}</td><td class="num">${r.day < 0 ? '払う ' : ''}約${swapText(r.day)}円</td></tr>`;
+}).join('\n');
 // 取引に必要なお金（取引額の4％）の出典
 const SRC_FSA = '<p class="note">出典：<a href="https://www.fsa.go.jp/news/21/syouken/20090731-6.html">金融庁</a></p>';
 
@@ -168,23 +177,18 @@ ${section(
   },
   {
     slug: 'fx-swap',
-    title: 'スワップポイントの計算｜1か月・1年でいくらになるか',
+    title: 'スワップポイントの計算｜1日いくらもらえるか（目安）',
     description:
-      'FXのスワップポイントを、持ち続けたときの合計で計算します。1万通貨あたりの1日の額と通貨の量を入れると、1か月・半年・1年でいくらたまるかがグラフでわかります。',
-    lead: '持ち続けると、いくらたまるか計算します。',
-    ld: '1日のスワップと通貨の量から、持ち続けたときのスワップの合計を出す計算ツール。',
+      'FXのスワップポイントの目安を計算します。通貨ペアと買いか売りか、通貨の量をえらぶと、2つの国の金利の差から、1日・1か月・1年でいくらもらえるか（払うか）がわかります。',
+    lead: '1日にいくらもらえるか、目安を計算します。',
+    ld: '通貨ペア・買いか売りか・通貨の量から、金利の差でスワップポイントの目安を出す計算ツール。',
     calc: `<div class="calc" id="calc" data-tool="swap">
-  ${fxHead('l-qty', '通貨の量')}
-  <div class="field" id="f-tiles">${qtyTiles('l-qty')}</div>
-  <div class="fx-inputs">
-    ${boxField('swap', '1日のスワップ（1万通貨あたり）', '円', '150')}
-    <div class="tiles tiles-4" role="group" aria-label="持つ期間">${SWAP_PERIODS.map((p) => `<button type="button" class="tile" data-days="${p.days}" aria-pressed="${p.days === 365}"><b>${p.label}</b><small>${p.days}日</small></button>`)
-      .join('')}<div class="tile tile-input" id="f-days"><div class="tile-box"><input id="days" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" placeholder="?"><span>日</span></div><label for="days">その他</label></div></div>
-  </div>
+  ${fxTop()}
+  <div class="field" id="f-tiles"><p class="sr-only" id="l-qty">通貨の量</p>${qtyTiles('l-qty')}</div>
   <div class="fx-result is-wide" aria-live="polite">
-    <div class="fx-answer"><p class="fx-cap" id="r-cap">1年で</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円</small></p></div>
-    <figure class="swap-chart" aria-hidden="true"><div class="swap-bars" id="s-bars"></div><figcaption class="swap-axis"><span>0日</span><span id="s-end">365日</span></figcaption></figure>
-    <p class="mix-foot"><span id="r-per">通貨の量とスワップを入れてください</span></p>
+    <div class="fx-answer"><p class="fx-cap" id="r-cap">1日に</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円</small></p></div>
+    <figure class="swap-chart" aria-hidden="true"><div class="swap-bars" id="s-bars"></div><figcaption class="swap-axis"><span>0日</span><span>1年</span></figcaption></figure>
+    <p class="mix-foot"><span id="r-per">通貨の量をえらんでください</span><span id="r-base"></span></p>
   </div>
   ${noteAndNoscript}
 </div>`,
@@ -192,24 +196,22 @@ ${section(
       'formula',
       '計算式',
       `<div class="formula">
-<span>1日のスワップ ＝ 1万通貨あたりの額 × 通貨の量 ÷ 1万</span>
-<span>合計 ＝ 1日のスワップ × 持つ日数</span>
+<span>1日のスワップ ＝ 通貨の量 × レート × 金利の差 ÷ 365</span>
+<span>金利の差 ＝ 買う通貨の金利 − 売る通貨の金利</span>
 </div>
-<p>例：1万通貨あたり150円を3万通貨なら1日450円、1年（365日）で164,250円です。</p>
+<p>例：金利の差が3％で、1ドル150円のドルを1万通貨買うと、150万円 × 3％ ÷ 365 で1日 約123円です。</p>
 ${CAUTION}`,
     )}
 ${section(
   'examples',
-  '計算例',
+  '通貨ペアごとの目安',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>1日の額・量</th><th class="num">1か月</th><th class="num">1年</th></tr></thead>
+<thead><tr><th>通貨ペア</th><th class="num">金利</th><th class="num">1日</th></tr></thead>
 <tbody>
-<tr><td>150円・1万通貨</td><td class="num">4,500円</td><td class="num">54,750円</td></tr>
-<tr><td>150円・3万通貨</td><td class="num">13,500円</td><td class="num">164,250円</td></tr>
-<tr><td>20円・10万通貨</td><td class="num">6,000円</td><td class="num">73,000円</td></tr>
+${SWAP_ROWS}
 </tbody>
 </table></div>
-<p>1か月は30日で計算しています。スワップの額は毎日変わります。</p>`,
+<p>1万通貨を買ったときです。円の金利は${bankLink('JPY')}です。金利は各国の中央銀行が${jpDate(FX_RATES_CHECKED)}までに決めたもの、レートは${jpDate(FX_SPOT_DATE)}の<a href="${FX_SPOT_URL}">欧州中央銀行の参照レート</a>です。</p>`,
 )}`,
     faqs: [
       {
@@ -217,16 +219,20 @@ ${section(
         a: '<p>2つの国の金利の差で、毎日受け取ったり払ったりするお金です。金利の高い通貨を買うと受け取れることが多いです。</p>',
       },
       {
-        q: '1日の額はどこで見られますか？',
-        a: '<p>FXの会社のアプリやサイトの、スワップの一覧です。1,000通貨あたりで書かれているときは、10倍して入れてください。</p>',
+        q: '実際の額とちがうのはなぜですか？',
+        a: '<p>FXの会社は、市場の金利をもとに自分で額を決めています。会社ごと・日ごとに違うので、ここの額は目安です。</p>',
+      },
+      {
+        q: '売りだと払うのはなぜですか？',
+        a: '<p>金利の高い通貨を売ると、金利の差を払う側になるからです。払う額は、もらう額より大きいことが多いです。</p>',
       },
       {
         q: '土日もスワップはつきますか？',
         a: '<p>つきます。土日の分は、水曜日などにまとめてつきます。何曜日かは会社や通貨で違います。</p>',
       },
       {
-        q: 'マイナスのスワップはどう計算しますか？',
-        a: '<p>同じ計算で、払う額になります。数字はマイナスをつけずに入れてください。</p>',
+        q: '金利はいつの数字ですか？',
+        a: '<p>各国の中央銀行が決めた政策金利です。毎月たしかめて、変わっていれば直しています。</p>',
       },
     ],
   },

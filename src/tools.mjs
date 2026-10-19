@@ -108,9 +108,9 @@ export const TOOLS = [
     slug: 'fx-swap',
     name: 'スワップポイントの計算',
     category: 'fx',
-    short: '1か月・1年でいくらたまるか',
+    short: '1日にいくらもらえるか（目安）',
     published: true,
-    updated: '2026-10-18',
+    updated: '2026-10-19',
     related: ['fx-iji-ritsu', 'fx-losscut'],
   },
 ];

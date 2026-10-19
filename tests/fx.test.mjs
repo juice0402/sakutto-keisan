@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fxNeed, fxRatio, fxPosition, fxSwap, swapBars, yenText, qtyText, levText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../src/lib/fx.mjs';
+import { fxNeed, fxRatio, fxPosition, swapPerDay, fxSwapEstimate, swapText, swapBars, yenText, qtyText, levText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../src/lib/fx.mjs';
+import { POLICY_RATES, FX_SPOT, FX_RATES_CHECKED, FX_SPOT_DATE } from '../src/data/fx-swap.mjs';
 
 test('取引に必要なお金：レート × 量 × 4％', () => {
   assert.equal(fxNeed(150, 10000), 60000); // 1ドル150円で1万通貨 → 6万円
@@ -127,15 +128,39 @@ test('ロスカット：もう基準より下・まちがった入力', () => {
   assert.equal(fxPosition({ money: 1000000, qty: 1000, rate: 150, cut: 100 }).never, true);
 });
 
-test('スワップ（ページの計算例）', () => {
-  const s = (perDay, qty, days) => fxSwap({ perDay, qty, days });
-  assert.deepEqual([s(150, 10000, 30).total, s(150, 10000, 365).total], [4500, 54750]);
-  assert.deepEqual([s(150, 30000, 30).total, s(150, 30000, 365).total], [13500, 164250]);
-  assert.deepEqual([s(20, 100000, 30).total, s(20, 100000, 365).total], [6000, 73000]);
-  assert.equal(s(150, 30000, 1).day, 450);
-  assert.equal(s(150, 10000, 0).field, 'days');
-  assert.equal(s(150, 10000, 1.5).field, 'days');
-  assert.equal(s(null, 10000, 30).empty, true);
+test('スワップの目安（ページの計算例）', () => {
+  // 金利の差3％・1ドル150円・1万通貨：150万円 × 3％ ÷ 365 ＝ 約123円
+  assert.equal(swapText(swapPerDay(10000, 150, 3)), '123');
+  assert.equal(swapText(swapPerDay(1000, 8.5, 6)), '1.4'); // 10円より少ないときは0.1円まで
+  assert.equal(swapText(-123.4), '123'); // マイナスはつけない（払うかどうかは別に書く）
+});
+
+test('スワップの目安：金利の差の向き・まちがった入力', () => {
+  for (const p of FX_PAIRS) {
+    const buy = fxSwapEstimate({ pair: p.id, side: 'buy', qty: 10000 });
+    const sell = fxSwapEstimate({ pair: p.id, side: 'sell', qty: 10000 });
+    const diff = POLICY_RATES[p.cur].rate - POLICY_RATES.JPY.rate;
+    assert.ok(Math.abs(buy.diff - diff) < 1e-9, p.id);
+    assert.equal(sell.diff, -buy.diff || 0); // 売りは反対
+    assert.ok(Math.abs(buy.day - (10000 * FX_SPOT[p.id] * diff) / 100 / 365) < 1e-6, p.id);
+    assert.ok(Math.abs(buy.year - buy.day * 365) < 1e-6);
+  }
+  assert.equal(fxSwapEstimate({ pair: 'usdjpy', qty: null }).empty, true);
+  assert.equal(fxSwapEstimate({ pair: 'usdjpy', qty: 0.5 }).field, 'qty');
+  assert.equal(fxSwapEstimate({ pair: 'usdjpy', qty: NaN }).field, 'qty');
+});
+
+test('スワップの目安に使う数字：そろっている・新しい', () => {
+  const iso = /^\d{4}-\d{2}-\d{2}$/;
+  assert.match(FX_RATES_CHECKED, iso);
+  assert.match(FX_SPOT_DATE, iso);
+  for (const c of ['JPY', ...FX_PAIRS.map((p) => p.cur)]) {
+    const r = POLICY_RATES[c];
+    assert.ok(Number.isFinite(r.rate) && r.rate >= -1 && r.rate < 100, c);
+    assert.match(r.since, iso, c);
+    assert.match(r.url, /^https:\/\//, c);
+  }
+  for (const p of FX_PAIRS) assert.ok(FX_SPOT[p.id] > 0 && p.example === FX_SPOT[p.id], p.id);
 });
 
 test('スワップのグラフの棒', () => {

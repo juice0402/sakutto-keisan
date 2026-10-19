@@ -185,10 +185,10 @@ h1 {
   border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-4deg);
 }
 /* 自分で入力するマス：数字と％の見た目はほかのタイルと同じ */
-.tile-input { cursor: text; }
-.tile-box { display: flex; align-items: baseline; justify-content: center; }
+.tile-input { cursor: text; min-width: 0; }
+.tile-box { display: flex; align-items: baseline; justify-content: center; max-width: 100%; }
 .tile-box input {
-  width: 2.2ch; min-width: 0; border: 0; background: transparent; color: var(--text); outline: none; padding: 0;
+  width: 2.2ch; min-width: 0; max-width: calc(100% - 1em); /* 長い数字はマスの中でスクロール（はみ出さない） */ border: 0; background: transparent; color: var(--text); outline: none; padding: 0;
   font: inherit; text-align: right; caret-color: var(--red);
 }
 .tile-box input::placeholder { color: var(--muted); opacity: .5; }
@@ -464,6 +464,7 @@ h1 {
 .swap-chart { grid-column: 1 / -1; margin: 0; }
 .swap-bars { display: flex; align-items: flex-end; gap: 3px; height: 92px; padding: 0 0 2px; border-bottom: 1px solid var(--border); }
 .swap-bar { flex: 1; min-width: 0; height: 0; background: var(--red); opacity: .85; border-radius: 2px 2px 0 0; transition: height .45s ease; }
+.swap-bars.is-pay .swap-bar { background: var(--error); } /* 売りで払うとき */
 .swap-axis { display: flex; justify-content: space-between; margin: 3px 0 0; font-size: 12.5px; color: var(--muted); font-weight: 700; }
 
 /* 順位と棒グラフ（安いほど短い） */
