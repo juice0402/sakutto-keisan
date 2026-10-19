@@ -244,8 +244,65 @@ def dilute_bottle(img, cx, top, label='10倍', rows=(('原液', '100ml'), ('水'
         d.text((tx, y + 46 * S), v, font=f_v, fill=RED)
 
 
+FX_INK, FX_GOLD, FX_MUTED, FX_RULE, FX_DOWN = '#E8E4DA', '#C9A45C', '#A19E95', '#4A4D53', '#F85149'
+
+
+def fx_meter(d, gx, gy, ratio, label=None):
+    """半円のメーター（赤いところが100％より下。500％まで）。label があれば下に維持率"""
+    import math
+    r, w = 112 * S, 22 * S
+    box = [gx - r, gy - r, gx + r, gy + r]
+    d.arc(box, 180, 360, fill=FX_RULE, width=w)
+    d.arc(box, 180, 180 + 36, fill=FX_DOWN, width=w)  # 0〜100％（500％までのうち）
+    a = math.radians(180 + 180 * min(ratio, 500) / 500)
+    d.line([(gx, gy), (gx + (r - 26 * S) * math.cos(a), gy + (r - 26 * S) * math.sin(a))], fill=FX_INK, width=7 * S)
+    d.ellipse([gx - 10 * S, gy - 10 * S, gx + 10 * S, gy + 10 * S], fill=FX_INK)
+    if label:
+        f_k, f_v = font('bold', 26), font('black', 40)
+        for t, f, y, c in (('維持率', f_k, gy + 22 * S, FX_MUTED), (label, f_v, gy + 54 * S, FX_INK)):
+            tw = d.textlength(t, font=f)
+            d.text((gx - tw / 2, y), t, font=f, fill=c)
+
+
+def fx_gauge(img, cx, top):
+    """証拠金維持率：メーターと「レバレッジ10倍で 250％」"""
+    d = ImageDraw.Draw(img)
+    fx_meter(d, cx - 118 * S, top + 210 * S, 250)
+    tx = cx + 22 * S
+    d.text((tx, top + 70 * S), 'レバレッジ10倍で', font=font('bold', 28), fill=FX_MUTED)
+    d.text((tx, top + 110 * S), '250', font=font('black', 84), fill=FX_GOLD)
+    d.text((tx + d.textlength('250', font=font('black', 84)) + 8 * S, top + 152 * S), '％', font=font('black', 40), fill=FX_INK)
+
+
+def fx_cut(img, cx, top):
+    """ロスカット：メーター（維持率）と「ロスカットまで、あと40,000円の損」"""
+    d = ImageDraw.Draw(img)
+    fx_meter(d, cx - 118 * S, top + 190 * S, 166.7, '166.7%')
+    tx = cx + 22 * S
+    d.text((tx, top + 72 * S), 'ロスカットまで、あと', font=font('bold', 26), fill=FX_MUTED)
+    d.text((tx, top + 110 * S), '40,000', font=font('black', 72), fill=FX_GOLD)
+    d.text((tx, top + 196 * S), '円の損', font=font('black', 34), fill=FX_INK)
+
+
+def fx_swap_bars(img, cx, top):
+    """スワップ：たまっていく棒グラフ＋「1年で54,750円」"""
+    d = ImageDraw.Draw(img)
+    x0, x1, base = cx - 236 * S, cx + 266 * S, top + 300 * S
+    d.text((x0, top + 10 * S), '1年で', font=font('bold', 28), fill=FX_MUTED)
+    d.text((x0, top + 44 * S), '54,750', font=font('black', 72), fill=FX_GOLD)
+    d.text((x0 + d.textlength('54,750', font=font('black', 72)) + 8 * S, top + 80 * S), '円', font=font('black', 34), fill=FX_INK)
+    n, gap = 12, 8 * S
+    bw = ((x1 - x0) - gap * (n - 1)) / n
+    for i in range(n):
+        bh = 150 * S * (i + 1) / n
+        bx = x0 + i * (bw + gap)
+        d.rectangle([bx, base - bh, bx + bw, base], fill=FX_GOLD)
+    d.line([(x0, base + 2 * S), (x1, base + 2 * S)], fill=FX_RULE, width=3 * S)
+
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
+    'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_bars,
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),
