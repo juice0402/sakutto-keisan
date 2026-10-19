@@ -48,7 +48,7 @@ function update() {
   $('r-num').textContent = res.day === 0 ? '0' : `約${swapText(res.day)}`;
   $('r-unit').textContent = res.day === 0 ? '円' : pay ? '円 払う' : '円 もらえる';
   $('r-per').textContent = res.day === 0 ? '金利の差がないので、ほとんどつきません' : `1か月 約${swapText(res.month)}円・1年 約${swapText(res.year)}円`;
-  $('r-base').textContent = `金利の差 ${fmt(Math.abs(res.diff), 2)}％・1${res.pair.unit} ${fmt(res.rate, 3)}円で計算`;
+  $('r-base').textContent = `金利の差 ${fmt(Math.abs(res.diff), 3)}％・1${res.pair.unit} ${fmt(res.rate, 3)}円で計算`;
 }
 
 /* ---- 通貨ペア・買いか売りか ---- */

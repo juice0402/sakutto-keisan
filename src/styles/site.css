@@ -185,10 +185,10 @@ h1 {
   border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-4deg);
 }
 /* 自分で入力するマス：数字と％の見た目はほかのタイルと同じ */
-.tile-input { cursor: text; }
-.tile-box { display: flex; align-items: baseline; justify-content: center; }
+.tile-input { cursor: text; min-width: 0; }
+.tile-box { display: flex; align-items: baseline; justify-content: center; max-width: 100%; }
 .tile-box input {
-  width: 2.2ch; min-width: 0; border: 0; background: transparent; color: var(--text); outline: none; padding: 0;
+  width: 2.2ch; min-width: 0; max-width: calc(100% - 1em); /* 長い数字はマスの中でスクロール（はみ出さない） */ border: 0; background: transparent; color: var(--text); outline: none; padding: 0;
   font: inherit; text-align: right; caret-color: var(--red);
 }
 .tile-box input::placeholder { color: var(--muted); opacity: .5; }

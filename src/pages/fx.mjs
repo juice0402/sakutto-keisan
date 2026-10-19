@@ -12,13 +12,12 @@ import { POLICY_RATES, FX_RATES_CHECKED, FX_SPOT_DATE, FX_SPOT_URL } from '../da
 
 const CAUTION = '<p class="note">FXの会社ごとにルールが違うので、目安です。</p>';
 const jpDate = (iso) => { const [, m, d] = iso.split('-').map(Number); return `${m}月${d}日`; };
-// スワップの目安の表：通貨ペアごとの金利の差と、1万通貨を買ったときの1日の額（src/data/fx-swap.mjs から作る）
+// スワップの目安の表：通貨ペアごとに、その通貨の政策金利（中央銀行へのリンク＝出典）と、1万通貨を買ったときの1日の額（src/data/fx-swap.mjs から作る）
+const bankLink = (c) => `<a href="${POLICY_RATES[c].url.replace(/&/g, '&amp;')}">${fmt(POLICY_RATES[c].rate, 3)}％</a>`;
 const SWAP_ROWS = FX_PAIRS.map((p) => {
   const r = fxSwapEstimate({ pair: p.id, side: 'buy', qty: 10000 });
-  const way = r.day > 0 ? '' : r.day < 0 ? '払う ' : '';
-  return `<tr><td>${p.name}</td><td class="num">${fmt(r.diff, 2)}％</td><td class="num">${way}約${swapText(r.day)}円</td></tr>`;
+  return `<tr><td>${p.name}</td><td class="num">${bankLink(p.cur)}</td><td class="num">${r.day < 0 ? '払う ' : ''}約${swapText(r.day)}円</td></tr>`;
 }).join('\n');
-const BANKS = ['JPY', ...FX_PAIRS.map((p) => p.cur)].map((c) => `<a href="${POLICY_RATES[c].url}">${POLICY_RATES[c].bank}</a>`).join('・');
 // 取引に必要なお金（取引額の4％）の出典
 const SRC_FSA = '<p class="note">出典：<a href="https://www.fsa.go.jp/news/21/syouken/20090731-6.html">金融庁</a></p>';
 
@@ -207,13 +206,12 @@ ${section(
   'examples',
   '通貨ペアごとの目安',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>通貨ペア</th><th class="num">金利の差</th><th class="num">1日</th></tr></thead>
+<thead><tr><th>通貨ペア</th><th class="num">金利</th><th class="num">1日</th></tr></thead>
 <tbody>
 ${SWAP_ROWS}
 </tbody>
 </table></div>
-<p>1万通貨を買ったときです。金利は${jpDate(FX_RATES_CHECKED)}、レートは${jpDate(FX_SPOT_DATE)}の数字です。</p>
-<p class="note">出典：${BANKS}・<a href="${FX_SPOT_URL}">欧州中央銀行の参照レート</a></p>`,
+<p>1万通貨を買ったときです。円の金利は${bankLink('JPY')}です。金利は各国の中央銀行が${jpDate(FX_RATES_CHECKED)}までに決めたもの、レートは${jpDate(FX_SPOT_DATE)}の<a href="${FX_SPOT_URL}">欧州中央銀行の参照レート</a>です。</p>`,
 )}`,
     faqs: [
       {
