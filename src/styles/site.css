@@ -427,7 +427,7 @@ h1 {
 .calc-note { margin: 10px 0 0; }
 .tile-box span + input { text-align: left; }
 
-/* FX：名前を欄の中に書いた入力欄（口座のお金・いまのレート）。ほかの入力欄と同じ高さ */
+/* 名前を欄の中に書いた入力欄（FX の口座のお金・利益率の売値など。src/fields.mjs）。ほかの入力欄と同じ高さ */
 .box-field { position: relative; margin: 0; min-width: 0; }
 .box-field > label { position: absolute; left: 12px; top: 7px; z-index: 1; margin: 0; font-size: 13px; font-weight: 700; line-height: 16px; color: var(--text); opacity: .8; pointer-events: none; white-space: nowrap; }
 .box-field .input { padding: 0 12px; }
@@ -460,6 +460,19 @@ h1 {
 .fx-big { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.2; color: var(--red); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .fx-big small { font-size: 15px; font-weight: 700; color: var(--text); margin-left: 2px; }
 .fx-big.is-error { color: var(--error); }
+/* 利益率：売値｜原価、利益率｜クリア。答えは、売値の帯を原価と利益に分けた絵（赤字は足りない分をしまで） */
+.rieki-inputs { display: grid; gap: 12px; }
+.rieki-inputs .pair { gap: 10px; }
+.rieki-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+.rieki-row .clear-btn { padding-left: 2px; }
+.rieki-result { margin: 18px 0 0; }
+.rieki-bar { margin: 8px 0 0; }
+.rb-track { display: flex; height: 28px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); overflow: hidden; }
+.rb-cost, .rb-profit, .rb-loss { flex: none; height: 100%; width: 0; transition: width .45s ease; }
+.rb-cost { background: var(--muted); opacity: .35; }
+.rb-profit { background: var(--red); }
+.rb-loss { background: repeating-linear-gradient(-45deg, var(--error) 0 4px, transparent 4px 8px); }
+.rb-legend { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 /* スワップ：たまっていく額の棒グラフ */
 .swap-chart { grid-column: 1 / -1; margin: 0; }
 .swap-bars { display: flex; align-items: flex-end; gap: 3px; height: 92px; padding: 0 0 2px; border-bottom: 1px solid var(--border); }
