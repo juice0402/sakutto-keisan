@@ -23,7 +23,7 @@ export default function render() {
   const body = `
 <div class="hero">
   <h1>${esc(SITE.name)}</h1>
-  <p class="lead">買い物や家事で使う計算ツールです。</p>
+  <p class="lead">買い物や家事、FXで使う計算ツールです。</p>
 </div>
 ${cats}
 ${

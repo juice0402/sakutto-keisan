@@ -27,7 +27,7 @@ export default function render() {
       '/about/',
       'このサイトについて',
       `${SITE.name}について。できること、入力した数字の扱い、運営のしかたを説明します。`,
-      `<p class="lead">買い物や家事で使う計算のサイトです。</p>
+      `<p class="lead">買い物や家事、FXで使う計算のサイトです。</p>
 ${section(
   'feature',
   'このサイトのつくり',
