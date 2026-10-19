@@ -25,7 +25,7 @@ CASES = {
     'ekihi': (lambda pg: (pg.click('.tile[data-ratio="1000"]'), pg.fill('#v-water', '2000')), '#f-water'),
     'fx-iji-ritsu': (lambda pg: (pg.fill('#rate', '150'), pg.fill('#money', '100000'), pg.fill('#lev', '10')), '#r-need'),
     'fx-losscut': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-price'),
-    'fx-swap': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#swap', '150')), '.swap-chart'),
+    'fx-swap': (lambda pg: pg.click('.tile[data-qty="10000"]'), '#r-base'),
 }
 
 bad = 0

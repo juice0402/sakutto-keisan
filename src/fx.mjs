@@ -10,10 +10,6 @@ const num = (id, placeholder, value = '') =>
 export const boxField = (id, label, unit, placeholder, value = '') =>
   `<div class="field box-field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${num(id, placeholder, value)}<span class="unit">${unit}</span></div></div>`;
 
-/** 見出しとクリア */
-export const fxHead = (labelId, label) =>
-  `<div class="field-head calc-head"><p class="label" id="${labelId}">${label}</p><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
-
 /** いちばん上の1段の通貨ペア（円がつくもの）。ほかの欄と同じく、名前を欄の中に書く */
 const pairSelect = () =>
   `<div class="box-field sel-field"><label for="pair">通貨ペア</label><select id="pair" class="big-select">${FX_PAIRS.map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}</select></div>`;

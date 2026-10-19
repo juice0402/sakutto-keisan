@@ -1,4 +1,5 @@
 import { fix, fmt } from './number.mjs';
+import { POLICY_RATES, FX_SPOT } from '../data/fx-swap.mjs';
 
 // FX の計算（証拠金維持率・ロスカット・スワップ。ブラウザとテストの両方で使う）
 // 画面ではむずかしい言葉を使わない：証拠金 → 口座のお金、必要証拠金 → 取引に必要なお金、ロット → 通貨の量
@@ -9,21 +10,22 @@ export const FX_MAX_LEV = 25;
 export const FX_QTY_TILES = [1000, 10000, 100000]; // 1,000通貨・1万通貨・10万通貨（その他は万通貨で入れる）
 
 /**
- * 通貨ペア（円がつくものだけ。どれも「1通貨＝何円」なので計算は同じ）。example はレートの欄のうすい例
+ * 通貨ペア（円がつくものだけ。どれも「1通貨＝何円」なので計算は同じ）
+ * cur：金利を見る通貨　unit：1通貨の呼び名（「1ドル150円」）　example：参考のレート（src/data/fx-swap.mjs。欄のうすい例とスワップの目安に使う）
  * 名前は、スマホの幅に入るように短い呼び方（ランド円＝南アフリカランド円・ペソ円＝メキシコペソ円・リラ円＝トルコリラ円）
  * ユーロドルのような円のつかない通貨ペアは、取引に必要なお金を円にするのにドル円のレートも要るので、いまは入れない
  */
 export const FX_PAIRS = [
-  { id: 'usdjpy', name: 'ドル円', example: 150 },
-  { id: 'eurjpy', name: 'ユーロ円', example: 165 },
-  { id: 'gbpjpy', name: 'ポンド円', example: 195 },
-  { id: 'audjpy', name: '豪ドル円', example: 98 },
-  { id: 'nzdjpy', name: 'NZドル円', example: 88 },
-  { id: 'cadjpy', name: 'カナダ円', example: 108 },
-  { id: 'chfjpy', name: 'スイス円', example: 185 },
-  { id: 'zarjpy', name: 'ランド円', example: 8.5 },
-  { id: 'mxnjpy', name: 'ペソ円', example: 8 },
-  { id: 'tryjpy', name: 'リラ円', example: 4 },
+  { id: 'usdjpy', name: 'ドル円', cur: 'USD', unit: 'ドル', example: FX_SPOT.usdjpy },
+  { id: 'eurjpy', name: 'ユーロ円', cur: 'EUR', unit: 'ユーロ', example: FX_SPOT.eurjpy },
+  { id: 'gbpjpy', name: 'ポンド円', cur: 'GBP', unit: 'ポンド', example: FX_SPOT.gbpjpy },
+  { id: 'audjpy', name: '豪ドル円', cur: 'AUD', unit: '豪ドル', example: FX_SPOT.audjpy },
+  { id: 'nzdjpy', name: 'NZドル円', cur: 'NZD', unit: 'NZドル', example: FX_SPOT.nzdjpy },
+  { id: 'cadjpy', name: 'カナダ円', cur: 'CAD', unit: 'カナダドル', example: FX_SPOT.cadjpy },
+  { id: 'chfjpy', name: 'スイス円', cur: 'CHF', unit: 'フラン', example: FX_SPOT.chfjpy },
+  { id: 'zarjpy', name: 'ランド円', cur: 'ZAR', unit: 'ランド', example: FX_SPOT.zarjpy },
+  { id: 'mxnjpy', name: 'ペソ円', cur: 'MXN', unit: 'ペソ', example: FX_SPOT.mxnjpy },
+  { id: 'tryjpy', name: 'リラ円', cur: 'TRY', unit: 'リラ', example: FX_SPOT.tryjpy },
 ];
 
 /** レートの小数のけた：10円より低い通貨ペア（ランド円・ペソ円・リラ円）は0.001円まで、ほかは0.01円まで */
@@ -121,25 +123,27 @@ export function fxPosition({ money, qty, rate, cut = 100, side = 'buy' }) {
   return { ok: true, side, need, ratio, cut, cutMoney, room, price, buyRoom, sellRoom, buyPrice, sellPrice, over: room < 0, edge: room === 0, never: side === 'buy' && buyPrice <= 0 };
 }
 
-/** スワップの期間のマス（日数はカレンダーの日数。土日の分もつく） */
-export const SWAP_PERIODS = [
-  { days: 30, label: '1か月' },
-  { days: 182, label: '半年' },
-  { days: 365, label: '1年' },
-];
+/** 1日のスワップ（円）＝ 通貨の量 × レート × 金利の差（％）÷ 100 ÷ 365 */
+export const swapPerDay = (qty, rate, diff) => fix((qty * rate * diff) / 100 / 365);
 
 /**
- * スワップ：持ち続けたときに受け取る（払う）お金
- * @param {{perDay:number|null, qty:number|null, days:number|null}} p
- *   perDay：1万通貨あたり1日のスワップ（円）。払うスワップも同じ計算なので、マイナスはつけずに入れる
+ * スワップの目安：2つの国の政策金利の差から（実際の額は会社ごと・日ごとに違う）
+ * 買い：その通貨の金利 − 円の金利（プラスならもらえる、マイナスなら払う）。売りはその反対
+ * レートは参考のレート（FX_PAIRS の example）を使う
  */
-export function fxSwap({ perDay, qty, days }) {
-  if ([perDay, qty, days].some((v) => v === null)) return { ok: false, empty: true };
-  if (Number.isNaN(perDay) || perDay < 0) return { ok: false, error: 'スワップは、0以上の数字で入れてください。', field: 'swap' };
+export function fxSwapEstimate({ pair, side = 'buy', qty }) {
+  if (qty === null) return { ok: false, empty: true };
   if (Number.isNaN(qty) || qty < 1) return { ok: false, error: '通貨の量は、1通貨以上で入れてください。', field: 'qty' };
-  if (Number.isNaN(days) || days <= 0 || !Number.isInteger(days)) return { ok: false, error: '日数は、1以上の整数で入れてください。', field: 'days' };
-  const day = fix((perDay * qty) / 10000);
-  return { ok: true, day, days, total: fix(day * days), month: fix(day * 30), year: fix(day * 365) };
+  const p = FX_PAIRS.find((x) => x.id === pair) || FX_PAIRS[0];
+  const diff = fix((POLICY_RATES[p.cur].rate - POLICY_RATES.JPY.rate) * (side === 'sell' ? -1 : 1)) || 0; // -0 にしない
+  const day = swapPerDay(qty, p.example, diff);
+  return { ok: true, pair: p, side, diff, rate: p.example, day, month: fix(day * 30), year: fix(day * 365) };
+}
+
+/** スワップの額の書き方（目安なので、10円より少ないときは0.1円、ほかは1円に四捨五入。マイナスはつけない） */
+export function swapText(x) {
+  const a = Math.abs(fix(x));
+  return fmt(a < 10 ? Math.round(a * 10) / 10 : Math.round(a), 1);
 }
 
 /**

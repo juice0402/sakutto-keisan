@@ -285,16 +285,17 @@ def fx_cut(img, cx, top):
 
 
 def fx_swap_bars(img, cx, top):
-    """スワップ：たまっていく棒グラフ＋「1年で54,750円」"""
+    """スワップ：1年でたまっていく棒グラフ＋「1日に 約123円」（計算式の例と同じ数字）"""
     d = ImageDraw.Draw(img)
     x0, x1, base = cx - 236 * S, cx + 266 * S, top + 300 * S
-    d.text((x0, top + 10 * S), '1年で', font=font('bold', 28), fill=FX_MUTED)
-    d.text((x0, top + 44 * S), '54,750', font=font('black', 72), fill=FX_GOLD)
-    d.text((x0 + d.textlength('54,750', font=font('black', 72)) + 8 * S, top + 80 * S), '円', font=font('black', 34), fill=FX_INK)
+    d.text((x0, top + 10 * S), '1日に', font=font('bold', 28), fill=FX_MUTED)
+    f_big = font('black', 72)
+    d.text((x0, top + 44 * S), '約123', font=f_big, fill=FX_GOLD)
+    d.text((x0 + d.textlength('約123', font=f_big) + 8 * S, top + 80 * S), '円 もらえる', font=font('black', 34), fill=FX_INK)
     n, gap = 12, 8 * S
     bw = ((x1 - x0) - gap * (n - 1)) / n
     for i in range(n):
-        bh = 150 * S * (i + 1) / n
+        bh = 120 * S * (i + 1) / n
         bx = x0 + i * (bw + gap)
         d.rectangle([bx, base - bh, bx + bw, base], fill=FX_GOLD)
     d.line([(x0, base + 2 * S), (x1, base + 2 * S)], fill=FX_RULE, width=3 * S)
