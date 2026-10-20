@@ -17,7 +17,9 @@ HEIGHT = 660
 # slug: (ふつうの入力, 答えの場所)
 CASES = {
     'waribiki': (lambda pg: (pg.fill('#price', '1980'), pg.click('.tile[data-pct="30"]')), '.tag-price'),
+    'waribiki-ritsu': (lambda pg: (pg.fill('#price', '2000'), pg.fill('#sale', '1700')), '.rieki-bar'),
     'tanka': (lambda pg: (pg.fill('#price-a', '198'), pg.fill('#qty-a', '500'), pg.fill('#price-b', '298'), pg.fill('#qty-b', '1000')), '#tag .tag-price'),
+    'matomegai': (lambda pg: (pg.fill('#price-a', '1180'), pg.fill('#qty-a', '350'), pg.select_option('#unit-a', 'ml'), pg.fill('#packs-a', '6'), pg.fill('#price-b', '208'), pg.fill('#qty-b', '350'), pg.select_option('#unit-b', 'ml')), '#tag .tag-price'),
     'recipe': (lambda pg: pg.fill('#amt-1', '300'), '#out-1'),
     'kishaku': (lambda pg: (pg.click('.tile[data-ratio="100"]'), pg.fill('#v-total', '500')), '#f-water'),
     'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),

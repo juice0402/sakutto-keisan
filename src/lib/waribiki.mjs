@@ -40,14 +40,22 @@ export function calcDiscount({ price, rate, rate2 = null, rounding = 'floor' }) 
   return { ok: true, steps, final: now, off, totalRate };
 }
 
-/** 元の値段と割引後の値段から、何％オフかを出す */
+/** 元の値段と割引後の値段から、何％オフかを出す（割引率の計算のページ） */
 export function calcRate({ price, sale }) {
   if (price === null || sale === null) return { ok: false, empty: true };
-  if (Number.isNaN(price) || price <= 0) return { ok: false, error: '元の値段は0より大きい数字で入れてください。' };
-  if (Number.isNaN(sale) || sale < 0) return { ok: false, error: '割引後の値段は0以上の数字で入れてください。' };
+  if (Number.isNaN(price) || price <= 0) return { ok: false, error: '元の値段は0より大きい数字で入れてください。', field: 'price' };
+  if (Number.isNaN(sale) || sale < 0) return { ok: false, error: '割引後の値段は0以上の数字で入れてください。', field: 'sale' };
   const off = fix(price - sale);
   const rate = fix((off / price) * 100);
-  return { ok: true, off, rate, increase: sale > price };
+  return { ok: true, sale, off, rate, increase: sale > price };
+}
+
+/** 元の値段と、値引きの額から何％オフか（「300円引き」は何％オフ？） */
+export function rateFromOff({ price, off }) {
+  if (price === null || off === null) return { ok: false, empty: true };
+  if (Number.isNaN(off) || off < 0) return { ok: false, error: '値引きの額は0以上の数字で入れてください。', field: 'off' };
+  if (price > 0 && off > price) return { ok: false, error: '値引きの額は、元の値段までで入れてください。', field: 'off' };
+  return calcRate({ price, sale: Number.isNaN(price) ? 0 : fix(price - off) });
 }
 
 /**

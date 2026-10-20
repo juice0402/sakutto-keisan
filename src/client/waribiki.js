@@ -1,16 +1,15 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { calcDiscount, calcRate, compareDiscounts, wariLabel } from '../lib/waribiki.mjs';
+import { calcDiscount, compareDiscounts, wariLabel } from '../lib/waribiki.mjs';
 import { $, enterToNext, tidyOnBlur, numericOnly } from './ui.mjs';
 
 const inPrice = $('price');
 const inRate = $('rate');
 const inRate2 = $('rate2');
-const inSale = $('sale');
 const TILE_PCTS = [10, 20, 30, 40, 50];
 
 // 画面の状態。くらべるときは A・B の値段と割引を持ち、入力欄には「えらんでいるほう」を出す
 const S = {
-  mode: 'off', // off: 割引後の値段 / rate: 何％オフ？ / compare: 2つくらべる
+  mode: 'off', // off: 割引後の値段 / compare: 2つくらべる（何％オフ？は割引率の計算のページ）
   active: 'a',
   items: { a: { price: '', rate: '' }, b: { price: '', rate: '' } },
   more: false,
@@ -29,7 +28,7 @@ const convText = (pct) => {
 };
 
 function markErrors(ids) {
-  ['price', 'rate', 'rate2', 'sale'].forEach((id) => $(`f-${id}`).classList.toggle('has-error', ids.includes(id)));
+  ['price', 'rate', 'rate2'].forEach((id) => $(`f-${id}`).classList.toggle('has-error', ids.includes(id)));
 }
 const nanIds = (map) => Object.entries(map).filter(([, v]) => Number.isNaN(v)).map(([k]) => k);
 
@@ -114,33 +113,6 @@ function update() {
   if (S.mode === 'compare') return updateCompare();
   const it = S.items.a;
   const price = num(it.price);
-
-  if (S.mode === 'rate') {
-    const sale = num(inSale.value);
-    markErrors(nanIds({ price, sale }));
-    const r = calcRate({ price, sale });
-    if (r.empty) return drawTag({ save: '2つの値段を入れると、何％オフかわかります' });
-    if (!r.ok) return drawTag({ note: r.error, error: true });
-    if (r.increase) {
-      return drawTag({
-        was: `元の値段 <s>${yen(price)}</s>`,
-        price: fmt(sale),
-        save: `${yen(-r.off)} 高くなっています`,
-        note: `元の値段より${fmt(-r.rate, 1)}％高い値段です。`,
-      });
-    }
-    const exact = Math.abs(r.rate * 10 - Math.round(r.rate * 10)) < 1e-9;
-    return drawTag({
-      was: `元の値段 <s>${yen(price)}</s>`,
-      price: fmt(sale),
-      save: r.off > 0 ? `${yen(r.off)} おトク！` : '割引なし',
-      strong: r.off > 0,
-      badge: r.off > 0 ? `${fmt(r.rate, 1)}%` : '',
-      conv: r.off > 0 && exact ? convText(r.rate) : '',
-      note: exact ? '' : `正確には${fmt(r.rate, 4)}％オフです。`,
-    });
-  }
-
   const rate = num(it.rate);
   const rate2 = S.more ? num(inRate2.value) : null;
   markErrors(nanIds({ price, rate, rate2 }));
@@ -210,7 +182,6 @@ function setMode(next) {
   });
   show('f-rate2', S.mode === 'off' && S.more);
   $('to-cmp').setAttribute('aria-pressed', String(S.mode === 'compare'));
-  $('to-rate').setAttribute('aria-pressed', String(S.mode === 'rate'));
   $('more').disabled = S.mode !== 'off';
   lastKey = '';
   setNote();
@@ -219,7 +190,6 @@ function setMode(next) {
     if (!S.items.b.price) inPrice.focus();
   } else {
     setActive('a');
-    if (S.mode === 'rate') inSale.focus();
   }
 }
 
@@ -232,7 +202,7 @@ document.querySelector('.tiles').addEventListener('click', (e) => {
 });
 inPrice.addEventListener('input', () => { item().price = inPrice.value; update(); });
 inRate.addEventListener('input', () => { item().rate = inRate.value; fitRate(); update(); });
-[inRate2, inSale].forEach((el) => el.addEventListener('input', update));
+inRate2.addEventListener('input', update);
 $('f-rate').addEventListener('click', () => inRate.focus());
 document.querySelectorAll('.cmp-tab, .cmp-item').forEach((el) => el.addEventListener('click', () => setActive(el.dataset.item)));
 $('rounding').addEventListener('change', update);
@@ -244,16 +214,15 @@ $('more').addEventListener('click', () => {
   update();
 });
 $('to-cmp').addEventListener('click', () => setMode('compare'));
-$('to-rate').addEventListener('click', () => setMode('rate'));
 $('clear').addEventListener('click', () => {
   S.items[S.active] = { price: '', rate: '' };
-  [inPrice, inRate, inRate2, inSale].forEach((el) => { el.value = ''; });
+  [inPrice, inRate, inRate2].forEach((el) => { el.value = ''; });
   update();
   inPrice.focus();
 });
 
-numericOnly([inPrice, inRate, inRate2, inSale]);
-tidyOnBlur([inPrice, inSale], true);
+numericOnly([inPrice, inRate, inRate2]);
+tidyOnBlur([inPrice], true);
 inPrice.addEventListener('blur', () => { item().price = inPrice.value; });
-enterToNext([inPrice, inSale, inRate, inRate2]);
+enterToNext([inPrice, inRate, inRate2]);
 setMode('off');

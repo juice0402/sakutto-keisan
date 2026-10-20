@@ -209,6 +209,11 @@ h1 {
 .tool-btn:active { transform: scale(0.96); }
 .tool-btn[aria-pressed="true"] { background: var(--marker); border-color: var(--text); }
 .tool-btn:disabled { opacity: .35; cursor: default; }
+/* もう1つのページへ行くボタン（割引計算の「何％オフ？」・実質単価の比較の「入り数・割引シール」など）。横に2つ分・3つ分 */
+.tool-link { text-decoration: none; }
+.tool-link.span-2 { grid-column: span 2; }
+.tool-link.span-3 { grid-column: 1 / -1; }
+.tag-stage .rieki-bar { margin: 22px 0 0; } /* 割引率の計算：値札の下の帯 */
 
 /* 商品ごとの入力（実質単価など）：A・B・C を縦に並べ、値段と量は横並び */
 .calc-head { margin-bottom: 4px; }
@@ -226,6 +231,9 @@ h1 {
 .pair > .field { margin: 0; min-width: 0; }
 .pair .input { padding: 0 12px; }
 .pair.extra { margin-top: 8px; padding-bottom: 6px; }
+/* まとめ買い：商品ごとに2段（値段・量と、入り数・割引シール）。商品のあいだを点線で区切る */
+.item.is-set + .item.is-set { margin-top: 4px; padding-top: 8px; border-top: 1px dashed var(--rule); }
+.is-set .pair.extra { padding-bottom: 0; }
 .input-sel { padding: 0 4px 0 10px; }
 .unit-select {
   font: inherit; font-size: 16px; font-weight: 800; color: var(--text); background-color: var(--bg);

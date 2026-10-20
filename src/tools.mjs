@@ -9,8 +9,19 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
     published: true,
-    updated: '2026-10-17',
-    related: ['tanka', 'rieki-ritsu', 'percent', 'shohizei'],
+    updated: '2026-10-21',
+    related: ['waribiki-ritsu', 'tanka', 'rieki-ritsu', 'percent', 'shohizei'],
+  },
+  // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
+  {
+    slug: 'waribiki-ritsu',
+    name: '割引率の計算',
+    category: 'seikatsu',
+    parent: 'waribiki',
+    short: '割引後の値段から、何％オフか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['waribiki', 'tanka', 'rieki-ritsu'],
   },
   {
     slug: 'tanka',
@@ -18,8 +29,19 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '100gあたりの値段で、どれがいちばん安いか',
     published: true,
-    updated: '2026-10-17',
-    related: ['waribiki', 'recipe', 'kishaku'],
+    updated: '2026-10-21',
+    related: ['matomegai', 'waribiki', 'recipe', 'kishaku'],
+  },
+  // 実質単価の比較の下のページ（10/21。もとは実質単価の比較の「入り数」「割引シール」のボタン）
+  {
+    slug: 'matomegai',
+    name: 'まとめ買いの単価比較',
+    category: 'seikatsu',
+    parent: 'tanka',
+    short: '6本入りや割引シールの商品は、どれが安いか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['tanka', 'waribiki', 'recipe'],
   },
   {
     slug: 'recipe',

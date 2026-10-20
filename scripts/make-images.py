@@ -89,8 +89,8 @@ def tape(img, cx, cy, w, h, angle):
     img.alpha_composite(layer.rotate(angle, center=(cx, cy), resample=Image.BICUBIC))
 
 
-def price_tag(img, cx, top):
-    """割引計算の値札（サイトの値札と同じ見た目）"""
+def price_tag(img, cx, top, was='元の値段 2,000円', price='1,400', unit='円', save='600円 おトク！', badge='30%'):
+    """割引計算の値札（サイトの値札と同じ見た目）。割引率の計算は大きな数字が「15%オフ」で、シールなし"""
     layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     w, h = 420 * S, 312 * S
@@ -100,20 +100,21 @@ def price_tag(img, cx, top):
     d.ellipse([cx - 13 * S, y0 + 16 * S, cx + 13 * S, y0 + 42 * S], fill='#FFFFFF')  # 穴
     d.line([(cx, y0 - 70 * S), (cx, y0 + 29 * S)], fill='#8D97A5', width=4 * S)
     f_was, f_price, f_yen, f_save = font('bold', 30), font('black', 104), font('black', 44), font('black', 32)
-    was = '元の値段 2,000円'
     tw = d.textlength(was, font=f_was)
     d.text((cx - tw / 2, y0 + 62 * S), was, font=f_was, fill='#6B6450')
     sx = cx - tw / 2 + d.textlength('元の値段 ', font=f_was)
     d.line([(sx, y0 + 84 * S), (cx + tw / 2, y0 + 80 * S)], fill='#C8323C', width=4 * S)
-    pw, yw = d.textlength('1,400', font=f_price), d.textlength('円', font=f_yen)
+    pw, yw = d.textlength(price, font=f_price), d.textlength(unit, font=f_yen)
     px = cx - (pw + yw + 6 * S) / 2
-    d.text((px, y0 + 92 * S), '1,400', font=f_price, fill='#C8323C')
-    d.text((px + pw + 6 * S, y0 + 150 * S), '円', font=f_yen, fill='#C8323C')
-    save = '600円 おトク！'
+    d.text((px, y0 + 92 * S), price, font=f_price, fill='#C8323C')
+    d.text((px + pw + 6 * S, y0 + 150 * S), unit, font=f_yen, fill='#C8323C')
     sw = d.textlength(save, font=f_save)
     d.rounded_rectangle([cx - sw / 2 - 22 * S, y0 + 236 * S, cx + sw / 2 + 22 * S, y0 + 288 * S], radius=6 * S, fill='#FFFFFF')
     d.text((cx - sw / 2, y0 + 240 * S), save, font=f_save, fill='#C8323C')
     layer = layer.rotate(3, center=(cx, top), resample=Image.BICUBIC)
+    if not badge:
+        img.alpha_composite(layer)
+        return
     # 赤い丸の「30%OFF」
     b = Image.new('RGBA', img.size, (0, 0, 0, 0))
     bd = ImageDraw.Draw(b)
@@ -121,7 +122,7 @@ def price_tag(img, cx, top):
     bd.ellipse([bx - r - 6 * S, by - r - 6 * S, bx + r + 6 * S, by + r + 6 * S], fill='#FFFFFF')
     bd.ellipse([bx - r, by - r, bx + r, by + r], fill='#C8323C')
     f1, f2 = font('black', 44), font('black', 24)
-    for t, f, dy in (('30%', f1, -40), ('OFF', f2, 14)):
+    for t, f, dy in ((badge, f1, -40), ('OFF', f2, 14)):
         tw = bd.textlength(t, font=f)
         bd.text((bx - tw / 2, by + dy * S), t, font=f, fill='#FFFFFF')
     b = b.rotate(-10, center=(bx, by), resample=Image.BICUBIC)
@@ -129,11 +130,10 @@ def price_tag(img, cx, top):
     img.alpha_composite(b)
 
 
-def compare_tags(img, cx, top):
+def compare_tags(img, cx, top, tags=(('A', '39.6', '198円 / 500g', False), ('B', '29.8', '298円 / 1kg', True)), base='100gあたり'):
     """実質単価：小さな値札を2つ並べて、安いほうに「おトク！」"""
     d = ImageDraw.Draw(img)
     w, h, gap = 230 * S, 230 * S, 36 * S
-    tags = [('A', '39.6', '198円 / 500g', False), ('B', '29.8', '298円 / 1kg', True)]
     f_lab, f_base, f_price, f_yen, f_sub = font('black', 26), font('bold', 22), font('black', 64), font('black', 28), font('bold', 20)
     for i, (k, per, sub, win) in enumerate(tags):
         x0 = cx - w - gap // 2 + i * (w + gap)
@@ -151,7 +151,7 @@ def compare_tags(img, cx, top):
         bg, line, text = ('#FFF3BF', '#E3CF80', RED) if win else ('#EEF1F5', '#D3DCE8', '#8D97A5')
         ld.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=16 * S, fill=bg, outline=line, width=3 * S)
         ld.ellipse([tx - 10 * S, y0 + 14 * S, tx + 10 * S, y0 + 34 * S], fill='#FFFFFF')
-        for t, f, y, c in (('100gあたり', f_base, 56, '#6B6450'), (sub, f_sub, 184, '#6B6450')):
+        for t, f, y, c in ((base, f_base, 56, '#6B6450'), (sub, f_sub, 184, '#6B6450')):
             tw = ld.textlength(t, font=f)
             ld.text((tx - tw / 2, y0 + y * S), t, font=f, fill=c)
         pw, yw = ld.textlength(per, font=f_price), ld.textlength('円', font=f_yen)
@@ -344,6 +344,9 @@ VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_bars,
     'rieki-ritsu': rieki_bar, 'seisou-jikan': seisou_floor,
+    # 割引計算・実質単価の比較の下のページ（10/21）
+    'waribiki-ritsu': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '15', '%オフ', '300円 おトク！', None),
+    'matomegai': lambda img, cx, top: compare_tags(img, cx, top, (('A', '56.2', '6本 1,180円', True), ('B', '59.4', '1本 208円', False)), '100mlあたり'),
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),
