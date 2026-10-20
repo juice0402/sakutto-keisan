@@ -95,12 +95,12 @@ ${section(
   `<div class="tbl-wrap"><table>
 <thead><tr><th>作り方</th><th class="num">原液</th><th class="num">水</th><th class="num">できる量</th></tr></thead>
 <tbody>
-<tr><td>500mlを100倍</td><td class="num">5ml</td><td class="num">495ml</td><td class="num">500ml</td></tr>
-<tr><td>1Lを10倍</td><td class="num">100ml</td><td class="num">900ml</td><td class="num">1L</td></tr>
-<tr><td>原液10mlを50倍</td><td class="num">10ml</td><td class="num">490ml</td><td class="num">500ml</td></tr>
-<tr><td>1対3（4倍）で800ml</td><td class="num">200ml</td><td class="num">600ml</td><td class="num">800ml</td></tr>
-<tr><td>水2Lで1,000倍</td><td class="num">2ml</td><td class="num">2L</td><td class="num">2L</td></tr>
-<tr><td>6％を0.05％に（120倍）・1L</td><td class="num">8.3ml</td><td class="num">992ml</td><td class="num">1L</td></tr>
+<tr><td class="wrap">500mlを<wbr>100倍</td><td class="num">5ml</td><td class="num">495ml</td><td class="num">500ml</td></tr>
+<tr><td class="wrap">1Lを<wbr>10倍</td><td class="num">100ml</td><td class="num">900ml</td><td class="num">1L</td></tr>
+<tr><td class="wrap">原液10mlを<wbr>50倍</td><td class="num">10ml</td><td class="num">490ml</td><td class="num">500ml</td></tr>
+<tr><td class="wrap">1対3（4倍）で<wbr>800ml</td><td class="num">200ml</td><td class="num">600ml</td><td class="num">800ml</td></tr>
+<tr><td class="wrap">水2Lで<wbr>1,000倍</td><td class="num">2ml</td><td class="num">2L</td><td class="num">2L</td></tr>
+<tr><td class="wrap">6％を<wbr>0.05％に<wbr>（120倍）・<wbr>1L</td><td class="num">8.3ml</td><td class="num">992ml</td><td class="num">1L</td></tr>
 </tbody>
 </table></div>`,
 )}

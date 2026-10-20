@@ -129,11 +129,12 @@ ${section(
   `<div class="tbl-wrap"><table>
 <thead><tr><th>くらべるもの</th><th class="num">A</th><th class="num">B</th><th>安い</th></tr></thead>
 <tbody>
-<tr><td>お肉 500g 198円 / 1kg 298円</td><td class="num">39.6円</td><td class="num">29.8円</td><td>B（100gあたり）</td></tr>
-<tr><td>牛乳 1L 248円 / 500ml 138円</td><td class="num">24.8円</td><td class="num">27.6円</td><td>A（100mlあたり）</td></tr>
-<tr><td>お米 5kg 2,480円 / 2kg 1,080円</td><td class="num">49.6円</td><td class="num">54円</td><td>A（100gあたり）</td></tr>
+<tr><td class="wrap">お肉 500g 198円 / 1kg 298円</td><td class="num">39.6円</td><td class="num">29.8円</td><td>B</td></tr>
+<tr><td class="wrap">牛乳 1L 248円 / 500ml 138円</td><td class="num">24.8円</td><td class="num">27.6円</td><td>A</td></tr>
+<tr><td class="wrap">お米 5kg 2,480円 / 2kg 1,080円</td><td class="num">49.6円</td><td class="num">54円</td><td>A</td></tr>
 </tbody>
 </table></div>
+<p>A・Bは、100gあたり（牛乳は100mlあたり）の値段です。</p>
 <p>6本入りや割引シールの商品は、<a href="/matomegai/">まとめ買いの単価比較</a>でくらべられます。</p>`,
 )}
 
@@ -197,12 +198,13 @@ ${section(
   `<div class="tbl-wrap"><table>
 <thead><tr><th>くらべるもの</th><th class="num">A</th><th class="num">B</th><th>安い</th></tr></thead>
 <tbody>
-<tr><td>350ml×6本 1,180円 / 350ml 208円</td><td class="num">56.2円</td><td class="num">59.4円</td><td>A（100mlあたり）</td></tr>
-<tr><td>ティッシュ 5箱 398円 / 3箱 258円</td><td class="num">79.6円</td><td class="num">86円</td><td>A（1箱あたり）</td></tr>
-<tr><td>卵 10個 248円 / 6個 168円</td><td class="num">24.8円</td><td class="num">28円</td><td>A（1個あたり）</td></tr>
-<tr><td>1kg 298円の20％引き / 500g 128円</td><td class="num">23.8円</td><td class="num">25.6円</td><td>A（100gあたり）</td></tr>
+<tr><td class="wrap">350ml×6本 1,180円 / 350ml 208円</td><td class="num">56.2円</td><td class="num">59.4円</td><td>A</td></tr>
+<tr><td class="wrap">ティッシュ 5箱 398円 / 3箱 258円</td><td class="num">79.6円</td><td class="num">86円</td><td>A</td></tr>
+<tr><td class="wrap">卵 10個 248円 / 6個 168円</td><td class="num">24.8円</td><td class="num">28円</td><td>A</td></tr>
+<tr><td class="wrap">1kg 298円の<wbr>20％引き / 500g 128円</td><td class="num">23.8円</td><td class="num">25.6円</td><td>A</td></tr>
 </tbody>
 </table></div>
+<p>A・Bは、100mlか100gあたりの値段です。ティッシュと卵は、1つあたりです。</p>
 <p>1kg 298円の20％引きは、1円未満を切り捨てて238円です。</p>`,
 )}
 

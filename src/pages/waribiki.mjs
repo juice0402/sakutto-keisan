@@ -113,16 +113,17 @@ ${section(
   'examples',
   '計算例',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>元の値段</th><th>割引</th><th class="num">割引後</th><th class="num">安くなる額</th></tr></thead>
+<thead><tr><th class="num">元の値段</th><th>割引</th><th class="num">割引後</th><th class="num">値引き</th></tr></thead>
 <tbody>
-<tr><td>3,980円</td><td>20％オフ</td><td class="num">3,184円</td><td class="num">796円</td></tr>
-<tr><td>12,800円</td><td>35％オフ</td><td class="num">8,320円</td><td class="num">4,480円</td></tr>
-<tr><td>1,980円</td><td>3割引き</td><td class="num">1,386円</td><td class="num">594円</td></tr>
-<tr><td>2,000円</td><td>30％オフ＋さらに20％オフ</td><td class="num">1,120円</td><td class="num">880円（44％）</td></tr>
-<tr><td>999円</td><td>15％オフ</td><td class="num">849円</td><td class="num">150円</td></tr>
+<tr><td class="num">3,980円</td><td>20％オフ</td><td class="num">3,184円</td><td class="num">796円</td></tr>
+<tr><td class="num">12,800円</td><td>35％オフ</td><td class="num">8,320円</td><td class="num">4,480円</td></tr>
+<tr><td class="num">1,980円</td><td>3割引き</td><td class="num">1,386円</td><td class="num">594円</td></tr>
+<tr><td class="num">2,000円</td><td class="wrap"><span class="nw">30％オフ＋</span><wbr><span class="nw">さらに</span><wbr><span class="nw">20％オフ</span></td><td class="num">1,120円</td><td class="num">880円</td></tr>
+<tr><td class="num">999円</td><td>15％オフ</td><td class="num">849円</td><td class="num">150円</td></tr>
 </tbody>
 </table></div>
-<p class="note">1円未満は切り捨て（849.15円 → 849円）。</p>`,
+<p class="note">1円未満は切り捨て（849.15円 → 849円）。</p>
+<p>30％オフのあとの20％オフは、合わせて44％オフです。</p>`,
 )}
 
 ${section(
