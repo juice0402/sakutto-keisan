@@ -340,20 +340,10 @@ def seisou_floor(img, cx, top):
     d.text((x1 - d.textlength(lab, font=f), y0 + h + 14 * S), lab, font=f, fill=t['muted'])
 
 
-def zangyo_slip(img, cx, top):
-    """残業代：大きな金額と、明細書のような項目ごとの時間と金額（ページの計算例：月給30万円・年間休日120日・1日8時間で、残業20時間・深夜5時間）"""
-    t = THEMES['shigoto']
-    d = ImageDraw.Draw(img)
-    x0, x1 = cx - 236 * S, cx + 266 * S
-    d.text((x0, top + 20 * S), '残業代', font=font('bold', 28), fill=t['muted'])
-    f_big = font('black', 84)
-    total = '48,215'
-    d.text((x0, top + 56 * S), total, font=f_big, fill=t['red'])
-    d.text((x0 + d.textlength(total, font=f_big) + 8 * S, top + 100 * S), '円', font=font('black', 40), fill=t['text'])
-    y = top + 196 * S
-    d.line([(x0, y), (x1, y)], fill=t['text'], width=3 * S)
+def zangyo_rows(d, t, x0, x1, y, rows):
+    """残業代：明細書のような行（項目・時間 × 1時間あたり・金額）と点線"""
     f, fs = font('bold', 28), font('bold', 22)
-    for name, calc, yen in (('残業', '20時間 × 2,296円', '45,920円'), ('深夜の上乗せ', '5時間 × 459円', '2,295円')):
+    for name, calc, yen in rows:
         d.text((x0 + 4 * S, y + 14 * S), name, font=f, fill=t['text'])
         d.text((x0 + 4 * S + d.textlength(name, font=f) + 14 * S, y + 21 * S), calc, font=fs, fill=t['muted'])
         d.text((x1 - d.textlength(yen, font=f) - 4 * S, y + 14 * S), yen, font=f, fill=t['text'])
@@ -362,10 +352,58 @@ def zangyo_slip(img, cx, top):
             d.line([(xx, y), (xx + 4 * S, y)], fill=t['muted'], width=2 * S)
 
 
+def zangyo_big(d, t, x0, top, total):
+    d.text((x0, top + 20 * S), '残業代', font=font('bold', 28), fill=t['muted'])
+    f_big = font('black', 84)
+    d.text((x0, top + 56 * S), total, font=f_big, fill=t['red'])
+    d.text((x0 + d.textlength(total, font=f_big) + 8 * S, top + 100 * S), '円', font=font('black', 40), fill=t['text'])
+
+
+def zangyo_split(img, cx, top):
+    """残業代の計算：大きな金額と、時給の分と割増の分に分けた帯と明細（ページの計算例：時給1,200円で残業20時間）"""
+    t = THEMES['shigoto']
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 236 * S, cx + 266 * S
+    zangyo_big(d, t, x0, top, '30,000')
+    y0, h = top + 190 * S, 44 * S
+    split = x0 + (x1 - x0) * 0.8
+    d.rectangle([x0, y0, split, y0 + h], fill='#C9CDD4')
+    d.rectangle([split, y0, x1, y0 + h], fill=t['red'])
+    d.rectangle([x0, y0, x1, y0 + h], outline=t['muted'], width=2 * S)
+    f = font('bold', 24)
+    d.text((x0, y0 + h + 10 * S), '時給の分 24,000円', font=f, fill=t['muted'])
+    lab = '割増の分 6,000円'
+    d.text((x1 - d.textlength(lab, font=f), y0 + h + 10 * S), lab, font=f, fill=t['muted'])
+    y = y0 + h + 52 * S
+    d.line([(x0, y), (x1, y)], fill=t['text'], width=3 * S)
+    zangyo_rows(d, t, x0, x1, y, (('残業', '20時間 × 1,500円', '30,000円'),))
+
+
+def zangyo_year(img, cx, top):
+    """月給の残業代の計算：大きな金額と明細、1年を出勤と休日に分けた帯（ページの計算例：月給30万円・年間休日120日・1日8時間で、残業20時間）"""
+    t = THEMES['shigoto']
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 236 * S, cx + 266 * S
+    zangyo_big(d, t, x0, top, '45,920')
+    y = top + 190 * S
+    d.line([(x0, y), (x1, y)], fill=t['text'], width=3 * S)
+    zangyo_rows(d, t, x0, x1, y, (('残業', '20時間 × 2,296円', '45,920円'),))
+    y0, h = y + 64 * S + 18 * S, 36 * S
+    work = x0 + (x1 - x0) * 245 / 365
+    d.rectangle([x0, y0, work, y0 + h], fill='#5A6273')
+    for xx in range(int(work) - h, x1, 12 * S):
+        d.line([(max(xx, work), y0 + max(0, work - xx)), (min(xx + h, x1), y0 + h - max(0, xx + h - x1))], fill='#B9BDC6', width=3 * S)
+    d.rectangle([x0, y0, x1, y0 + h], outline=t['muted'], width=2 * S)
+    f = font('bold', 24)
+    d.text((x0, y0 + h + 10 * S), '出勤 245日', font=f, fill=t['muted'])
+    lab = '休日 120日'
+    d.text((x1 - d.textlength(lab, font=f), y0 + h + 10 * S), lab, font=f, fill=t['muted'])
+
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_bars,
-    'rieki-ritsu': rieki_bar, 'seisou-jikan': seisou_floor, 'zangyo-dai': zangyo_slip,
+    'rieki-ritsu': rieki_bar, 'seisou-jikan': seisou_floor, 'zangyo-dai': zangyo_split, 'zangyo-gekkyu': zangyo_year,
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),

@@ -71,14 +71,25 @@ export const TOOLS = [
     updated: '2026-10-17',
     related: ['kishaku', 'hyohakuzai', 'mentsuyu', 'tanka'],
   },
+  // 残業代：時給から計算するページがもとで、月給から計算するページはその下（parent のページからだけリンク）
   {
     slug: 'zangyo-dai',
     name: '残業代の計算',
     category: 'shigoto',
-    short: '月給と残業の時間から、残業代はいくらか',
+    short: '時給や月給から、残業代はいくらか',
     published: true,
     updated: '2026-10-20',
-    related: ['rieki-ritsu', 'seisou-jikan'],
+    related: ['zangyo-gekkyu', 'rieki-ritsu', 'seisou-jikan'],
+  },
+  {
+    slug: 'zangyo-gekkyu',
+    name: '月給の残業代の計算',
+    category: 'shigoto',
+    parent: 'zangyo-dai',
+    short: '月給と年間休日から、残業代はいくらか',
+    published: true,
+    updated: '2026-10-20',
+    related: ['zangyo-dai', 'rieki-ritsu', 'seisou-jikan'],
   },
   {
     slug: 'yukyu',

@@ -467,7 +467,7 @@ h1 {
 .box-row-clear { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
 .box-row-clear .clear-btn { padding-left: 2px; }
 .box-result { margin: 18px 0 0; }
-/* 利益率：売値の帯を原価と利益に分けた絵（赤字は足りない分をしまで） */
+/* 利益率：売値の帯を原価と利益に分けた絵（赤字は足りない分をしまで）。残業代の「時給の分と割増の分」でも使う */
 .rieki-bar { margin: 8px 0 0; }
 .rb-track { display: flex; height: 28px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); overflow: hidden; }
 .rb-cost, .rb-profit, .rb-loss { flex: none; height: 100%; width: 0; transition: width .45s ease; }
@@ -480,6 +480,14 @@ h1 {
 .floor-strips { display: flex; gap: 2px; height: 40px; padding: 2px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); }
 .floor-strip { flex: 1; min-width: 0; background: var(--red); opacity: .8; }
 .floor-strip:nth-child(even) { opacity: .45; }
+/* 残業代：いちばん上の段は時給（月給）の欄と、もう1つのページへの大きなボタン（月給から計算・時給から計算） */
+.box-row-link { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.box-row-link .wide-btn { width: auto; padding: 6px 12px; text-decoration: none; }
+/* 1年を出勤の日（紺）と休日（しま）に分けた帯（月給の残業代） */
+.year-bar { margin: 10px 0 0; }
+.year-track { display: flex; height: 22px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); overflow: hidden; }
+.year-work { flex: none; width: 0; background: var(--text); opacity: .7; transition: width .45s ease; }
+.year-off { flex: 1; background: repeating-linear-gradient(-45deg, var(--border) 0 2px, transparent 2px 6px); }
 /* 残業代：欄を3つ並べた段（残業・深夜・休日。単位は名前の右）、答えの見出しの右にクリア、明細書のような項目ごとの時間と金額 */
 .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .trio .input { padding: 0 10px; }

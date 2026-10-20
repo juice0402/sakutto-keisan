@@ -1,8 +1,36 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { zangyo, zangyoWage, monthHours, zangyoHoursText } from '../src/lib/zangyo.mjs';
+import { zangyo, zangyoWage, monthHours, zangyoHoursText, overUnit } from '../src/lib/zangyo.mjs';
 
-// ページの計算例：月給30万円・年間休日120日・1日8時間
+// 残業代の計算（時給から）のページの計算例
+test('時給ごとの1時間あたりの残業代（ページの表）', () => {
+  const row = (wage) => [
+    zangyo({ wage, over: 1, night: null, holiday: null }).total,
+    zangyo({ wage, over: 1, night: 1, holiday: null }).total, // 深夜の残業 ＝ 25％ ＋ 25％
+    zangyo({ wage, over: null, night: null, holiday: 1 }).total,
+  ];
+  assert.deepEqual(row(1000), [1250, 1500, 1350]);
+  assert.deepEqual(row(1100), [1375, 1650, 1485]);
+  assert.deepEqual(row(1200), [1500, 1800, 1620]);
+  assert.deepEqual(row(1500), [1875, 2250, 2025]);
+  assert.equal(overUnit(1200), 1500);
+  assert.equal(overUnit(1837), 2296);
+});
+
+test('時給1,200円の残業の時間ごとの残業代（ページの計算式の例と表）', () => {
+  const t = (over) => zangyo({ wage: 1200, over, night: null, holiday: null }).total;
+  assert.deepEqual([t(10), t(20), t(45), t(80)], [15000, 30000, 67500, 126000]);
+  // 時給の分と割増の分（共有画像の数字）
+  const r = zangyo({ wage: 1200, over: 20, night: null, holiday: null });
+  assert.deepEqual([r.base, r.extra], [24000, 6000]);
+  const n = zangyo({ wage: 1200, over: 20, night: 5, holiday: null });
+  assert.deepEqual([n.total, n.base, n.extra], [31500, 24000, 7500]); // 深夜の上乗せは、ぜんぶ割増の分
+  const h = zangyo({ wage: 1000, over: 70, night: null, holiday: 8 });
+  assert.equal(h.base, 78000);
+  assert.equal(h.extra, h.total - 78000);
+});
+
+// 月給の残業代の計算のページの計算例：月給30万円・年間休日120日・1日8時間
 const W = zangyoWage({ salary: 300000, holidays: 120, daily: 8 });
 const amount = (r, id) => r.parts.find((p) => p.id === id)?.amount;
 
@@ -27,6 +55,17 @@ test('残業の時間ごとの残業代（ページの計算例）', () => {
   assert.equal(amount(r, 'over'), 137760); // 60時間 × 2,296円
   assert.equal(r.parts[1].unit, 2756); // 1,837 × 1.5 ＝ 2,755.5
   assert.equal(amount(r, 'over60'), 55120); // 20時間 × 2,756円
+});
+
+test('年間休日ごとの1か月の所定時間と時給（ページの表。月給30万円・1日8時間）', () => {
+  const row = (holidays) => {
+    const w = zangyoWage({ salary: 300000, holidays, daily: 8 });
+    return [w.monthHours.toFixed(1), w.wage];
+  };
+  assert.deepEqual(row(105), ['173.3', 1731]);
+  assert.deepEqual(row(110), ['170.0', 1765]);
+  assert.deepEqual(row(120), ['163.3', 1837]);
+  assert.deepEqual(row(125), ['160.0', 1875]);
 });
 
 test('月給ごとの1時間あたりと残業1時間（ページの表。年間休日120日・1日8時間）', () => {
@@ -76,6 +115,7 @@ test('まちがった入力・空', () => {
   assert.equal(zangyoWage({ salary: NaN, holidays: 120, daily: 8 }).field, 'salary');
   assert.equal(zangyo({ wage: 1837, over: null, night: null, holiday: null }).missing, 'hours');
   assert.equal(zangyo({ wage: 0, over: 10, night: null, holiday: null }).field, 'wage');
+  assert.equal(zangyo({ wage: 0, over: null, night: null, holiday: null }).field, 'wage'); // 時給のまちがいが先
   assert.equal(zangyo({ wage: 1837, over: NaN, night: null, holiday: null }).field, 'over');
   assert.equal(zangyo({ wage: 1837, over: 745, night: null, holiday: null }).field, 'over');
   const zero = zangyo({ wage: 1837, over: 0, night: null, holiday: null });

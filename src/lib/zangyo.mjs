@@ -1,6 +1,6 @@
 import { fix, fmt, roundBy } from './number.mjs';
 
-// 残業代（割増賃金）の計算（ブラウザとテストの両方で使う）
+// 残業代（割増賃金）の計算（ブラウザとテストの両方で使う）。時給のページ（残業代の計算）と月給のページ（月給の残業代の計算）で共通
 // 1時間あたりの賃金 ＝ 月給 ÷ 1か月の所定労働時間。1か月の所定労働時間 ＝（365 − 年間休日）× 1日の所定労働時間 ÷ 12
 // 割増の率は労働基準法の最低の率：残業25％（1か月60時間をこえた分は50％）、深夜25％（上乗せ）、法定休日35％
 // 60時間には法定休日の時間を入れない（法定休日でない休みの日の残業は、残業に入れる）
@@ -39,7 +39,7 @@ export function zangyoWage({ salary, holidays, daily }) {
  *   wage：1時間あたりの賃金（円）　over：残業の時間（法定休日をのぞく）　night：夜10時〜朝5時にはたらいた時間　holiday：法定休日にはたらいた時間
  */
 export function zangyo({ wage, over, night, holiday }) {
-  if (Number.isNaN(wage) || wage <= 0) return { ok: false, error: '1時間あたりの賃金は、0より大きい数字で入れてください。', field: 'wage' };
+  if (Number.isNaN(wage) || wage <= 0) return { ok: false, error: '時給は、0より大きい数字で入れてください。', field: 'wage' };
   const h = { over, night, holiday };
   if (Object.values(h).every((x) => x === null)) return { ok: false, empty: true, missing: 'hours' };
   const label = { over: '残業', night: '深夜', holiday: '休日' };
@@ -58,8 +58,14 @@ export function zangyo({ wage, over, night, holiday }) {
     const unit = roundBy(wage * p.rate, 'round'); // 1時間あたりの額
     return { ...p, hours: hours[p.id], unit, amount: roundBy(unit * hours[p.id], 'round') };
   });
-  return { ok: true, wage, parts, total: parts.reduce((s, p) => s + p.amount, 0) };
+  const total = parts.reduce((s, p) => s + p.amount, 0);
+  // 時給の分（残業と休日の時間 × 時給）と、割増で増えた分
+  const base = Math.min(total, roundBy(wage * (h.over + h.holiday), 'round'));
+  return { ok: true, wage, parts, total, base, extra: total - base };
 }
+
+/** 残業1時間あたりの残業代（時給 × 1.25 を四捨五入） */
+export const overUnit = (wage) => roundBy(wage * ZANGYO_PARTS[0].rate, 'round');
 
 /** 時間の書き方（20.5 → 20時間30分。1分未満は四捨五入。20.30 は20時間18分） */
 export function zangyoHoursText(h) {
