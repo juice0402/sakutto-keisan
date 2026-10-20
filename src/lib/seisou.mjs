@@ -57,6 +57,7 @@ export const hoursValue = (m) => fmt(m / 60, 2);
  */
 export const SEISOU_WORKS = [
   { id: 'office', name: '事務室', kind: '日常清掃', buai: 0.034, speed: 370 },
+  { id: 'hall', name: '廊下', kind: '日常清掃', buai: 0.026, speed: 480 },
   { id: 'toilet', name: 'トイレ', kind: '日常清掃', buai: 0.254, speed: 49 },
   { id: 'wash', name: '床洗浄', kind: '定期清掃', buai: 0.33, speed: 38 },
 ];

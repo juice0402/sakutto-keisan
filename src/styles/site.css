@@ -371,8 +371,8 @@ h1 {
 #f-tiles { margin-bottom: 8px; }
 .tiles-4 .tile b { font-size: 21px; }
 .tiles-4 .tile-long b { font-size: 18px; }
-.tiles-4 .tile-word b { font-size: 16px; letter-spacing: -0.02em; } /* 清掃の作業のマス（事務室など、ことばを大きく） */
-@media (max-width: 374px) { .tiles-4 .tile b { font-size: 19px; } .tiles-4 .tile-long b { font-size: 16px; } .tiles-4 .tile-word b { font-size: 15px; } }
+.tiles-4 .tile-word b { font-size: 17px; letter-spacing: -0.02em; } /* 清掃の作業のマス（ことばだけ） */
+@media (max-width: 374px) { .tiles-4 .tile b { font-size: 19px; } .tiles-4 .tile-long b { font-size: 16px; } .tiles-4 .tile-word b { font-size: 16px; } }
 .parts { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: end; }
 .parts .field { margin: 0; min-width: 0; }
 .parts-colon { font-size: 28px; font-weight: 800; line-height: var(--ctl-h); color: var(--muted); }

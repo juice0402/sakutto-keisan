@@ -2,15 +2,14 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { seisou, minText, hoursValue, SEISOU_FIELDS } from '../lib/seisou.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 
-// 清掃の作業時間：作業の速さ（1人1時間あたりの面積）はマスでえらぶか、最後のマスに自分で入れる。面積・人数・時間のうち2つから残りの1つを出す
+// 清掃の作業時間：作業の速さ（1人1時間に掃除できる面積）は、作業のマスをえらぶと目安が入る。自分で入れてもよい。面積・人数・時間のうち2つから残りの1つを出す
 // 面積は現場で決まっていることが多いので、面積が入っていれば人数か時間のどちらかを答えにする（あとからさわったほうを残す）。
 // 面積を入れずに人数と時間を入れたときだけ、面積を答えにする
 const typed = new Set(); // 自分で入れた欄（答えになった欄は外す）
 let lastPH = 'people'; // 人数と時間のうち、あとからさわったほう
-let tileSpeed = null; // えらんだマスの速さ（「その他」に入れたときは、そちらを使う）
 const INPUTS = ['speed', ...SEISOU_FIELDS].map((id) => $(id));
 const val = (id) => parseNum($(id).value);
-const currentSpeed = () => (val('speed') !== null ? val('speed') : tileSpeed);
+const currentSpeed = () => val('speed');
 const MAX_STRIPS = 30; // 床を分けて見せる人数の上限
 const CAP = { hours: 'かかる時間', people: '必要な人数', area: 'できる面積' };
 
@@ -44,9 +43,7 @@ function update() {
   const out = answerField();
   if (out) typed.delete(out);
   const args = { area: val('area'), people: val('people'), hours: val('hours'), speed: currentSpeed() };
-  const custom = $('speed').value !== '';
-  document.querySelectorAll('.tile[data-speed]').forEach((t) => t.setAttribute('aria-pressed', String(!custom && Number(t.dataset.speed) === tileSpeed)));
-  $('f-speed').classList.toggle('is-on', custom);
+  document.querySelectorAll('.tile[data-speed]').forEach((t) => t.setAttribute('aria-pressed', String(Number(t.dataset.speed) === args.speed)));
   let res = { ok: false, empty: true };
   if (out) res = seisou({ ...args, out });
   else if (args.speed !== null && (Number.isNaN(args.speed) || args.speed <= 0)) res = seisou({ ...args, area: 1, people: 1, out: 'hours' }); // 速さだけまちがっているとき
@@ -80,20 +77,13 @@ function update() {
   }
 }
 
-/* ---- 作業のマス ---- */
-function fitSpeed() {
-  $('speed').style.width = `${Math.max(1, $('speed').value.length) + 0.2}ch`;
-}
+/* ---- 作業のマス：えらぶと、速さの欄に目安の数字を入れる ---- */
 document.querySelector('.tiles').addEventListener('click', (e) => {
   const t = e.target.closest('.tile[data-speed]');
   if (!t) return;
-  tileSpeed = Number(t.dataset.speed);
-  $('speed').value = '';
-  fitSpeed();
+  $('speed').value = t.dataset.speed;
   update();
 });
-$('f-speed').addEventListener('click', () => $('speed').focus());
-$('speed').addEventListener('input', fitSpeed);
 
 /* ---- 入力：面積・人数・時間は入れた欄を覚えて、残りの欄に答えを出す。答えの欄をさわったら、まるごと書きかえられるように選んでおく ---- */
 numericOnly(INPUTS);
@@ -118,10 +108,7 @@ $('clear').addEventListener('click', () => {
   INPUTS.forEach((el) => { el.value = ''; });
   typed.clear();
   lastPH = 'people';
-  tileSpeed = null;
-  fitSpeed();
   update();
 });
 enterToNext(INPUTS);
-fitSpeed();
 update();
