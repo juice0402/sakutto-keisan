@@ -49,3 +49,18 @@ export function minText(m) {
 
 /** 時間の欄に出す数字（1.5＝1時間30分。小数2けたまで） */
 export const hoursValue = (m) => fmt(m / 60, 2);
+
+/**
+ * 作業のマス：公共の建物の清掃の積算で使う歩掛り（100㎡を1回掃除するのに何人。1人＝1日8時間）から出した、1人1時間あたりの面積
+ * 1人1時間あたりの面積 ＝ 100 ÷（歩掛り × 8）を、10㎡単位（50㎡より少ないときは1㎡単位）に丸めた目安
+ * buai：清掃員A・B・Cの歩掛りを足したもの。日常清掃は札幌市の清掃業務の積算（床と床以外）、定期清掃は国土交通省の積算要領の検討資料（表面洗浄）から
+ */
+export const SEISOU_WORKS = [
+  { id: 'office', name: '事務室', kind: '日常清掃', buai: 0.034, speed: 370 },
+  { id: 'hall', name: '廊下', kind: '日常清掃', buai: 0.026, speed: 480 },
+  { id: 'toilet', name: 'トイレ', kind: '日常清掃', buai: 0.254, speed: 49 },
+  { id: 'wash', name: '床洗浄', kind: '定期清掃', buai: 0.33, speed: 38 },
+];
+
+/** 歩掛り（人／100㎡）から1人1時間あたりの面積 */
+export const speedFromBuai = (buai) => fix(100 / (buai * 8));

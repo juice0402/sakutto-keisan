@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { seisou, minText, hoursValue } from '../src/lib/seisou.mjs';
+import { seisou, minText, hoursValue, SEISOU_WORKS, speedFromBuai } from '../src/lib/seisou.mjs';
 
 const S = 100; // 1人1時間に100㎡
 
@@ -45,4 +45,16 @@ test('まちがった入力', () => {
   assert.equal(minText(0), '0分');
   assert.equal(minText(60), '1時間');
   assert.equal(minText(1500), '25時間');
+});
+
+test('作業のマスの速さ（歩掛りから。ページの表）', () => {
+  const round = (x) => (x < 50 ? Math.round(x) : Math.round(x / 10) * 10);
+  for (const w of SEISOU_WORKS) assert.equal(w.speed, round(speedFromBuai(w.buai)), w.id);
+  assert.equal(Math.round(speedFromBuai(0.034)), 368); // 事務室の日常清掃：100 ÷（0.034 × 8）
+  assert.equal(Math.round(speedFromBuai(0.026)), 481); // 廊下の日常清掃
+  assert.equal(Math.round(speedFromBuai(0.254)), 49); // トイレの日常清掃
+  assert.equal(Math.round(speedFromBuai(0.33)), 38); // 事務室の床の定期清掃（表面洗浄）
+  assert.equal(Math.round(speedFromBuai(0.744)), 17); // トイレの床の定期清掃（表面洗浄）
+  // 事務室の日常清掃で1,000㎡を2人なら
+  assert.equal(minText(seisou({ area: 1000, people: 2, speed: 370, out: 'hours' }).minutes), '1時間22分');
 });
