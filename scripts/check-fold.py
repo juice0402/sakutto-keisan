@@ -23,6 +23,7 @@ CASES = {
     'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),
     'hyohakuzai': (lambda pg: (pg.click('.tile[data-target="0.05"]'), pg.fill('#v-water', '1000')), '#r-hints'),
     'ekihi': (lambda pg: (pg.click('.tile[data-ratio="1000"]'), pg.fill('#v-water', '2000')), '#f-water'),
+    'seisou-jikan': (lambda pg: (pg.fill('#speed', '100'), pg.fill('#area', '600'), pg.fill('#people', '2')), '#r-foot'),
     'rieki-ritsu': (lambda pg: (pg.fill('#price', '1500'), pg.fill('#cost', '1000')), '#r-foot'),
     'fx-iji-ritsu': (lambda pg: (pg.fill('#rate', '150'), pg.fill('#money', '100000'), pg.fill('#lev', '10')), '#r-need'),
     'fx-losscut': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-price'),
