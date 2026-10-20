@@ -8,12 +8,16 @@ import { fix, fmt, roundBy } from './number.mjs';
 
 export const ZANGYO_LIMIT = 60;
 export const ZANGYO_MAX_HOURS = 744; // 31日 × 24時間
+// name は明細書の項目の名前（深夜割増は、時間外や休日の分に上乗せする25％だけ）
 export const ZANGYO_PARTS = [
-  { id: 'over', name: '残業', rate: 1.25 },
-  { id: 'over60', name: '60時間をこえた分', rate: 1.5 },
-  { id: 'night', name: '深夜の上乗せ', rate: 0.25 },
-  { id: 'holiday', name: '休日', rate: 1.35 },
+  { id: 'over', name: '時間外', rate: 1.25 },
+  { id: 'over60', name: '60時間超', rate: 1.5 },
+  { id: 'night', name: '深夜割増', rate: 0.25 },
+  { id: 'holiday', name: '休日出勤', rate: 1.35 },
 ];
+
+/** 1時間あたりの割増の額（1円未満は四捨五入） */
+export const zangyoUnit = (wage, rate) => roundBy(wage * rate, 'round');
 
 /** 1か月の所定労働時間 */
 export const monthHours = (holidays, daily) => fix(((365 - holidays) * daily) / 12);
@@ -55,7 +59,7 @@ export function zangyo({ wage, over, night, holiday }) {
     holiday: h.holiday,
   };
   const parts = ZANGYO_PARTS.filter((p) => hours[p.id] > 0).map((p) => {
-    const unit = roundBy(wage * p.rate, 'round'); // 1時間あたりの額
+    const unit = zangyoUnit(wage, p.rate); // 1時間あたりの額
     return { ...p, hours: hours[p.id], unit, amount: roundBy(unit * hours[p.id], 'round') };
   });
   const total = parts.reduce((s, p) => s + p.amount, 0);
@@ -65,7 +69,7 @@ export function zangyo({ wage, over, night, holiday }) {
 }
 
 /** 残業1時間あたりの残業代（時給 × 1.25 を四捨五入） */
-export const overUnit = (wage) => roundBy(wage * ZANGYO_PARTS[0].rate, 'round');
+export const overUnit = (wage) => zangyoUnit(wage, ZANGYO_PARTS[0].rate);
 
 /** 時間の書き方（20.5 → 20時間30分。1分未満は四捨五入。20.30 は20時間18分） */
 export function zangyoHoursText(h) {

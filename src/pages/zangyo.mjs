@@ -13,11 +13,17 @@ const SRC_RATE = 'https://www.check-roudou.mhlw.go.jp/qa/roudousya/chingin/q3.ht
 const SRC_ROUND = 'https://www.startup-roudou.mhlw.go.jp/qa/zigyonushi/chingin/q2.html';
 const SRC_60 = 'https://www.mhlw.go.jp/topics/2008/12/dl/tp1216-1l-02.pdf';
 
-// 2つのページで同じ部品：残業・深夜・休日の時間（単位は名前の右）、答えの見出しとクリア、大きな金額、明細
+// 2つのページで同じ部品：残業・深夜・休日の時間（単位は名前の右）と、結果の書類（残業代明細書）
+// 書類は、題・クリア・いちばん大きな残業代（二重線）・時給の行・明細の表（時間外・深夜割増・休日出勤。60時間をこえたら60時間超の行）
 const TRIO = `<div class="trio">${boxField('over', '残業', '時間', '20')}${boxField('night', '深夜', '時間', '0')}${boxField('holiday', '休日', '時間', '0')}</div>`;
-const HEAD = `<div class="result-head"><p class="fx-cap">残業代</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
-    <p class="fx-big"><span id="r-num">？</span><small>円</small></p>`;
-const SLIP = '<div class="slip" id="slip"></div>';
+const doc = (info) => `<div class="doc" aria-live="polite">
+    <p class="doc-title">残業代明細書</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
+    <p class="doc-sum"><span class="doc-sum-k">残業代</span><span class="doc-sum-v"><b id="r-num">？</b>円</span></p>
+    ${info}
+    <table class="doc-table"><thead><tr><th>項目</th><th>時間</th><th>単価</th><th>金額</th></tr></thead><tbody id="slip"></tbody></table>
+    <p class="doc-foot"><span id="r-foot"></span><span id="r-extra"></span></p>
+  </div>`;
 const TAIL = `<p class="tag-note" id="r-note" hidden></p>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>`;
 const ROUND_TEXT = '<p>1時間あたりの残業代と、それぞれの金額は、1円未満を四捨五入しています。厚生労働省が認めている端数の処理です。</p>';
@@ -45,12 +51,7 @@ const PAGES = [
     <div class="box-row-link">${boxField('wage', '時給', '円', '1,200')}<a class="wide-btn" href="/zangyo-gekkyu/">月給から計算</a></div>
     ${TRIO}
   </div>
-  <div class="box-result" aria-live="polite">
-    ${HEAD}
-    <div class="rieki-bar" aria-hidden="true"><div class="rb-track"><div class="rb-cost" id="b-base"></div><div class="rb-profit" id="b-extra"></div></div><p class="rb-legend"><span id="b-left">時給の分</span><span id="b-right">割増の分</span></p></div>
-    ${SLIP}
-    <p class="mix-foot"><span id="r-unit"></span><span id="r-foot">時給を入れてください</span></p>
-  </div>
+  ${doc('<p class="doc-info"><span id="r-wage"></span><span id="r-unit"></span></p>')}
   ${TAIL}
 </div>`,
     body: `${section(
@@ -148,12 +149,9 @@ ${section(
     <div class="pair">${boxField('holidays', '年間休日', '日', '120')}${boxField('daily', '1日の所定時間', '時間', '8')}</div>
     ${TRIO}
   </div>
-  <div class="box-result" aria-live="polite">
-    ${HEAD}
-    ${SLIP}
-    <div class="year-bar" aria-hidden="true"><div class="year-track"><div class="year-work" id="y-work"></div><div class="year-off"></div></div><p class="rb-legend"><span id="y-left">出勤</span><span id="y-right">休日</span></p></div>
-    <p class="mix-foot"><span id="r-unit"></span><span id="r-foot">月給を入れてください</span></p>
-  </div>
+  ${doc(`<p class="doc-info"><span id="y-left">出勤</span><span id="y-right">休日</span></p>
+    <div class="year-track" aria-hidden="true"><div class="year-work" id="y-work"></div><div class="year-off"></div></div>
+    <p class="doc-info"><span id="r-hours"></span><span id="r-unit"></span></p>`)}
   ${TAIL}
 </div>`,
     body: `${section(

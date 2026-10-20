@@ -19,12 +19,20 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
-/** 床を人数で分けた絵（1人ずつの帯） */
+/** 床を人数で分けた図（1人ずつの帯。12人までは番号つき） */
 function drawFloor(res) {
   const n = res ? Math.min(MAX_STRIPS, Math.ceil(res.people)) : 0;
-  $('s-floor').innerHTML = Array.from({ length: n }, () => '<span class="floor-strip"></span>').join('');
-  $('s-left').textContent = res ? `1人あたり ${fmt(res.perPerson, 1)}㎡` : '1人あたり';
-  $('s-right').textContent = res ? `${fmt(res.people, 2)}人・${fmt(res.area, 1)}㎡` : '';
+  $('s-floor').innerHTML = Array.from({ length: n }, (_, i) => `<span class="floor-strip">${n <= 12 ? i + 1 : ''}</span>`).join('');
+}
+
+/** 作業指示書の表：作業（えらんだマス）・面積・人数・1人あたり。計算で出した値は赤 */
+function drawSheet(res, out) {
+  const tile = document.querySelector('.tile[data-speed][aria-pressed="true"]');
+  $('d-work').textContent = tile ? tile.querySelector('b').textContent : '—';
+  const set = (id, text, red) => { $(id).textContent = text; $(id).classList.toggle('is-out', red); };
+  set('d-area', res ? `${fmt(res.area, 1)}㎡` : '—', !!res && out === 'area');
+  set('d-people', res ? `${fmt(res.people, 2)}人` : '—', !!res && out === 'people');
+  set('d-per', res ? `${fmt(res.perPerson, 1)}㎡` : '—', false);
 }
 
 function emptyText() {
@@ -58,22 +66,24 @@ function update() {
   }
   setNote(res.error || '', !!res.error);
   drawFloor(res.ok ? res : null);
+  drawSheet(res.ok ? res : null, out);
   $('r-cap').textContent = CAP[out] || CAP.hours;
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? emptyText() : '';
+    $('r-total').textContent = '';
     return;
   }
-  const total = `のべ ${minText(Math.ceil(res.personHours * 60))}`;
+  $('r-total').textContent = `のべ ${minText(Math.ceil(res.personHours * 60))}`;
   if (out === 'people') {
     $('r-num').textContent = `${fmt(res.people, 0)}人`;
-    $('r-foot').textContent = `${fmt(res.people, 0)}人なら ${minText(res.minutes)}・${total}`;
+    $('r-foot').textContent = `${fmt(res.people, 0)}人なら ${minText(res.minutes)}`;
   } else if (out === 'area') {
     $('r-num').textContent = `${fmt(res.area, 0)}㎡`;
-    $('r-foot').textContent = total;
+    $('r-foot').textContent = '';
   } else {
     $('r-num').textContent = minText(res.minutes);
-    $('r-foot').textContent = total;
+    $('r-foot').textContent = '';
   }
 }
 

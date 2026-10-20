@@ -1,8 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { fxSwapEstimate, swapBars, swapText } from '../lib/fx.mjs';
+import { swapChartShape } from '../lib/fx-chart.mjs';
 import { $, numericOnly } from './ui.mjs';
 
-// スワップポイントの目安：通貨ペア・買いか売りか・通貨の量から、金利の差で1日の額。1年でたまる（払う）額を棒グラフで
+// スワップポイントの目安：通貨ペア・買いか売りか・通貨の量から、金利の差で1日の額。1年でたまる（払う）額をチャートの階段の線で
 const DEFAULT_QTY = 10000; // はじめは1万通貨
 let side = 'buy';
 let tileQty = DEFAULT_QTY;
@@ -19,10 +20,31 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
-function drawBars(res) {
+/** 点と札（1か月・1年）。札は点の右か左、線のあいた側に */
+function mark(dot, label, p, text, right, below) {
+  $(dot).hidden = !p;
+  $(label).hidden = !p;
+  if (!p) return;
+  $(dot).style.left = `${p.x}%`;
+  $(dot).style.top = `${p.y}%`;
+  const el = $(label);
+  el.textContent = text;
+  el.style.top = `${p.y + (below ? 11 : -11)}%`;
+  el.style.left = right ? `calc(${p.x}% + 8px)` : 'auto';
+  el.style.right = right ? 'auto' : '6px';
+}
+
+function drawChart(res) {
+  const pay = !!res && res.day < 0;
   const bars = res && res.day !== 0 ? swapBars(365, Math.abs(res.day)) : [];
-  const max = bars.length ? bars.at(-1).value : 0;
-  $('s-bars').innerHTML = bars.map((b) => `<span class="swap-bar" style="height:${max > 0 ? (b.value / max) * 100 : 0}%"></span>`).join('');
+  const shape = swapChartShape(bars, pay);
+  $('s-line').setAttribute('d', bars.length ? shape.line : '');
+  $('s-area').setAttribute('d', bars.length ? shape.area : '');
+  document.querySelector('.chart').classList.toggle('is-pay', pay);
+  $('c-ans').classList.toggle('is-bottom', pay); // 払うときは線が右下へ下がるので、答えは左下に
+  // もらえるときは線が右上へ。1か月の札は点の上、1年の札は点の下（払うときは反対）
+  mark('d-month', 't-month', bars.length ? shape.points[0] : null, res ? `1か月 約${swapText(res.month)}円` : '', true, pay);
+  mark('d-year', 't-year', bars.length ? shape.points.at(-1) : null, res ? `1年 約${swapText(res.year)}円` : '', false, !pay);
 }
 
 function update() {
@@ -35,8 +57,9 @@ function update() {
   setNote(res.error || '', !!res.error);
   const pay = res.ok && res.day < 0;
   $('r-big').classList.toggle('is-error', pay);
-  $('s-bars').classList.toggle('is-pay', pay);
-  drawBars(res.ok ? res : null);
+  drawChart(res.ok ? res : null);
+  $('c-pair').textContent = `${(res.ok ? res.pair : { name: $('pair').selectedOptions[0].textContent }).name}・${side === 'sell' ? '売り' : '買い'}`;
+  $('c-diff').textContent = res.ok ? `金利の差 ${fmt(Math.abs(res.diff), 3)}％` : '';
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-unit').textContent = '円';
@@ -47,8 +70,8 @@ function update() {
   $('r-cap').textContent = '1日に';
   $('r-num').textContent = res.day === 0 ? '0' : `約${swapText(res.day)}`;
   $('r-unit').textContent = res.day === 0 ? '円' : pay ? '円 払う' : '円 もらえる';
-  $('r-per').textContent = res.day === 0 ? '金利の差がないので、ほとんどつきません' : `1か月 約${swapText(res.month)}円・1年 約${swapText(res.year)}円`;
-  $('r-base').textContent = `金利の差 ${fmt(Math.abs(res.diff), 3)}％・1${res.pair.unit} ${fmt(res.rate, 3)}円で計算`;
+  $('r-per').textContent = res.day === 0 ? '金利の差がないので、ほとんどつきません' : '';
+  $('r-base').textContent = `1${res.pair.unit} ${fmt(res.rate, 3)}円で計算`;
 }
 
 /* ---- 通貨ペア・買いか売りか ---- */

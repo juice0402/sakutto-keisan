@@ -1,7 +1,7 @@
 // 清掃の作業時間の計算：作業の速さ（1人1時間に掃除できる面積）と、面積・人数・時間のうち2つから、残りの1つ
 // 速さは、作業のマスをえらぶと目安（公共の清掃の積算の歩掛りから出したもの）が入る。自分で入れてもよい
 // （10/20 しょーくんの判断。はじめは自分で入れるだけにしたが「相場すらわからない」ので、目安のマスを足した）
-// 結果は、床を人数で分けた絵。ページに載せる計算例は tests/seisou.test.mjs で確かめる
+// 結果は作業指示書（大きな答え、作業・面積・人数・1人あたりの表、床を人数で分けた図）。ページに載せる計算例は tests/seisou.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
@@ -57,11 +57,12 @@ export default function render() {
     <div class="pair">${boxField('area', '面積', '㎡', '600')}${boxField('people', '人数', '人', '2')}</div>
     ${boxField('hours', '作業時間', '時間', '3')}
   </div>
-  <div class="box-result" aria-live="polite">
-    <p class="fx-cap" id="r-cap">かかる時間</p>
-    <p class="fx-big" id="r-big"><span id="r-num">？</span></p>
-    <div class="floor-plan" aria-hidden="true"><div class="floor-strips" id="s-floor"></div><p class="rb-legend"><span id="s-left">1人あたり</span><span id="s-right"></span></p></div>
-    <p class="mix-foot"><span id="r-foot">作業をえらんでください</span></p>
+  <div class="doc" aria-live="polite">
+    <p class="doc-title">作業指示書</p>
+    <p class="doc-sum"><span class="doc-sum-k" id="r-cap">かかる時間</span><span class="doc-sum-v"><b id="r-num">？</b></span></p>
+    <table class="doc-table"><thead><tr><th>作業</th><th>面積</th><th>人数</th><th>1人あたり</th></tr></thead><tbody><tr><td id="d-work">—</td><td id="d-area">—</td><td id="d-people">—</td><td id="d-per">—</td></tr></tbody></table>
+    <div class="floor-plan" aria-hidden="true"><div class="floor-strips" id="s-floor"></div></div>
+    <p class="doc-foot"><span id="r-foot">作業をえらんでください</span><span id="r-total"></span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>

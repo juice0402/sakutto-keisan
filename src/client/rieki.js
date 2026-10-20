@@ -31,6 +31,17 @@ function drawBar(res) {
   $('b-right').textContent = `${loss ? '赤字' : '利益'} ${moneyText(res.profit, res.step)}円`;
 }
 
+/** 利益計算書の表：売値・原価・利益と、売値に対する割合。計算で出した値（点線の答えの欄と同じもの）は赤 */
+function drawRows(res, out) {
+  const cell = (text, red) => `<td${red ? ' class="is-out"' : ''}>${text}</td>`;
+  const yenText = (x) => (x === null ? '—' : `${x < 0 ? '−' : ''}${moneyText(x, res ? res.step : 1)}`);
+  const pct = (x) => (x === null ? '—' : `${pctText(x)}％`);
+  const row = (name, x, p, redX, redP) => `<tr><td>${name}</td>${cell(yenText(x), redX)}${cell(pct(p), redP)}</tr>`;
+  $('r-rows').innerHTML = res
+    ? row('売値', res.price, 100, out === 'price') + row('原価', res.cost, res.costRate, out === 'cost') + row(res.profit < 0 ? '赤字' : '利益', res.profit, res.rate, false, out === 'rate')
+    : row('売値', null, null) + row('原価', null, null) + row('利益', null, null);
+}
+
 function update() {
   const out = order.length === 2 ? RIEKI_FIELDS.find((f) => !order.includes(f)) : null;
   const res = out ? rieki({ price: val('price'), cost: val('cost'), rate: val('rate'), out }) : { ok: false, empty: true };
@@ -41,17 +52,19 @@ function update() {
   if (out) $(out).value = res.ok ? (out === 'rate' ? pctText(res.rate) : moneyText(res[out], res.step)) : '';
   setNote(res.error || '', !!res.error);
   drawBar(res.ok ? res : null);
+  drawRows(res.ok ? res : null, out);
   const loss = res.ok && res.profit < 0;
   $('r-cap').textContent = loss ? '赤字' : '利益';
-  $('r-big').classList.toggle('is-error', loss);
+  $('r-sum').classList.toggle('is-error', loss);
+  $('r-stamp').hidden = !res.ok;
   if (!res.ok) {
     $('r-num').textContent = '？';
-    $('r-foot').textContent = res.empty ? '売値・原価・利益率のうち2つを入れてください' : '';
+    $('r-foot').textContent = res.empty ? '3つのうち2つを入れてください' : '';
     return;
   }
   $('r-num').textContent = moneyText(res.profit, res.step);
-  const times = res.times === null ? '' : `・売値は原価の${res.times.toLocaleString('ja-JP', { maximumFractionDigits: 2 })}倍`;
-  $('r-foot').textContent = out === 'rate' ? `原価率 ${pctText(res.costRate)}％${times}` : `利益率 ${pctText(res.rate)}％・原価率 ${pctText(res.costRate)}％`;
+  $('r-rate').textContent = `${pctText(res.rate)}%`;
+  $('r-foot').textContent = res.times === null ? '' : `売値は原価の${res.times.toLocaleString('ja-JP', { maximumFractionDigits: 2 })}倍`;
 }
 
 /* ---- 入力：入れた欄を覚えて、残りの欄に答えを出す。答えの欄をさわったら、まるごと書きかえられるように選んでおく ---- */

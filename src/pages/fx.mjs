@@ -22,12 +22,41 @@ const SWAP_ROWS = FX_PAIRS.map((p) => {
 // 取引に必要なお金（取引額の4％）の出典
 const SRC_FSA = '<p class="note">出典：<a href="https://www.fsa.go.jp/news/21/syouken/20090731-6.html">金融庁</a></p>';
 
-// メーター（維持率）：半円。赤いところがロスカットの基準より下（証拠金維持率のページは100％より下）。針は 0〜500％
-// withRatio：メーターの下に維持率の数字を出す（ロスカットのページ。維持率のページは右の大きな数字が維持率）
-const gauge = (withRatio) => `<figure class="gauge" aria-hidden="true">
-  <svg viewBox="0 0 112 62"><path class="gauge-arc" d="M8 56 A48 48 0 0 1 104 56"/><path class="gauge-cut" id="g-cut" d="M8 56 A48 48 0 0 1 104 56" pathLength="500" stroke-dasharray="100 600"/><line class="gauge-needle" id="g-needle" x1="56" y1="56" x2="16" y2="56"/><circle class="gauge-hub" cx="56" cy="56" r="4"/></svg>
-  ${withRatio ? '<figcaption>維持率<b id="r-ratio">？</b></figcaption>' : ''}
-</figure>`;
+// 結果は、トレードアプリの画面（10/21 しょーくん「FXならチャート画面風」）。インラインSVG で、外の画像は読まない
+// 証拠金維持率は口座の画面（大きな半円のメーターの中に維持率）、ロスカットはチャート（いまのレートとロスカットのライン）、
+// スワップはチャート（1年でたまる額の階段の線）。答えの数字は、ロスカットはチャートの上の段（1画面に入るように）、スワップはチャートの中の左上（払うときは左下）
+const GRID = '<path class="chart-grid" d="M0 25H100M0 50H100M0 75H100M25 0V100M50 0V100M75 0V100"/>';
+const ARC = 'M20 112A90 90 0 0 1 200 112'; // メーターの半円（中心 110,112・半径 90）
+const ACCOUNT = `<div class="chart" aria-live="polite">
+    <p class="chart-bar"><span id="c-pair">ドル円</span><span>口座の状況</span></p>
+    <div class="acct">
+      <svg class="acct-gauge" viewBox="0 0 220 126" aria-hidden="true">
+        <path class="gauge-arc" d="${ARC}"/><path class="gauge-zone" d="${ARC}" pathLength="500" stroke-dasharray="100 600"/><path class="gauge-val" id="g-val" d="${ARC}" pathLength="500" stroke-dasharray="0 600"/>
+        <text x="20" y="125" text-anchor="middle">0</text><text x="24" y="47" text-anchor="end">100</text><text x="200" y="125" text-anchor="middle">500%</text>
+      </svg>
+      <p class="acct-ans"><span class="fx-cap" id="r-cap">証拠金維持率</span><span class="fx-big" id="r-big"><span id="r-num">？</span><small>％</small></span></p>
+    </div>
+    <p class="chart-foot"><span id="r-amount"></span><span id="r-need">レバレッジか通貨の量を入れてください</span></p>
+  </div>`;
+const CUT_CHART = `<div class="chart" aria-live="polite">
+    <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span id="c-ratio"></span></p>
+    <div class="chart-ans is-static"><p class="fx-cap" id="r-cap">ロスカットまで、あと</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円の損</small></p></div>
+    <div class="chart-plot is-short">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${GRID}<rect class="chart-band" id="c-band" x="0" y="0" width="100" height="0"/><path class="chart-cut" id="c-cut" d=""/><path class="chart-now" id="c-now" d=""/><path class="chart-line" id="c-line" d=""/></svg>
+      <span class="chart-dot" id="c-dot" hidden></span><span class="chart-tag is-now" id="t-now" hidden></span><span class="chart-tag is-cut" id="t-cut" hidden></span>
+    </div>
+    <p class="chart-foot"><span id="r-price"></span><span id="r-need">通貨の量・口座のお金・レートを入れてください</span></p>
+  </div>`;
+const SWAP_CHART = `<div class="chart" aria-live="polite">
+    <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span id="c-diff"></span></p>
+    <div class="chart-plot has-axis">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${GRID}<path class="chart-area" id="s-area" d=""/><path class="chart-step" id="s-line" d=""/></svg>
+      <span class="chart-dot" id="d-month" hidden></span><span class="chart-dot" id="d-year" hidden></span><span class="chart-label" id="t-month" hidden></span><span class="chart-label" id="t-year" hidden></span>
+      <div class="chart-ans" id="c-ans"><p class="fx-cap" id="r-cap">1日に</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円</small></p></div>
+      <p class="chart-axis"><span>0日</span><span>半年</span><span>1年</span></p>
+    </div>
+    <p class="chart-foot"><span id="r-per">通貨の量をえらんでください</span><span id="r-base"></span></p>
+  </div>`;
 
 const PAGES = [
   {
@@ -44,11 +73,7 @@ const PAGES = [
     ${boxField('money', '口座のお金', '円', '100,000')}
     <div class="pair pair-lev">${boxField('lev', 'レバレッジ', '倍', '10')}${boxField('qty', '通貨の量', '通貨', '10,000')}</div>
   </div>
-  <div class="fx-result" aria-live="polite">
-    ${gauge(false)}
-    <div class="fx-answer"><p class="fx-cap" id="r-cap">証拠金維持率</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">％</small></p></div>
-    <p class="mix-foot"><span id="r-amount"></span><span id="r-need">レバレッジか通貨の量を入れてください</span></p>
-  </div>
+  ${ACCOUNT}
   ${noteAndNoscript}
 </div>`,
     body: `${section(
@@ -116,11 +141,7 @@ ${section(
     ${boxField('money', '口座のお金', '円', '100,000')}
     <div class="pair">${boxField('rate', 'いまのレート', '円', '150.00')}${boxField('cut', 'ロスカットの基準', '％', '100', '100')}</div>
   </div>
-  <div class="fx-result" aria-live="polite">
-    ${gauge(true)}
-    <div class="fx-answer"><p class="fx-cap" id="r-cap">ロスカットまで、あと</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円の損</small></p></div>
-    <p class="mix-foot"><span id="r-price"></span><span id="r-need">通貨の量・口座のお金・レートを入れてください</span></p>
-  </div>
+  ${CUT_CHART}
   ${noteAndNoscript}
 </div>`,
     body: `${section(
@@ -186,11 +207,7 @@ ${section(
     calc: `<div class="calc" id="calc" data-tool="swap">
   ${fxTop()}
   <div class="field" id="f-tiles"><p class="sr-only" id="l-qty">通貨の量</p>${qtyTiles('l-qty')}</div>
-  <div class="fx-result is-wide" aria-live="polite">
-    <div class="fx-answer"><p class="fx-cap" id="r-cap">1日に</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円</small></p></div>
-    <figure class="swap-chart" aria-hidden="true"><div class="swap-bars" id="s-bars"></div><figcaption class="swap-axis"><span>0日</span><span>1年</span></figcaption></figure>
-    <p class="mix-foot"><span id="r-per">通貨の量をえらんでください</span><span id="r-base"></span></p>
-  </div>
+  ${SWAP_CHART}
   ${noteAndNoscript}
 </div>`,
     body: `${section(

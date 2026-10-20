@@ -4,7 +4,7 @@ import { $ } from './ui.mjs';
 import { zangyoUpdate, zangyoSetup, numVal, ZANGYO_HOUR_IDS } from './zangyo-ui.mjs';
 
 // 月給の残業代の計算：月給・年間休日・1日の所定時間から時給を出して、残業・深夜・休日の時間から残業代
-// 結果は大きな残業代と明細、1年を出勤と休日に分けた帯（年間休日で時給が変わるわけ）、1か月の所定時間と時給
+// 結果は残業代明細書（大きな残業代・出勤と休日の帯・1か月の所定時間と時給・明細の表）
 const INPUTS = ['salary', 'holidays', 'daily', ...ZANGYO_HOUR_IDS].map((id) => $(id));
 const EMPTY = { salary: '月給を入れてください', days: '年間休日と1日の所定時間を入れてください', hours: '残業の時間を入れてください' };
 
@@ -21,7 +21,8 @@ function update() {
   const w = zangyoWage({ salary: numVal('salary'), holidays: numVal('holidays'), daily: numVal('daily') });
   zangyoUpdate(w, EMPTY);
   drawYear();
-  $('r-unit').textContent = w.ok ? `1か月 ${fmt(w.monthHours, 1)}時間・時給 ${fmt(w.wage, 0)}円` : '';
+  $('r-hours').textContent = w.ok ? `1か月 ${fmt(w.monthHours, 1)}時間` : '';
+  $('r-unit').textContent = w.ok ? `時給 ${fmt(w.wage, 0)}円` : '';
 }
 
 zangyoSetup(INPUTS, update);

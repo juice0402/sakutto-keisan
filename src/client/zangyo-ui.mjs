@@ -1,6 +1,6 @@
 // 残業代の2つのページ（時給から・月給から）で共通の部品：残業・深夜・休日の時間、明細、案内、クリアと Enter
 import { parseNum, fmt } from '../lib/number.mjs';
-import { zangyo, zangyoHoursText } from '../lib/zangyo.mjs';
+import { zangyo, zangyoHoursText, zangyoUnit, ZANGYO_PARTS } from '../lib/zangyo.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 
 export const ZANGYO_HOUR_IDS = ['over', 'night', 'holiday'];
@@ -15,8 +15,21 @@ function minutesHint() {
   return '';
 }
 
+/** 明細書の表：時間外・深夜割増・休日出勤（60時間をこえたら60時間超の行も）。入っていない行は「—」、単価は時給がわかれば出す */
+function drawSlip(res, wage) {
+  const has60 = res.ok && res.parts.some((x) => x.id === 'over60');
+  $('slip').innerHTML = ZANGYO_PARTS.filter((p) => p.id !== 'over60' || has60)
+    .map((p) => {
+      const got = res.ok ? res.parts.find((x) => x.id === p.id) : null;
+      if (got) return `<tr><td>${p.name}</td><td>${zangyoHoursText(got.hours)}</td><td>${fmt(got.unit, 0)}</td><td>${fmt(got.amount, 0)}</td></tr>`;
+      const unit = wage > 0 ? fmt(zangyoUnit(wage, p.rate), 0) : '—';
+      return `<tr class="is-zero"><td>${p.name}</td><td>—</td><td>${unit}</td><td>—</td></tr>`;
+    })
+    .join('');
+}
+
 /**
- * 時給から残業代を出して、大きな金額・明細書のような項目ごとの時間と金額・案内を書く
+ * 時給から残業代を出して、明細書（大きな残業代・明細の表・うち割増の分）と案内を書く
  * wageRes：時給（{ ok, wage } か、まだ入れていない・まちがいの結果）　empty：まだ入れていないときの案内
  */
 export function zangyoUpdate(wageRes, empty) {
@@ -26,11 +39,10 @@ export function zangyoUpdate(wageRes, empty) {
   $('r-note').hidden = !note;
   $('r-note').textContent = note;
   $('r-note').classList.toggle('is-error', !!res.error);
-  $('slip').innerHTML = res.ok
-    ? res.parts.map((p) => `<p class="slip-row"><span>${p.name}<small>${zangyoHoursText(p.hours)} × ${fmt(p.unit, 0)}円</small></span><b>${fmt(p.amount, 0)}円</b></p>`).join('')
-    : '';
+  drawSlip(res, wageRes.ok && res.field !== 'wage' ? wageRes.wage : null);
   $('r-num').textContent = res.ok ? fmt(res.total, 0) : '？';
   $('r-foot').textContent = res.empty ? empty[res.missing] : '';
+  $('r-extra').textContent = res.ok && res.extra > 0 ? `うち割増の分 ${fmt(res.extra, 0)}円` : '';
   return res;
 }
 

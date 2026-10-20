@@ -15,10 +15,11 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
-/** メーター：針は維持率、赤いところは100％より下（取引に必要なお金より口座のお金が少ない） */
+/** 口座の画面のメーター：金の線が維持率（500％まで）、赤いところは100％より下（取引に必要なお金より口座のお金が少ない） */
 function drawGauge(res) {
   const ratio = res ? Math.min(GAUGE_MAX, Math.max(0, res.ratio)) : 0;
-  $('g-needle').style.transform = `rotate(${(ratio / GAUGE_MAX) * 180}deg)`;
+  $('g-val').setAttribute('stroke-dasharray', `${ratio} 600`);
+  $('g-val').classList.toggle('is-low', !!res && res.ratio < 100);
 }
 
 function update() {
@@ -45,8 +46,9 @@ function update() {
 
 /* ---- 通貨ペア：レートの欄のうすい例を、その通貨ペアらしい数字にする ---- */
 $('pair').addEventListener('change', () => {
-  const ex = (FX_PAIRS.find((p) => p.id === $('pair').value) || FX_PAIRS[0]).example;
-  $('rate').placeholder = ex.toFixed(rateDigits(ex));
+  const p = FX_PAIRS.find((x) => x.id === $('pair').value) || FX_PAIRS[0];
+  $('rate').placeholder = p.example.toFixed(rateDigits(p.example));
+  $('c-pair').textContent = p.name;
   update();
 });
 
