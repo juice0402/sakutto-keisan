@@ -340,10 +340,32 @@ def seisou_floor(img, cx, top):
     d.text((x1 - d.textlength(lab, font=f), y0 + h + 14 * S), lab, font=f, fill=t['muted'])
 
 
+def zangyo_slip(img, cx, top):
+    """残業代：大きな金額と、明細書のような項目ごとの時間と金額（ページの計算例：月給30万円・年間休日120日・1日8時間で、残業20時間・深夜5時間）"""
+    t = THEMES['shigoto']
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 236 * S, cx + 266 * S
+    d.text((x0, top + 20 * S), '残業代', font=font('bold', 28), fill=t['muted'])
+    f_big = font('black', 84)
+    total = '48,215'
+    d.text((x0, top + 56 * S), total, font=f_big, fill=t['red'])
+    d.text((x0 + d.textlength(total, font=f_big) + 8 * S, top + 100 * S), '円', font=font('black', 40), fill=t['text'])
+    y = top + 196 * S
+    d.line([(x0, y), (x1, y)], fill=t['text'], width=3 * S)
+    f, fs = font('bold', 28), font('bold', 22)
+    for name, calc, yen in (('残業', '20時間 × 2,296円', '45,920円'), ('深夜の上乗せ', '5時間 × 459円', '2,295円')):
+        d.text((x0 + 4 * S, y + 14 * S), name, font=f, fill=t['text'])
+        d.text((x0 + 4 * S + d.textlength(name, font=f) + 14 * S, y + 21 * S), calc, font=fs, fill=t['muted'])
+        d.text((x1 - d.textlength(yen, font=f) - 4 * S, y + 14 * S), yen, font=f, fill=t['text'])
+        y += 64 * S
+        for xx in range(x0, x1, 10 * S):
+            d.line([(xx, y), (xx + 4 * S, y)], fill=t['muted'], width=2 * S)
+
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_bars,
-    'rieki-ritsu': rieki_bar, 'seisou-jikan': seisou_floor,
+    'rieki-ritsu': rieki_bar, 'seisou-jikan': seisou_floor, 'zangyo-dai': zangyo_slip,
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),

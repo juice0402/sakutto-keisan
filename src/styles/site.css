@@ -480,6 +480,18 @@ h1 {
 .floor-strips { display: flex; gap: 2px; height: 40px; padding: 2px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); }
 .floor-strip { flex: 1; min-width: 0; background: var(--red); opacity: .8; }
 .floor-strip:nth-child(even) { opacity: .45; }
+/* 残業代：欄を3つ並べた段（残業・深夜・休日。単位は名前の右）、答えの見出しの右にクリア、明細書のような項目ごとの時間と金額 */
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.trio .input { padding: 0 10px; }
+.trio .box-field > label { left: 10px; }
+.trio .unit { position: absolute; top: 7px; right: 10px; margin: 0; font-size: 13px; line-height: 16px; } /* 単位は名前の右に（数字を広く） */
+.result-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.result-head .clear-btn { min-height: 28px; }
+.slip { margin: 8px 0 0; border-top: 1.5px solid var(--text); }
+.slip:empty { display: none; }
+.slip-row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 0 12px; margin: 0; padding: 6px 2px; border-bottom: 1px dotted var(--border); font-size: 14.5px; font-weight: 700; }
+.slip-row small { display: inline-block; margin-left: 8px; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.slip-row b { font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
 /* スワップ：たまっていく額の棒グラフ */
 .swap-chart { grid-column: 1 / -1; margin: 0; }
 .swap-bars { display: flex; align-items: flex-end; gap: 3px; height: 92px; padding: 0 0 2px; border-bottom: 1px solid var(--border); }

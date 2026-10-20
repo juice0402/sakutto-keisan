@@ -24,6 +24,7 @@ CASES = {
     'hyohakuzai': (lambda pg: (pg.click('.tile[data-target="0.05"]'), pg.fill('#v-water', '1000')), '#r-hints'),
     'ekihi': (lambda pg: (pg.click('.tile[data-ratio="1000"]'), pg.fill('#v-water', '2000')), '#f-water'),
     'seisou-jikan': (lambda pg: (pg.click('.tile[data-speed="370"]'), pg.fill('#area', '1000'), pg.fill('#people', '2')), '#r-foot'),
+    'zangyo-dai': (lambda pg: (pg.fill('#salary', '300000'), pg.fill('#holidays', '120'), pg.fill('#daily', '8'), pg.fill('#over', '20'), pg.fill('#night', '5')), '#r-foot'),
     'rieki-ritsu': (lambda pg: (pg.fill('#price', '1500'), pg.fill('#cost', '1000')), '#r-foot'),
     'fx-iji-ritsu': (lambda pg: (pg.fill('#rate', '150'), pg.fill('#money', '100000'), pg.fill('#lev', '10')), '#r-need'),
     'fx-losscut': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-price'),
