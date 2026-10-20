@@ -1,22 +1,34 @@
-// 清掃の作業時間の計算：1人1時間あたりの面積（自分で入れる）と、面積・人数・時間のうち2つから、残りの1つ
-// 作業の速さは作業の種類や現場で大きく違うので、決まった数字は出さずに自分で入れる（10/20 しょーくんの判断）
+// 清掃の作業時間の計算：作業の速さ（1人1時間あたりの面積）と、面積・人数・時間のうち2つから、残りの1つ
+// 速さは作業のマス（公共の清掃の積算の歩掛りから出した目安）からえらぶか、最後のマスに自分で入れる
+// （10/20 しょーくんの判断。はじめは自分で入れるだけにしたが「相場すらわからない」ので、目安のマスを足した）
 // 結果は、床を人数で分けた絵。ページに載せる計算例は tests/seisou.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
+import { SEISOU_WORKS } from '../lib/seisou.mjs';
+
+// 歩掛りの出典
+const SRC_DAILY = 'https://www.city.sapporo.jp/kanzai/keiyaku/ippan-syuyaku/r2-zenki/documents/nyusatusetumei_bekki4-seiso.pdf';
+const SRC_REGULAR = 'https://www.mlit.go.jp/gobuild/content/001600832.pdf';
+const SRC_VIEW = 'https://www.mlit.go.jp/gobuild/content/001601093.pdf';
+
+// 作業のマス（最後のマスは自分で入れる）
+const TILES = `<div class="tiles tiles-4" role="group" aria-labelledby="l-work">${SEISOU_WORKS.map(
+  (w) => `<button type="button" class="tile tile-word" data-speed="${w.speed}" aria-pressed="false"><b>${w.name}</b><small>${w.speed}㎡</small></button>`,
+).join('')}<div class="tile tile-input" id="f-speed"><div class="tile-box"><input id="speed" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="?" aria-describedby="l-work"><span>㎡</span></div><label for="speed">その他</label></div></div>`;
 
 const tool = toolBySlug('seisou-jikan');
 const path = '/seisou-jikan/';
 
 const FAQS = [
   {
-    q: '1人1時間あたりの面積は、どうやって決めますか？',
-    a: '<p>ふだんの作業の実績から出せます。2人で300㎡を1時間30分で終えたなら、300 ÷ 2 ÷ 1.5 で100㎡です。</p>',
+    q: '「その他」の速さは、どうやって決めますか？',
+    a: '<p>ふだんの作業の実績から出せます。2人で300㎡を1時間30分で終えたなら、300 ÷ 2 ÷ 1.5 で1人1時間100㎡です。</p>',
   },
   {
     q: '作業の種類で速さは変わりますか？',
-    a: '<p>大きく変わります。床の掃除機がけと、床の洗浄やワックスでは、何倍も違います。作業ごとに速さを入れてください。</p>',
+    a: '<p>大きく変わります。事務室の日常清掃と床の洗浄では、10倍ほど違います。作業ごとに計算してください。</p>',
   },
   {
     q: '準備や移動の時間は入っていますか？',
@@ -38,8 +50,9 @@ export default function render() {
 <p class="lead">面積と人数から、清掃の時間を計算します。</p>
 
 <div class="calc" id="calc">
+  <div class="field-head calc-head"><p class="label" id="l-work">作業をえらぶ（1人1時間あたり）</p><button type="button" class="clear-btn" id="clear">クリア</button></div>
+  <div class="field" id="f-tiles">${TILES}</div>
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('speed', '1人1時間あたりの面積', '㎡', '100')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
     <div class="pair">${boxField('area', '面積', '㎡', '600')}${boxField('people', '人数', '人', '2')}</div>
     ${boxField('hours', '作業時間', '時間', '3')}
   </div>
@@ -47,7 +60,7 @@ export default function render() {
     <p class="fx-cap" id="r-cap">かかる時間</p>
     <p class="fx-big" id="r-big"><span id="r-num">？</span></p>
     <div class="floor-plan" aria-hidden="true"><div class="floor-strips" id="s-floor"></div><p class="rb-legend"><span id="s-left">1人あたり</span><span id="s-right"></span></p></div>
-    <p class="mix-foot"><span id="r-foot">1人1時間あたりの面積を入れてください</span></p>
+    <p class="mix-foot"><span id="r-foot">作業をえらんでください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
@@ -60,7 +73,7 @@ ${section(
 <span>時間 ＝ 面積 ÷ 速さ ÷ 人数</span>
 <span>人数 ＝ 面積 ÷ 速さ ÷ 時間</span>
 </div>
-<p>速さは、1人1時間あたりに掃除できる面積です。例：速さ100㎡で600㎡を2人なら、600 ÷ 100 ÷ 2 ＝ 3時間です。</p>`,
+<p>速さは、1人が1時間に掃除できる面積です。例：速さ100㎡で600㎡を2人なら、600 ÷ 100 ÷ 2 ＝ 3時間です。</p>`,
 )}
 
 ${section(
@@ -76,6 +89,24 @@ ${section(
 </tbody>
 </table></div>
 <p>1人1時間に100㎡のときです。1,500㎡を2時間で終えるには、7.5人なので8人です。時間は1分未満を切り上げています。</p>`,
+)}
+
+${section(
+  'speeds',
+  '作業ごとの速さの目安',
+  `<div class="tbl-wrap"><table>
+<thead><tr><th>作業</th><th class="num">1人1時間</th></tr></thead>
+<tbody>
+<tr><td>事務室の日常清掃</td><td class="num">約370㎡</td></tr>
+<tr><td>廊下の日常清掃</td><td class="num">約480㎡</td></tr>
+<tr><td>トイレの日常清掃</td><td class="num">約49㎡</td></tr>
+<tr><td>事務室の床洗浄</td><td class="num">約38㎡</td></tr>
+<tr><td>トイレの床洗浄</td><td class="num">約17㎡</td></tr>
+</tbody>
+</table></div>
+<p>公共の建物の清掃の積算で使う歩掛り（100㎡を1回掃除するのに何人いるか）を、1人1日8時間として1時間あたりの面積にしたものです。日常清掃は床の掃き拭きとごみ集めなど、床洗浄は定期清掃の表面洗浄です。</p>
+<p>清掃の業界団体からは、床の日常清掃の歩掛りは低すぎて、平均で約3.59倍にする必要があるという意見が出ています。現場の実績がわかるときは、「その他」に入れてください。</p>
+<p>出典：<a href="${SRC_DAILY}">札幌市の清掃業務の積算</a>・<a href="${SRC_REGULAR}">国土交通省の清掃の積算要領の検討資料</a>・<a href="${SRC_VIEW}">同じく関係団体からの意見</a></p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}
