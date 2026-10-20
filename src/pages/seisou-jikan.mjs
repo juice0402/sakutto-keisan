@@ -93,20 +93,25 @@ ${section(
 
 ${section(
   'speeds',
-  '作業ごとの速さの目安',
-  `<div class="tbl-wrap"><table>
-<thead><tr><th>作業</th><th class="num">1人1時間</th></tr></thead>
+  '作業のマスの数字の出しかた',
+  `<div class="formula">
+<span>速さ ＝ 100 ÷（歩掛り × 8）</span>
+</div>
+<p>歩掛りは、公共の建物の清掃を見積もるときに使う数字で、100㎡を1回掃除するのに何人いるかです。1人は1日8時間として、1時間あたりの面積にしています。</p>
+<p>例：事務室の日常清掃は歩掛り0.034人なので、100 ÷（0.034 × 8）＝ 367.6… で約370㎡です。</p>
+<div class="tbl-wrap"><table>
+<thead><tr><th>作業</th><th class="num">歩掛り</th><th class="num">1人1時間</th></tr></thead>
 <tbody>
-<tr><td>事務室の日常清掃</td><td class="num">約370㎡</td></tr>
-<tr><td>廊下の日常清掃</td><td class="num">約480㎡</td></tr>
-<tr><td>トイレの日常清掃</td><td class="num">約49㎡</td></tr>
-<tr><td>事務室の床洗浄</td><td class="num">約38㎡</td></tr>
-<tr><td>トイレの床洗浄</td><td class="num">約17㎡</td></tr>
+<tr><td>事務室の日常清掃</td><td class="num">0.034人</td><td class="num">約370㎡</td></tr>
+<tr><td>廊下の日常清掃</td><td class="num">0.026人</td><td class="num">約480㎡</td></tr>
+<tr><td>トイレの日常清掃</td><td class="num">0.254人</td><td class="num">約49㎡</td></tr>
+<tr><td>事務室の床洗浄</td><td class="num">0.330人</td><td class="num">約38㎡</td></tr>
+<tr><td>トイレの床洗浄</td><td class="num">0.744人</td><td class="num">約17㎡</td></tr>
 </tbody>
 </table></div>
-<p>公共の建物の清掃の積算で使う歩掛り（100㎡を1回掃除するのに何人いるか）を、1人1日8時間として1時間あたりの面積にしたものです。日常清掃は床の掃き拭きとごみ集めなど、床洗浄は定期清掃の表面洗浄です。</p>
+<p>日常清掃は床の掃き拭きとごみ集めなど、床洗浄は定期清掃の表面洗浄です。歩掛りは、清掃員の経験ごとに分かれている数字を足したものです。</p>
 <p>清掃の業界団体からは、床の日常清掃の歩掛りは低すぎて、平均で約3.59倍にする必要があるという意見が出ています。現場の実績がわかるときは、「その他」に入れてください。</p>
-<p>出典：<a href="${SRC_DAILY}">札幌市の清掃業務の積算</a>・<a href="${SRC_REGULAR}">国土交通省の清掃の積算要領の検討資料</a>・<a href="${SRC_VIEW}">同じく関係団体からの意見</a></p>`,
+<p>出典：日常清掃は<a href="${SRC_DAILY}">札幌市の清掃業務の積算</a>、床洗浄は<a href="${SRC_REGULAR}">国土交通省の清掃の積算要領の検討資料</a>、業界団体の意見は<a href="${SRC_VIEW}">国土交通省の検討課題の資料</a>です。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}
