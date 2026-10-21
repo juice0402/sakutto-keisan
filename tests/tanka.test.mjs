@@ -46,10 +46,35 @@ test('単価：個数（ティッシュ5箱と3箱）', () => {
   assert.equal(baseLabel('count', '枚'), '1枚');
 });
 
-test('単価：割引シール（20%オフは1円未満切り捨て）', () => {
+test('単価：割引シール（20%オフは1円未満切り捨て。まとめ買いのページの計算例）', () => {
   const a = calcUnitPrice({ price: 298, qty: 1, unit: 'kg', disc: 20 });
   assert.equal(a.pay, 238);
   assert.equal(a.per, 23.8);
+  const r = compareUnitPrices([
+    { price: 298, qty: 1, unit: 'kg', disc: 20 },
+    { price: 128, qty: 500, unit: 'g' },
+  ]);
+  assert.deepEqual(r.results.map((x) => x.per), [23.8, 25.6]);
+  assert.deepEqual(r.best, [0]);
+});
+
+test('単価：お米 5kg と 2kg（実質単価の比較のページの計算例）', () => {
+  const r = compareUnitPrices([
+    { price: 2480, qty: 5, unit: 'kg' },
+    { price: 1080, qty: 2, unit: 'kg' },
+  ]);
+  assert.deepEqual(r.results.map((x) => x.per), [49.6, 54]);
+  assert.equal(r.base.label, '100g');
+  assert.deepEqual(r.best, [0]);
+});
+
+test('単価：卵 10個と6個（まとめ買いのページの計算例。量を空にして入り数だけ）', () => {
+  const r = compareUnitPrices([
+    { price: 248, qty: null, unit: 'g', packs: 10 },
+    { price: 168, qty: null, unit: 'g', packs: 6 },
+  ]);
+  assert.deepEqual(r.results.map((x) => x.per), [24.8, 28]);
+  assert.equal(r.base.label, '1個');
 });
 
 test('単価：3つくらべる・同じ・単位の種類ちがい・入力まちがい', () => {

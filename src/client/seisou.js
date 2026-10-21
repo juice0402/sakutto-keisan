@@ -12,6 +12,7 @@ const val = (id) => parseNum($(id).value);
 const currentSpeed = () => val('speed');
 const MAX_STRIPS = 30; // 床を分けて見せる人数の上限
 const CAP = { hours: 'かかる時間', people: '必要な人数', area: 'できる面積' };
+const NAME = { area: '面積', people: '人数', hours: '作業時間' };
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -19,17 +20,28 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
-/** 床を人数で分けた絵（1人ずつの帯） */
+/** 床を人数で分けた図（1人ずつの帯。12人までは番号つき） */
 function drawFloor(res) {
   const n = res ? Math.min(MAX_STRIPS, Math.ceil(res.people)) : 0;
-  $('s-floor').innerHTML = Array.from({ length: n }, () => '<span class="floor-strip"></span>').join('');
-  $('s-left').textContent = res ? `1人あたり ${fmt(res.perPerson, 1)}㎡` : '1人あたり';
-  $('s-right').textContent = res ? `${fmt(res.people, 2)}人・${fmt(res.area, 1)}㎡` : '';
+  $('s-floor').innerHTML = Array.from({ length: n }, (_, i) => `<span class="floor-strip">${n <= 12 ? i + 1 : ''}</span>`).join('');
+}
+
+/** 作業指示書の表：作業（えらんだマス）・面積・人数・1人あたり。計算で出した値は赤 */
+function drawSheet(res, out) {
+  const tile = document.querySelector('.tile[data-speed][aria-pressed="true"]');
+  $('d-work').textContent = tile ? tile.querySelector('b').textContent : '—';
+  const set = (id, text, red) => { $(id).textContent = text; $(id).classList.toggle('is-out', red); };
+  set('d-area', res ? `${fmt(res.area, 1)}㎡` : '—', !!res && out === 'area');
+  set('d-people', res ? `${fmt(res.people, 2)}人` : '—', !!res && out === 'people');
+  set('d-per', res ? `${fmt(res.perPerson, 1)}㎡` : '—', false);
 }
 
 function emptyText() {
   if (currentSpeed() === null) return '作業をえらんでください';
-  return '面積・人数・時間のうち2つを入れてください';
+  const got = SEISOU_FIELDS.filter((f) => typed.has(f));
+  if (!got.length) return '面積を入れてください'; // 面積は現場で決まっていることが多いので、上の欄から
+  if (got.length !== 1) return '面積・人数・時間のうち2つを入れてください';
+  return `${SEISOU_FIELDS.filter((f) => f !== got[0]).map((f) => NAME[f]).join('か')}を入れてください`;
 }
 
 function answerField() {
@@ -42,6 +54,8 @@ function answerField() {
 function update() {
   const out = answerField();
   if (out) typed.delete(out);
+  // 前に答えを出していた欄は、答えでなくなったら空にする（自分で入れた数字に見えないように）
+  SEISOU_FIELDS.forEach((f) => { if (f !== out && !typed.has(f)) $(f).value = ''; });
   const args = { area: val('area'), people: val('people'), hours: val('hours'), speed: currentSpeed() };
   document.querySelectorAll('.tile[data-speed]').forEach((t) => t.setAttribute('aria-pressed', String(Number(t.dataset.speed) === args.speed)));
   let res = { ok: false, empty: true };
@@ -58,22 +72,24 @@ function update() {
   }
   setNote(res.error || '', !!res.error);
   drawFloor(res.ok ? res : null);
+  drawSheet(res.ok ? res : null, out);
   $('r-cap').textContent = CAP[out] || CAP.hours;
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? emptyText() : '';
+    $('r-total').textContent = '';
     return;
   }
-  const total = `のべ ${minText(Math.ceil(res.personHours * 60))}`;
+  $('r-total').textContent = `のべ ${minText(Math.ceil(res.personHours * 60))}`;
   if (out === 'people') {
     $('r-num').textContent = `${fmt(res.people, 0)}人`;
-    $('r-foot').textContent = `${fmt(res.people, 0)}人なら ${minText(res.minutes)}・${total}`;
+    $('r-foot').textContent = `${fmt(res.people, 0)}人なら ${minText(res.minutes)}`;
   } else if (out === 'area') {
     $('r-num').textContent = `${fmt(res.area, 0)}㎡`;
-    $('r-foot').textContent = total;
+    $('r-foot').textContent = '';
   } else {
     $('r-num').textContent = minText(res.minutes);
-    $('r-foot').textContent = total;
+    $('r-foot').textContent = '';
   }
 }
 
@@ -91,8 +107,10 @@ INPUTS.forEach((el) => {
   el.addEventListener('input', (e) => {
     // 自分で入れたときだけ覚える（離れたときの3桁区切りの整え直しでは、入れた順を変えない）
     if (e.isTrusted && el.id !== 'speed') {
-      typed.add(el.id);
-      if (el.id !== 'area') lastPH = el.id;
+      // 空にした欄は外す（前に入れた欄を答えで上書きしない）
+      if (el.value.trim() === '') typed.delete(el.id);
+      else typed.add(el.id);
+      if (el.id !== 'area' && typed.has(el.id)) lastPH = el.id;
     }
     update();
   });

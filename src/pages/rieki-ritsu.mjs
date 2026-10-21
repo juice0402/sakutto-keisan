@@ -1,5 +1,5 @@
 // 利益率の計算：売値・原価・利益率のうち2つを入れると、残りの1つ（点線の答えの欄）と利益が出る
-// 結果は、売値の帯を原価と利益に分けた絵。ページに載せる計算例は tests/rieki.test.mjs で確かめる
+// 結果は利益計算書（大きな利益、粗利率のはんこ、売値・原価・利益の表、売値の帯を原価と利益に分けた絵）。ページに載せる計算例は tests/rieki.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
@@ -41,14 +41,15 @@ export default function render() {
     <div class="pair">${boxField('price', '売値', '円', '1,500')}${boxField('cost', '原価', '円', '1,000')}</div>
     <div class="box-row-clear">${boxField('rate', '利益率', '％', '30')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
   </div>
-  <div class="box-result" aria-live="polite">
-    <p class="fx-cap" id="r-cap">利益</p>
-    <p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円</small></p>
+  <div class="doc" aria-live="polite">
+    <p class="doc-title">利益計算書</p>
+    <p class="doc-sum" id="r-sum"><span class="doc-sum-k" id="r-cap">利益</span><span class="doc-sum-v"><b id="r-num">？</b>円</span><span class="stamp" id="r-stamp" hidden>粗利率<b id="r-rate"></b></span></p>
+    <table class="doc-table"><thead><tr><th>項目</th><th>金額</th><th>売値に対して</th></tr></thead><tbody id="r-rows"></tbody></table>
     <div class="rieki-bar" aria-hidden="true">
       <div class="rb-track"><div class="rb-cost" id="b-cost"></div><div class="rb-profit" id="b-profit"></div><div class="rb-loss" id="b-loss"></div></div>
       <p class="rb-legend"><span id="b-left">原価</span><span id="b-right">利益</span></p>
     </div>
-    <p class="mix-foot"><span id="r-foot">売値・原価・利益率のうち2つを入れてください</span></p>
+    <p class="doc-foot"><span id="r-foot">3つのうち2つを入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>

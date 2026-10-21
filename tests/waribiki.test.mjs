@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseNum, roundBy, fmt } from '../src/lib/number.mjs';
-import { calcDiscount, calcRate, wariLabel, compareDiscounts } from '../src/lib/waribiki.mjs';
+import { calcDiscount, calcRate, rateFromOff, wariLabel, compareDiscounts } from '../src/lib/waribiki.mjs';
 
 test('parseNum: 全角・カンマ・単位・空', () => {
   assert.equal(parseNum('１，２００円'), 1200);
@@ -58,6 +58,31 @@ test('割引率を調べる', () => {
   assert.equal(calcRate({ price: 1000, sale: 1200 }).increase, true);
   assert.ok(calcRate({ price: 0, sale: 0 }).error);
   assert.equal(calcRate({ price: 1000, sale: null }).empty, true);
+});
+
+test('割引率の計算（ページの計算式の例と表）', () => {
+  const r = (price, sale) => calcRate({ price, sale }).rate;
+  assert.equal(r(2000, 1700), 15);
+  assert.equal(r(5000, 3500), 30);
+  assert.equal(fmt(r(1280, 980), 1), '23.4'); // 23.4375
+  assert.equal(fmt(r(3980, 2980), 1), '25.1'); // 25.12…
+  assert.equal(wariLabel(15), '1割5分引き');
+  assert.equal(wariLabel(30), '3割引き');
+  assert.equal(calcRate({ price: 2000, sale: 1700 }).off, 300);
+  assert.equal(calcRate({ price: 0, sale: 100 }).field, 'price');
+  assert.equal(calcRate({ price: 1000, sale: NaN }).field, 'sale');
+});
+
+test('値引きの額から何％オフか（300円引き）', () => {
+  const a = rateFromOff({ price: 2000, off: 300 });
+  assert.deepEqual([a.rate, a.sale, a.off], [15, 1700, 300]);
+  assert.equal(rateFromOff({ price: 2000, off: 0 }).rate, 0);
+  assert.equal(rateFromOff({ price: 2000, off: 2000 }).rate, 100);
+  assert.equal(rateFromOff({ price: 2000, off: 2001 }).field, 'off'); // 元の値段より大きい値引き
+  assert.equal(rateFromOff({ price: 2000, off: NaN }).field, 'off');
+  assert.equal(rateFromOff({ price: 0, off: 0 }).field, 'price');
+  assert.equal(rateFromOff({ price: NaN, off: 100 }).field, 'price');
+  assert.equal(rateFromOff({ price: 2000, off: null }).empty, true);
 });
 
 test('◯割◯分引きの表示', () => {

@@ -120,7 +120,7 @@ function update() {
   if (!res.ok) {
     drawBottle(dilute({ ratio: rr.ratio, amount: 1000 })); // 量がまだでも、原液と水の割合は見せる
     showAmounts(null);
-    if (res.empty) $('r-hints').textContent = 'わかっている量を、どれか1つに入れてください';
+    if (res.empty) $('r-hints').textContent = 'わかっている量を1つ入れてください';
     return setNote(res.empty ? '' : res.error, !res.empty);
   }
   drawBottle(res);

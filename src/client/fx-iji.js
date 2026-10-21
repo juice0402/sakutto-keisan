@@ -1,12 +1,12 @@
 import { parseNum } from '../lib/number.mjs';
 import { fxRatio, yenText, ratioText, qtyText, levText, rateDigits, FX_PAIRS } from '../lib/fx.mjs';
-import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 
-// 証拠金維持率：口座のお金といまのレートに、レバレッジか通貨の量のどちらかを入れる。入れた欄から、もう片方の欄と維持率を出す
+// 証拠金維持率：口座のお金といまのレート（ロスカットの計算と同じ順）に、レバレッジか通貨の量のどちらかを入れる。入れた欄から、もう片方の欄と維持率を出す
 let from = 'lev'; // いま入れている欄 lev：レバレッジ / qty：通貨の量（もう片方に答えを出す）
 const OTHER = { lev: 'qty', qty: 'lev' };
 const val = (id) => parseNum($(id).value);
-const INPUTS = ['rate', 'money', 'lev', 'qty'].map((id) => $(id));
+const INPUTS = ['money', 'rate', 'lev', 'qty'].map((id) => $(id));
 const GAUGE_MAX = 500; // メーターの右はし（維持率500％）
 
 function setNote(text = '', error = false) {
@@ -15,10 +15,18 @@ function setNote(text = '', error = false) {
   $('r-note').classList.toggle('is-error', error);
 }
 
-/** メーター：針は維持率、赤いところは100％より下（取引に必要なお金より口座のお金が少ない） */
+/** 口座の画面のメーター：金の線が維持率（500％まで）、赤いところは100％より下（取引に必要なお金より口座のお金が少ない） */
 function drawGauge(res) {
   const ratio = res ? Math.min(GAUGE_MAX, Math.max(0, res.ratio)) : 0;
-  $('g-needle').style.transform = `rotate(${(ratio / GAUGE_MAX) * 180}deg)`;
+  $('g-val').setAttribute('stroke-dasharray', `${ratio} 600`);
+  $('g-val').classList.toggle('is-low', !!res && res.ratio < 100);
+}
+
+/** まだ入れていない欄のうち、いちばん上の欄を案内する */
+function emptyText() {
+  if (val('money') === null) return '口座のお金を入れてください';
+  if (val('rate') === null) return 'いまのレートを入れてください';
+  return 'レバレッジか通貨の量を入れてください';
 }
 
 function update() {
@@ -36,7 +44,7 @@ function update() {
   $('r-big').classList.toggle('is-error', res.ok && res.short > 0);
   if (!res.ok) {
     $('r-amount').textContent = '';
-    $('r-need').textContent = res.empty ? (val('money') === null || val('rate') === null ? '口座のお金とレートを入れてください' : 'レバレッジか通貨の量を入れてください') : '';
+    $('r-need').textContent = res.empty ? emptyText() : '';
     return;
   }
   $('r-amount').textContent = `取引額 ${yenText(res.amount)}`;
@@ -45,8 +53,9 @@ function update() {
 
 /* ---- 通貨ペア：レートの欄のうすい例を、その通貨ペアらしい数字にする ---- */
 $('pair').addEventListener('change', () => {
-  const ex = (FX_PAIRS.find((p) => p.id === $('pair').value) || FX_PAIRS[0]).example;
-  $('rate').placeholder = ex.toFixed(rateDigits(ex));
+  const p = FX_PAIRS.find((x) => x.id === $('pair').value) || FX_PAIRS[0];
+  $('rate').placeholder = p.example.toFixed(rateDigits(p.example));
+  $('c-pair').textContent = p.name;
   update();
 });
 
@@ -74,4 +83,5 @@ $('clear').addEventListener('click', () => {
 });
 enterToNext(INPUTS.slice(0, 3));
 enterToNext([$('qty')]);
+focusHints(document.querySelector('.fx-inputs'));
 update();

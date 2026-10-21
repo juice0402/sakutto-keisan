@@ -1,12 +1,14 @@
+// 割引の2つのページ：割引計算（割引後の値段。もとのページ）と、割引率の計算（何％オフか。その下のページ）
+// 「何％オフ？」は割引計算の下の3つのボタンの1つだったが、10/21 しょーくんの「窮屈なものはメインとサブに」で別のページにした。
+// 割引計算の「何％オフ？」のボタンと、割引率の計算の「割引後の値段を出す」のボタンで行き来する
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { boxField } from '../fields.mjs';
 
-const tool = toolBySlug('waribiki');
-const path = '/waribiki/';
-
-const input = (id, unit, placeholder) =>
-  `<div class="input"><input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"><span class="unit">${unit}</span></div>`;
+// 元の値段は、Enter でキーボードを閉じる（次は下のタイルをえらぶので）
+const input = (id, unit, placeholder, key = 'next') =>
+  `<div class="input"><input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="${key}" placeholder="${placeholder}"><span class="unit">${unit}</span></div>`;
 
 const field = (id, label, unit, placeholder, attrs = '') =>
   `<div class="field" id="f-${id}"${attrs}><label for="${id}">${label}</label>${input(id, unit, placeholder)}</div>`;
@@ -49,9 +51,15 @@ const FAQS = [
     q: '「2割引き」と「20％オフ」は同じですか？',
     a: '<p>同じです。1割が10％なので、2割5分引きは25％オフです。</p>',
   },
+  {
+    q: '割引後の値段から、何％オフかを出せますか？',
+    a: '<p>「何％オフ？」のボタンから、<a href="/waribiki-ritsu/">割引率の計算</a>で出せます。値引きの額からも出せます。</p>',
+  },
 ];
 
-export default function render() {
+function renderMain() {
+  const tool = toolBySlug('waribiki');
+  const path = '/waribiki/';
   const body = `
 <h1>${tool.name}</h1>
 <p class="lead">割引後の値段と、安くなる額を計算します。</p>
@@ -61,9 +69,8 @@ export default function render() {
 
   <div class="field" id="f-price">
     <div class="field-head"><label for="price" id="l-price">元の値段</label><button type="button" class="clear-btn" id="clear">クリア</button></div>
-    ${input('price', '円', '2,000')}
+    ${input('price', '円', '2,000', 'done')}
   </div>
-  ${field('sale', '割引後の値段', '円', '1,400', ' data-mode="rate" hidden')}
   <div class="field" data-mode="off compare">
     <p class="label" id="l-rate">値引きをえらぶ</p>
     ${TILES}
@@ -71,11 +78,11 @@ export default function render() {
   ${field('rate2', 'さらに割引（クーポンなど）', '％オフ', '10', ' hidden')}
 
   <div class="tag-stage" aria-live="polite">
-    <div class="tag-wrap" id="tag" data-mode="off rate">
+    <div class="tag-wrap" id="tag" data-mode="off">
       <div class="pricetag">
         <p class="tag-was" id="t-was" hidden></p>
         <p class="tag-price"><span id="t-price">？</span><small>円</small></p>
-        <p class="tag-save" id="t-save">値段と割引を入れると、値札ができます</p>
+        <p class="tag-save" id="t-save">元の値段を入れてください</p>
         <p class="tag-conv" id="t-conv" hidden></p>
       </div>
       <p class="tag-badge" id="t-badge" hidden><span id="t-rate"></span><small>OFF</small></p>
@@ -89,7 +96,7 @@ export default function render() {
   <div class="calc-tools">
     ${toolBtn('more', 'さらに割引')}
     ${toolBtn('to-cmp', '2つくらべる')}
-    ${toolBtn('to-rate', '何％オフ？')}
+    <a class="tool-btn tool-link" href="/waribiki-ritsu/">何％オフ？</a>
   </div>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
@@ -99,7 +106,6 @@ ${section(
   '計算式',
   `<div class="formula">
 <span>割引後の値段 ＝ 元の値段 ×（100 − 割引率）÷ 100</span>
-<span>割引率 ＝（元の値段 − 割引後の値段）÷ 元の値段 × 100</span>
 </div>
 <p>例：5,000円の30％オフは、5,000 × 70 ÷ 100 ＝ 3,500円。</p>`,
 )}
@@ -108,16 +114,17 @@ ${section(
   'examples',
   '計算例',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>元の値段</th><th>割引</th><th class="num">割引後</th><th class="num">安くなる額</th></tr></thead>
+<thead><tr><th class="num">元の値段</th><th>割引</th><th class="num">割引後</th><th class="num">値引き</th></tr></thead>
 <tbody>
-<tr><td>3,980円</td><td>20％オフ</td><td class="num">3,184円</td><td class="num">796円</td></tr>
-<tr><td>12,800円</td><td>35％オフ</td><td class="num">8,320円</td><td class="num">4,480円</td></tr>
-<tr><td>1,980円</td><td>3割引き</td><td class="num">1,386円</td><td class="num">594円</td></tr>
-<tr><td>2,000円</td><td>30％オフ＋さらに20％オフ</td><td class="num">1,120円</td><td class="num">880円（44％）</td></tr>
-<tr><td>999円</td><td>15％オフ</td><td class="num">849円</td><td class="num">150円</td></tr>
+<tr><td class="num">3,980円</td><td>20％オフ</td><td class="num">3,184円</td><td class="num">796円</td></tr>
+<tr><td class="num">12,800円</td><td>35％オフ</td><td class="num">8,320円</td><td class="num">4,480円</td></tr>
+<tr><td class="num">1,980円</td><td>3割引き</td><td class="num">1,386円</td><td class="num">594円</td></tr>
+<tr><td class="num">2,000円</td><td class="wrap"><span class="nw">30％オフ＋</span><wbr><span class="nw">さらに</span><wbr><span class="nw">20％オフ</span></td><td class="num">1,120円</td><td class="num">880円</td></tr>
+<tr><td class="num">999円</td><td>15％オフ</td><td class="num">849円</td><td class="num">150円</td></tr>
 </tbody>
 </table></div>
-<p class="note">1円未満は切り捨て（849.15円 → 849円）。</p>`,
+<p class="note">1円未満は切り捨て（849.15円 → 849円）。</p>
+<p>30％オフのあとの20％オフは、合わせて44％オフです。</p>`,
 )}
 
 ${section(
@@ -143,16 +150,120 @@ ${relatedHtml(tool)}
     path,
     title: '割引計算｜何％オフ・何割引きの値段を計算',
     description:
-      '「3割引き」「20％オフ」の割引後の値段と、いくら安くなるかを計算します。2つの割引のどちらが安いかの比較、割引後の値段から何％オフかの逆算、クーポンを重ねた二重割引にも使えます。',
+      '「3割引き」「20％オフ」の割引後の値段と、いくら安くなるかを計算します。2つの割引のどちらが安いかの比較や、クーポンを重ねた二重割引にも使えます。',
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },
     ],
-    jsonLd: [toolLd(tool, '元の値段と割引率から、割引後の値段と値引きの額を計算するツール。2つの割引の比較、割引率の逆算、二重割引に対応。'), faqLd(FAQS)],
+    jsonLd: [toolLd(tool, '元の値段と割引率から、割引後の値段と値引きの額を計算するツール。2つの割引の比較と二重割引に対応。'), faqLd(FAQS)],
     theme: themeOf(tool),
     ogImage: `/og/${tool.slug}.png`,
     scripts: ['waribiki.js'],
     body,
   });
   return { path, html, sitemap: true, updated: tool.updated };
+}
+
+// 割引率の計算（何％オフか）：元の値段と、割引後の値段か値引きの額。あとから入れたほうから、もう片方の欄（点線の枠）と何％オフかを出す
+// 結果は「◯％オフ」の値札と、元の値段の帯を払う分と値引きの分に分けた絵
+const RATE_FAQS = [
+  {
+    q: '「300円引き」は何％オフですか？',
+    a: '<p>値引きの額の欄に300と入れてください。2,000円の商品なら15％オフです。</p>',
+  },
+  {
+    q: '何割引きかもわかりますか？',
+    a: '<p>わかります。15％オフなら「1割5分引き」のように出します。</p>',
+  },
+  {
+    q: '割引率に小数が出るときは？',
+    a: '<p>値札には0.1％まで出して、正確な数字は下に出します。</p>',
+  },
+  {
+    q: '割引後のほうが高いときは？',
+    a: '<p>元の値段より何％高いかを出します。</p>',
+  },
+];
+
+function renderRate() {
+  const tool = toolBySlug('waribiki-ritsu');
+  const parent = toolBySlug('waribiki');
+  const path = '/waribiki-ritsu/';
+  const body = `
+<h1>${tool.name}</h1>
+<p class="lead">割引後の値段から、何％オフか計算します。</p>
+
+<div class="calc" id="calc">
+  <div class="box-rows">
+    <div class="box-row-clear">${boxField('price', '元の値段', '円', '2,000')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    <div class="pair">${boxField('sale', '割引後の値段', '円', '1,700')}${boxField('off', '値引きの額', '円', '300')}</div>
+  </div>
+
+  <div class="tag-stage" aria-live="polite">
+    <div class="tag-wrap is-empty" id="tag">
+      <div class="pricetag">
+        <p class="tag-was" id="t-was" hidden></p>
+        <p class="tag-price"><span id="t-price">？</span><small id="t-unit">％オフ</small></p>
+        <p class="tag-save" id="t-save">元の値段を入れてください</p>
+        <p class="tag-conv" id="t-conv" hidden></p>
+      </div>
+    </div>
+    <div class="rieki-bar" aria-hidden="true"><div class="rb-track"><div class="rb-cost" id="b-pay"></div><div class="rb-profit" id="b-off"></div><div class="rb-loss" id="b-up"></div></div><p class="rb-legend"><span id="b-left">払う</span><span id="b-right">値引き</span></p></div>
+    <p class="tag-note" id="t-note" hidden></p>
+  </div>
+
+  <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/waribiki/">割引後の値段を出す</a></div>
+  <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
+</div>
+
+${section(
+  'formula',
+  '計算式',
+  `<div class="formula">
+<span>割引率 ＝（元の値段 − 割引後の値段）÷ 元の値段 × 100</span>
+<span>割引率 ＝ 値引きの額 ÷ 元の値段 × 100</span>
+</div>
+<p>例：2,000円が1,700円なら、300 ÷ 2,000 × 100 ＝ 15％オフです。</p>`,
+)}
+
+${section(
+  'examples',
+  '計算例',
+  `<div class="tbl-wrap"><table>
+<thead><tr><th>元の値段</th><th class="num">割引後</th><th class="num">割引率</th></tr></thead>
+<tbody>
+<tr><td>2,000円</td><td class="num">1,700円</td><td class="num">15％オフ</td></tr>
+<tr><td>5,000円</td><td class="num">3,500円</td><td class="num">30％オフ</td></tr>
+<tr><td>1,280円</td><td class="num">980円</td><td class="num">約23.4％オフ</td></tr>
+<tr><td>3,980円</td><td class="num">2,980円</td><td class="num">約25.1％オフ</td></tr>
+</tbody>
+</table></div>
+<p>15％オフは1割5分引き、30％オフは3割引きです。</p>`,
+)}
+
+${section('faq', 'よくある質問', faqHtml(RATE_FAQS))}
+
+${relatedHtml(tool)}
+`;
+  const html = page({
+    path,
+    title: '割引率の計算｜何％オフか・何割引きかを計算',
+    description:
+      '元の値段と割引後の値段から、何％オフかを計算します。「300円引き」のような値引きの額からも出せます。何割引きかと、いくら安くなったかもわかります。',
+    breadcrumbs: [
+      { name: 'ホーム', path: '/' },
+      { name: parent.name, path: `/${parent.slug}/` },
+      { name: tool.name, path },
+    ],
+    jsonLd: [toolLd(tool, '元の値段と割引後の値段か値引きの額から、何％オフか・何割引きかを出す計算ツール。'), faqLd(RATE_FAQS)],
+    theme: themeOf(tool),
+    ogImage: `/og/${tool.slug}.png`,
+    scripts: ['waribiki-ritsu.js'],
+    body,
+  });
+  return { path, html, sitemap: true, updated: tool.updated };
+}
+
+export default function render() {
+  return [renderMain(), renderRate()];
 }

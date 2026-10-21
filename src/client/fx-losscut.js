@@ -1,6 +1,7 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { fxPosition, yenText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../lib/fx.mjs';
-import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { cutChartShape } from '../lib/fx-chart.mjs';
+import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 
 // ロスカットの計算：ロスカットまで、あと何円の損か。基準より下のときは、足りないお金（追証の目安）
 let side = 'buy'; // 買いか売りか
@@ -8,7 +9,6 @@ let tileQty = null; // えらんだマスの通貨の量（「その他」に入
 const pair = () => FX_PAIRS.find((p) => p.id === $('pair').value) || FX_PAIRS[0];
 const val = (id) => parseNum($(id).value);
 const INPUTS = [...document.querySelectorAll('#calc input')]; // ページの上から順（Enter で次へ）
-const GAUGE_MAX = 500; // メーターの右はし（維持率500％）
 
 function currentQty() {
   const custom = val('qty');
@@ -28,24 +28,55 @@ function setBig(num, unit, error = false) {
   $('r-big').classList.toggle('is-error', error);
 }
 
+/** まだ入れていない欄のうち、いちばん上の欄を案内する */
 const emptyText = (res) => {
   if (!res.empty) return '';
-  return res.missing === 'cut' ? 'ロスカットの基準を入れてください' : '通貨の量・口座のお金・レートを入れてください';
+  if (currentQty() === null) return '通貨の量をえらんでください';
+  if (val('money') === null) return '口座のお金を入れてください';
+  if (val('rate') === null) return 'いまのレートを入れてください';
+  return 'ロスカットの基準を入れてください';
 };
 
-/* ---- メーターと「ロスカットまで あと◯円の損」 ---- */
-function drawGauge(res) {
-  const ratio = res ? Math.min(GAUGE_MAX, Math.max(0, res.ratio)) : 0;
-  $('g-needle').style.transform = `rotate(${(ratio / GAUGE_MAX) * 180}deg)`;
-  $('g-cut').setAttribute('stroke-dasharray', `${Math.min(GAUGE_MAX, val('cut') || 0)} 600`);
-  $('r-ratio').textContent = res ? ratioText(res.ratio) : '？';
+/* ---- チャート：いまのレートの線（金の点線）とロスカットのライン（赤い点線）。あいだはうすい赤、右はしに2つのレート ---- */
+function tag(id, y, text) {
+  const el = $(id);
+  el.hidden = y === null;
+  if (y === null) return;
+  el.style.top = `${y}%`;
+  el.textContent = text;
+}
+
+function drawChart(res) {
+  const rate = val('rate');
+  $('c-pair').textContent = `${pair().name}・${side === 'sell' ? '売り' : '買い'}`;
+  $('c-ratio').textContent = res ? `維持率 ${ratioText(res.ratio)}` : '';
+  if (!res) {
+    ['c-line', 'c-now', 'c-cut'].forEach((id) => $(id).setAttribute('d', ''));
+    $('c-band').setAttribute('height', '0');
+    $('c-dot').hidden = true;
+    tag('t-now', null);
+    tag('t-cut', null);
+    return;
+  }
+  const shape = cutChartShape({ rate, price: res.price, never: res.never });
+  const digits = rateDigits(rate);
+  $('c-line').setAttribute('d', shape.line);
+  $('c-now').setAttribute('d', `M0 ${shape.nowY}H100`);
+  $('c-cut').setAttribute('d', shape.cutY === null ? '' : `M0 ${shape.cutY}H100`);
+  $('c-band').setAttribute('y', String(shape.cutY === null ? 0 : Math.min(shape.nowY, shape.cutY)));
+  $('c-band').setAttribute('height', String(shape.cutY === null ? 0 : Math.abs(shape.cutY - shape.nowY)));
+  $('c-dot').hidden = false;
+  $('c-dot').style.left = `${shape.endX}%`;
+  $('c-dot').style.top = `${shape.nowY}%`;
+  tag('t-now', shape.nowY, `いま ${rate.toFixed(digits)}`);
+  tag('t-cut', shape.cutY, `ロスカット ${cutPriceText(res.price, side, digits).replace('円', '')}`);
 }
 
 /** 取引に必要なお金（通貨ペアと量は上のマスで見えているので、金額だけ） */
 const needText = (res) => `取引に必要なお金 ${yenText(res.need)}`;
 
 function show(res) {
-  drawGauge(res.ok ? res : null);
+  drawChart(res.ok ? res : null);
   $('r-price').textContent = '';
   if (!res.ok) {
     $('r-cap').textContent = 'ロスカットまで、あと';
@@ -123,6 +154,7 @@ $('clear').addEventListener('click', () => {
   update();
 });
 enterToNext(INPUTS);
+focusHints(document.querySelector('.fx-inputs'));
 fitQty();
 setExamples();
 update();

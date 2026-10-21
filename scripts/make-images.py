@@ -89,8 +89,8 @@ def tape(img, cx, cy, w, h, angle):
     img.alpha_composite(layer.rotate(angle, center=(cx, cy), resample=Image.BICUBIC))
 
 
-def price_tag(img, cx, top):
-    """割引計算の値札（サイトの値札と同じ見た目）"""
+def price_tag(img, cx, top, was='元の値段 2,000円', price='1,400', unit='円', save='600円 おトク！', badge='30%'):
+    """割引計算の値札（サイトの値札と同じ見た目）。割引率の計算は大きな数字が「15%オフ」で、シールなし"""
     layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     w, h = 420 * S, 312 * S
@@ -100,20 +100,21 @@ def price_tag(img, cx, top):
     d.ellipse([cx - 13 * S, y0 + 16 * S, cx + 13 * S, y0 + 42 * S], fill='#FFFFFF')  # 穴
     d.line([(cx, y0 - 70 * S), (cx, y0 + 29 * S)], fill='#8D97A5', width=4 * S)
     f_was, f_price, f_yen, f_save = font('bold', 30), font('black', 104), font('black', 44), font('black', 32)
-    was = '元の値段 2,000円'
     tw = d.textlength(was, font=f_was)
     d.text((cx - tw / 2, y0 + 62 * S), was, font=f_was, fill='#6B6450')
     sx = cx - tw / 2 + d.textlength('元の値段 ', font=f_was)
     d.line([(sx, y0 + 84 * S), (cx + tw / 2, y0 + 80 * S)], fill='#C8323C', width=4 * S)
-    pw, yw = d.textlength('1,400', font=f_price), d.textlength('円', font=f_yen)
+    pw, yw = d.textlength(price, font=f_price), d.textlength(unit, font=f_yen)
     px = cx - (pw + yw + 6 * S) / 2
-    d.text((px, y0 + 92 * S), '1,400', font=f_price, fill='#C8323C')
-    d.text((px + pw + 6 * S, y0 + 150 * S), '円', font=f_yen, fill='#C8323C')
-    save = '600円 おトク！'
+    d.text((px, y0 + 92 * S), price, font=f_price, fill='#C8323C')
+    d.text((px + pw + 6 * S, y0 + 150 * S), unit, font=f_yen, fill='#C8323C')
     sw = d.textlength(save, font=f_save)
     d.rounded_rectangle([cx - sw / 2 - 22 * S, y0 + 236 * S, cx + sw / 2 + 22 * S, y0 + 288 * S], radius=6 * S, fill='#FFFFFF')
     d.text((cx - sw / 2, y0 + 240 * S), save, font=f_save, fill='#C8323C')
     layer = layer.rotate(3, center=(cx, top), resample=Image.BICUBIC)
+    if not badge:
+        img.alpha_composite(layer)
+        return
     # 赤い丸の「30%OFF」
     b = Image.new('RGBA', img.size, (0, 0, 0, 0))
     bd = ImageDraw.Draw(b)
@@ -121,7 +122,7 @@ def price_tag(img, cx, top):
     bd.ellipse([bx - r - 6 * S, by - r - 6 * S, bx + r + 6 * S, by + r + 6 * S], fill='#FFFFFF')
     bd.ellipse([bx - r, by - r, bx + r, by + r], fill='#C8323C')
     f1, f2 = font('black', 44), font('black', 24)
-    for t, f, dy in (('30%', f1, -40), ('OFF', f2, 14)):
+    for t, f, dy in ((badge, f1, -40), ('OFF', f2, 14)):
         tw = bd.textlength(t, font=f)
         bd.text((bx - tw / 2, by + dy * S), t, font=f, fill='#FFFFFF')
     b = b.rotate(-10, center=(bx, by), resample=Image.BICUBIC)
@@ -129,11 +130,10 @@ def price_tag(img, cx, top):
     img.alpha_composite(b)
 
 
-def compare_tags(img, cx, top):
+def compare_tags(img, cx, top, tags=(('A', '39.6', '198円 / 500g', False), ('B', '29.8', '298円 / 1kg', True)), base='100gあたり'):
     """実質単価：小さな値札を2つ並べて、安いほうに「おトク！」"""
     d = ImageDraw.Draw(img)
     w, h, gap = 230 * S, 230 * S, 36 * S
-    tags = [('A', '39.6', '198円 / 500g', False), ('B', '29.8', '298円 / 1kg', True)]
     f_lab, f_base, f_price, f_yen, f_sub = font('black', 26), font('bold', 22), font('black', 64), font('black', 28), font('bold', 20)
     for i, (k, per, sub, win) in enumerate(tags):
         x0 = cx - w - gap // 2 + i * (w + gap)
@@ -151,7 +151,7 @@ def compare_tags(img, cx, top):
         bg, line, text = ('#FFF3BF', '#E3CF80', RED) if win else ('#EEF1F5', '#D3DCE8', '#8D97A5')
         ld.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=16 * S, fill=bg, outline=line, width=3 * S)
         ld.ellipse([tx - 10 * S, y0 + 14 * S, tx + 10 * S, y0 + 34 * S], fill='#FFFFFF')
-        for t, f, y, c in (('100gあたり', f_base, 56, '#6B6450'), (sub, f_sub, 184, '#6B6450')):
+        for t, f, y, c in ((base, f_base, 56, '#6B6450'), (sub, f_sub, 184, '#6B6450')):
             tw = ld.textlength(t, font=f)
             ld.text((tx - tw / 2, y0 + y * S), t, font=f, fill=c)
         pw, yw = ld.textlength(per, font=f_price), ld.textlength('円', font=f_yen)
@@ -244,106 +244,254 @@ def dilute_bottle(img, cx, top, label='10倍', rows=(('原液', '100ml'), ('水'
         d.text((tx, y + 46 * S), v, font=f_v, fill=RED)
 
 
-FX_INK, FX_GOLD, FX_MUTED, FX_RULE, FX_DOWN = '#E8E4DA', '#C9A45C', '#A19E95', '#4A4D53', '#F85149'
+FX_INK, FX_GOLD, FX_MUTED, FX_RULE, FX_DOWN, FX_UP = '#E8E4DA', '#C9A45C', '#A19E95', '#4A4D53', '#F85149', '#3FB950'
+FX_PANEL, FX_BAR, FX_GRID, FX_LINE = '#111418', '#171A1F', '#2D3239', '#23272E'
+STAMP = '#C8323C'  # はんこの朱色（ロゴと同じ）
 
 
-def fx_meter(d, gx, gy, ratio, label=None):
-    """半円のメーター（赤いところが100％より下。500％まで）。label があれば下に維持率"""
-    import math
-    r, w = 112 * S, 22 * S
-    box = [gx - r, gy - r, gx + r, gy + r]
-    d.arc(box, 180, 360, fill=FX_RULE, width=w)
-    d.arc(box, 180, 180 + 36, fill=FX_DOWN, width=w)  # 0〜100％（500％までのうち）
-    a = math.radians(180 + 180 * min(ratio, 500) / 500)
-    d.line([(gx, gy), (gx + (r - 26 * S) * math.cos(a), gy + (r - 26 * S) * math.sin(a))], fill=FX_INK, width=7 * S)
-    d.ellipse([gx - 10 * S, gy - 10 * S, gx + 10 * S, gy + 10 * S], fill=FX_INK)
-    if label:
-        f_k, f_v = font('bold', 26), font('black', 40)
-        for t, f, y, c in (('維持率', f_k, gy + 22 * S, FX_MUTED), (label, f_v, gy + 54 * S, FX_INK)):
-            tw = d.textlength(t, font=f)
-            d.text((gx - tw / 2, y), t, font=f, fill=c)
+def spaced(d, cx, y, text, f, fill, gap):
+    """字と字のあいだをあけて、まん中にそろえて書く（書類の題）"""
+    widths = [d.textlength(ch, font=f) for ch in text]
+    x = cx - (sum(widths) + gap * (len(text) - 1)) / 2
+    for ch, w in zip(text, widths):
+        d.text((x, y), ch, font=f, fill=fill)
+        x += w + gap
 
 
-def fx_gauge(img, cx, top):
-    """証拠金維持率：メーターと「レバレッジ10倍で 250％」"""
-    d = ImageDraw.Draw(img)
-    fx_meter(d, cx - 118 * S, top + 210 * S, 250)
-    tx = cx + 22 * S
-    d.text((tx, top + 70 * S), 'レバレッジ10倍で', font=font('bold', 28), fill=FX_MUTED)
-    d.text((tx, top + 110 * S), '250', font=font('black', 84), fill=FX_GOLD)
-    d.text((tx + d.textlength('250', font=font('black', 84)) + 8 * S, top + 152 * S), '％', font=font('black', 40), fill=FX_INK)
-
-
-def fx_cut(img, cx, top):
-    """ロスカット：メーター（維持率）と「ロスカットまで、あと40,000円の損」"""
-    d = ImageDraw.Draw(img)
-    fx_meter(d, cx - 118 * S, top + 190 * S, 166.7, '166.7%')
-    tx = cx + 22 * S
-    d.text((tx, top + 72 * S), 'ロスカットまで、あと', font=font('bold', 26), fill=FX_MUTED)
-    d.text((tx, top + 110 * S), '40,000', font=font('black', 72), fill=FX_GOLD)
-    d.text((tx, top + 196 * S), '円の損', font=font('black', 34), fill=FX_INK)
-
-
-def fx_swap_bars(img, cx, top):
-    """スワップ：1年でたまっていく棒グラフ＋「1日に 約123円」（計算式の例と同じ数字）"""
-    d = ImageDraw.Draw(img)
-    x0, x1, base = cx - 236 * S, cx + 266 * S, top + 300 * S
-    d.text((x0, top + 10 * S), '1日に', font=font('bold', 28), fill=FX_MUTED)
-    f_big = font('black', 72)
-    d.text((x0, top + 44 * S), '約123', font=f_big, fill=FX_GOLD)
-    d.text((x0 + d.textlength('約123', font=f_big) + 8 * S, top + 80 * S), '円 もらえる', font=font('black', 34), fill=FX_INK)
-    n, gap = 12, 8 * S
-    bw = ((x1 - x0) - gap * (n - 1)) / n
-    for i in range(n):
-        bh = 120 * S * (i + 1) / n
-        bx = x0 + i * (bw + gap)
-        d.rectangle([bx, base - bh, bx + bw, base], fill=FX_GOLD)
-    d.line([(x0, base + 2 * S), (x1, base + 2 * S)], fill=FX_RULE, width=3 * S)
-
-
-def rieki_bar(img, cx, top):
-    """利益率：売値の帯を原価（灰色）と利益（ボルドー）に分けた絵＋「利益率 33.3%」（ページの計算例と同じ数字）"""
+def doc_sheet(img, cx, top, title, sum_k, sum_v, unit, head, rows, stamp=None, extra=None):
+    """お仕事の書類（サイトの結果と同じ見た目）：題・いちばん大きな数字と二重線・明細の表。stamp は（上の字, 下の字）"""
     t = THEMES['shigoto']
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 236 * S, cx + 266 * S
-    d.text((x0, top + 20 * S), '利益率', font=font('bold', 28), fill=t['muted'])
-    f_big = font('black', 84)
-    d.text((x0, top + 56 * S), '33.3', font=f_big, fill=t['red'])
-    d.text((x0 + d.textlength('33.3', font=f_big) + 8 * S, top + 100 * S), '%', font=font('black', 40), fill=t['text'])
-    y0, h = top + 200 * S, 64 * S
-    split = x0 + (x1 - x0) * 2 / 3
-    d.rectangle([x0, y0, split, y0 + h], fill='#C9CDD4')
-    d.rectangle([split, y0, x1, y0 + h], fill=t['red'])
-    d.rectangle([x0, y0, x1, y0 + h], outline=t['muted'], width=2 * S)
-    f = font('bold', 26)
-    d.text((x0, y0 + h + 14 * S), '原価 1,000円', font=f, fill=t['muted'])
-    lab = '利益 500円'
-    d.text((x1 - d.textlength(lab, font=f), y0 + h + 14 * S), lab, font=f, fill=t['red'])
+    y0, y1 = top - 30 * S, top + 336 * S
+    d.rectangle([x0 - 7 * S, y0 - 7 * S, x1 + 7 * S, y1 + 7 * S], outline='#B9C0CC', width=2 * S)
+    d.rectangle([x0, y0, x1, y1], fill='#FFFFFF', outline=t['text'], width=2 * S)
+    spaced(d, (x0 + x1) / 2, y0 + 18 * S, title, font('bold', 30, serif=True), t['text'], 14 * S)
+    # いちばん大きな数字（右）と名前（左）、下に二重線
+    ys = y0 + 70 * S
+    f_k, f_u = font('bold', 28), font('black', 32)
+    right = x1 - 22 * S - (128 * S if stamp else 0)
+    uw = d.textlength(unit, font=f_u) if unit else 0
+    room = right - uw - 6 * S - (x0 + 22 * S + d.textlength(sum_k, font=f_k) + 18 * S)
+    size = 74
+    while d.textlength(sum_v, font=font('black', size)) > room and size > 40:
+        size -= 2  # 「3時間20分」のように長い答えは、名前とかさならない大きさに
+    f_v = font('black', size)
+    vw = d.textlength(sum_v, font=f_v)
+    if unit:
+        d.text((right - uw, ys + 46 * S), unit, font=f_u, fill=t['text'])
+    d.text((right - uw - 6 * S - vw, ys + (74 - size) * S * 0.8), sum_v, font=f_v, fill=t['red'])
+    d.text((x0 + 22 * S, ys + 48 * S), sum_k, font=f_k, fill=t['text'])
+    for dy in (104, 112):
+        d.line([(x0 + 18 * S, ys + dy * S), (x1 - 18 * S, ys + dy * S)], fill=t['text'], width=2 * S)
+    if stamp:
+        sx, sy, r = x1 - 70 * S, ys + 46 * S, 54 * S
+        layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        ld = ImageDraw.Draw(layer)
+        ld.ellipse([sx - r, sy - r, sx + r, sy + r], outline=STAMP, width=5 * S)
+        for txt, f, dy in ((stamp[0], font('black', 18), -28), (stamp[1], font('black', 25), -2)):
+            tw = ld.textlength(txt, font=f)
+            ld.text((sx - tw / 2, sy + dy * S), txt, font=f, fill=STAMP)
+        img.alpha_composite(layer.rotate(12, center=(sx, sy), resample=Image.BICUBIC))
+    # 明細の表
+    ty = ys + 128 * S
+    if extra:
+        extra(d, x0 + 18 * S, x1 - 18 * S, ty)
+        ty += 44 * S
+    tx0, tx1 = x0 + 18 * S, x1 - 18 * S
+    n = len(head)
+    widths = [0.34] + [(1 - 0.34) / (n - 1)] * (n - 1)
+    xs = [tx0]
+    for w in widths:
+        xs.append(xs[-1] + (tx1 - tx0) * w)
+    rh, hh = 40 * S, 30 * S
+    d.rectangle([tx0, ty, tx1, ty + hh], fill='#EEF1F6')
+    f_h, f_c = font('bold', 19), font('bold', 23)
+    for i, h in enumerate(head):
+        tw = d.textlength(h, font=f_h)
+        d.text(((xs[i] + xs[i + 1]) / 2 - tw / 2, ty + 3 * S), h, font=f_h, fill=t['muted'])
+    for j, row in enumerate(rows):
+        yy = ty + hh + j * rh
+        for i, c in enumerate(row):
+            red = isinstance(c, tuple)
+            c = c[0] if red else c
+            tw = d.textlength(c, font=f_c)
+            x = xs[i] + 10 * S if i == 0 else xs[i + 1] - 10 * S - tw
+            d.text((x, yy + 6 * S), c, font=f_c, fill=t['red'] if red else (t['muted'] if c == '—' else t['text']))
+    bottom = ty + hh + rh * len(rows)
+    for x in xs:
+        d.line([(x, ty), (x, bottom)], fill=t['text'], width=2 * S)
+    for yy in [ty, ty + hh] + [ty + hh + rh * (j + 1) for j in range(len(rows))]:
+        d.line([(tx0, yy), (tx1, yy)], fill=t['text'], width=2 * S)
+    return d, bottom
 
 
-def seisou_floor(img, cx, top):
-    """清掃の作業時間：床を3人で分けた帯＋「3時間20分」（ページの計算例：1人1時間に100㎡で、1,000㎡を3人）"""
+def zangyo_doc(img, cx, top):
+    """残業代の計算：残業代明細書（ページの計算例：時給1,200円で残業20時間・深夜5時間）"""
+    doc_sheet(img, cx, top, '残業代明細書', '残業代', '31,500', '円', ('項目', '時間', '単価', '金額'),
+              (('時間外', '20時間', '1,500', '30,000'), ('深夜割増', '5時間', '300', '1,500'), ('休日出勤', '—', '1,620', '—')))
+
+
+def zangyo_gekkyu_doc(img, cx, top):
+    """月給の残業代の計算：残業代明細書と、1年を出勤と休日に分けた帯（月給30万円・年間休日120日・1日8時間で残業20時間）"""
     t = THEMES['shigoto']
-    d = ImageDraw.Draw(img)
-    x0, x1 = cx - 236 * S, cx + 266 * S
-    d.text((x0, top + 20 * S), 'かかる時間', font=font('bold', 28), fill=t['muted'])
-    d.text((x0, top + 56 * S), '3時間20分', font=font('black', 72), fill=t['red'])
-    y0, h, n, gap = top + 190 * S, 88 * S, 3, 6 * S
-    d.rectangle([x0, y0, x1, y0 + h], outline=t['muted'], width=2 * S)
+
+    def year(d, x0, x1, y):
+        f = font('bold', 20)
+        d.text((x0, y), '出勤 245日', font=f, fill=t['muted'])
+        lab = '時給 1,837円'
+        d.text((x1 - d.textlength(lab, font=f), y), lab, font=f, fill=t['muted'])
+        by = y + 28 * S
+        work = x0 + (x1 - x0) * 245 / 365
+        d.rectangle([x0, by, work, by + 10 * S], fill='#5A6273')
+        d.rectangle([x0, by, x1, by + 10 * S], outline='#B9C0CC', width=2 * S)
+
+    doc_sheet(img, cx, top, '残業代明細書', '残業代', '45,920', '円', ('項目', '時間', '単価', '金額'),
+              (('時間外', '20時間', '2,296', '45,920'), ('深夜割増', '—', '459', '—')), extra=year)
+
+
+def rieki_doc(img, cx, top):
+    """利益率の計算：利益計算書と粗利率のはんこ（ページの計算例：売値1,500円・原価1,000円）"""
+    doc_sheet(img, cx, top, '利益計算書', '利益', '500', '円', ('項目', '金額', '売値に対して'),
+              (('売値', '1,500', '100%'), ('原価', '1,000', '66.6%'), ('利益', '500', ('33.3%',))), stamp=('粗利率', '33.3%'))
+
+
+def seisou_doc(img, cx, top):
+    """清掃の作業時間：作業指示書と、床を3人で分けた図（ページの計算例：1人1時間に100㎡で、1,000㎡を3人）"""
+    t = THEMES['shigoto']
+    d, bottom = doc_sheet(img, cx, top, '作業指示書', 'かかる時間', '3時間20分', '', ('面積', '人数', '1人あたり'),
+                          (('1,000㎡', '3人', '333.3㎡'),))
+    x0, x1 = cx - 218 * S, cx + 248 * S
+    y0, h, n, gap = bottom + 16 * S, 50 * S, 3, 5 * S
+    d.rectangle([x0, y0, x1, y0 + h], outline=t['text'], width=3 * S)
     w = ((x1 - x0) - 2 * gap - gap * (n - 1)) / n
     for i in range(n):
         bx = x0 + gap + i * (w + gap)
         d.rectangle([bx, y0 + gap, bx + w, y0 + h - gap], fill=t['red'] if i % 2 == 0 else '#B9848D')
-    f = font('bold', 26)
-    d.text((x0, y0 + h + 14 * S), '1人あたり 333.3㎡', font=f, fill=t['muted'])
-    lab = '3人・1,000㎡'
-    d.text((x1 - d.textlength(lab, font=f), y0 + h + 14 * S), lab, font=f, fill=t['muted'])
+        num = str(i + 1)
+        f = font('black', 22)
+        d.text((bx + w / 2 - d.textlength(num, font=f) / 2, y0 + 10 * S), num, font=f, fill='#FFFFFF')
+
+
+def fx_panel(img, cx, top, bar_l, bar_r, h=330):
+    """FX：トレードアプリの画面のわく（上の段に通貨ペアなど）"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 236 * S, cx + 266 * S
+    y0, y1 = top - 30 * S, top - 30 * S + h * S
+    d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=FX_PANEL, outline=FX_GRID, width=2 * S)
+    d.rectangle([x0 + 2 * S, y0 + 2 * S, x1 - 2 * S, y0 + 44 * S], fill=FX_BAR)
+    d.line([(x0, y0 + 44 * S), (x1, y0 + 44 * S)], fill=FX_GRID, width=2 * S)
+    f = font('bold', 21)
+    d.text((x0 + 16 * S, y0 + 9 * S), bar_l, font=f, fill=FX_MUTED)
+    d.text((x1 - 16 * S - d.textlength(bar_r, font=f), y0 + 9 * S), bar_r, font=f, fill=FX_MUTED)
+    return d, x0, x1, y0 + 44 * S, y1
+
+
+def fx_grid(d, x0, x1, y0, y1):
+    for i in (1, 2, 3):
+        d.line([(x0 + (x1 - x0) * i / 4, y0), (x0 + (x1 - x0) * i / 4, y1)], fill=FX_LINE, width=2 * S)
+        d.line([(x0, y0 + (y1 - y0) * i / 4), (x1, y0 + (y1 - y0) * i / 4)], fill=FX_LINE, width=2 * S)
+
+
+def fx_dashed(d, x0, x1, y, fill, dash, width):
+    x = x0
+    while x < x1:
+        d.line([(x, y), (min(x + dash, x1), y)], fill=fill, width=width)
+        x += dash * 1.7
+
+
+def fx_label(d, x1, y, text, bg, fg):
+    f = font('black', 19)
+    tw = d.textlength(text, font=f)
+    d.rectangle([x1 - tw - 18 * S, y - 15 * S, x1, y + 15 * S], fill=bg)
+    d.text((x1 - tw - 9 * S, y - 13 * S), text, font=f, fill=fg)
+
+
+WALK = [0.55, 0.7, 0.42, 0.62, 0.9, 0.74, 0.5, 0.66, 0.36, 0.2, 0.44, 0.6, 0.3, 0.12, 0.3, 0.06, -0.14, 0.1, 0.26, -0.04, -0.3, -0.1, 0.16, -0.2, -0.45, -0.24, -0.04, -0.34, -0.14, 0]  # src/lib/fx-chart.mjs と同じ
+
+
+def fx_cut(img, cx, top):
+    """ロスカット：チャートの画面。いまのレートとロスカットのライン、上の段に「ロスカットまで、あと40,000円の損」"""
+    d, x0, x1, py0, py1 = fx_panel(img, cx, top, 'ドル円・買い', '維持率 166.6%')
+    d.text((x0 + 18 * S, py0 + 12 * S), 'ロスカットまで、あと', font=font('bold', 24), fill=FX_MUTED)
+    f_big = font('black', 62)
+    d.text((x0 + 18 * S, py0 + 40 * S), '40,000', font=f_big, fill=FX_GOLD)
+    d.text((x0 + 26 * S + d.textlength('40,000', font=f_big), py0 + 70 * S), '円の損', font=font('black', 28), fill=FX_INK)
+    cy0, cy1 = py0 + 128 * S, py1 - 6 * S
+    fx_grid(d, x0, x1, cy0, cy1)
+    ch = cy1 - cy0
+    now_y, cut_y = cy0 + ch * 0.34, cy0 + ch * 0.75
+    layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    ImageDraw.Draw(layer).rectangle([x0 + 2 * S, now_y, x1 - 2 * S, cut_y], fill=(248, 81, 73, 34))
+    img.alpha_composite(layer)
+    d = ImageDraw.Draw(img)
+    fx_dashed(d, x0, x1, now_y, FX_GOLD, 8 * S, 2 * S)
+    fx_dashed(d, x0, x1, cut_y, FX_DOWN, 14 * S, 3 * S)
+    end_x = x0 + (x1 - x0) * 0.66
+    pts = [(x0 + 6 * S + (end_x - x0 - 6 * S) * i / (len(WALK) - 1), now_y - w * 0.4 * ch * (1 if w >= 0 else 0.5)) for i, w in enumerate(WALK)]
+    d.line(pts, fill='#D9D5CB', width=3 * S, joint='curve')
+    d.ellipse([end_x - 8 * S, now_y - 8 * S, end_x + 8 * S, now_y + 8 * S], fill=FX_INK)
+    fx_label(d, x1 - 2 * S, now_y, 'いま 150.00', FX_GOLD, '#16181C')
+    fx_label(d, x1 - 2 * S, cut_y, 'ロスカット 146.00', FX_DOWN, '#FFFFFF')
+
+
+def fx_gauge(img, cx, top):
+    """証拠金維持率：口座の画面の大きな半円のメーターと、真ん中に「250％」"""
+    import math
+    d, x0, x1, py0, py1 = fx_panel(img, cx, top, 'ドル円', '口座の状況')
+    gx, gy, r, w = (x0 + x1) / 2, py1 - 60 * S, 150 * S, 26 * S
+    box = [gx - r, gy - r, gx + r, gy + r]
+    d.arc(box, 180, 360, fill=FX_LINE, width=w)
+    d.arc(box, 180, 180 + 36, fill='#7A2F2C', width=w)  # 0〜100％（500％までのうち）
+    d.arc(box, 180, 180 + 90, fill=FX_GOLD, width=w)  # 250％
+    for txt, ang in (('0', 180), ('100', 216), ('500%', 360)):
+        a = math.radians(ang)
+        f = font('bold', 18)
+        tx, ty = gx + (r + 30 * S) * math.cos(a), gy + (r + 30 * S) * math.sin(a)
+        d.text((tx - d.textlength(txt, font=f) / 2, ty - 10 * S), txt, font=f, fill=FX_MUTED)
+    f_k, f_v, f_u = font('bold', 22), font('black', 72), font('black', 30)
+    k = '証拠金維持率'
+    d.text((gx - d.textlength(k, font=f_k) / 2, gy - 96 * S), k, font=f_k, fill=FX_MUTED)
+    vw, uw = d.textlength('250', font=f_v), d.textlength('％', font=f_u)
+    vx = gx - (vw + uw + 6 * S) / 2
+    d.text((vx, gy - 70 * S), '250', font=f_v, fill=FX_GOLD)
+    d.text((vx + vw + 6 * S, gy - 34 * S), '％', font=f_u, fill=FX_INK)
+
+
+def fx_swap_chart(img, cx, top):
+    """スワップ：チャートの画面。1年でたまる額の階段の線と、「1日に 約123円 もらえる」（計算式の例と同じ数字）"""
+    d, x0, x1, py0, py1 = fx_panel(img, cx, top, 'ドル円・買い', '金利の差 3%')
+    cy0, cy1 = py0 + 4 * S, py1 - 34 * S
+    fx_grid(d, x0, x1, cy0, cy1)
+    ch = cy1 - cy0
+    bottom, topy = cy1 - ch * 0.08, cy0 + ch * 0.3  # 左上の答えにかからないように、右へ行くほど上がる
+    pts = [(x0 + 12 * S, bottom)]
+    for i in range(12):
+        x = x0 + 12 * S + (x1 - x0 - 30 * S) * (i + 1) / 12
+        y = bottom - (bottom - topy) * (i + 1) / 12
+        pts += [(x, pts[-1][1]), (x, y)]
+    layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    ImageDraw.Draw(layer).polygon(pts + [(pts[-1][0], bottom)], fill=(63, 185, 80, 44))
+    img.alpha_composite(layer)
+    d = ImageDraw.Draw(img)
+    d.line(pts, fill=FX_UP, width=4 * S)
+    d.text((x0 + 18 * S, cy0 + 14 * S), '1日に', font=font('bold', 24), fill=FX_MUTED)
+    f_big = font('black', 62)
+    d.text((x0 + 18 * S, cy0 + 42 * S), '約123', font=f_big, fill=FX_GOLD)
+    d.text((x0 + 26 * S + d.textlength('約123', font=f_big), cy0 + 72 * S), '円 もらえる', font=font('black', 28), fill=FX_INK)
+    f = font('bold', 18)
+    for txt, fx in (('0日', 0.02), ('半年', 0.5), ('1年', 0.96)):
+        tw = d.textlength(txt, font=f)
+        d.text((x0 + (x1 - x0) * fx - tw / 2, py1 - 28 * S), txt, font=f, fill=FX_MUTED)
 
 
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
-    'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_bars,
-    'rieki-ritsu': rieki_bar, 'seisou-jikan': seisou_floor,
+    'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart,
+    'rieki-ritsu': rieki_doc, 'seisou-jikan': seisou_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
+    # 割引計算・実質単価の比較の下のページ（10/21）
+    'waribiki-ritsu': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '15', '%オフ', '300円 おトク！', None),
+    'matomegai': lambda img, cx, top: compare_tags(img, cx, top, (('A', '56.2', '6本 1,180円', True), ('B', '59.4', '1本 208円', False)), '100mlあたり'),
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),

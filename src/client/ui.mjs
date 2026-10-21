@@ -74,16 +74,38 @@ export async function copyText(text) {
   }
 }
 
-/** Enter キーで次の入力欄へ（最後の欄ではキーボードを閉じる） */
+/** Enter キーで次の入力欄へ（最後の欄ではキーボードを閉じる）。答えが出ている欄（点線の枠）はとばす */
 export function enterToNext(inputs) {
   inputs.forEach((el) => {
     el.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' || e.isComposing) return;
       e.preventDefault();
-      const visible = inputs.filter((x) => x.offsetParent !== null);
+      const visible = inputs.filter((x) => x.offsetParent !== null && (x === el || !x.closest('.is-out')));
       const next = visible[visible.indexOf(el) + 1];
       if (next) next.focus();
       else el.blur();
     });
+  });
+}
+
+/**
+ * 欄をさわっている間だけ、その欄の1行の説明（入力欄の data-hint）を、入力の段のすぐ下に出す
+ * 段の下に出すので、入力欄の位置は動かない。離れたときは少し待って消す（下の結果が上がって、押したボタンがずれないように）
+ */
+export function focusHints(group) {
+  const hint = document.createElement('p');
+  hint.className = 'field-hint';
+  hint.setAttribute('aria-live', 'polite');
+  hint.hidden = true;
+  group.after(hint);
+  let timer = 0;
+  group.addEventListener('focusin', (e) => {
+    clearTimeout(timer);
+    hint.textContent = e.target.dataset.hint || '';
+    hint.hidden = !hint.textContent;
+  });
+  group.addEventListener('focusout', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { if (!group.contains(document.activeElement)) hint.hidden = true; }, 150);
   });
 }

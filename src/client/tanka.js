@@ -2,10 +2,12 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { compareUnitPrices, rankUnitPrices, UNITS, DIM_JA, baseLabel } from '../lib/tanka.mjs';
 import { $, enterToNext, tidyOnBlur, numericOnly } from './ui.mjs';
 
-const KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+// 実質単価の比較と、まとめ買いの単価比較（入り数・割引シールの段があるページ）で共通
+const KEYS = [...document.querySelectorAll('.item')].map((el) => el.id.slice(5)); // 'item-a' → 'a'
 const MAX = KEYS.length;
-let shown = 4; // 表示している商品の数（4〜8）
-const opt = { packs: false, disc: false };
+const EXTRA = !!document.querySelector('.pair.extra'); // まとめ買いの単価比較
+const FIELDS = EXTRA ? ['price', 'qty', 'packs', 'disc'] : ['price', 'qty'];
+let shown = Number($('calc').dataset.start); // 表示している商品の数
 let lastWin = '';
 
 const yen = (x) => `${fmt(x)}円`;
@@ -28,8 +30,8 @@ function readItem(k) {
     price: val(`price-${k}`),
     qty: val(`qty-${k}`),
     unit: $(`unit-${k}`).value,
-    packs: opt.packs ? val(`packs-${k}`) : null,
-    disc: opt.disc ? val(`disc-${k}`) : null,
+    packs: EXTRA ? val(`packs-${k}`) : null,
+    disc: EXTRA ? val(`disc-${k}`) : null,
   };
 }
 
@@ -50,6 +52,15 @@ function showEmpty(base, msg) {
   lastWin = '';
 }
 
+/** 入れかけの商品（値段か量の片方だけ）があれば、足りない欄の案内（上の商品から） */
+function partialText(keys, items, results) {
+  const i = items.findIndex((it, n) => results[n].empty && Object.values(it).some((x) => x !== null && typeof x === 'number'));
+  if (i < 0) return '';
+  const it = items[i];
+  if (it.price === null) return `${K(keys[i])}の値段を入れてください`;
+  return `${K(keys[i])}の${EXTRA ? '量か入り数' : '量'}を入れてください`;
+}
+
 function update() {
   const keys = visible();
   const items = keys.map(readItem);
@@ -63,7 +74,7 @@ function update() {
 
   // 入力まちがいの印
   keys.forEach((k, i) => {
-    ['price', 'qty', 'packs', 'disc'].forEach((f) => $(`f-${f}-${k}`).classList.toggle('has-error', Number.isNaN(items[i][f])));
+    FIELDS.forEach((f) => $(`f-${f}-${k}`).classList.toggle('has-error', Number.isNaN(items[i][f])));
   });
   const errIndex = r.results.findIndex((x) => x.error);
 
@@ -74,7 +85,7 @@ function update() {
       return setNote(`${dims.join('と')}はくらべられません。同じ種類の単位にしてください。`, true);
     }
     const okCount = r.results.filter((x) => x.ok).length;
-    showEmpty(base, okCount === 1 ? 'もう1つ入れると、くらべられます' : '2つ以上入れると、安い順に並びます');
+    showEmpty(base, partialText(keys, items, r.results) || (okCount === 1 ? 'もう1つ入れると、くらべられます' : '2つ以上入れると、安い順に並びます'));
     return setNote(errIndex >= 0 ? `${K(keys[errIndex])}：${r.results[errIndex].error}` : '', errIndex >= 0);
   }
 
@@ -125,7 +136,7 @@ function update() {
   lastWin = key;
 }
 
-/* ---- 下の3つのボタン ---- */
+/* ---- 下のボタン（＋1つ追加。もう1つは、もう片方のページへのリンク） ---- */
 function addItem() {
   if (shown >= MAX) return;
   const k = KEYS[shown];
@@ -141,23 +152,10 @@ function refreshAddBtn() {
   btn.disabled = shown >= MAX;
   btn.querySelector('span').textContent = shown >= MAX ? `${MAX}つまで` : '＋1つ追加';
 }
-function toggle(name, btnId) {
-  opt[name] = !opt[name];
-  $(btnId).setAttribute('aria-pressed', String(opt[name]));
-  document.querySelectorAll('.extra').forEach((row) => { row.hidden = !(opt.packs || opt.disc); });
-  KEYS.forEach((k) => {
-    $(`f-packs-${k}`).hidden = !opt.packs;
-    $(`f-disc-${k}`).hidden = !opt.disc;
-  });
-  update();
-  if (opt[name]) $(`${name}-a`).focus();
-}
 $('to-add').addEventListener('click', addItem);
-$('to-packs').addEventListener('click', () => toggle('packs', 'to-packs'));
-$('to-disc').addEventListener('click', () => toggle('disc', 'to-disc'));
 
 /* ---- 入力 ---- */
-const inputs = KEYS.flatMap((k) => ['price', 'qty', 'packs', 'disc'].map((f) => $(`${f}-${k}`)));
+const inputs = KEYS.flatMap((k) => FIELDS.map((f) => $(`${f}-${k}`)));
 numericOnly(inputs);
 inputs.forEach((el) => el.addEventListener('input', update));
 tidyOnBlur(KEYS.map((k) => $(`price-${k}`)), true); // 量は3桁区切りにしない（せまい欄でも数字が切れないように）
@@ -177,6 +175,6 @@ $('clear').addEventListener('click', () => {
   update();
   $('price-a').focus();
 });
-enterToNext(KEYS.flatMap((k) => [$(`price-${k}`), $(`qty-${k}`), $(`packs-${k}`), $(`disc-${k}`)]));
+enterToNext(inputs);
 refreshAddBtn();
 update();

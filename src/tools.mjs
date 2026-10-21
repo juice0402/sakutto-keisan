@@ -9,8 +9,19 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
     published: true,
-    updated: '2026-10-17',
-    related: ['tanka', 'rieki-ritsu', 'percent', 'shohizei'],
+    updated: '2026-10-21',
+    related: ['waribiki-ritsu', 'tanka', 'rieki-ritsu', 'percent', 'shohizei'],
+  },
+  // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
+  {
+    slug: 'waribiki-ritsu',
+    name: '割引率の計算',
+    category: 'seikatsu',
+    parent: 'waribiki',
+    short: '割引後の値段から、何％オフか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['waribiki', 'tanka', 'rieki-ritsu'],
   },
   {
     slug: 'tanka',
@@ -18,8 +29,19 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '100gあたりの値段で、どれがいちばん安いか',
     published: true,
-    updated: '2026-10-17',
-    related: ['waribiki', 'recipe', 'kishaku'],
+    updated: '2026-10-21',
+    related: ['matomegai', 'waribiki', 'recipe', 'kishaku'],
+  },
+  // 実質単価の比較の下のページ（10/21。もとは実質単価の比較の「入り数」「割引シール」のボタン）
+  {
+    slug: 'matomegai',
+    name: 'まとめ買いの単価比較',
+    category: 'seikatsu',
+    parent: 'tanka',
+    short: '6本入りや割引シールの商品は、どれが安いか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['tanka', 'waribiki', 'recipe'],
   },
   {
     slug: 'recipe',
@@ -71,6 +93,26 @@ export const TOOLS = [
     updated: '2026-10-17',
     related: ['kishaku', 'hyohakuzai', 'mentsuyu', 'tanka'],
   },
+  // 残業代：時給から計算するページがもとで、月給から計算するページはその下（parent のページからだけリンク）
+  {
+    slug: 'zangyo-dai',
+    name: '残業代の計算',
+    category: 'shigoto',
+    short: '時給や月給から、残業代はいくらか',
+    published: true,
+    updated: '2026-10-20',
+    related: ['zangyo-gekkyu', 'rieki-ritsu', 'seisou-jikan'],
+  },
+  {
+    slug: 'zangyo-gekkyu',
+    name: '月給の残業代の計算',
+    category: 'shigoto',
+    parent: 'zangyo-dai',
+    short: '月給と年間休日から、残業代はいくらか',
+    published: true,
+    updated: '2026-10-20',
+    related: ['zangyo-dai', 'rieki-ritsu', 'seisou-jikan'],
+  },
   {
     slug: 'yukyu',
     name: '有給休暇の換算額',
@@ -85,7 +127,7 @@ export const TOOLS = [
     short: '売値と原価から利益率、利益率から売値',
     published: true,
     updated: '2026-10-20',
-    related: ['waribiki', 'tanka', 'seisou-jikan'],
+    related: ['waribiki', 'tanka', 'seisou-jikan', 'zangyo-dai'],
   },
   {
     slug: 'seisou-jikan',
@@ -94,7 +136,7 @@ export const TOOLS = [
     short: '面積と人数から、何時間かかるか',
     published: true,
     updated: '2026-10-20',
-    related: ['kishaku', 'rieki-ritsu'],
+    related: ['kishaku', 'rieki-ritsu', 'zangyo-dai'],
   },
   {
     slug: 'shakai-hoken',
