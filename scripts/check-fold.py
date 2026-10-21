@@ -19,6 +19,13 @@ HEIGHT = 660
 CASES = {
     'waribiki': (lambda pg: (pg.fill('#price', '1980'), pg.click('.tile[data-pct="30"]')), '.tag-price'),
     'waribiki-ritsu': (lambda pg: (pg.fill('#price', '2000'), pg.fill('#sale', '1700')), '.rieki-bar'),
+    'shohizei': (lambda pg: pg.fill('#net', '1980'), '.rc-sum'),
+    'percent': (lambda pg: (pg.fill('#base', '200'), pg.fill('#pct', '15')), '.pic-side .slip-v'),
+    'nissu': (lambda pg: pg.fill('#days', '100'), '.pic-side .slip-v'),
+    'nenrei': (lambda pg: pg.fill('#birth', '1987-06-15'), '.pic-side .slip-v'),
+    'jikan': (lambda pg: (pg.fill('#h-0', '3'), pg.fill('#m-0', '45'), pg.fill('#h-1', '2')), '.slip-sum'),
+    'loan': (lambda pg: (pg.fill('#man', '3000'), pg.fill('#rate', '1'), pg.fill('#years', '35')), '.doc-sum'),
+    'bmi': (lambda pg: (pg.fill('#cm', '170'), pg.fill('#kg', '65')), '.bm-scale'),
     'tanka': (lambda pg: (pg.fill('#price-a', '198'), pg.fill('#qty-a', '500'), pg.fill('#price-b', '298'), pg.fill('#qty-b', '1000')), '#tag .tag-price'),
     'matomegai': (lambda pg: (pg.fill('#price-a', '1180'), pg.fill('#qty-a', '350'), pg.select_option('#unit-a', 'ml'), pg.fill('#packs-a', '6'), pg.fill('#price-b', '208'), pg.fill('#qty-b', '350'), pg.select_option('#unit-b', 'ml')), '#tag .tag-price'),
     'warikan': (lambda pg: (pg.fill('#total', '10000'), pg.fill('#people', '3')), '.rc-sum'),

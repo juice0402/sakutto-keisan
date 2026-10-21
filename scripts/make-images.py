@@ -536,11 +536,11 @@ def receipt(img, cx, top, lines, tickets, rows):
         if n:
             d.text((x0 + 104 * S, y + h - 32 * S), n, font=font('bold', 18), fill=PENCIL)
         y += h + (4 if big else 2) * S
-    # 人数分の券（切り取り線）
+    # 人数分の券（切り取り線）。券がない（消費税）ときは、すぐ下に明細
     n = len(tickets)
     gap = 8 * S
-    w = (x1 - x0 - 44 * S - gap * (n - 1)) / n
-    base = y + (66 if big else 60) * S
+    w = (x1 - x0 - 44 * S - gap * (n - 1)) / n if n else 0
+    base = y + ((66 if big else 60) if n else 4) * S
     for i, hr in enumerate(tickets):
         h = (30 + 30 * hr) * S
         x = x0 + 22 * S + i * (w + gap)
@@ -615,7 +615,7 @@ def meter_slip(img, cx, top, what, digits, month, cells):
             d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
 
 
-def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre=''):
+def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre='', tag='目安'):
     """灯油代・塩分濃度：左に絵、右に大きな答え、下に3つの表（サイトの .slip.pic と同じ見た目）
     pic(d, x0, y0) は絵を描く（幅 180・高さ 200 の中）。under(d, x, y) は大きな答えの下に描く（スプーンなど）"""
     d = ImageDraw.Draw(img)
@@ -624,8 +624,8 @@ def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre
     d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
     d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
     d.text((x0 + 22 * S, y0 + 24 * S), title, font=font('black', 26), fill=INK)
-    tw = d.textlength('目安', font=font('bold', 18))
-    d.text((x1 - 22 * S - tw, y0 + 30 * S), '目安', font=font('bold', 18), fill=PENCIL)
+    tw = d.textlength(tag, font=font('bold', 18))
+    d.text((x1 - 22 * S - tw, y0 + 30 * S), tag, font=font('bold', 18), fill=PENCIL)
     py = y0 + 70 * S
     pic(d, x0 + 18 * S, py)
     rx = x0 + 218 * S
@@ -681,6 +681,151 @@ def salt_slip(img, cx, top):
     pic_slip(img, cx, top, '塩の量', bowl, '塩', '15', 'g', spoons, ('塩', '濃度', '全体に対して'), ('15g', '3%', '2.91%'))
 
 
+def percent_slip(img, cx, top):
+    """パーセント：方眼の100マス（15マスを赤ペンでぬる）と、大きな答え（ページの計算例：200の15％は30）"""
+    def grid(d, x, y):
+        x += 6 * S
+        size = 176 * S
+        c = size / 10
+        d.rectangle([x, y, x + size, y + size], fill='#FFFFFF')
+        for i in range(15):
+            r, k = divmod(i, 10)
+            d.rectangle([x + k * c, y + r * c, x + (k + 1) * c, y + (r + 1) * c], fill='#D3505A')
+        for i in range(1, 10):
+            d.line([(x + i * c, y), (x + i * c, y + size)], fill='#9FB7D4', width=1 * S)
+            d.line([(x, y + i * c), (x + size, y + i * c)], fill='#9FB7D4', width=1 * S)
+        d.rectangle([x, y, x + size, y + size], outline=INK, width=3 * S)
+
+    def say(d, x, y):
+        d.text((x, y + 6 * S), '200の15%は30', font=font('black', 24), fill=INK)
+
+    pic_slip(img, cx, top, '100マスでみると', grid, 'その数', '30', '', say, ('%', '割', '小数'), ('15%', '1.5割', '0.15'), tag='1マス＝1%')
+
+
+def nissu_slip(img, cx, top):
+    """日数：日めくりカレンダー（2026年10月21日の100日後）と、大きな「100日後」"""
+    def cal(d, x, y):
+        x += 14 * S
+        w, h = 160 * S, 190 * S
+        d.rectangle([x, y, x + w, y + h], fill='#FFFFFF', outline=INK, width=3 * S)
+        d.rectangle([x, y, x + w, y + 36 * S], fill=RED)
+        for t, f, yy, col in (('2027年1月', font('black', 22), 4, '#FFFFFF'), ('29', font('black', 92), 34, INK), ('金曜日', font('black', 24), 150, PENCIL)):
+            d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + yy * S), t, font=f, fill=col)
+
+    def say(d, x, y):
+        d.text((x, y + 6 * S), '2027年1月29日（金）', font=font('black', 22), fill=INK)
+
+    pic_slip(img, cx, top, 'カレンダー', cal, 'はじめの日から', '100', '日後', say, ('週と日', '初日もふくむ', '和暦'), ('14週2日', '101日', '令和9年'), tag='10月21日（水）から')
+
+
+def nenrei_slip(img, cx, top):
+    """年齢：干支の輪（卯に赤ペンの丸）と、大きな満年齢（1987年6月15日生まれ・2026年10月21日）"""
+    import math
+    eto = '子丑寅卯辰巳午未申酉戌亥'
+
+    def ring(d, x, y):
+        cx2, cy2, r = x + 88 * S, y + 96 * S, 66 * S
+        d.ellipse([cx2 - r, cy2 - r, cx2 + r, cy2 + r], outline='#D3DCE8', width=2 * S)
+        f = font('black', 21)
+        for i, k in enumerate(eto):
+            a = math.radians(i * 30 - 90)
+            px, py = cx2 + r * math.cos(a), cy2 + r * math.sin(a)
+            on = i == 3
+            if on:
+                d.ellipse([px - 16 * S, py - 16 * S, px + 16 * S, py + 16 * S], fill='#FFFFFF', outline=RED, width=3 * S)
+            tw = d.textlength(k, font=f)
+            d.text((px - tw / 2, py - 15 * S), k, font=f, fill=RED if on else PENCIL)
+        f2 = font('black', 52)
+        d.text((cx2 - d.textlength('卯', font=f2) / 2, cy2 - 36 * S), '卯', font=f2, fill=INK)
+
+    def say(d, x, y):
+        d.text((x, y + 6 * S), '昭和62年生まれ・卯年', font=font('black', 20), fill=INK)
+
+    pic_slip(img, cx, top, '年齢', ring, '満年齢', '39', '歳', say, ('数え年', '学年', '次の誕生日'), ('40歳', '—', 'あと237日'), tag='2026年10月21日')
+
+
+def jikan_slip(img, cx, top):
+    """時間の計算：合計（3時間45分＋2時間30分＋7時間15分）と、時間の帯"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 220 * S, cx + 240 * S
+    y0, y1 = top - 30 * S, top + 290 * S
+    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
+    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    sy = y0 + 30 * S
+    d.text((x0 + 22 * S, sy + 46 * S), '合計', font=font('black', 26), fill=INK)
+    f_v = font('black', 64)
+    v = '13時間30分'
+    d.text((x1 - 22 * S - d.textlength(v, font=f_v), sy), v, font=f_v, fill=RED)
+    d.line([(x0 + 18 * S, sy + 92 * S), (x1 - 18 * S, sy + 92 * S)], fill=INK, width=2 * S)
+    by, bh = sy + 110 * S, 40 * S
+    bx0, bx1 = x0 + 22 * S, x1 - 22 * S
+    span = 14 * 60
+    x = bx0
+    for k, mins in enumerate((225, 150, 435)):
+        w = (bx1 - bx0) * mins / span
+        d.rectangle([x, by, x + w, by + bh], fill=RED if k % 2 == 0 else '#D98A90')
+        t = str(k + 1)
+        d.text((x + w / 2 - d.textlength(t, font=font('black', 20)) / 2, by + 8 * S), t, font=font('black', 20), fill='#FFFFFF')
+        x += w
+    for i in range(1, 14):
+        tx = bx0 + (bx1 - bx0) * i / 14
+        d.line([(tx, by + bh * 0.6), (tx, by + bh)], fill=INK, width=2 * S)
+    d.rectangle([bx0, by, bx1, by + bh], outline=INK, width=3 * S)
+    d.text((bx0, by + bh + 4 * S), '0', font=font('bold', 18), fill=PENCIL)
+    t = '14時間'
+    d.text((bx1 - d.textlength(t, font=font('bold', 18)), by + bh + 4 * S), t, font=font('bold', 18), fill=PENCIL)
+    ty = by + bh + 44 * S
+    cw3 = (x1 - x0 - 36 * S) / 3
+    for i, (k, v2) in enumerate(zip(('小数', '分', '日'), ('13.5時間', '810分', '—'))):
+        cxx = x0 + 18 * S + cw3 * (i + 0.5)
+        d.text((cxx - d.textlength(k, font=font('bold', 17)) / 2, ty), k, font=font('bold', 17), fill=PENCIL)
+        d.text((cxx - d.textlength(v2, font=font('black', 24)) / 2, ty + 26 * S), v2, font=font('black', 24), fill=INK)
+        if i:
+            d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
+
+
+def loan_doc(img, cx, top):
+    """ローン：返済予定表（3,000万円・金利1％・35年）。書類に入りきるよう、共有画像では帯をのせない"""
+    doc_sheet(img, cx, top, '返済予定表', '毎月の返済', '84,686', '円', ('経過', '返した額', 'のこり'),
+              (('10年後', '1,016.2万円', '2,247.1万円'), ('20年後', '2,032.5万円', '1,415万円'), ('完済', '3,556.8万円', ('0万円',))))
+
+
+def bmi_slip(img, cx, top):
+    """BMI：身長170cm・体重65kg（22.5・普通体重）と、体重計のような目もりに針"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 220 * S, cx + 240 * S
+    y0, y1 = top - 30 * S, top + 290 * S
+    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
+    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    d.text((x0 + 22 * S, y0 + 24 * S), 'BMI', font=font('black', 26), fill=INK)
+    tw = d.textlength('大人の目安', font=font('bold', 18))
+    d.text((x1 - 22 * S - tw, y0 + 30 * S), '大人の目安', font=font('bold', 18), fill=PENCIL)
+    sy = y0 + 66 * S
+    d.text((x0 + 22 * S, sy + 46 * S), '普通体重', font=font('black', 28), fill=INK)
+    f_v = font('black', 74)
+    d.text((x1 - 22 * S - d.textlength('22.5', font=f_v), sy - 4 * S), '22.5', font=f_v, fill=RED)
+    d.line([(x0 + 18 * S, sy + 92 * S), (x1 - 18 * S, sy + 92 * S)], fill=INK, width=2 * S)
+    bx0, bx1, by, bh = x0 + 22 * S, x1 - 22 * S, sy + 122 * S, 22 * S
+    pos = lambda v: bx0 + (bx1 - bx0) * (min(40, max(15, v)) - 15) / 25
+    prev = 15
+    for end, col in ((18.5, '#B9CFE6'), (25, '#FFFFFF'), (30, '#F1C9CC'), (35, '#E49AA0'), (40, '#D56B74')):
+        d.rectangle([pos(prev), by, pos(end), by + bh], fill=col)
+        prev = end
+    d.rectangle([bx0, by, bx1, by + bh], outline=INK, width=3 * S)
+    nx = pos(22.5)
+    d.polygon([(nx - 12 * S, by - 18 * S), (nx + 12 * S, by - 18 * S), (nx, by - 2 * S)], fill=INK)
+    for v in (18.5, 25, 30, 35):
+        t = str(v)
+        d.text((pos(v) - d.textlength(t, font=font('bold', 17)) / 2, by + bh + 4 * S), t, font=font('bold', 17), fill=PENCIL)
+    ty = by + bh + 40 * S
+    cw2 = (x1 - x0 - 36 * S) / 2
+    for i, (k, v2) in enumerate(zip(('標準体重', '普通体重の範囲'), ('63.6kg', '53.4〜72.1kg'))):
+        cxx = x0 + 18 * S + cw2 * (i + 0.5)
+        d.text((cxx - d.textlength(k, font=font('bold', 17)) / 2, ty), k, font=font('bold', 17), fill=PENCIL)
+        d.text((cxx - d.textlength(v2, font=font('black', 24)) / 2, ty + 26 * S), v2, font=font('black', 24), fill=INK)
+    d.line([(x0 + 18 * S + cw2, ty), (x0 + 18 * S + cw2, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
+
+
 def touyu_slip(img, cx, top, days, month, cans, liters, cells):
     """灯油代：青いポリタンクの絵（ラベルに18Lで何日）と1か月の灯油代、1か月に使うポリタンクの数"""
     blue, dark = '#2E6FB7', '#1D4F8C'
@@ -733,6 +878,9 @@ VISUALS = {
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
     'enbun-noudo': salt_slip,
+    'percent': percent_slip,
+    'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
+    'shohizei': lambda img, cx, top: receipt(img, cx, top, [('税込', '2,178', '')], [], [('税抜', '1,980円'), ('消費税（10%）', '198円'), ('税込', '2,178円')]),
     'touyu-dai': lambda img, cx, top: touyu_slip(img, cx, top, '7.5日', '10,252', 4.0, '1か月 72L・18L缶 4本', ('42.7円', '342円', '142.4円')),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),
     # 電気代の計算の下のページ（家電別）

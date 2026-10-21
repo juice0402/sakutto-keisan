@@ -4,7 +4,7 @@
 // ページに載せる計算例は tests/warikan.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { WARIKAN_UNITS, WARIKAN_GROUPS, warikan } from '../lib/warikan.mjs';
 
@@ -13,15 +13,12 @@ export const QUICK_TOTALS = [5000, 10000, 15000, 20000, 25000, 30000, 50000];
 export const QUICK_PEOPLE = [3, 4, 5, 6];
 const yenNum = (x) => x.toLocaleString('ja-JP');
 const QUICK_ROWS = QUICK_TOTALS.map(
-  (t) => `<tr><td class="num">${yenNum(t)}円</td>${QUICK_PEOPLE.map((n) => `<td class="num">${yenNum(warikan({ total: t, people: n, unit: 100 }).each)}</td>`).join('')}</tr>`,
+  (t) => `<tr><td class="num">${yenNum(t)}</td>${QUICK_PEOPLE.map((n) => `<td class="num">${yenNum(warikan({ total: t, people: n, unit: 100 }).each)}</td>`).join('')}</tr>`,
 ).join('\n');
 
 const NOSCRIPT = '<noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>';
 
-// レシートの下のぎざぎざ（切り取った紙のはし）
-const TEETH = 28;
-const zig = Array.from({ length: TEETH }, (_, i) => `L${((i + 0.5) * 100 / TEETH).toFixed(2)} 5L${((i + 1) * 100 / TEETH).toFixed(2)} 0`).join('');
-const EDGE = `<svg class="rc-edge" viewBox="0 0 100 5" preserveAspectRatio="none" aria-hidden="true"><path class="rc-paper" d="M0 0${zig}Z"/><path class="rc-cut" d="M0 0${zig}" vector-effect="non-scaling-stroke"/></svg>`;
+const EDGE = RECEIPT_EDGE;
 
 // 合計・集める・おつりの行と、券（人数分）
 const ROWS = `<dl class="rc-rows">
@@ -135,7 +132,7 @@ ${section(
 ${QUICK_ROWS}
 </tbody>
 </table></div>
-<p class="note">100円単位で集める1人の額（円）です。</p>`,
+<p class="note">合計と、100円単位の1人の額（円）です。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

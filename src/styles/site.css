@@ -440,8 +440,9 @@ h1 {
 .pic-side .slip-k { display: block; margin: 0; }
 .pic-side .slip-v { display: block; margin: 0; text-align: left; white-space: nowrap; }
 .pic-side .slip-v b { font-size: 36px; }
+.pic-side .slip-v.is-long { white-space: normal; } /* 長い数はけたの間で折り返す（横にはみ出さない） */
 .pic-side .slip-v.is-long b { font-size: 29px; }
-@media (max-width: 374px) { .pic-row { grid-template-columns: 96px 1fr; } .tk-tank, .en-bowl { width: 96px; } .pic-side .slip-v b { font-size: 32px; } .pic-side .slip-v.is-long b { font-size: 25px; } }
+@media (max-width: 374px) { .pic-row { grid-template-columns: 96px 1fr; } .tk-tank, .en-bowl, .pc-box, .cal, .eto-ring { width: 96px; } .pic-side .slip-v b { font-size: 32px; } .pic-side .slip-v.is-long b { font-size: 25px; } }
 .tk-cans { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 3px; min-height: 18px; margin: 4px 0 0; }
 .tk-can { position: relative; width: 12px; height: 15px; border-radius: 2px 2px 3px 3px; background: linear-gradient(to top, #2e6fb7 var(--f, 100%), #d5e2f2 var(--f, 100%)); }
 .tk-can::before { content: ""; position: absolute; top: -3px; left: 2px; width: 5px; height: 3px; border-radius: 1px 1px 0 0; background: #2e6fb7; }
@@ -449,6 +450,56 @@ h1 {
 .tk-liters { margin: 2px 0 0; min-height: 18px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .pic .slip-table { margin-top: 10px; border-top: 1.5px solid var(--text); }
 .pic .slip-table th { padding-top: 6px; }
+/* 日付の欄（日数・年齢）：ほかの欄と同じ高さと字の大きさ。iPhone でも左寄せ */
+.date-field input { -webkit-appearance: none; appearance: none; display: block; width: 100%; min-height: 1.6em; padding: 20px 0 2px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 21px; font-weight: 800; line-height: 1.6; text-align: left; outline: none; }
+.date-field input::-webkit-date-and-time-value { text-align: left; }
+.date-field.is-out input { color: var(--red); }
+/* 日めくりカレンダー（日数）：上に年と月の赤い帯、大きな日にち、曜日 */
+.cal { width: 108px; border: 1.5px solid var(--text); border-radius: 3px; background: #fff; text-align: center; overflow: hidden; }
+.cal-ym { margin: 0; padding: 3px 0; background: var(--red); color: #fff; font-size: 13px; font-weight: 800; }
+.cal-d { margin: 0; font-size: 46px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.cal-w { margin: 0 0 6px; font-size: 14px; font-weight: 800; color: var(--muted); }
+.cal-w.is-sun { color: var(--red); }
+.cal-w.is-sat { color: #2e6fb7; }
+/* 干支の輪（年齢）：12の干支を丸く並べて、生まれ年の干支に赤ペンの丸 */
+.eto-ring { width: 108px; }
+.eto-ring svg { width: 100%; height: auto; }
+.eto-k { font-size: 13px; font-weight: 800; fill: var(--muted); text-anchor: middle; dominant-baseline: central; }
+.eto-k.is-on { fill: var(--red); }
+.eto-mark { fill: none; stroke: var(--red); stroke-width: 1.6; }
+.eto-c { font-size: 30px; font-weight: 800; fill: var(--text); text-anchor: middle; dominant-baseline: central; }
+/* 時間の帯（時間の計算）：行ごとの時間を1本の帯に並べ、1時間ごとの目もり */
+.jk-bar { position: relative; display: flex; height: 26px; margin: 10px 0 0; border: 1.5px solid var(--text); background: #fff; overflow: hidden; }
+.jk-seg { flex: none; height: 100%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; overflow: hidden; }
+.jk-seg.is-even { background: var(--red); }
+.jk-seg.is-odd { background: #d98a90; }
+.jk-ticks { position: absolute; inset: 0; pointer-events: none; }
+.jk-cols { display: flex; justify-content: flex-end; }
+.date-pair { grid-template-columns: .8fr 1.2fr; } /* 日数：何日後｜おわりの日（日付は長いので広く） */
+@media (max-width: 374px) { .cal, .eto-ring { width: 96px; } .date-field input { font-size: 19px; } }
+.jk-row > .pair { grid-template-columns: 1fr 1fr; }
+.jk-scale { display: flex; justify-content: space-between; margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--muted); }
+/* BMI：体重計のような目もり（低体重〜肥満4度の帯）と、BMI の針 */
+.bm-scale { position: relative; margin: 12px 0 0; padding-top: 10px; }
+.bm-track { display: flex; height: 14px; border: 1.5px solid var(--text); overflow: hidden; }
+.bm-zone { flex: none; height: 100%; }
+.bm-z0 { background: #b9cfe6; }
+.bm-z1 { background: #fff; }
+.bm-z2 { background: #f1c9cc; }
+.bm-z3 { background: #e49aa0; }
+.bm-z4 { background: #d56b74; }
+.bm-z5 { background: var(--red); }
+.bm-needle { position: absolute; top: 0; width: 0; height: 0; margin-left: -8px; border: 8px solid transparent; border-top: 10px solid var(--text); border-bottom: 0; transition: left .4s ease; }
+.bm-ticks { position: relative; height: 16px; margin: 2px 0 0; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.bm-ticks span { position: absolute; transform: translateX(-50%); }
+/* パーセント：方眼の100マス（割合の分を赤ペンでぬる）と、「200の15％は30」の1行 */
+.pc-box { width: 108px; }
+.pc-grid { width: 100%; height: auto; }
+.pc-bg { fill: #fff; }
+.pc-fill { fill: var(--red); opacity: .85; }
+.pc-line { fill: none; stroke: #9fb7d4; stroke-width: .6; }
+.pc-frame { fill: none; stroke: var(--text); stroke-width: 1.6; }
+.pc-say { margin: 4px 0 0; min-height: 20px; font-size: 14px; font-weight: 800; color: var(--text); overflow-wrap: anywhere; white-space: pre-line; }
 /* 塩分濃度：ボウルの絵（水や食材の重さ）と、塩の量のスプーンの絵（大さじ・小さじ。最後の小さじは入る分だけぬる） */
 .en-bowl { position: relative; width: 108px; aspect-ratio: 120 / 100; }
 .en-bowl svg { width: 100%; height: 100%; }
@@ -473,6 +524,7 @@ h1 {
 .seg-btn + .seg-btn { border-left: 1.5px solid var(--rule); }
 .seg-btn[aria-pressed="true"] { color: var(--red); }
 .tiles-4 { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.tiles-2 { grid-template-columns: 1fr 1fr; } /* 消費税の税率（10％・8％） */
 #f-tiles { margin-bottom: 8px; }
 .tiles-4 .tile b { font-size: 21px; }
 .tiles-4 .tile-long b { font-size: 18px; }
@@ -819,7 +871,16 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tool-card { display: block; min-height: 64px; padding: 11px 2px 10px; border-bottom: 1px dashed var(--border); color: var(--text); text-decoration: none; }
 .tool-card:active { background: var(--marker); }
 .tool-name { display: block; font-size: 17px; font-weight: 800; line-height: 1.45; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px; }
-.tool-desc { display: block; margin-top: 3px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }.soon { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.tool-desc { display: block; margin-top: 3px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+/* よく使う計算（王道）：名前だけを2列で、大きく */
+.pick-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+.pick-card { display: flex; align-items: center; min-height: 58px; padding: 6px 2px; border-bottom: 1px dashed var(--border); color: var(--text); font-size: 18px; font-weight: 800; line-height: 1.35; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px; }
+.pick-card:active { background: var(--marker); }
+/* カテゴリの「ほかの計算」：押すと開く（すき間の計算をたたんでおく） */
+.more summary { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 4px 2px; border-bottom: 1px dashed var(--border); font-size: 15px; font-weight: 700; color: var(--muted); cursor: pointer; list-style: none; }
+.more summary::-webkit-details-marker { display: none; }
+.more summary::after { content: "+"; font-size: 22px; font-weight: 400; }
+.more[open] summary::after { content: "−"; }
 .tip {
   margin: 32px 4px 0; padding: 14px 16px; background: var(--marker); font-size: 14px;
   transform: rotate(-0.8deg); box-shadow: 1px 2px 0 rgb(28 47 74 / 0.1);
@@ -868,5 +929,6 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
   .tool-list { grid-template-columns: 1fr 1fr; }
+  .pick-list { grid-template-columns: repeat(4, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
