@@ -210,7 +210,16 @@ export const TOOLS = [
     short: '売値と原価から利益率、利益率から売値',
     published: true,
     updated: '2026-10-20',
-    related: ['waribiki', 'tanka', 'seisou-jikan', 'zangyo-dai'],
+    related: ['kakeritsu', 'waribiki', 'tanka', 'seisou-jikan'],
+  },
+  {
+    slug: 'kakeritsu',
+    name: '掛け率の計算',
+    category: 'shigoto',
+    short: '上代と掛け率から下代、下代から掛け率',
+    published: true,
+    updated: '2026-10-21',
+    related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka'],
   },
   {
     slug: 'seisou-jikan',

@@ -356,6 +356,23 @@ def rieki_doc(img, cx, top):
               (('売値', '1,500', '100%'), ('原価', '1,000', '66.6%'), ('利益', '500', ('33.3%',))), stamp=('粗利率', '33.3%'))
 
 
+def kakeritsu_doc(img, cx, top):
+    """掛け率の計算：納品書と何掛けのはんこ、上代の帯を下代と粗利に分けた絵（ページの計算例：上代3,000円の6掛け）"""
+    t = THEMES['shigoto']
+    d, bottom = doc_sheet(img, cx, top, '納品書', '下代', '1,800', '円', ('上代', '掛率', '下代', '粗利'),
+                          (('3,000', '60%', ('1,800',), '1,200'),), stamp=('掛け率', '6掛け'))
+    x0, x1 = cx - 218 * S, cx + 248 * S
+    y0, h = bottom + 22 * S, 30 * S
+    mid = x0 + (x1 - x0) * 0.6
+    d.rectangle([x0, y0, mid, y0 + h], fill='#C9CDD5')
+    d.rectangle([mid, y0, x1, y0 + h], fill=t['red'])
+    d.rectangle([x0, y0, x1, y0 + h], outline='#B9C0CC', width=2 * S)
+    f = font('bold', 20)
+    d.text((x0, y0 + h + 6 * S), '下代 1,800円', font=f, fill=t['muted'])
+    lab = '粗利 1,200円（40%）'
+    d.text((x1 - d.textlength(lab, font=f), y0 + h + 6 * S), lab, font=f, fill=t['muted'])
+
+
 def seisou_doc(img, cx, top):
     """清掃の作業時間：作業指示書と、床を3人で分けた図（ページの計算例：1人1時間に100㎡で、1,000㎡を3人）"""
     t = THEMES['shigoto']
@@ -611,7 +628,7 @@ def denki_slip(img, cx, top, name, mode, watt, hours):
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart,
-    'rieki-ritsu': rieki_doc, 'seisou-jikan': seisou_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
+    'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
     # 割引計算・実質単価の比較の下のページ（10/21）
     'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
