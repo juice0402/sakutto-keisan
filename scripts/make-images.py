@@ -485,11 +485,124 @@ def fx_swap_chart(img, cx, top):
         d.text((x0 + (x1 - x0) * fx - tw / 2, py1 - 28 * S), txt, font=f, fill=FX_MUTED)
 
 
+def receipt(img, cx, top, lines, tickets, rows):
+    """割り勘：お会計のレシート（サイトの結果と同じ見た目）。lines は（名前, 額, 人数）、tickets は券の高さの割合"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 214 * S, cx + 238 * S
+    y0, y1 = top - 78 * S, top + 334 * S
+    teeth = 18
+    pts = [(x0, y0), (x1, y0), (x1, y1)]
+    for i in range(1, teeth + 1):
+        pts += [(x1 - (i - 0.5) * (x1 - x0) / teeth, y1 + 12 * S), (x1 - i * (x1 - x0) / teeth, y1)]
+    d.polygon(pts, fill='#FFFFFF', outline='#B4C1D2', width=2 * S)
+    spaced(d, (x0 + x1) / 2, y0 + 14 * S, 'お会計', font('black', 26), INK, 18 * S)
+
+    def dashed(y):
+        x = x0 + 18 * S
+        while x < x1 - 18 * S:
+            d.line([(x, y), (min(x + 10 * S, x1 - 18 * S), y)], fill='#B4C1D2', width=2 * S)
+            x += 17 * S
+
+    dashed(y0 + 58 * S)
+    y = y0 + 70 * S
+    big = len(lines) == 1
+    for k, v, n in lines:
+        f_v = font('black', 70 if big else 44)
+        f_u = font('black', 26 if big else 22)
+        uw = d.textlength('円', font=f_u)
+        vw = d.textlength(v, font=f_v)
+        h = (82 if big else 54) * S
+        d.text((x1 - 22 * S - uw, y + h - 36 * S), '円', font=f_u, fill=RED)
+        d.text((x1 - 26 * S - uw - vw, y + h - (78 if big else 50) * S - 6 * S), v, font=f_v, fill=RED)
+        d.text((x0 + 22 * S, y + h - 38 * S), k, font=font('black', 28 if big else 24), fill=INK)
+        if n:
+            d.text((x0 + 104 * S, y + h - 32 * S), n, font=font('bold', 18), fill=PENCIL)
+        y += h + (4 if big else 2) * S
+    # 人数分の券（切り取り線）
+    n = len(tickets)
+    gap = 8 * S
+    w = (x1 - x0 - 44 * S - gap * (n - 1)) / n
+    base = y + (66 if big else 60) * S
+    for i, hr in enumerate(tickets):
+        h = (30 + 30 * hr) * S
+        x = x0 + 22 * S + i * (w + gap)
+        for (ax, ay), (bx, by) in (((x, base - h), (x + w, base - h)), ((x, base), (x + w, base)), ((x, base - h), (x, base)), ((x + w, base - h), (x + w, base))):
+            steps = int(max(abs(bx - ax), abs(by - ay)) / (9 * S)) or 1
+            for j in range(0, steps, 2):
+                d.line([(ax + (bx - ax) * j / steps, ay + (by - ay) * j / steps), (ax + (bx - ax) * (j + 1) / steps, ay + (by - ay) * (j + 1) / steps)], fill='#B4C1D2', width=2 * S)
+        if big:
+            tw = d.textlength(lines[0][1], font=font('bold', 18))
+            d.text((x + w / 2 - tw / 2, base - h / 2 - 12 * S), lines[0][1], font=font('bold', 18), fill=INK)
+    y = base + 14 * S
+    dashed(y)
+    for k, v in rows:
+        y += 12 * S
+        d.text((x0 + 22 * S, y), k, font=font('bold', 22), fill=INK)
+        vw = d.textlength(v, font=font('black', 24))
+        d.text((x1 - 22 * S - vw, y), v, font=font('black', 24), fill=INK)
+        y += 30 * S
+
+
+def meter_slip(img, cx, top, what, digits, month, cells):
+    """電気代：電気代のお知らせ（サイトの結果と同じ見た目）。digits は1か月の使用量（整数4けた＋小数1けたの文字）、cells は（1時間, 1日, 1年）"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 220 * S, cx + 240 * S
+    y0, y1 = top - 70 * S, top + 316 * S
+    d.rectangle([x0, y0, x1, y1], fill='#FFFFFF', outline='#B4C1D2', width=2 * S)
+    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    d.text((x0 + 22 * S, y0 + 24 * S), '電気代のお知らせ', font=font('black', 26), fill=INK)
+    tw = d.textlength('目安', font=font('bold', 18))
+    d.text((x1 - 22 * S - tw, y0 + 30 * S), '目安', font=font('bold', 18), fill=PENCIL)
+    # メーターの数字の窓
+    my = y0 + 78 * S
+    d.text((x0 + 22 * S, my + 4 * S), '1か月の', font=font('bold', 17), fill=PENCIL)
+    d.text((x0 + 22 * S, my + 26 * S), '使用量', font=font('bold', 17), fill=PENCIL)
+    uw = d.textlength('kWh', font=font('black', 20))
+    d.text((x1 - 22 * S - uw, my + 16 * S), 'kWh', font=font('black', 20), fill=INK)
+    bw, bh, gap = 34 * S, 46 * S, 5 * S
+    wx1 = x1 - 30 * S - uw
+    wx0 = wx1 - len(digits) * bw - (len(digits) - 1) * gap - 12 * S
+    d.rounded_rectangle([wx0, my - 6 * S, wx1, my + bh + 6 * S], radius=4 * S, fill=INK)
+    for i, ch in enumerate(digits):
+        bx = wx0 + 6 * S + i * (bw + gap)
+        dec = i == len(digits) - 1
+        d.rounded_rectangle([bx, my, bx + bw, my + bh], radius=3 * S, fill=RED if dec else '#FFFFFF')
+        cw = d.textlength(ch, font=font('black', 30))
+        d.text((bx + bw / 2 - cw / 2, my + 2 * S), ch, font=font('black', 30), fill='#FFFFFF' if dec else INK)
+    ww = d.textlength(what, font=font('bold', 18))
+    d.text((x1 - 22 * S - ww, my + bh + 14 * S), what, font=font('bold', 18), fill=PENCIL)
+    # いちばん大きな1か月の電気代と、下の線
+    sy = my + bh + 44 * S
+    d.text((x0 + 22 * S, sy + 46 * S), '1か月', font=font('black', 26), fill=INK)
+    f_v, f_u = font('black', 70), font('black', 26)
+    yw = d.textlength('円', font=f_u)
+    vw = d.textlength(month, font=f_v)
+    d.text((x1 - 22 * S - yw, sy + 46 * S), '円', font=f_u, fill=RED)
+    d.text((x1 - 26 * S - yw - vw, sy - 6 * S), month, font=f_v, fill=RED)
+    aw = d.textlength('約', font=f_u)
+    d.text((x1 - 30 * S - yw - vw - aw, sy + 46 * S), '約', font=f_u, fill=RED)
+    d.line([(x0 + 18 * S, sy + 88 * S), (x1 - 18 * S, sy + 88 * S)], fill=INK, width=2 * S)
+    # 1時間・1日・1年
+    ty = sy + 100 * S
+    cw3 = (x1 - x0 - 36 * S) / 3
+    for i, (k, v) in enumerate(zip(('1時間', '1日', '1年'), cells)):
+        cxx = x0 + 18 * S + cw3 * (i + 0.5)
+        kw = d.textlength(k, font=font('bold', 17))
+        d.text((cxx - kw / 2, ty), k, font=font('bold', 17), fill=PENCIL)
+        vw = d.textlength(v, font=font('black', 24))
+        d.text((cxx - vw / 2, ty + 26 * S), v, font=font('black', 24), fill=INK)
+        if i:
+            d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
+
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart,
     'rieki-ritsu': rieki_doc, 'seisou-jikan': seisou_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
     # 割引計算・実質単価の比較の下のページ（10/21）
+    'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),
+    'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
+                                                    [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
     'waribiki-ritsu': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '15', '%オフ', '300円 おトク！', None),
     'matomegai': lambda img, cx, top: compare_tags(img, cx, top, (('A', '56.2', '6本 1,180円', True), ('B', '59.4', '1本 208円', False)), '100mlあたり'),
     # 希釈率の使いみち別

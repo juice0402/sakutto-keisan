@@ -46,6 +46,17 @@ CASES = {
         (('fill', '#price-b', '208'), '#t-sub', 'Bの量か入り数を入れてください'),
         (('fill', '#qty-b', '350'), None, None),
     ],
+    'warikan': [
+        (None, '#r-foot', '合計を入れてください'),
+        (('fill', '#total', '10000'), '#r-foot', '人数を入れてください'),
+        (('click', '#people-plus'), None, None),
+    ],
+    'warikan-keisha': [
+        (None, '#r-foot', '合計を入れてください'),
+        (('fill', '#total', '30000'), '#r-foot', '人数を入れてください'),
+        (('fill', '#people-0', '1'), '#r-foot', 'ふつうの人数を入れてください'),
+        (('fill', '#people-1', '4'), None, None),
+    ],
     'recipe': [
         (None, None, None),
         (('fill', '#amt-1', '300'), None, None),

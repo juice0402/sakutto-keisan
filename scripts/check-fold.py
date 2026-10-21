@@ -20,6 +20,8 @@ CASES = {
     'waribiki-ritsu': (lambda pg: (pg.fill('#price', '2000'), pg.fill('#sale', '1700')), '.rieki-bar'),
     'tanka': (lambda pg: (pg.fill('#price-a', '198'), pg.fill('#qty-a', '500'), pg.fill('#price-b', '298'), pg.fill('#qty-b', '1000')), '#tag .tag-price'),
     'matomegai': (lambda pg: (pg.fill('#price-a', '1180'), pg.fill('#qty-a', '350'), pg.select_option('#unit-a', 'ml'), pg.fill('#packs-a', '6'), pg.fill('#price-b', '208'), pg.fill('#qty-b', '350'), pg.select_option('#unit-b', 'ml')), '#tag .tag-price'),
+    'warikan': (lambda pg: (pg.fill('#total', '10000'), pg.fill('#people', '3')), '.rc-sum'),
+    'warikan-keisha': (lambda pg: (pg.fill('#total', '30000'), pg.fill('#people-0', '1'), pg.fill('#people-1', '4'), pg.fill('#people-2', '2')), '#rc-g-2'),
     'recipe': (lambda pg: pg.fill('#amt-1', '300'), '#out-1'),
     'kishaku': (lambda pg: (pg.click('.tile[data-ratio="100"]'), pg.fill('#v-total', '500')), '#f-water'),
     'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),

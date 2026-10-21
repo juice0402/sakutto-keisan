@@ -211,8 +211,8 @@ h1 {
 .tool-btn:disabled { opacity: .35; cursor: default; }
 /* もう1つのページへ行くボタン（割引計算の「何％オフ？」・実質単価の比較の「入り数・割引シール」など）。横に2つ分・3つ分 */
 .tool-link { text-decoration: none; }
-.tool-link.span-2 { grid-column: span 2; }
-.tool-link.span-3 { grid-column: 1 / -1; }
+.calc-tools .span-2 { grid-column: span 2; }
+.calc-tools .span-3 { grid-column: 1 / -1; }
 .tag-stage .rieki-bar { margin: 22px 0 0; } /* 割引率の計算：値札の下の帯 */
 
 /* 商品ごとの入力（実質単価など）：A・B・C を縦に並べ、値段と量は横並び */
@@ -249,7 +249,7 @@ h1 {
 /* 人数：大きな −／＋ と、まん中に数字 */
 .people { margin: 0 0 12px; }
 .people-row { display: grid; grid-template-columns: 54px 1fr; align-items: center; gap: 8px; margin: 0 0 8px; }
-.people-row > label { margin: 0; }
+.people-row > label, .people-row > .label { margin: 0; }
 .stepper { display: grid; grid-template-columns: var(--ctl-h) 1fr var(--ctl-h); gap: 8px; }
 .stepper .input { justify-content: center; }
 .stepper .input input { flex: 0 1 4.2ch; text-align: right; }
@@ -362,6 +362,66 @@ h1 {
 .memo-sub { font-size: 13px; color: var(--muted); }
 .memo-row.is-error .memo-amt { color: var(--error); }
 .memo-empty { margin: 6px 0 8px !important; font-size: 14px; color: var(--muted); text-align: center; }
+
+/* 割り勘：お会計のレシート（答えの1人の額をいちばん大きく、その下に人数分の券。下のはしはぎざぎざ） */
+.receipt { position: relative; margin: 16px 4px 24px; padding: 12px 16px 8px; background: #fff; border: 1.5px solid var(--border); border-bottom: 0; font-variant-numeric: tabular-nums; }
+.rc-edge { position: absolute; left: -1.5px; top: 100%; width: calc(100% + 3px); height: 9px; overflow: visible; }
+.rc-paper { fill: #fff; }
+.rc-cut { fill: none; stroke: var(--border); stroke-width: 1.5px; }
+.rc-title { margin: 0 0 6px; padding-bottom: 6px; border-bottom: 1.5px dashed var(--rule); text-align: center; font-size: 14px; font-weight: 800; letter-spacing: .5em; text-indent: .5em; }
+.rc-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; }
+.rc-k { font-size: 17px; font-weight: 800; }
+.rc-v { min-width: 0; text-align: right; color: var(--red); overflow-wrap: anywhere; }
+.rc-v b { font-size: 44px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; }
+.rc-v small, .rc-g-v small { margin-left: 2px; font-size: 17px; font-weight: 800; }
+.rc-tickets { display: flex; align-items: flex-end; gap: 4px; margin: 8px 0; }
+.rc-tickets:empty { display: none; }
+.rc-ticket { flex: 1 1 0; min-width: 0; height: 40px; display: grid; place-items: center; border: 1.5px dashed var(--border); border-radius: 3px; font-size: 12px; font-weight: 700; color: var(--muted); overflow: hidden; }
+.rc-ticket b { font-size: 13px; font-weight: 800; color: var(--text); }
+.rc-ticket.is-more { flex: 0 0 auto; height: 40px; padding: 0 6px; border-style: solid; }
+.rc-rows { margin: 0; border-top: 1.5px dashed var(--rule); }
+.rc-rows div { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0 0; }
+.rc-rows dt { font-size: 14px; font-weight: 700; }
+.rc-rows dd { margin: 0; font-size: 15px; font-weight: 800; }
+.rc-host { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 8px; margin: 6px 0 0; padding-top: 6px; border-top: 1.5px dashed var(--rule); font-size: 13px; font-weight: 700; }
+.rc-host span:last-child { font-weight: 800; }
+.rc-foot { margin: 6px 0 2px; font-size: 14px; color: var(--muted); text-align: center; }
+.rc-foot:empty { display: none; }
+.unit-row { margin: 0 0 4px; }
+.seg.seg-4 { grid-template-columns: repeat(4, 1fr); margin: 0; }
+.seg-4 .seg-btn { font-size: 16px; padding: 4px 2px; }
+/* 傾斜割り勘：グループごとの1人の額。券の高さは払う額 */
+.rc-g { display: grid; grid-template-columns: auto 1fr 3.6em; align-items: baseline; gap: 6px; margin: 0; }
+.rc-g-k { font-size: 15px; font-weight: 800; }
+.rc-g-v { text-align: right; color: var(--red); }
+.rc-g-v b { font-size: 30px; font-weight: 800; line-height: 1.2; }
+.rc-g-n { font-size: 13px; font-weight: 700; color: var(--muted); text-align: right; }
+.rc-g.is-off { opacity: .35; }
+
+/* 電気代：電気代のお知らせ（検針票のような紙）。1か月の使用量のメーターの数字と、いちばん大きな1か月の電気代 */
+.slip { margin: 16px 2px 0; padding: 12px 16px 10px; background: #fff; border: 1.5px solid var(--border); border-top: 6px solid var(--text); font-variant-numeric: tabular-nums; }
+.slip-title { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .08em; }
+.slip-title small { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0; }
+.slip-meter { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
+.slip-meter > span:first-child { font-size: 12.5px; font-weight: 700; color: var(--muted); line-height: 1.25; }
+.m-digits { display: flex; gap: 3px; margin-left: auto; padding: 4px; background: var(--text); border-radius: 3px; }
+.m-d { width: 22px; height: 30px; display: grid; place-items: center; background: #fff; color: var(--text); font-size: 20px; font-weight: 800; border-radius: 2px; }
+.m-d.is-dec { background: var(--red); color: #fff; }
+.m-digits.is-off .m-d { color: var(--rule); }
+.m-digits.is-off .m-d.is-dec { background: #f3d6d8; color: #fff; }
+.slip-meter .m-u { font-size: 13px; font-weight: 800; }
+.m-what { margin: 0; min-height: 18px; font-size: 13px; font-weight: 700; color: var(--muted); text-align: right; }
+.slip-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 2px 0 0; padding: 4px 0 6px; border-bottom: 1.5px solid var(--text); }
+.slip-k { font-size: 15px; font-weight: 800; white-space: nowrap; }
+.slip-v { min-width: 0; text-align: right; color: var(--red); overflow-wrap: anywhere; }
+.slip-v b { font-size: 42px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; }
+.slip-v small { font-size: 16px; font-weight: 800; margin: 0 2px; }
+.slip-table { width: 100%; margin: 8px 0 0; border-collapse: collapse; table-layout: fixed; }
+.slip-table th { padding: 0 2px 2px; font-size: 12.5px; font-weight: 700; color: var(--muted); text-align: center; }
+.slip-table td { padding: 2px; font-size: 16px; font-weight: 800; text-align: center; overflow-wrap: anywhere; }
+.slip-table th + th, .slip-table td + td { border-left: 1px solid var(--rule); }
+.slip-foot { margin: 8px 0 0; font-size: 14px; color: var(--muted); text-align: center; }
+.slip-foot:empty { display: none; }
 
 /* 希釈率 */
 /* 入力の形をえらぶ3つ（薄め方）。1本の枠を3つに区切り、えらんだものに赤ペンの丸 */

@@ -53,6 +53,26 @@ export const TOOLS = [
     related: ['tanka', 'waribiki', 'kishaku'],
   },
   {
+    slug: 'warikan',
+    name: '割り勘の計算',
+    category: 'seikatsu',
+    short: '合計と人数から、1人いくらか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['warikan-keisha', 'waribiki', 'tanka', 'denki-dai'],
+  },
+  // 割り勘の計算の下のページ（多めに払う人がいるとき）
+  {
+    slug: 'warikan-keisha',
+    name: '傾斜割り勘の計算',
+    category: 'seikatsu',
+    parent: 'warikan',
+    short: '多めに払う人がいるときの割り勘',
+    published: true,
+    updated: '2026-10-21',
+    related: ['warikan', 'waribiki', 'rieki-ritsu'],
+  },
+  {
     slug: 'kishaku',
     name: '希釈率の計算',
     category: 'seikatsu',
