@@ -536,11 +536,11 @@ def receipt(img, cx, top, lines, tickets, rows):
         if n:
             d.text((x0 + 104 * S, y + h - 32 * S), n, font=font('bold', 18), fill=PENCIL)
         y += h + (4 if big else 2) * S
-    # 人数分の券（切り取り線）
+    # 人数分の券（切り取り線）。券がない（消費税）ときは、すぐ下に明細
     n = len(tickets)
     gap = 8 * S
-    w = (x1 - x0 - 44 * S - gap * (n - 1)) / n
-    base = y + (66 if big else 60) * S
+    w = (x1 - x0 - 44 * S - gap * (n - 1)) / n if n else 0
+    base = y + ((66 if big else 60) if n else 4) * S
     for i, hr in enumerate(tickets):
         h = (30 + 30 * hr) * S
         x = x0 + 22 * S + i * (w + gap)
@@ -615,7 +615,7 @@ def meter_slip(img, cx, top, what, digits, month, cells):
             d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
 
 
-def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre=''):
+def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre='', tag='目安'):
     """灯油代・塩分濃度：左に絵、右に大きな答え、下に3つの表（サイトの .slip.pic と同じ見た目）
     pic(d, x0, y0) は絵を描く（幅 180・高さ 200 の中）。under(d, x, y) は大きな答えの下に描く（スプーンなど）"""
     d = ImageDraw.Draw(img)
@@ -624,8 +624,8 @@ def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre
     d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
     d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
     d.text((x0 + 22 * S, y0 + 24 * S), title, font=font('black', 26), fill=INK)
-    tw = d.textlength('目安', font=font('bold', 18))
-    d.text((x1 - 22 * S - tw, y0 + 30 * S), '目安', font=font('bold', 18), fill=PENCIL)
+    tw = d.textlength(tag, font=font('bold', 18))
+    d.text((x1 - 22 * S - tw, y0 + 30 * S), tag, font=font('bold', 18), fill=PENCIL)
     py = y0 + 70 * S
     pic(d, x0 + 18 * S, py)
     rx = x0 + 218 * S
@@ -681,6 +681,27 @@ def salt_slip(img, cx, top):
     pic_slip(img, cx, top, '塩の量', bowl, '塩', '15', 'g', spoons, ('塩', '濃度', '全体に対して'), ('15g', '3%', '2.91%'))
 
 
+def percent_slip(img, cx, top):
+    """パーセント：方眼の100マス（15マスを赤ペンでぬる）と、大きな答え（ページの計算例：200の15％は30）"""
+    def grid(d, x, y):
+        x += 6 * S
+        size = 176 * S
+        c = size / 10
+        d.rectangle([x, y, x + size, y + size], fill='#FFFFFF')
+        for i in range(15):
+            r, k = divmod(i, 10)
+            d.rectangle([x + k * c, y + r * c, x + (k + 1) * c, y + (r + 1) * c], fill='#D3505A')
+        for i in range(1, 10):
+            d.line([(x + i * c, y), (x + i * c, y + size)], fill='#9FB7D4', width=1 * S)
+            d.line([(x, y + i * c), (x + size, y + i * c)], fill='#9FB7D4', width=1 * S)
+        d.rectangle([x, y, x + size, y + size], outline=INK, width=3 * S)
+
+    def say(d, x, y):
+        d.text((x, y + 6 * S), '200の15%は30', font=font('black', 24), fill=INK)
+
+    pic_slip(img, cx, top, '100マスでみると', grid, 'その数', '30', '', say, ('%', '割', '小数'), ('15%', '1.5割', '0.15'), tag='1マス＝1%')
+
+
 def touyu_slip(img, cx, top, days, month, cans, liters, cells):
     """灯油代：青いポリタンクの絵（ラベルに18Lで何日）と1か月の灯油代、1か月に使うポリタンクの数"""
     blue, dark = '#2E6FB7', '#1D4F8C'
@@ -733,6 +754,8 @@ VISUALS = {
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
     'enbun-noudo': salt_slip,
+    'percent': percent_slip,
+    'shohizei': lambda img, cx, top: receipt(img, cx, top, [('税込', '2,178', '')], [], [('税抜', '1,980円'), ('消費税（10%）', '198円'), ('税込', '2,178円')]),
     'touyu-dai': lambda img, cx, top: touyu_slip(img, cx, top, '7.5日', '10,252', 4.0, '1か月 72L・18L缶 4本', ('42.7円', '342円', '142.4円')),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),
     # 電気代の計算の下のページ（家電別）

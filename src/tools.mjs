@@ -1,10 +1,15 @@
 // ツールの一覧。トップページ・関連ツール・sitemap はここから作る。
-// published: false のツールは、トップの「これから増えるツール」に名前だけ出る（リンクなし・ページなし）。
+// published: false のツールは、まだページがない（トップにも出さない）。
 // short は一覧に出る説明（ふつうの言葉で、何がわかるか）。
+// トップの出し方（10/21 しょーくん「トップは王道で、マイナーな計算はたたんでまとめる」）：
+//   pick: 1〜8 … いちばん上の「よく使う計算」に、この順で出す（王道）。pickName はそこに出す短い名前（なければ name から「の計算」を取る）
+//   more: true … カテゴリの「ほかの計算」にたたむ（すき間の計算）
+//   どちらもないもの … カテゴリにそのまま出す。parent があるもの（下のページ）はトップに出さない
 
 export const TOOLS = [
   {
     slug: 'waribiki',
+    pick: 1,
     name: '割引計算',
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
@@ -24,7 +29,29 @@ export const TOOLS = [
     related: ['waribiki', 'tanka', 'rieki-ritsu'],
   },
   {
+    slug: 'shohizei',
+    pick: 2,
+    name: '消費税の計算',
+    category: 'seikatsu',
+    short: '税込と税抜の値段と、消費税はいくらか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['percent', 'waribiki', 'warikan', 'tanka'],
+  },
+  {
+    slug: 'percent',
+    pick: 3,
+    name: 'パーセントの計算',
+    category: 'seikatsu',
+    short: '何％か、15％はいくつか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['shohizei', 'waribiki', 'waribiki-ritsu', 'rieki-ritsu'],
+  },
+  {
     slug: 'tanka',
+    pick: 8,
+    pickName: '実質単価',
     name: '実質単価の比較',
     category: 'seikatsu',
     short: '100gあたりの値段で、どれがいちばん安いか',
@@ -54,6 +81,7 @@ export const TOOLS = [
   },
   {
     slug: 'warikan',
+    pick: 4,
     name: '割り勘の計算',
     category: 'seikatsu',
     short: '合計と人数から、1人いくらか',
@@ -83,6 +111,7 @@ export const TOOLS = [
   },
   {
     slug: 'touyu-dai',
+    more: true,
     name: '灯油代の計算',
     category: 'seikatsu',
     short: 'ストーブの1か月の灯油代と、18Lが何日もつか',
@@ -155,6 +184,7 @@ export const TOOLS = [
   },
   {
     slug: 'enbun-noudo',
+    more: true,
     name: '塩分濃度の計算',
     category: 'seikatsu',
     short: '浅漬けやパスタの塩は何gか',
@@ -232,6 +262,7 @@ export const TOOLS = [
   },
   {
     slug: 'kakeritsu',
+    more: true,
     name: '掛け率の計算',
     category: 'shigoto',
     short: '上代と掛け率から下代、下代から掛け率',
@@ -241,6 +272,7 @@ export const TOOLS = [
   },
   {
     slug: 'seisou-jikan',
+    more: true,
     name: '清掃の作業時間の計算',
     category: 'shigoto',
     short: '面積と人数から、何時間かかるか',

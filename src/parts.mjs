@@ -4,6 +4,11 @@ import { esc, absUrl } from './layout.mjs';
 
 // ツールページの共通部品
 
+/** レシートの下のぎざぎざ（切り取った紙のはし。割り勘・消費税のレシート） */
+const TEETH = 28;
+const zig = Array.from({ length: TEETH }, (_, i) => `L${((i + 0.5) * 100 / TEETH).toFixed(2)} 5L${((i + 1) * 100 / TEETH).toFixed(2)} 0`).join('');
+export const RECEIPT_EDGE = `<svg class="rc-edge" viewBox="0 0 100 5" preserveAspectRatio="none" aria-hidden="true"><path class="rc-paper" d="M0 0${zig}Z"/><path class="rc-cut" d="M0 0${zig}" vector-effect="non-scaling-stroke"/></svg>`;
+
 /** ツールのテーマ（カテゴリで決まる） */
 export const themeOf = (tool) => CATEGORIES.find((c) => c.id === tool.category)?.theme || 'home';
 

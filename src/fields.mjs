@@ -8,4 +8,4 @@ const num = (id, placeholder, value = '', hint = '') =>
  * hint：名前だけでは何を入れるか迷う欄の1行の説明。さわっている間だけ、入力の段の下に出す（src/client/ui.mjs の focusHints）
  */
 export const boxField = (id, label, unit, placeholder, value = '', hint = '') =>
-  `<div class="field box-field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${num(id, placeholder, value, hint)}<span class="unit">${unit}</span></div></div>`;
+  `<div class="field box-field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${num(id, placeholder, value, hint)}${unit ? `<span class="unit">${unit}</span>` : ''}</div></div>`;

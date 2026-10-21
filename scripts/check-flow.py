@@ -31,6 +31,15 @@ CASES = {
         (('fill', '#price', '2000'), '#t-save', '割引後の値段を入れてください'),
         (('fill', '#sale', '1700'), None, None),
     ],
+    'shohizei': [
+        (None, '#r-foot', '税抜か税込の値段を入れてください'),
+        (('fill', '#net', '1980'), None, None),
+    ],
+    'percent': [
+        (None, '#r-foot', 'もとの数を入れてください'),
+        (('fill', '#base', '200'), '#r-foot', '割合かその数を入れてください'),
+        (('fill', '#pct', '15'), None, None),
+    ],
     'tanka': [
         (None, '#t-sub', '2つ以上入れると、安い順に並びます'),
         (('fill', '#qty-a', '500'), '#t-sub', 'Aの値段を入れてください'),
