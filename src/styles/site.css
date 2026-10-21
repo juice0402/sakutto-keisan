@@ -477,6 +477,36 @@ h1 {
 .jk-cols { display: flex; justify-content: flex-end; }
 .date-pair { grid-template-columns: .8fr 1.2fr; } /* 日数：何日後｜おわりの日（日付は長いので広く） */
 @media (max-width: 374px) { .cal, .eto-ring { width: 96px; } .date-field input { font-size: 19px; } }
+/* 入学・卒業年の計算：履歴書の学歴の欄（年は赤ペン、和暦とその時の年齢は小さく） */
+.rireki { margin: 16px 2px 0; padding: 8px 10px 8px; background: var(--sheet); border: 1.5px solid var(--text); font-variant-numeric: tabular-nums; }
+.rk-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.rk-table th { padding: 2px 4px 4px; font-size: 12.5px; font-weight: 700; color: var(--muted); text-align: center; border-bottom: 1.5px solid var(--text); }
+.rk-table td { padding: 4px; border-bottom: 1px solid var(--rule); font-size: 15px; font-weight: 700; line-height: 22px; white-space: nowrap; overflow: hidden; }
+.rk-table th + th, .rk-table td + td { border-left: 1px solid var(--rule); }
+.rk-table .rk-y { width: 35%; }
+.rk-table .rk-m { width: 9%; text-align: center; }
+.rk-y b { font-size: 16px; font-weight: 800; color: var(--red); }
+.rk-y small { margin-left: 4px; font-size: 11.5px; color: var(--muted); }
+.rk-s { text-align-last: justify; } /* 学校の名前は左、その時の年齢は右に（字の下の線はそろう） */
+.rk-sn { display: inline-block; }
+.rk-s small { display: inline-block; font-size: 12.5px; color: var(--muted); }
+.rk-end { margin: 2px 4px 0; text-align: right; font-size: 14px; font-weight: 700; }
+/* 和暦・西暦の変換：元号のマス（5つ）・和暦の欄の元号・元号の年表 */
+.tiles-5 { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tiles-5 .tile { padding: 6px 2px; }
+.tiles-5 .tile b { font-size: 19px; }
+.tiles-5 .tile small { font-size: 11.5px; letter-spacing: -.02em; }
+.era-pre { align-self: flex-end; margin: 0 4px 12px 0; font-size: 16px; font-weight: 800; white-space: nowrap; }
+.era-pre:empty { display: none; }
+.box-field.is-out .era-pre { color: var(--red); }
+.nenpyo { width: 108px; height: auto; }
+.np-era { fill: var(--surface); stroke: var(--text); stroke-width: .8; }
+.np-era.is-on { fill: var(--red); fill-opacity: .12; stroke: var(--red); }
+.np-t { font-size: 11px; font-weight: 800; fill: var(--muted); dominant-baseline: central; } /* 元号の名前は左、その年の印は右（名前に線が重ならない） */
+.np-t.is-on { fill: var(--red); }
+.np-mark line { stroke: var(--red); stroke-width: 2.2; }
+.np-mark circle { fill: var(--red); }
+@media (max-width: 374px) { .nenpyo { width: 96px; } .tiles-5 .tile b { font-size: 17px; } .tiles-5 .tile small { font-size: 10.5px; } }
 .jk-row > .pair { grid-template-columns: 1fr 1fr; }
 .jk-scale { display: flex; justify-content: space-between; margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--muted); }
 /* BMI：体重計のような目もり（低体重〜肥満4度の帯）と、BMI の針 */
@@ -849,6 +879,7 @@ th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--rul
 tr:last-child td { border-bottom: 0; }
 th { font-weight: 700; border-bottom: 1.5px solid var(--text); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl-tight th, .tbl-tight td { padding-left: 6px; padding-right: 6px; } /* 列の多い早見表（学歴・和暦）を、スマホの幅に入れる */
 .note { font-size: 14px; color: var(--muted); }
 
 /* よくある質問：線で区切った Q と答え */

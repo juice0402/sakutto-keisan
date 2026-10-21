@@ -744,6 +744,65 @@ def nenrei_slip(img, cx, top):
     pic_slip(img, cx, top, '年齢', ring, '満年齢', '39', '歳', say, ('数え年', '学年', '次の誕生日'), ('40歳', '—', 'あと237日'), tag='2026年10月21日')
 
 
+def rireki_sheet(img, cx, top):
+    """入学・卒業年：履歴書の学歴の欄（2004年6月10日生まれ。年は赤ペン、和暦とその時の年齢は小さく）"""
+    d = ImageDraw.Draw(img)
+    rows = (('2011', '平成23', '4', '小学校 入学', '6歳'), ('2017', '平成29', '3', '小学校 卒業', '12歳'), ('2017', '平成29', '4', '中学校 入学', '12歳'),
+            ('2020', '令和2', '3', '中学校 卒業', '15歳'), ('2020', '令和2', '4', '高校 入学', '15歳'), ('2023', '令和5', '3', '高校 卒業', '18歳'),
+            ('2023', '令和5', '4', '大学 入学', '18歳'), ('2027', '令和9', '3', '大学 卒業', '22歳'))
+    x0, x1 = cx - 220 * S, cx + 240 * S
+    y0 = top - 70 * S
+    rh = 36 * S
+    y1 = y0 + 20 * S + 30 * S + rh * len(rows) + 40 * S
+    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline=INK, width=2 * S)
+    c1, c2 = x0 + 170 * S, x0 + 214 * S
+    hy = y0 + 14 * S
+    f_h = font('bold', 17)
+    for text, a, b in (('年', x0, c1), ('月', c1, c2), ('学歴', c2, x1)):
+        d.text(((a + b) / 2 - d.textlength(text, font=f_h) / 2, hy), text, font=f_h, fill=PENCIL)
+    ly = hy + 32 * S
+    d.line([(x0 + 14 * S, ly), (x1 - 14 * S, ly)], fill=INK, width=2 * S)
+    f_y, f_w, f_m, f_s, f_a = font('black', 24), font('bold', 16), font('black', 22), font('black', 21), font('bold', 17)
+    for i, (y, w, m, sch, age) in enumerate(rows):
+        ry = ly + rh * i
+        d.text((x0 + 18 * S, ry + 4 * S), y, font=f_y, fill=RED)
+        d.text((x0 + 18 * S + d.textlength(y, font=f_y) + 6 * S, ry + 11 * S), w, font=f_w, fill=PENCIL)
+        d.text(((c1 + c2) / 2 - d.textlength(m, font=f_m) / 2, ry + 5 * S), m, font=f_m, fill=INK)
+        d.text((c2 + 12 * S, ry + 6 * S), sch, font=f_s, fill=INK)
+        d.text((x1 - 18 * S - d.textlength(age, font=f_a), ry + 10 * S), age, font=f_a, fill=PENCIL)
+        d.line([(x0 + 14 * S, ry + rh), (x1 - 14 * S, ry + rh)], fill='#D3DCE8', width=2 * S)
+    for x in (c1, c2):
+        d.line([(x, hy - 2 * S), (x, ly + rh * len(rows))], fill='#D3DCE8', width=2 * S)
+    t = '以上'
+    d.text((x1 - 18 * S - d.textlength(t, font=font('black', 19)), ly + rh * len(rows) + 6 * S), t, font=font('black', 19), fill=INK)
+
+
+def wareki_slip(img, cx, top):
+    """和暦・西暦：元号の年表（平成に赤い印）と、大きな「平成元年」（1989年）"""
+    eras = (('明治', 1868, 1912), ('大正', 1912, 1926), ('昭和', 1926, 1989), ('平成', 1989, 2019), ('令和', 2019, 2032))
+    total = sum(b - a for _, a, b in eras)
+
+    def nenpyo(d, x, y):
+        H, MIN, W = 200 * S, 24 * S, 150 * S
+        top_y = y
+        f = font('black', 18)
+        for name, a, b in eras:
+            h = MIN + (b - a) / total * (H - MIN * len(eras))
+            on = name == '平成'
+            d.rectangle([x, top_y, x + W, top_y + h], fill='#F4DADB' if on else '#FFFFFF', outline=RED if on else INK, width=2 * S)
+            d.text((x + 12 * S, top_y + h / 2 - 13 * S), name, font=f, fill=RED if on else PENCIL)
+            if on:
+                my = top_y + (1989.5 - a) / (b - a) * h
+                d.line([(x + 86 * S, my), (x + W, my)], fill=RED, width=4 * S)
+                d.ellipse([x + 80 * S, my - 6 * S, x + 92 * S, my + 6 * S], fill=RED)
+            top_y += h
+
+    def say(d, x, y):
+        d.text((x, y + 6 * S), '己巳（つちのとみ）', font=font('black', 20), fill=INK)
+
+    pic_slip(img, cx, top, '和暦と西暦', nenpyo, '1989年は', '平成元', '年', say, ('今年から', 'その年生まれ', '干支'), ('37年前', '今年37歳', '巳'), tag='1月7日までは昭和64年')
+
+
 def jikan_slip(img, cx, top):
     """時間の計算：合計（3時間45分＋2時間30分＋7時間15分）と、時間の帯"""
     d = ImageDraw.Draw(img)
@@ -880,6 +939,7 @@ VISUALS = {
     'enbun-noudo': salt_slip,
     'percent': percent_slip,
     'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
+    'gakureki': rireki_sheet, 'wareki': wareki_slip,
     'shohizei': lambda img, cx, top: receipt(img, cx, top, [('税込', '2,178', '')], [], [('税抜', '1,980円'), ('消費税（10%）', '198円'), ('税込', '2,178円')]),
     'touyu-dai': lambda img, cx, top: touyu_slip(img, cx, top, '7.5日', '10,252', 4.0, '1か月 72L・18L缶 4本', ('42.7円', '342円', '142.4円')),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),

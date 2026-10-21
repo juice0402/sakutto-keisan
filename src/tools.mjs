@@ -55,8 +55,8 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '何日後は何日か、あと何日か',
     published: true,
-    updated: '2026-10-21',
-    related: ['nenrei', 'jikan', 'percent', 'shohizei'],
+    updated: '2026-10-22',
+    related: ['nenrei', 'wareki', 'jikan', 'percent'],
   },
   {
     slug: 'nenrei',
@@ -65,8 +65,29 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '生年月日から年齢・和暦・干支・学年',
     published: true,
-    updated: '2026-10-21',
-    related: ['nissu', 'jikan', 'percent', 'shohizei'],
+    updated: '2026-10-22',
+    related: ['gakureki', 'wareki', 'nissu', 'jikan'],
+  },
+  // 年齢の計算の下のページ（10/22 しょーくん「何歳のときに卒業したか、いちいち調べてる」）
+  {
+    slug: 'gakureki',
+    name: '入学・卒業年の計算',
+    category: 'seikatsu',
+    parent: 'nenrei',
+    short: '生年月日から、学校の入学と卒業の年',
+    published: true,
+    updated: '2026-10-22',
+    related: ['nenrei', 'wareki', 'nissu'],
+  },
+  // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
+  {
+    slug: 'wareki',
+    name: '和暦・西暦の変換',
+    category: 'seikatsu',
+    short: '令和・平成・昭和は西暦何年か',
+    published: true,
+    updated: '2026-10-22',
+    related: ['nenrei', 'gakureki', 'nissu', 'jikan'],
   },
   {
     slug: 'jikan',
