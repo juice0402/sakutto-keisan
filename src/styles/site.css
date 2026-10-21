@@ -167,6 +167,7 @@ h1 {
   font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: 0;
   min-height: 44px; margin-block: -6px; padding: 0 2px 0 12px; cursor: pointer; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 4px;
 } /* 押せる高さは44px（上下の -6px で、見た目の段の高さは32pxのまま） */
+.cols .clear-btn { margin-block: -8px -4px; padding-top: 4px; } /* 表の見出しの右のクリア：押せる所が下の欄にかからないように、上に多めにのばす（字の位置は同じ） */
 
 /* 値をえらぶタイル（割引は「30%」と「3割引き」を両方表示）。えらんだものは赤ペンで丸をつけたように */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -276,7 +277,7 @@ h1 {
 .wide-btn[aria-pressed="true"] { background: var(--marker); border-color: var(--text); }
 .wide-btn.is-main { background: var(--text); border-color: var(--text); color: var(--surface); font-size: 16px; }
 #to-paste { margin: 0 0 10px; }
-.paste { margin: 12px 0 0; }
+.paste { margin: 12px 0 20px; } /* 下の「材料・レシピの分量」の見出しとくっつかないように */
 .paste > label[for="paste-text"] { display: block; font-size: var(--label); font-weight: 700; margin: 18px 0 8px; }
 .photo-btn { border-color: var(--text); }
 #photo { font-size: 16px; }
