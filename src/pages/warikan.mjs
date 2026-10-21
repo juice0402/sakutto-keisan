@@ -72,8 +72,8 @@ function renderMain() {
 <div class="calc" id="calc">
   <div class="box-rows">
     <div class="box-row-clear">${boxField('total', '合計', '円', '12,800')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${STEPPER}
   </div>
-  ${STEPPER}
   <div class="receipt" aria-live="polite">
     <p class="rc-title">お会計</p>
     <p class="rc-sum"><span class="rc-k" id="r-cap">1人</span><span class="rc-v"><b id="r-num">？</b><small>円</small></span></p>

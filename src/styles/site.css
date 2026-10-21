@@ -569,6 +569,7 @@ h1 {
 /* さわっている欄の1行の説明（入力の段のすぐ下。src/client/ui.mjs の focusHints） */
 .field-hint { margin: 8px 2px -6px; font-size: 13px; line-height: 18px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .box-rows .pair { gap: 10px; }
+.box-rows .people-row { margin: 0; } /* 割り勘の人数：上の欄とのあいだは box-rows の gap */
 .box-row-clear { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
 .box-row-clear .clear-btn { padding-left: 2px; }
 .box-result { margin: 18px 0 0; }
