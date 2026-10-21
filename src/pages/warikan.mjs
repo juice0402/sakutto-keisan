@@ -13,7 +13,7 @@ export const QUICK_TOTALS = [5000, 10000, 15000, 20000, 25000, 30000, 50000];
 export const QUICK_PEOPLE = [3, 4, 5, 6];
 const yenNum = (x) => x.toLocaleString('ja-JP');
 const QUICK_ROWS = QUICK_TOTALS.map(
-  (t) => `<tr><td class="num">${yenNum(t)}円</td>${QUICK_PEOPLE.map((n) => `<td class="num">${yenNum(warikan({ total: t, people: n, unit: 100 }).each)}</td>`).join('')}</tr>`,
+  (t) => `<tr><td class="num">${yenNum(t)}</td>${QUICK_PEOPLE.map((n) => `<td class="num">${yenNum(warikan({ total: t, people: n, unit: 100 }).each)}</td>`).join('')}</tr>`,
 ).join('\n');
 
 const NOSCRIPT = '<noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>';
@@ -132,7 +132,7 @@ ${section(
 ${QUICK_ROWS}
 </tbody>
 </table></div>
-<p class="note">100円単位で集める1人の額（円）です。</p>`,
+<p class="note">合計と、100円単位の1人の額（円）です。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

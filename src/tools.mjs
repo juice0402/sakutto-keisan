@@ -205,6 +205,15 @@ export const TOOLS = [
     related: ['denki-dai', 'touyu-dai', 'ceramic-heater', 'kotatsu'],
   },
   {
+    slug: 'bmi',
+    name: 'BMIの計算',
+    category: 'seikatsu',
+    short: '身長と体重から、BMIと標準体重',
+    published: true,
+    updated: '2026-10-21',
+    related: ['nenrei', 'percent', 'recipe', 'enbun-noudo'],
+  },
+  {
     slug: 'kishaku',
     name: '希釈率の計算',
     category: 'seikatsu',
@@ -290,6 +299,15 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-20',
     related: ['kakeritsu', 'waribiki', 'tanka', 'seisou-jikan'],
+  },
+  {
+    slug: 'loan',
+    name: 'ローンの計算',
+    category: 'shigoto',
+    short: '毎月の返済額と、利息はいくらか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['rieki-ritsu', 'percent', 'zangyo-dai', 'shohizei'],
   },
   {
     slug: 'kakeritsu',

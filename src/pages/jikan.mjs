@@ -68,8 +68,8 @@ ${section(
   'formula',
   '計算のしかた',
   `<div class="formula">
-<span>合計の分 ＝ 時間 × 60 ＋ 分 を足したもの</span>
-<span>◯時間 ＝ 合計の分 ÷ 60 、のこりが◯分</span>
+<span>1行の分 ＝ 時間 × 60 ＋ 分</span>
+<span>合計の時間 ＝ 合計の分 ÷ 60</span>
 </div>
 <p>例：3時間45分 ＋ 2時間30分 ＋ 7時間15分 ＝ ${R.text}（${R.hours}時間）です。</p>`,
 )}

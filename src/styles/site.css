@@ -479,6 +479,19 @@ h1 {
 @media (max-width: 374px) { .cal, .eto-ring { width: 96px; } .date-field input { font-size: 19px; } }
 .jk-row > .pair { grid-template-columns: 1fr 1fr; }
 .jk-scale { display: flex; justify-content: space-between; margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--muted); }
+/* BMI：体重計のような目もり（低体重〜肥満4度の帯）と、BMI の針 */
+.bm-scale { position: relative; margin: 12px 0 0; padding-top: 10px; }
+.bm-track { display: flex; height: 14px; border: 1.5px solid var(--text); overflow: hidden; }
+.bm-zone { flex: none; height: 100%; }
+.bm-z0 { background: #b9cfe6; }
+.bm-z1 { background: #fff; }
+.bm-z2 { background: #f1c9cc; }
+.bm-z3 { background: #e49aa0; }
+.bm-z4 { background: #d56b74; }
+.bm-z5 { background: var(--red); }
+.bm-needle { position: absolute; top: 0; width: 0; height: 0; margin-left: -8px; border: 8px solid transparent; border-top: 10px solid var(--text); border-bottom: 0; transition: left .4s ease; }
+.bm-ticks { position: relative; height: 16px; margin: 2px 0 0; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.bm-ticks span { position: absolute; transform: translateX(-50%); }
 /* パーセント：方眼の100マス（割合の分を赤ペンでぬる）と、「200の15％は30」の1行 */
 .pc-box { width: 108px; }
 .pc-grid { width: 100%; height: auto; }

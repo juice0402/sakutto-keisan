@@ -22,9 +22,9 @@ test('割合のいろいろな言い方（ページの表）', () => {
 });
 
 test('よく使う数の早見表（ページの表）', () => {
-  const want = { 1000: [10, 50, 100, 200, 300, 500], 5000: [50, 250, 500, 1000, 1500, 2500], 10000: [100, 500, 1000, 2000, 3000, 5000] };
+  const want = { 100: [1, 5, 10, 20, 50], 1000: [10, 50, 100, 200, 500], 3000: [30, 150, 300, 600, 1500], 5000: [50, 250, 500, 1000, 2500] };
   for (const [b, row] of Object.entries(want)) {
-    assert.deepEqual([1, 5, 10, 20, 30, 50].map((p) => percent({ base: Number(b), pct: p, part: null, out: 'part' }).part), row);
+    assert.deepEqual([1, 5, 10, 20, 50].map((p) => percent({ base: Number(b), pct: p, part: null, out: 'part' }).part), row);
   }
 });
 

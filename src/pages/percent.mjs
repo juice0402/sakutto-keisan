@@ -21,8 +21,8 @@ const WARI = [1, 5, 10, 15, 25, 30, 50, 75, 100];
 const WARI_ROWS = WARI.map((p) => `<tr><td class="num">${p}％</td><td class="num">${fmt(wariOf(p), 1)}割</td><td class="num">${fmt(decimalOf(p), 2)}</td></tr>`).join('\n');
 
 // よく使う数の早見表（もとの数 × 1〜50％）
-const QUICK_BASE = [1000, 5000, 10000];
-const QUICK_PCT = [1, 5, 10, 20, 30, 50];
+const QUICK_BASE = [100, 1000, 3000, 5000];
+const QUICK_PCT = [1, 5, 10, 20, 50];
 const QUICK_ROWS = QUICK_BASE.map(
   (b) => `<tr><td class="num">${fmt(b)}</td>${QUICK_PCT.map((p) => `<td class="num">${fmt(percent({ base: b, pct: p, part: null, out: 'part' }).part)}</td>`).join('')}</tr>`,
 ).join('\n');
@@ -96,7 +96,7 @@ ${section(
   'quick',
   'よく使う割合の早見表',
   `<div class="tbl-wrap"><table>
-<thead><tr><th class="num">もとの数</th>${QUICK_PCT.map((p) => `<th class="num">${p}％</th>`).join('')}</tr></thead>
+<thead><tr><th class="num">数</th>${QUICK_PCT.map((p) => `<th class="num">${p}％</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}
 </tbody>
