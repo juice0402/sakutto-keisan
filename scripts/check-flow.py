@@ -48,6 +48,16 @@ CASES = {
         (None, '#r-foot', '生年月日を入れてください'),
         (('fill', '#birth', '1987-06-15'), None, None),
     ],
+    'gakureki': [
+        (None, '#r-foot', '生年月日を入れてください'),
+        (('fill', '#birth', '2004-06-10'), None, None),
+    ],
+    'wareki': [
+        (None, None, None),  # 開いたときは、西暦の欄に今年が入っていて答えが出ている
+        (('click', '#clear'), '#r-foot', '西暦か和暦を入れてください'),
+        (('click', '.tile[data-era="平成"]'), '#r-foot', '平成の年を入れてください'),
+        (('fill', '#wareki', '10'), None, None),
+    ],
     'jikan': [
         (None, '#r-foot', '1つめの時間を入れてください'),
         (('fill', '#h-0', '3'), '#r-foot', 'もう1つ入れると足せます'),
