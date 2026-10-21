@@ -79,7 +79,16 @@ export const TOOLS = [
     short: 'こたつやヒーターの1時間・1か月の電気代',
     published: true,
     updated: '2026-10-21',
-    related: ['warikan', 'tanka', 'waribiki', 'kishaku'],
+    related: ['touyu-dai', 'warikan', 'tanka', 'waribiki'],
+  },
+  {
+    slug: 'touyu-dai',
+    name: '灯油代の計算',
+    category: 'seikatsu',
+    short: 'ストーブの1か月の灯油代と、18Lが何日もつか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['denki-dai', 'oil-heater', 'ceramic-heater', 'warikan'],
   },
   // 電気代の計算の下のページ（家電別。トップの目次には出さない）
   {
@@ -122,7 +131,7 @@ export const TOOLS = [
     short: '強と弱で、1時間と1か月の電気代',
     published: true,
     updated: '2026-10-21',
-    related: ['denki-dai', 'kotatsu', 'denki-moufu', 'hot-carpet'],
+    related: ['denki-dai', 'touyu-dai', 'oil-heater', 'kotatsu'],
   },
   {
     slug: 'oil-heater',
@@ -133,7 +142,7 @@ export const TOOLS = [
     short: '強・中・弱で、1時間と1か月の電気代',
     published: true,
     updated: '2026-10-21',
-    related: ['denki-dai', 'kotatsu', 'denki-moufu', 'hot-carpet'],
+    related: ['denki-dai', 'touyu-dai', 'ceramic-heater', 'kotatsu'],
   },
   {
     slug: 'kishaku',
@@ -142,7 +151,16 @@ export const TOOLS = [
     short: '原液と水を何mlずつ入れるか',
     published: true,
     updated: '2026-10-21',
-    related: ['recipe', 'tanka', 'waribiki', 'seisou-jikan'],
+    related: ['enbun-noudo', 'recipe', 'tanka', 'seisou-jikan'],
+  },
+  {
+    slug: 'enbun-noudo',
+    name: '塩分濃度の計算',
+    category: 'seikatsu',
+    short: '浅漬けやパスタの塩は何gか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['kishaku', 'recipe', 'mentsuyu', 'tanka'],
   },
   // 希釈率の使いみち別（parent のページの下に並べる）
   {

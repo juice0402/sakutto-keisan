@@ -427,6 +427,36 @@ h1 {
 .slip-table th + th, .slip-table td + td { border-left: 1px solid var(--rule); }
 .slip-foot { margin: 8px 0 0; font-size: 14px; color: var(--muted); text-align: center; }
 .slip-foot:empty { display: none; }
+/* 灯油代：青いポリタンクの絵。タンクのラベルに「18Lで何日」、横にいちばん大きな1か月の灯油代と、1か月に使うポリタンクの数 */
+.pic-row { display: grid; grid-template-columns: 108px 1fr; gap: 12px; align-items: center; } /* 灯油代・塩分濃度：左に絵、右に大きな答え */
+.tk-tank { position: relative; width: 108px; aspect-ratio: 120 / 140; }
+.tk-tank svg { width: 100%; height: 100%; }
+.tk-label { position: absolute; left: 15%; top: 38%; width: 70%; height: 43%; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; color: var(--text); }
+.tk-k { font-size: 11.5px; font-weight: 800; }
+.tk-n { font-size: 12px; font-weight: 800; white-space: nowrap; }
+.tk-n b { font-size: 25px; color: var(--red); letter-spacing: -.02em; }
+.pic-side { min-width: 0; }
+.pic-side .slip-k { display: block; margin: 0; }
+.pic-side .slip-v { display: block; margin: 0; text-align: left; }
+.pic-side .slip-v b { font-size: 38px; }
+.pic-side .slip-v.is-long b { font-size: 29px; }
+.tk-cans { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 3px; min-height: 18px; margin: 4px 0 0; }
+.tk-can { position: relative; width: 12px; height: 15px; border-radius: 2px 2px 3px 3px; background: linear-gradient(to top, #2e6fb7 var(--f, 100%), #d5e2f2 var(--f, 100%)); }
+.tk-can::before { content: ""; position: absolute; top: -3px; left: 2px; width: 5px; height: 3px; border-radius: 1px 1px 0 0; background: #2e6fb7; }
+.tk-more { font-size: 13px; font-weight: 800; color: var(--muted); line-height: 1; }
+.tk-liters { margin: 2px 0 0; min-height: 18px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.pic .slip-table { margin-top: 10px; border-top: 1.5px solid var(--text); }
+.pic .slip-table th { padding-top: 6px; }
+/* 塩分濃度：ボウルの絵（水や食材の重さ）と、塩の量のスプーンの絵（大さじ・小さじ。最後の小さじは入る分だけぬる） */
+.en-bowl { position: relative; width: 108px; aspect-ratio: 120 / 100; }
+.en-bowl svg { width: 100%; height: 100%; }
+.en-label { position: absolute; left: 0; right: 0; top: 60%; margin: 0; text-align: center; font-size: 14px; font-weight: 800; line-height: 1.2; color: var(--text); }
+.en-spoons { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-height: 22px; margin: 6px 0 0; }
+.en-sp { position: relative; flex: none; width: 14px; height: 14px; border: 1.5px solid var(--text); border-radius: 50%; background: linear-gradient(to right, var(--text) var(--f, 100%), transparent var(--f, 100%)); }
+.en-sp::after { content: ""; position: absolute; left: 11px; top: 4px; width: 10px; height: 3px; border-radius: 2px; background: var(--text); }
+.en-sp.is-big { width: 20px; height: 20px; }
+.en-sp.is-big::after { left: 16px; top: 7px; width: 12px; }
+.en-stext { margin: 2px 0 0; min-height: 18px; font-size: 13px; font-weight: 800; color: var(--text); }
 
 /* 希釈率 */
 /* 入力の形をえらぶ3つ（薄め方）。1本の枠を3つに区切り、えらんだものに赤ペンの丸 */

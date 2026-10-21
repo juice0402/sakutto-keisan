@@ -87,6 +87,11 @@ CASES = {
         (('click', '.tile[data-watt="1500"]'), '#r-foot', '1日に使う時間を入れてください'),
         (('fill', '#hours', '8'), None, None),
     ],
+    'touyu-dai': [
+        (None, '#r-foot', '暖房をえらんでください'),
+        (('click', '.tile[data-lph]'), '#r-foot', '1日に使う時間を入れてください'),
+        (('fill', '#hours', '8'), None, None),
+    ],
     'recipe': [
         (None, None, None),
         (('fill', '#amt-1', '300'), None, None),
@@ -111,6 +116,11 @@ CASES = {
         (('click', '.tile[data-ratio="1000"]'), '#r-hints', 'わかっている量を1つ入れてください'),
         (('fill', '#v-water', '2000'), None, None),
     ],
+    'enbun-noudo': [
+        (None, '#r-foot', '水や食材の重さを入れてください'),
+        (('fill', '#base', '500'), '#r-foot', '濃度か塩を入れてください'),
+        (('click', '.tile[data-pct="3"]'), None, None),
+    ],
     'zangyo-dai': [
         (None, '#r-foot', '時給を入れてください'),
         (('fill', '#wage', '1200'), '#r-foot', '残業の時間を入れてください'),
@@ -127,6 +137,11 @@ CASES = {
         (None, '#r-foot', '3つのうち2つを入れてください'),
         (('fill', '#price', '1500'), '#r-foot', '原価か利益率を入れてください'),
         (('fill', '#cost', '1000'), None, None),
+    ],
+    'kakeritsu': [
+        (None, '#r-foot', '上代を入れてください'),
+        (('fill', '#jodai', '3000'), '#r-foot', '掛け率か下代を入れてください'),
+        (('click', '.tile[data-rate="60"]'), None, None),
     ],
     'seisou-jikan': [
         (None, '#r-foot', '作業をえらんでください'),

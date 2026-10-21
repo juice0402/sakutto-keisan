@@ -614,6 +614,104 @@ def meter_slip(img, cx, top, what, digits, month, cells):
             d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
 
 
+def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre=''):
+    """灯油代・塩分濃度：左に絵、右に大きな答え、下に3つの表（サイトの .slip.pic と同じ見た目）
+    pic(d, x0, y0) は絵を描く（幅 180・高さ 200 の中）。under(d, x, y) は大きな答えの下に描く（スプーンなど）"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 220 * S, cx + 240 * S
+    y0, y1 = top - 70 * S, top + 290 * S
+    d.rectangle([x0, y0, x1, y1], fill='#FFFFFF', outline='#B4C1D2', width=2 * S)
+    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    d.text((x0 + 22 * S, y0 + 24 * S), title, font=font('black', 26), fill=INK)
+    tw = d.textlength('目安', font=font('bold', 18))
+    d.text((x1 - 22 * S - tw, y0 + 30 * S), '目安', font=font('bold', 18), fill=PENCIL)
+    py = y0 + 70 * S
+    pic(d, x0 + 18 * S, py)
+    rx = x0 + 218 * S
+    d.text((rx, py + 20 * S), cap, font=font('black', 24), fill=INK)
+    f_v, f_u = font('black', 64), font('black', 24)
+    x = rx
+    if pre:
+        d.text((x, py + 92 * S), pre, font=f_u, fill=RED)
+        x += d.textlength(pre, font=f_u) + 4 * S
+    d.text((x, py + 46 * S), value, font=f_v, fill=RED)
+    x += d.textlength(value, font=f_v) + 4 * S
+    d.text((x, py + 92 * S), unit, font=f_u, fill=RED)
+    under(d, rx, py + 134 * S)
+    ty = py + 220 * S
+    d.line([(x0 + 18 * S, ty - 12 * S), (x1 - 18 * S, ty - 12 * S)], fill=INK, width=2 * S)
+    cw3 = (x1 - x0 - 36 * S) / 3
+    for i, (k, v) in enumerate(zip(head, cells)):
+        cxx = x0 + 18 * S + cw3 * (i + 0.5)
+        kw = d.textlength(k, font=font('bold', 17))
+        d.text((cxx - kw / 2, ty), k, font=font('bold', 17), fill=PENCIL)
+        vw = d.textlength(v, font=font('black', 24))
+        d.text((cxx - vw / 2, ty + 26 * S), v, font=font('black', 24), fill=INK)
+        if i:
+            d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
+
+
+def salt_slip(img, cx, top):
+    """塩分濃度：ボウルの絵と塩の量、スプーンの絵（ページの計算例：水500mlで3％）"""
+    def bowl(d, x, y):
+        w = 180 * S
+        # 塩の山
+        d.chord([x + 58 * S, y + 62 * S, x + 122 * S, y + 138 * S], 180, 360, fill='#EEF2F7', outline='#9AA9BB', width=3 * S)
+        # ボウルと水
+        d.chord([x, y + 10 * S, x + w, y + 190 * S], 0, 180, fill='#FFFFFF', outline=INK, width=4 * S)
+        d.chord([x + 12 * S, y + 22 * S, x + w - 12 * S, y + 178 * S], 0, 180, fill='#CFE3F3')
+        d.line([(x - 4 * S, y + 100 * S), (x + w + 4 * S, y + 100 * S)], fill=INK, width=5 * S)
+        t = '500g'
+        f = font('black', 26)
+        d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + 116 * S), t, font=f, fill=INK)
+
+    def spoons(d, x, y):
+        r = 11 * S
+        for i, full in enumerate((1, 1, 0.5)):
+            bx = x + i * 48 * S
+            d.ellipse([bx, y, bx + 2 * r, y + 2 * r], outline=INK, width=3 * S)
+            if full == 1:
+                d.ellipse([bx, y, bx + 2 * r, y + 2 * r], fill=INK)
+            else:
+                d.pieslice([bx, y, bx + 2 * r, y + 2 * r], 90, 270, fill=INK)
+            d.rounded_rectangle([bx + 2 * r - 2 * S, y + r - 3 * S, bx + 2 * r + 16 * S, y + r + 3 * S], radius=2 * S, fill=INK)
+        d.text((x, y + 34 * S), '小さじ2と1/2', font=font('black', 22), fill=INK)
+
+    pic_slip(img, cx, top, '塩の量', bowl, '塩', '15', 'g', spoons, ('塩', '濃度', '全体に対して'), ('15g', '3%', '2.91%'))
+
+
+def touyu_slip(img, cx, top, days, month, cans, liters, cells):
+    """灯油代：青いポリタンクの絵（ラベルに18Lで何日）と1か月の灯油代、1か月に使うポリタンクの数"""
+    blue, dark = '#2E6FB7', '#1D4F8C'
+
+    def tank(d, x, y):
+        x += 16 * S
+        u = 1.2 * S  # サイトの SVG（120×140）の1を何pxにするか
+        R = lambda a, b, w, h: [x + a * u, y + b * u, x + (a + w) * u, y + (b + h) * u]
+        d.rounded_rectangle(R(16, 2, 50, 32), radius=9 * u, fill=blue)
+        d.rounded_rectangle(R(25, 10, 32, 13), radius=5 * u, fill='#FFFFFF')
+        d.rectangle(R(80, 10, 20, 20), fill=blue)
+        d.rounded_rectangle(R(76, 2, 28, 11), radius=3 * u, fill=INK)
+        d.rounded_rectangle(R(4, 26, 112, 112), radius=11 * u, fill=blue)
+        for yy in (44, 128):
+            d.line([(x + 10 * u, y + yy * u), (x + 110 * u, y + yy * u)], fill=dark, width=3 * S)
+        d.rounded_rectangle(R(18, 53, 84, 60), radius=4 * u, fill='#FFFFFF')
+        cx2 = x + 60 * u
+        for t, f, yy, col in (('18Lで', font('black', 16), 58, INK), (days, font('black', 34), 72, RED)):
+            d.text((cx2 - d.textlength(t, font=f) / 2, y + yy * u), t, font=f, fill=col)
+
+    def can_row(d, x, y):
+        for i in range(int(cans) + (1 if cans % 1 else 0)):
+            bx = x + i * 24 * S
+            f = min(1, cans - i)
+            d.rounded_rectangle([bx, y + 4 * S, bx + 16 * S, y + 26 * S], radius=3 * S, fill='#D5E2F2')
+            d.rounded_rectangle([bx, y + 4 * S + 22 * S * (1 - f), bx + 16 * S, y + 26 * S], radius=3 * S, fill=blue)
+            d.rectangle([bx + 3 * S, y, bx + 9 * S, y + 4 * S], fill=blue)
+        d.text((x, y + 36 * S), liters, font=font('bold', 19), fill=PENCIL)
+
+    pic_slip(img, cx, top, '灯油代', tank, '1か月', month, '円', can_row, ('1時間', '1日', '1L'), cells, pre='約')
+
+
 def denki_slip(img, cx, top, name, mode, watt, hours):
     """家電別の電気代：電気代のお知らせ（単価31円・1か月30日。ページの計算と同じ）"""
     hour = watt * 31 / 1000
@@ -633,6 +731,7 @@ VISUALS = {
     'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
+    'enbun-noudo': salt_slip,
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),
     # 電気代の計算の下のページ（家電別）
     'kotatsu': lambda img, cx, top: denki_slip(img, cx, top, 'こたつ', '強', 180, 8),
