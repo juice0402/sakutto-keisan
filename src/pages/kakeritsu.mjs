@@ -18,7 +18,7 @@ const TILES = KAKE_TILES.map((p) => `<button type="button" class="tile tile-long
 // 早見表：上代 × 5〜8掛け（tests/kakeritsu.test.mjs と同じ）
 const QUICK = [1000, 2000, 3000, 5000, 10000, 1980, 2980, 4980];
 const QUICK_ROWS = QUICK.map(
-  (j) => `<tr><td>${fmt(j)}円</td>${KAKE_TILES.map((p) => `<td class="num">${fmt(kakeritsu({ jodai: j, rate: p, gedai: null, out: 'gedai' }).gedai)}円</td>`).join('')}</tr>`,
+  (j) => `<tr><td class="num">${fmt(j)}円</td>${KAKE_TILES.map((p) => `<td class="num">${fmt(kakeritsu({ jodai: j, rate: p, gedai: null, out: 'gedai' }).gedai)}</td>`).join('')}</tr>`,
 ).join('\n');
 
 const FAQS = [
@@ -88,12 +88,13 @@ ${section(
   'examples',
   '上代と掛け率の早見表',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>上代</th>${KAKE_TILES.map((p) => `<th class="num">${kakeText(p)}掛け</th>`).join('')}</tr></thead>
+<thead><tr><th class="num">上代</th>${KAKE_TILES.map((p) => `<th class="num">${kakeText(p)}掛け</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}
 </tbody>
 </table></div>
-<p>表の値段は下代です。上代で売ったときの粗利率は、5掛けで50％、8掛けで20％です。</p>
+<p class="note">下代（円）です。</p>
+<p>上代で売ったときの粗利率は、5掛けで50％、8掛けで20％です。</p>
 <p class="note">言葉の意味の出典：<a href="${SRC_WORDS}">マネーフォワード</a></p>`,
 )}
 

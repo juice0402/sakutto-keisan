@@ -58,3 +58,8 @@ test('まだ入れていない・まちがった入力', () => {
   assert.equal(enbun({ base: 500, pct: null, salt: 0, out: 'pct' }).field, 'salt');
   assert.equal(enbun({ base: 2000000, pct: 2, salt: null, out: 'salt' }).field, 'base');
 });
+
+test('塩の重さとスプーンの目安（ページの表）', () => {
+  const want = { 1: '小さじ1/4', 2: '小さじ1/4', 3: '小さじ1/2', 5: '小さじ3/4', 6: '小さじ1', 9: '小さじ1と1/2', 10: '小さじ1と3/4', 12: '小さじ2', 15: '小さじ2と1/2', 18: '大さじ1', 20: '大さじ1と小さじ1/4', 30: '大さじ1と小さじ2' };
+  for (const [g, text] of Object.entries(want)) assert.equal(spoonText(Number(g), tsp, tbsp), text, `${g}g`);
+});

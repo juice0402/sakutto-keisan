@@ -28,8 +28,12 @@ const USE_ROWS = ENBUN_USES.map((u) => `<tr><td class="wrap">${u.name}</td><td c
 const QUICK_BASE = [200, 500, 1000, 2000];
 const QUICK_PCT = [1, 2, 3];
 const QUICK_ROWS = QUICK_BASE.map(
-  (b) => `<tr><td>${b >= 1000 ? `${b / 1000}L・${b / 1000}kg` : `${b}g`}</td>${QUICK_PCT.map((p) => `<td class="num">${fmt(salt(b, p))}g<br><small>${spoon(salt(b, p))}</small></td>`).join('')}</tr>`,
+  (b) => `<tr><td>${b >= 1000 ? `${b / 1000}L・${b / 1000}kg` : `${b}g`}</td>${QUICK_PCT.map((p) => `<td class="num">${fmt(salt(b, p))}</td>`).join('')}</tr>`,
 ).join('\n');
+
+// 塩の重さとスプーンの目安（tests/enbun.test.mjs と同じ）
+const SPOON_GRAMS = [1, 2, 3, 5, 6, 9, 10, 12, 15, 18, 20, 30];
+const SPOON_ROWS = SPOON_GRAMS.map((g) => `<tr><td class="num">${g}g</td><td>${spoon(g)}</td></tr>`).join('\n');
 
 const FAQS = [
   {
@@ -97,7 +101,7 @@ ${section(
   `<div class="formula">
 <span>塩 ＝ 水や食材の重さ × 濃度</span>
 <span>濃度 ＝ 塩 ÷ 水や食材の重さ × 100</span>
-<span>全体に対して ＝ 塩 ÷（水や食材 ＋ 塩）× 100</span>
+<span>全体に対して ＝ 塩 ÷（水 ＋ 塩）× 100</span>
 </div>
 <p>例：水500mlで3％の塩水なら、塩は500 × 0.03 ＝ 15g（${spoon(15)}）です。塩水全体に対しては、15 ÷ 515 で約${fmt(enbun({ base: 500, pct: 3, salt: null, out: 'salt' }).whole, 1)}％です。</p>`,
 )}
@@ -111,7 +115,20 @@ ${section(
 ${QUICK_ROWS}
 </tbody>
 </table></div>
-<p>水は1ml＝1gとしています。スプーンは食塩の重さ（小さじ1＝${TSP}g・大さじ1＝${TBSP}g）での目安です。</p>`,
+<p class="note">塩の重さ（g）です。</p>
+<p>水は1ml＝1gとしています。</p>`,
+)}
+
+${section(
+  'spoon',
+  '塩の重さとスプーンの目安',
+  `<div class="tbl-wrap"><table>
+<thead><tr><th class="num">塩</th><th>スプーン</th></tr></thead>
+<tbody>
+${SPOON_ROWS}
+</tbody>
+</table></div>
+<p>食塩の重さ（小さじ1＝${TSP}g・大さじ1＝${TBSP}g）で、1/4さじ単位にした目安です。しっとりした塩は小さじ1が${ENBUN_SPOON.moist.tsp}gなので、同じ重さでもスプーンの数は少し多くなります。</p>`,
 )}
 
 ${section(

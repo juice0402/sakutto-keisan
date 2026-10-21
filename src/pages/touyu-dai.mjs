@@ -22,15 +22,16 @@ const TANK = `<svg viewBox="0 0 120 140" aria-hidden="true"><rect x="16" y="2" w
 const TILES = TOUYU_HEATERS.map((h) => `<button type="button" class="tile tile-word" data-lph="${h.max}" aria-pressed="false"><b>${h.short}</b><small>${h.max}L</small></button>`).join('');
 
 // ファンヒーターの大きさごとの1時間の灯油（強〜弱）と灯油代。リンク先は出典のメーカーの仕様のページ
+const cell = (l) => `<td class="num">${l}L<br><small>${yen(touyu({ lph: l, hours: 1, price: P18 }).hour)}円</small></td>`;
 const HEATER_ROWS = TOUYU_HEATERS.map(
-  (h) => `<tr><td class="wrap">${h.cond}<br><small>${h.name}</small></td><td class="num"><a href="${esc(h.url)}">${h.max}〜${h.min}L</a></td><td class="num">${yen(touyu({ lph: h.max, hours: 1, price: P18 }).hour)}〜${yen(touyu({ lph: h.min, hours: 1, price: P18 }).hour)}円</td></tr>`,
+  (h) => `<tr><td class="wrap">${h.cond}<br><small><a href="${esc(h.url)}">ダイニチ ${h.model}</a></small></td>${cell(h.max)}${cell(h.min)}</tr>`,
 ).join('\n');
 
 // 18Lが何日もつかの早見表（tests/touyu.test.mjs と同じ）
 const QUICK_LPH = [0.1, 0.2, 0.3, 0.5];
 const QUICK_HOURS = [4, 8, 12];
 const QUICK_ROWS = QUICK_LPH.map(
-  (l) => `<tr><td>${l}L</td>${QUICK_HOURS.map((h) => `<td class="num">${fmt(touyu({ lph: l, hours: h, price: P18 }).canDays, 1)}日</td>`).join('')}</tr>`,
+  (l) => `<tr><td>${l}L</td>${QUICK_HOURS.map((h) => `<td class="num">${fmt(touyu({ lph: l, hours: h, price: P18 }).canDays, 1)}</td>`).join('')}</tr>`,
 ).join('\n');
 
 const EX = touyu({ lph: 0.3, hours: 8, price: P18 });
@@ -99,8 +100,9 @@ ${section(
   'formula',
   '計算式',
   `<div class="formula">
-<span>1か月 ＝ 1時間の灯油 × 1日の時間 × 30日 × 1Lの値段</span>
-<span>18Lで何日 ＝ 18 ÷（1時間の灯油 × 1日の時間）</span>
+<span>1日の灯油 ＝ 1時間の灯油 × 1日の時間</span>
+<span>1か月 ＝ 1日の灯油 × 30日 × 1Lの値段</span>
+<span>18Lで何日 ＝ 18 ÷ 1日の灯油</span>
 </div>
 <p>例：1時間0.3Lを1日8時間、18L ${fmt(P18)}円（1L ${fmt(P1, 1)}円）なら、1か月は72Lで約${fmt(EX.month, 0)}円です。18Lは${fmt(EX.canDays, 1)}日でなくなります。</p>`,
 )}
@@ -109,11 +111,12 @@ ${section(
   'days',
   '18Lが何日もつかの早見表',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>1時間の灯油</th>${QUICK_HOURS.map((h) => `<th class="num">1日${h}時間</th>`).join('')}</tr></thead>
+<thead><tr><th>1時間の灯油</th>${QUICK_HOURS.map((h) => `<th class="num">${h}時間</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}
 </tbody>
 </table></div>
+<p class="note">1日に使う時間ごとの、18Lがもつ日数です。</p>
 <p>1時間の灯油は、ファンヒーターやストーブの説明書の「燃料消費量」です。</p>`,
 )}
 
@@ -121,12 +124,12 @@ ${section(
   'heaters',
   'ファンヒーターの1時間の灯油',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>大きさ</th><th class="num">強〜弱</th><th class="num">1時間</th></tr></thead>
+<thead><tr><th>大きさ</th><th class="num">強</th><th class="num">弱</th></tr></thead>
 <tbody>
 ${HEATER_ROWS}
 </tbody>
 </table></div>
-<p>ダイニチの2025年モデルの燃料消費量です。製品によって違うので、使っている暖房の説明書の数字を入れるのがいちばん正確です。量のリンク先は、出典のメーカーの仕様のページです。1時間の灯油代は、18L ${fmt(P18)}円のときです。</p>
+<p>ダイニチの2025年モデルの燃料消費量（1時間）と、18L ${fmt(P18)}円のときの1時間の灯油代です。製品によって違うので、使っている暖房の説明書の数字を入れるのがいちばん正確です。型番のリンク先は、出典のメーカーの仕様のページです。</p>
 <p class="note">値段の出典：<a href="${esc(TOUYU_PRICE.url)}">${TOUYU_PRICE.src}</a></p>`,
 )}
 

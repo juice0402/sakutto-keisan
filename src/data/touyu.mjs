@@ -13,10 +13,10 @@ export const TOUYU_PRICE = {
 
 // 暖房のマス：石油ファンヒーターの燃料消費量（1時間に使う灯油 L、最大〜最小）。ダイニチの2025年モデルの仕様のページの数字
 // （FW-32S6・FW-42S6 は生産終了と書いてあるが、同じ大きさの機種の目安として使う）。マスは強（最大）の量、表は強〜弱
-// short はマスの名前（木造の畳数）、cond は表に出す暖房のめやす
+// short はマスの名前（木造の畳数）、model はダイニチの型番、cond は表に出す暖房のめやす
 export const TOUYU_HEATERS = [
-  { short: '9畳', name: 'ファンヒーター（ダイニチ FW-32S6）', cond: '木造9畳・コンクリート12畳', max: 0.311, min: 0.072, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/s2025/' },
-  { short: '11畳', name: 'ファンヒーター（ダイニチ FW-42S6）', cond: '木造11畳・コンクリート15畳', max: 0.408, min: 0.082, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/s2025/' },
-  { short: '15畳', name: 'ファンヒーター（ダイニチ FW-5625L）', cond: '木造15畳・コンクリート20畳', max: 0.544, min: 0.12, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/l2025/' },
-  { short: '17畳', name: 'ファンヒーター（ダイニチ FW-66L5）', cond: '木造17畳・コンクリート23畳', max: 0.642, min: 0.13, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/l2025/' },
+  { short: '9畳', model: 'FW-32S6', cond: '木造9畳・コンクリート12畳', max: 0.311, min: 0.072, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/s2025/' },
+  { short: '11畳', model: 'FW-42S6', cond: '木造11畳・コンクリート15畳', max: 0.408, min: 0.082, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/s2025/' },
+  { short: '15畳', model: 'FW-5625L', cond: '木造15畳・コンクリート20畳', max: 0.544, min: 0.12, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/l2025/' },
+  { short: '17畳', model: 'FW-66L5', cond: '木造17畳・コンクリート23畳', max: 0.642, min: 0.13, url: 'https://www.dainichi-net.co.jp/products/fanheater/lineup/l2025/' },
 ];
