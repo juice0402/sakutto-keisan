@@ -40,6 +40,19 @@ CASES = {
         (('fill', '#base', '200'), '#r-foot', '割合かその数を入れてください'),
         (('fill', '#pct', '15'), None, None),
     ],
+    'nissu': [
+        (None, '#r-foot', '何日後かおわりの日を入れてください'),
+        (('fill', '#days', '100'), None, None),
+    ],
+    'nenrei': [
+        (None, '#r-foot', '生年月日を入れてください'),
+        (('fill', '#birth', '1987-06-15'), None, None),
+    ],
+    'jikan': [
+        (None, '#r-foot', '1つめの時間を入れてください'),
+        (('fill', '#h-0', '3'), '#r-foot', 'もう1つ入れると足せます'),
+        (('fill', '#h-1', '2'), None, None),
+    ],
     'tanka': [
         (None, '#t-sub', '2つ以上入れると、安い順に並びます'),
         (('fill', '#qty-a', '500'), '#t-sub', 'Aの値段を入れてください'),

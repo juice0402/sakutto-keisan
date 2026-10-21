@@ -442,7 +442,7 @@ h1 {
 .pic-side .slip-v b { font-size: 36px; }
 .pic-side .slip-v.is-long { white-space: normal; } /* 長い数はけたの間で折り返す（横にはみ出さない） */
 .pic-side .slip-v.is-long b { font-size: 29px; }
-@media (max-width: 374px) { .pic-row { grid-template-columns: 96px 1fr; } .tk-tank, .en-bowl, .pc-box { width: 96px; } .pic-side .slip-v b { font-size: 32px; } .pic-side .slip-v.is-long b { font-size: 25px; } }
+@media (max-width: 374px) { .pic-row { grid-template-columns: 96px 1fr; } .tk-tank, .en-bowl, .pc-box, .cal, .eto-ring { width: 96px; } .pic-side .slip-v b { font-size: 32px; } .pic-side .slip-v.is-long b { font-size: 25px; } }
 .tk-cans { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 3px; min-height: 18px; margin: 4px 0 0; }
 .tk-can { position: relative; width: 12px; height: 15px; border-radius: 2px 2px 3px 3px; background: linear-gradient(to top, #2e6fb7 var(--f, 100%), #d5e2f2 var(--f, 100%)); }
 .tk-can::before { content: ""; position: absolute; top: -3px; left: 2px; width: 5px; height: 3px; border-radius: 1px 1px 0 0; background: #2e6fb7; }
@@ -450,6 +450,35 @@ h1 {
 .tk-liters { margin: 2px 0 0; min-height: 18px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .pic .slip-table { margin-top: 10px; border-top: 1.5px solid var(--text); }
 .pic .slip-table th { padding-top: 6px; }
+/* 日付の欄（日数・年齢）：ほかの欄と同じ高さと字の大きさ。iPhone でも左寄せ */
+.date-field input { -webkit-appearance: none; appearance: none; display: block; width: 100%; min-height: 1.6em; padding: 20px 0 2px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 21px; font-weight: 800; line-height: 1.6; text-align: left; outline: none; }
+.date-field input::-webkit-date-and-time-value { text-align: left; }
+.date-field.is-out input { color: var(--red); }
+/* 日めくりカレンダー（日数）：上に年と月の赤い帯、大きな日にち、曜日 */
+.cal { width: 108px; border: 1.5px solid var(--text); border-radius: 3px; background: #fff; text-align: center; overflow: hidden; }
+.cal-ym { margin: 0; padding: 3px 0; background: var(--red); color: #fff; font-size: 13px; font-weight: 800; }
+.cal-d { margin: 0; font-size: 46px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.cal-w { margin: 0 0 6px; font-size: 14px; font-weight: 800; color: var(--muted); }
+.cal-w.is-sun { color: var(--red); }
+.cal-w.is-sat { color: #2e6fb7; }
+/* 干支の輪（年齢）：12の干支を丸く並べて、生まれ年の干支に赤ペンの丸 */
+.eto-ring { width: 108px; }
+.eto-ring svg { width: 100%; height: auto; }
+.eto-k { font-size: 13px; font-weight: 800; fill: var(--muted); text-anchor: middle; dominant-baseline: central; }
+.eto-k.is-on { fill: var(--red); }
+.eto-mark { fill: none; stroke: var(--red); stroke-width: 1.6; }
+.eto-c { font-size: 30px; font-weight: 800; fill: var(--text); text-anchor: middle; dominant-baseline: central; }
+/* 時間の帯（時間の計算）：行ごとの時間を1本の帯に並べ、1時間ごとの目もり */
+.jk-bar { position: relative; display: flex; height: 26px; margin: 10px 0 0; border: 1.5px solid var(--text); background: #fff; overflow: hidden; }
+.jk-seg { flex: none; height: 100%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; overflow: hidden; }
+.jk-seg.is-even { background: var(--red); }
+.jk-seg.is-odd { background: #d98a90; }
+.jk-ticks { position: absolute; inset: 0; pointer-events: none; }
+.jk-cols { display: flex; justify-content: flex-end; }
+.date-pair { grid-template-columns: .8fr 1.2fr; } /* 日数：何日後｜おわりの日（日付は長いので広く） */
+@media (max-width: 374px) { .cal, .eto-ring { width: 96px; } .date-field input { font-size: 19px; } }
+.jk-row > .pair { grid-template-columns: 1fr 1fr; }
+.jk-scale { display: flex; justify-content: space-between; margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--muted); }
 /* パーセント：方眼の100マス（割合の分を赤ペンでぬる）と、「200の15％は30」の1行 */
 .pc-box { width: 108px; }
 .pc-grid { width: 100%; height: auto; }
@@ -457,7 +486,7 @@ h1 {
 .pc-fill { fill: var(--red); opacity: .85; }
 .pc-line { fill: none; stroke: #9fb7d4; stroke-width: .6; }
 .pc-frame { fill: none; stroke: var(--text); stroke-width: 1.6; }
-.pc-say { margin: 4px 0 0; min-height: 20px; font-size: 14px; font-weight: 800; color: var(--text); overflow-wrap: anywhere; }
+.pc-say { margin: 4px 0 0; min-height: 20px; font-size: 14px; font-weight: 800; color: var(--text); overflow-wrap: anywhere; white-space: pre-line; }
 /* 塩分濃度：ボウルの絵（水や食材の重さ）と、塩の量のスプーンの絵（大さじ・小さじ。最後の小さじは入る分だけぬる） */
 .en-bowl { position: relative; width: 108px; aspect-ratio: 120 / 100; }
 .en-bowl svg { width: 100%; height: 100%; }

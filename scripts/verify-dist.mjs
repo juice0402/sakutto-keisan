@@ -103,7 +103,7 @@ for (const file of htmlFiles) {
   for (const m of html.matchAll(/<input\b[^>]*>/g)) {
     const tag = m[0];
     if (tag.includes('type="radio"')) continue;
-    if (!tag.includes('inputmode=') && !tag.includes('type="file"')) fail(rel, `inputmode がない入力欄: ${tag}`);
+    if (!tag.includes('inputmode=') && !tag.includes('type="file"') && !tag.includes('type="date"')) fail(rel, `inputmode がない入力欄: ${tag}`); // 日付の欄は、日付をえらぶ画面が出るので要らない
     const id = (tag.match(/id="([^"]+)"/) || [])[1];
     if (!id || !html.includes(`for="${id}"`)) fail(rel, `ラベルのない入力欄: ${tag}`);
   }

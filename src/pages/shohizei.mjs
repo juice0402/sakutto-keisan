@@ -11,8 +11,9 @@ import { fmt } from '../lib/number.mjs';
 
 const tool = toolBySlug('shohizei');
 const path = '/shohizei/';
-// 税率と軽減税率の対象、端数の処理の出典（国税庁）
+// 税率と軽減税率の対象の出典（国税庁）。2027年4月からの飲食料品の税率の引き下げは、法案が成立したら直す（国税庁の特設サイト）
 const SRC_RATE = 'https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi/keigenzeiritsu/01.htm';
+const SRC_CUT = 'https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi/keigenzeiritsu/zeiritsuhikisage.htm';
 
 const RATE_NOTE = { 10: 'ふつう', 8: '食品など' };
 const TILES = TAX_RATES.map((r) => `<button type="button" class="tile" data-rate="${r}" aria-pressed="${r === 10}"><b>${r}%</b><small>${RATE_NOTE[r]}</small></button>`).join('');
@@ -31,7 +32,11 @@ const EX = shohizei({ amount: 1000, from: 'gross', rate: 10 });
 const FAQS = [
   {
     q: '8％になるのは何ですか？',
-    a: '<p>お酒と外食をのぞく飲食料品と、定期購読の新聞です。持ち帰りのお弁当は8％で、お店の中で食べると10％です。</p>',
+    a: '<p>お酒と外食をのぞく飲食料品と、週2回以上発行される定期購読の新聞です。持ち帰りのお弁当は8％で、お店の中で食べると10％です。</p>',
+  },
+  {
+    q: '2027年4月から食品の消費税は変わりますか？',
+    a: `<p>国税庁は、2027年4月1日から2年間、飲食料品の消費税率を引き下げる予定を<a href="${SRC_CUT}">特設サイト</a>で知らせています。法案が国会で成立した場合の話なので、決まったらこのツールも直します。</p>`,
   },
   {
     q: '税込から税抜はどう出しますか？',
