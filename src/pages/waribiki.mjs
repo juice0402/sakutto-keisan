@@ -5,6 +5,15 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
+import { calcDiscount } from '../lib/waribiki.mjs';
+import { fmt } from '../lib/number.mjs';
+
+// よくある値段の割引の早見表（「1980円の3割引」のような検索で来る人が、表を見ればわかるように。数字は tests/waribiki.test.mjs で確かめる）
+export const QUICK_PRICES = [500, 600, 980, 1000, 1280, 1500, 1980, 2000, 2980, 3000, 3980, 5000, 10000];
+export const QUICK_RATES = [10, 20, 30, 50];
+const QUICK_ROWS = QUICK_PRICES.map(
+  (p) => `<tr><td class="num">${fmt(p)}円</td>${QUICK_RATES.map((r) => `<td class="num">${fmt(calcDiscount({ price: p, rate: r }).final)}</td>`).join('')}</tr>`,
+).join('\n');
 
 // 元の値段は、Enter でキーボードを閉じる（次は下のタイルをえらぶので）
 const input = (id, unit, placeholder, key = 'next') =>
@@ -46,6 +55,10 @@ const FAQS = [
   {
     q: '税込と税抜、どちらの値段を入れればいいですか？',
     a: '<p>知りたいほうの値段を入れてください。どちらで計算しても、差は1円ほどです。</p>',
+  },
+  {
+    q: '「三割引」と「3割引き」は同じですか？',
+    a: '<p>同じです。どちらも30％オフで、値段の0.7倍になります。</p>',
   },
   {
     q: '「2割引き」と「20％オフ」は同じですか？',
@@ -128,6 +141,18 @@ ${section(
 )}
 
 ${section(
+  'quick',
+  '値段ごとの割引の早見表',
+  `<div class="tbl-wrap"><table>
+<thead><tr><th class="num">元の値段</th><th class="num">1割引</th><th class="num">2割引</th><th class="num">3割引</th><th class="num">半額</th></tr></thead>
+<tbody>
+${QUICK_ROWS}
+</tbody>
+</table></div>
+<p class="note">割引後の値段（円）です。</p>`,
+)}
+
+${section(
   'wari',
   '割と％',
   `<div class="tbl-wrap"><table>
@@ -148,9 +173,9 @@ ${relatedHtml(tool)}
 
   const html = page({
     path,
-    title: '割引計算｜何％オフ・何割引きの値段を計算',
+    title: '割引計算｜3割引・20％オフはいくら？値段を計算',
     description:
-      '「3割引き」「20％オフ」の割引後の値段と、いくら安くなるかを計算します。2つの割引のどちらが安いかの比較や、クーポンを重ねた二重割引にも使えます。',
+      '「3割引き」「20％オフ」の割引後の値段と、いくら安くなるかを計算します。1,980円の3割引きは1,386円。よくある値段の早見表つきで、2つの割引の比較やクーポンを重ねた二重割引にも使えます。',
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

@@ -597,6 +597,17 @@ def meter_slip(img, cx, top, what, digits, month, cells):
             d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
 
 
+def denki_slip(img, cx, top, name, mode, watt, hours):
+    """家電別の電気代：電気代のお知らせ（単価31円・1か月30日。ページの計算と同じ）"""
+    hour = watt * 31 / 1000
+    kwh = watt * hours * 30 / 1000
+    fmt0 = lambda x: f'{round(x):,}'
+    fmt1 = lambda x: (f'{x:,.1f}'.rstrip('0').rstrip('.'))
+    digits = f'{kwh:.1f}'.replace('.', '').rjust(5, '0')
+    meter_slip(img, cx, top, f'{name} {mode} {watt:,}W・1日{hours}時間', digits, fmt0(hour * hours * 30),
+               (f'{fmt1(hour)}円', f'{fmt0(hour * hours) if hour * hours >= 100 else fmt1(hour * hours)}円', f'{fmt0(hour * hours * 365)}円'))
+
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart,
@@ -606,6 +617,12 @@ VISUALS = {
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),
+    # 電気代の計算の下のページ（家電別）
+    'kotatsu': lambda img, cx, top: denki_slip(img, cx, top, 'こたつ', '強', 180, 8),
+    'denki-moufu': lambda img, cx, top: denki_slip(img, cx, top, '電気毛布', '強', 32, 8),
+    'hot-carpet': lambda img, cx, top: denki_slip(img, cx, top, 'カーペット', '高', 471, 8),
+    'ceramic-heater': lambda img, cx, top: denki_slip(img, cx, top, 'ヒーター', '強', 1170, 4),
+    'oil-heater': lambda img, cx, top: denki_slip(img, cx, top, 'オイルヒーター', '弱', 600, 8),
     'waribiki-ritsu': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '15', '%オフ', '300円 おトク！', None),
     'matomegai': lambda img, cx, top: compare_tags(img, cx, top, (('A', '56.2', '6本 1,180円', True), ('B', '59.4', '1本 208円', False)), '100mlあたり'),
     # 希釈率の使いみち別
@@ -706,7 +723,7 @@ def main():
         ['node', '--input-type=module', '-e',
          "import('./src/tools.mjs').then((m) => console.log(JSON.stringify(m.TOOLS)))"], cwd=ROOT))
     (PUBLIC / 'og').mkdir(parents=True, exist_ok=True)
-    og(PUBLIC / 'og' / 'default.png', '生活の計算ツール', '割引後の値段、100gあたりの値段、レシピの分量、薄め方を計算できる無料のツール集', 'home')
+    og(PUBLIC / 'og' / 'default.png', '暮らしの計算ツール', '割引・割り勘・電気代・薄め方・残業代・FXを計算できる無料のツール集', 'home')
     for t in tools:
         if t.get('published'):
             title = t.get('ogTitle') or t['name'].split('（')[0]

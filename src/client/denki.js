@@ -8,7 +8,8 @@ const INPUTS = ['watt', 'hours', 'price'].map((id) => $(id));
 const TILES = [...document.querySelectorAll('.tile[data-watt]')];
 const val = (id) => parseNum($(id).value);
 let picked = null; // えらんだマス（消費電力の欄を書きかえたら外す）
-const EMPTY = { watt: '家電をえらんでください', price: '1kWhの単価を入れてください' };
+const EMPTY = { watt: $('calc').dataset.empty, price: '1kWhの単価を入れてください' };
+const BASE = $('calc').dataset.name || ''; // 家電別のページは家電の名前（結果の紙に「こたつ 強 180W」）
 const DIGITS = 4; // メーターの整数のけた（小数は1けた）
 
 function setNote(text = '', error = false) {
@@ -41,7 +42,7 @@ function update() {
   INPUTS.forEach((el) => $(`f-${el.id}`).classList.toggle('has-error', res.field === el.id));
   TILES.forEach((t) => t.setAttribute('aria-pressed', String(t === picked)));
   setNote(res.error || '', !!res.error);
-  const name = picked ? picked.querySelector('b').textContent : '';
+  const name = [BASE, picked ? picked.querySelector('b').textContent : ''].filter(Boolean).join(' ');
   if (!res.ok) {
     setBig('1か月', '？');
     $('r-foot').textContent = res.empty ? EMPTY[res.missing] : '';

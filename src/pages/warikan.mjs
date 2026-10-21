@@ -6,7 +6,15 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { WARIKAN_UNITS, WARIKAN_GROUPS } from '../lib/warikan.mjs';
+import { WARIKAN_UNITS, WARIKAN_GROUPS, warikan } from '../lib/warikan.mjs';
+
+// 合計と人数の早見表（100円単位で集める1人の額。「1万円 3人 割り勘」のような検索で来る人が、表を見ればわかるように）
+export const QUICK_TOTALS = [5000, 10000, 15000, 20000, 25000, 30000, 50000];
+export const QUICK_PEOPLE = [3, 4, 5, 6];
+const yenNum = (x) => x.toLocaleString('ja-JP');
+const QUICK_ROWS = QUICK_TOTALS.map(
+  (t) => `<tr><td class="num">${yenNum(t)}円</td>${QUICK_PEOPLE.map((n) => `<td class="num">${yenNum(warikan({ total: t, people: n, unit: 100 }).each)}</td>`).join('')}</tr>`,
+).join('\n');
 
 const NOSCRIPT = '<noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>';
 
@@ -116,6 +124,18 @@ ${section(
 </table></div>
 <p class="note">100円単位で集めるときです。</p>
 <p>端数を幹事が払うなら、10,000円を3人では、ほかの2人が3,300円で幹事が3,400円です。1円単位なら1人3,334円で、おつりは2円です。</p>`,
+)}
+
+${section(
+  'quick',
+  '合計と人数の早見表',
+  `<div class="tbl-wrap"><table>
+<thead><tr><th class="num">合計</th>${QUICK_PEOPLE.map((n) => `<th class="num">${n}人</th>`).join('')}</tr></thead>
+<tbody>
+${QUICK_ROWS}
+</tbody>
+</table></div>
+<p class="note">100円単位で集める1人の額（円）です。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

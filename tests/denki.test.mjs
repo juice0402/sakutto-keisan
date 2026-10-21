@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { denki } from '../src/lib/denki.mjs';
-import { DENKI_PRICE, DENKI_APPLIANCES } from '../src/data/denki.mjs';
+import { DENKI_PRICE, DENKI_APPLIANCES, DENKI_USES } from '../src/data/denki.mjs';
 import { fmt } from '../src/lib/number.mjs';
 
 test('電気代：ページの計算例（単価31円・1か月30日）', () => {
@@ -44,4 +44,25 @@ test('電気代：まだ入れていない・まちがった入力', () => {
   assert.equal(denki({ watt: 600, hours: 8, price: 0 }).field, 'price');
   assert.equal(denki({ watt: 600, hours: 8, price: 500 }).field, 'price');
   assert.equal(denki({ watt: 600, hours: 0, price: 31 }).month, 0);
+});
+
+test('家電別の電気代：1時間の電気代がメーカーの表示と同じ（単価31円）', () => {
+  const hour = (slug) => DENKI_USES.find((u) => u.slug === slug).modes.map((m) => fmt(denki({ watt: m.watt, hours: 1, price: 31 }).hour, 1));
+  assert.deepEqual(hour('kotatsu'), ['5.6', '2.2', '18.6']); // 山善：強5.6円・弱2.2円
+  assert.deepEqual(hour('denki-moufu'), ['1', '0.6', '1.7']); // パナソニック：強 約1.0円・目盛3 約0.6円
+  assert.deepEqual(hour('hot-carpet'), ['14.6', '10.4', '22']); // パナソニック：高 約14.6円・中 約10.4円
+  assert.deepEqual(hour('ceramic-heater'), ['36.3', '19.8']);
+  assert.deepEqual(hour('oil-heater'), ['46.5', '27.9', '18.6']); // デロンギ：最大約47円・中約28円・弱約19円
+});
+
+test('家電別の電気代：表とよくある質問の1か月（1日の時間・30日）', () => {
+  const month = (slug) => {
+    const u = DENKI_USES.find((x) => x.slug === slug);
+    return u.modes.map((m) => fmt(denki({ watt: m.watt, hours: u.hours, price: 31 }).month, 0));
+  };
+  assert.deepEqual(month('kotatsu'), ['1,339', '521', '4,464']);
+  assert.deepEqual(month('denki-moufu'), ['238', '141', '402']);
+  assert.deepEqual(month('hot-carpet'), ['3,504', '2,492', '5,282']);
+  assert.deepEqual(month('ceramic-heater'), ['4,352', '2,381']);
+  assert.deepEqual(month('oil-heater'), ['11,160', '6,696', '4,464']);
 });

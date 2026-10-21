@@ -3,9 +3,9 @@
 // マスの数字と単価のはじめの値は src/data/denki.mjs（出典つき）。ページに載せる計算例は tests/denki.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
-import { boxField } from '../fields.mjs';
-import { DENKI_PRICE, DENKI_APPLIANCES } from '../data/denki.mjs';
+import { relatedHtml, toolLd, themeOf, toolListHtml } from '../parts.mjs';
+import { denkiCard } from '../denki.mjs';
+import { DENKI_PRICE, DENKI_APPLIANCES, DENKI_USES } from '../data/denki.mjs';
 import { denki } from '../lib/denki.mjs';
 import { fmt } from '../lib/number.mjs';
 
@@ -13,10 +13,8 @@ const tool = toolBySlug('denki-dai');
 const path = '/denki-dai/';
 const esc = (s) => s.replace(/&/g, '&amp;');
 
-// 家電のマス（2段×3つ）：名前と消費電力の目安（えらぶと消費電力の欄に入る）
-const TILES = `<div class="tiles" role="group" aria-label="家電をえらぶ">${DENKI_APPLIANCES.filter((a) => a.tile).map(
-  (a) => `<button type="button" class="tile tile-word" data-watt="${a.watt}" aria-pressed="false"><b>${a.short}</b><small>${fmt(a.watt)}W</small></button>`,
-).join('')}</div>`;
+// 家電別の電気代のページ（こたつ・電気毛布など。この計算の下のページ）
+const USES = DENKI_USES.map((u) => toolBySlug(u.slug)).filter((t) => t && t.published);
 
 // 家電の消費電力の目安の表（マスと同じ数字）。消費電力は、出典のメーカーの仕様のページへのリンク
 const APPLIANCE_ROWS = DENKI_APPLIANCES.map((a) => {
@@ -73,23 +71,9 @@ export default function render() {
 <h1>${tool.name}</h1>
 <p class="lead">家電のW数と時間から、電気代を計算します。</p>
 
-<div class="calc" id="calc">
-  <div class="field" id="f-tiles">${TILES}</div>
-  <div class="box-rows">
-    <div class="box-row-clear">${boxField('watt', '消費電力', 'W', '600', '', '家電のラベルや説明書の「消費電力」')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
-    <div class="pair">${boxField('hours', '1日に使う時間', '時間', '8')}${boxField('price', '1kWhの単価', '円', String(DENKI_PRICE.value), String(DENKI_PRICE.value), `電気料金の明細の単価。目安は${DENKI_PRICE.value}円`)}</div>
-  </div>
-  <div class="slip" aria-live="polite">
-    <p class="slip-title">電気代のお知らせ<small>目安</small></p>
-    <div class="slip-meter" aria-hidden="true"><span>1か月の<br>使用量</span><span class="m-digits" id="m-digits"></span><span class="m-u">kWh</span></div>
-    <p class="m-what" id="m-what"></p>
-    <p class="slip-sum"><span class="slip-k" id="r-cap">1か月</span><span class="slip-v"><small>約</small><b id="r-num">？</b><small>円</small></span></p>
-    <table class="slip-table"><thead><tr><th>1時間</th><th>1日</th><th>1年</th></tr></thead><tbody><tr><td id="d-hour">—</td><td id="d-day">—</td><td id="d-year">—</td></tr></tbody></table>
-    <p class="slip-foot" id="r-foot">家電をえらんでください</p>
-  </div>
-  <p class="tag-note" id="r-note" hidden></p>
-  <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
-</div>
+${denkiCard({ tiles: DENKI_APPLIANCES.filter((a) => a.tile).map((a) => ({ b: a.short, small: `${fmt(a.watt)}W`, watt: a.watt })), label: '家電をえらぶ', empty: '家電をえらんでください' })}
+
+${USES.length ? section('uses', '家電別の電気代', toolListHtml(USES)) : ''}
 
 ${section(
   'formula',

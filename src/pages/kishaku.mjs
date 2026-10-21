@@ -1,7 +1,14 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, toolListHtml } from '../parts.mjs';
-import { DILUTE_TILES } from '../lib/kishaku.mjs';
+import { DILUTE_TILES, dilute, volumeText } from '../lib/kishaku.mjs';
+
+// 薄め方の早見表：できあがりの量ごとの原液の量（「100倍 1L 何ml」のような検索で来る人が、表を見ればわかるように）
+export const QUICK_RATIOS = [2, 5, 10, 20, 50, 100, 200, 500, 1000];
+export const QUICK_TOTALS = [500, 1000, 2000];
+const QUICK_ROWS = QUICK_RATIOS.map(
+  (r) => `<tr><td>${r.toLocaleString('ja-JP')}倍</td>${QUICK_TOTALS.map((t) => `<td class="num">${volumeText(dilute({ ratio: r, amount: t }).concentrate)}</td>`).join('')}</tr>`,
+).join('\n');
 import { numInput, mixTiles, mixStage } from '../mix.mjs';
 
 const tool = toolBySlug('kishaku');
@@ -103,6 +110,19 @@ ${section(
 <tr><td class="wrap">6％を<wbr>0.05％に<wbr>（120倍）・<wbr>1L</td><td class="num">8.3ml</td><td class="num">992ml</td><td class="num">1L</td></tr>
 </tbody>
 </table></div>`,
+)}
+
+${section(
+  'quick',
+  '薄め方の早見表',
+  `<div class="tbl-wrap"><table>
+<thead><tr><th>倍率</th><th class="num">500ml</th><th class="num">1L</th><th class="num">2L</th></tr></thead>
+<tbody>
+${QUICK_ROWS}
+</tbody>
+</table></div>
+<p class="note">できあがりの量ごとの原液の量です。</p>
+<p>水は、できあがりの量から原液を引いた量です。1Lを100倍なら、原液10mlに水990mlです。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

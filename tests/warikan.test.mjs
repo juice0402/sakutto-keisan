@@ -74,3 +74,13 @@ test('傾斜の割り勘：ぴったりのときはおつりなし、まちが�
   assert.equal(warikanKeisha({ total: 1000, groups: [{ people: 1, rate: 11 }, { people: 2, rate: 1 }] }).field, 'rate-0');
   assert.equal(warikanKeisha({ total: 1000, groups: [{ people: 1, rate: null }, { people: 2, rate: 1 }] }).missing, 'rate');
 });
+
+test('合計と人数の早見表（ページの表：100円単位）', () => {
+  const table = {
+    5000: [1700, 1300, 1000, 900], 10000: [3400, 2500, 2000, 1700], 15000: [5000, 3800, 3000, 2500], 20000: [6700, 5000, 4000, 3400],
+    25000: [8400, 6300, 5000, 4200], 30000: [10000, 7500, 6000, 5000], 50000: [16700, 12500, 10000, 8400],
+  };
+  for (const [total, want] of Object.entries(table)) {
+    assert.deepEqual([3, 4, 5, 6].map((people) => warikan({ total: Number(total), people, unit: 100 }).each), want, `${total}円`);
+  }
+});

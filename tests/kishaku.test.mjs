@@ -116,3 +116,13 @@ test('液体肥料の表とマス：水1L・2L・10Lに入れる原液', () => {
   // マスの「1Lに◯ml」
   assert.deepEqual([50, 100, 200].map((r) => ml(fromWater(r, 1000).concentrate)), ['20ml', '10ml', '5ml']);
 });
+
+test('薄め方の早見表（ページの表：できあがり500ml・1L・2Lの原液の量）', () => {
+  const table = {
+    2: ['250ml', '500ml', '1L'], 5: ['100ml', '200ml', '400ml'], 10: ['50ml', '100ml', '200ml'], 20: ['25ml', '50ml', '100ml'],
+    50: ['10ml', '20ml', '40ml'], 100: ['5ml', '10ml', '20ml'], 200: ['2.5ml', '5ml', '10ml'], 500: ['1ml', '2ml', '4ml'], 1000: ['0.5ml', '1ml', '2ml'],
+  };
+  for (const [ratio, want] of Object.entries(table)) {
+    assert.deepEqual([500, 1000, 2000].map((amount) => volumeText(dilute({ ratio: Number(ratio), amount }).concentrate)), want, `${ratio}倍`);
+  }
+});
