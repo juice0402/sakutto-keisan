@@ -12,6 +12,7 @@ const val = (id) => parseNum($(id).value);
 const currentSpeed = () => val('speed');
 const MAX_STRIPS = 30; // 床を分けて見せる人数の上限
 const CAP = { hours: 'かかる時間', people: '必要な人数', area: 'できる面積' };
+const NAME = { area: '面積', people: '人数', hours: '作業時間' };
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -37,7 +38,10 @@ function drawSheet(res, out) {
 
 function emptyText() {
   if (currentSpeed() === null) return '作業をえらんでください';
-  return '面積・人数・時間のうち2つを入れてください';
+  const got = SEISOU_FIELDS.filter((f) => typed.has(f));
+  if (!got.length) return '面積を入れてください'; // 面積は現場で決まっていることが多いので、上の欄から
+  if (got.length !== 1) return '面積・人数・時間のうち2つを入れてください';
+  return `${SEISOU_FIELDS.filter((f) => f !== got[0]).map((f) => NAME[f]).join('か')}を入れてください`;
 }
 
 function answerField() {
@@ -50,6 +54,8 @@ function answerField() {
 function update() {
   const out = answerField();
   if (out) typed.delete(out);
+  // 前に答えを出していた欄は、答えでなくなったら空にする（自分で入れた数字に見えないように）
+  SEISOU_FIELDS.forEach((f) => { if (f !== out && !typed.has(f)) $(f).value = ''; });
   const args = { area: val('area'), people: val('people'), hours: val('hours'), speed: currentSpeed() };
   document.querySelectorAll('.tile[data-speed]').forEach((t) => t.setAttribute('aria-pressed', String(Number(t.dataset.speed) === args.speed)));
   let res = { ok: false, empty: true };
@@ -101,8 +107,10 @@ INPUTS.forEach((el) => {
   el.addEventListener('input', (e) => {
     // 自分で入れたときだけ覚える（離れたときの3桁区切りの整え直しでは、入れた順を変えない）
     if (e.isTrusted && el.id !== 'speed') {
-      typed.add(el.id);
-      if (el.id !== 'area') lastPH = el.id;
+      // 空にした欄は外す（前に入れた欄を答えで上書きしない）
+      if (el.value.trim() === '') typed.delete(el.id);
+      else typed.add(el.id);
+      if (el.id !== 'area' && typed.has(el.id)) lastPH = el.id;
     }
     update();
   });

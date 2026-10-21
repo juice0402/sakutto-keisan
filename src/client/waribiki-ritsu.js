@@ -56,7 +56,7 @@ function update() {
   if (!res.ok) {
     $('t-price').textContent = '？';
     $('t-unit').textContent = '％オフ';
-    $('t-save').textContent = res.empty ? '2つの値段を入れると、何％オフかわかります' : '';
+    $('t-save').textContent = res.empty ? (price === null ? '元の値段を入れてください' : '割引後の値段を入れてください') : '';
     setNote(res.error || '', !!res.error);
     lastKey = '';
     return;

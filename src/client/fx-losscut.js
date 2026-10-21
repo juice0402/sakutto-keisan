@@ -1,7 +1,7 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { fxPosition, yenText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../lib/fx.mjs';
 import { cutChartShape } from '../lib/fx-chart.mjs';
-import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 
 // ロスカットの計算：ロスカットまで、あと何円の損か。基準より下のときは、足りないお金（追証の目安）
 let side = 'buy'; // 買いか売りか
@@ -28,9 +28,13 @@ function setBig(num, unit, error = false) {
   $('r-big').classList.toggle('is-error', error);
 }
 
+/** まだ入れていない欄のうち、いちばん上の欄を案内する */
 const emptyText = (res) => {
   if (!res.empty) return '';
-  return res.missing === 'cut' ? 'ロスカットの基準を入れてください' : '通貨の量・口座のお金・レートを入れてください';
+  if (currentQty() === null) return '通貨の量をえらんでください';
+  if (val('money') === null) return '口座のお金を入れてください';
+  if (val('rate') === null) return 'いまのレートを入れてください';
+  return 'ロスカットの基準を入れてください';
 };
 
 /* ---- チャート：いまのレートの線（金の点線）とロスカットのライン（赤い点線）。あいだはうすい赤、右はしに2つのレート ---- */
@@ -150,6 +154,7 @@ $('clear').addEventListener('click', () => {
   update();
 });
 enterToNext(INPUTS);
+focusHints(document.querySelector('.fx-inputs'));
 fitQty();
 setExamples();
 update();

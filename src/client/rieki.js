@@ -6,6 +6,7 @@ import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 let order = []; // 入れた欄（新しいものが後ろ。2つまで）
 const INPUTS = RIEKI_FIELDS.map((id) => $(id));
 const val = (id) => parseNum($(id).value);
+const NAME = { price: '売値', cost: '原価', rate: '利益率' };
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -42,8 +43,16 @@ function drawRows(res, out) {
     : row('売値', null, null) + row('原価', null, null) + row('利益', null, null);
 }
 
+/** 入れた欄が1つなら、残りの2つを案内する */
+function riekiEmpty() {
+  if (order.length !== 1) return '3つのうち2つを入れてください';
+  return `${RIEKI_FIELDS.filter((f) => f !== order[0]).map((f) => NAME[f]).join('か')}を入れてください`;
+}
+
 function update() {
   const out = order.length === 2 ? RIEKI_FIELDS.find((f) => !order.includes(f)) : null;
+  // 前に答えを出していた欄は、答えでなくなったら空にする（自分で入れた数字に見えないように）
+  RIEKI_FIELDS.forEach((f) => { if (f !== out && !order.includes(f)) $(f).value = ''; });
   const res = out ? rieki({ price: val('price'), cost: val('cost'), rate: val('rate'), out }) : { ok: false, empty: true };
   INPUTS.forEach((el) => {
     $(`f-${el.id}`).classList.toggle('has-error', res.field === el.id);
@@ -59,7 +68,7 @@ function update() {
   $('r-stamp').hidden = !res.ok;
   if (!res.ok) {
     $('r-num').textContent = '？';
-    $('r-foot').textContent = res.empty ? '3つのうち2つを入れてください' : '';
+    $('r-foot').textContent = res.empty ? riekiEmpty() : '';
     return;
   }
   $('r-num').textContent = moneyText(res.profit, res.step);
@@ -72,7 +81,8 @@ numericOnly(INPUTS);
 INPUTS.forEach((el) => {
   el.addEventListener('input', (e) => {
     // 自分で入れたときだけ覚える（離れたときの3桁区切りの整え直しでは、入れた順を変えない）
-    if (e.isTrusted) order = [...order.filter((f) => f !== el.id), el.id].slice(-2);
+    // 空にした欄は外す（残りの欄に答えを出さない。前に入れた欄を答えで上書きしない）
+    if (e.isTrusted) order = el.value.trim() === '' ? order.filter((f) => f !== el.id) : [...order.filter((f) => f !== el.id), el.id].slice(-2);
     update();
   });
   el.addEventListener('focus', () => {

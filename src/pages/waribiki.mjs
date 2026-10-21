@@ -6,8 +6,9 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 
-const input = (id, unit, placeholder) =>
-  `<div class="input"><input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"><span class="unit">${unit}</span></div>`;
+// 元の値段は、Enter でキーボードを閉じる（次は下のタイルをえらぶので）
+const input = (id, unit, placeholder, key = 'next') =>
+  `<div class="input"><input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="${key}" placeholder="${placeholder}"><span class="unit">${unit}</span></div>`;
 
 const field = (id, label, unit, placeholder, attrs = '') =>
   `<div class="field" id="f-${id}"${attrs}><label for="${id}">${label}</label>${input(id, unit, placeholder)}</div>`;
@@ -68,7 +69,7 @@ function renderMain() {
 
   <div class="field" id="f-price">
     <div class="field-head"><label for="price" id="l-price">元の値段</label><button type="button" class="clear-btn" id="clear">クリア</button></div>
-    ${input('price', '円', '2,000')}
+    ${input('price', '円', '2,000', 'done')}
   </div>
   <div class="field" data-mode="off compare">
     <p class="label" id="l-rate">値引きをえらぶ</p>
@@ -81,7 +82,7 @@ function renderMain() {
       <div class="pricetag">
         <p class="tag-was" id="t-was" hidden></p>
         <p class="tag-price"><span id="t-price">？</span><small>円</small></p>
-        <p class="tag-save" id="t-save">値段と割引を入れると、値札ができます</p>
+        <p class="tag-save" id="t-save">元の値段を入れてください</p>
         <p class="tag-conv" id="t-conv" hidden></p>
       </div>
       <p class="tag-badge" id="t-badge" hidden><span id="t-rate"></span><small>OFF</small></p>
@@ -203,7 +204,7 @@ function renderRate() {
       <div class="pricetag">
         <p class="tag-was" id="t-was" hidden></p>
         <p class="tag-price"><span id="t-price">？</span><small id="t-unit">％オフ</small></p>
-        <p class="tag-save" id="t-save">2つの値段を入れると、何％オフかわかります</p>
+        <p class="tag-save" id="t-save">元の値段を入れてください</p>
         <p class="tag-conv" id="t-conv" hidden></p>
       </div>
     </div>

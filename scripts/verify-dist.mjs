@@ -42,6 +42,10 @@ for (const file of htmlFiles) {
       if (textWidth(text) > max) fail(rel, `.${cls} が1行に入らない（${textWidth(text).toFixed(1)}／${max}）: ${text}`);
     }
   }
+  // さわっている間だけ出す欄の説明（data-hint）も1行に
+  for (const m of html.matchAll(/data-hint="([^"]*)"/g)) {
+    if (textWidth(m[1]) > 21) fail(rel, `data-hint が1行に入らない（${textWidth(m[1]).toFixed(1)}／21）: ${m[1]}`);
+  }
   // 絵文字は使わない（しょーくんの方針・10/17）。© ® ™ はよい
   // 見える文字と、検索・SNS に出る文字（title・description・構造化データ）を見る。スクリプトの中の記号（貼り付けた文字の「★」を消す処理など）は見ない
   const shown = html.replace(/<script>[\s\S]*?<\/script>/g, '').replace(/<style>[\s\S]*?<\/style>/g, '');

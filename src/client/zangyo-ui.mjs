@@ -1,7 +1,7 @@
 // 残業代の2つのページ（時給から・月給から）で共通の部品：残業・深夜・休日の時間、明細、案内、クリアと Enter
 import { parseNum, fmt } from '../lib/number.mjs';
 import { zangyo, zangyoHoursText, zangyoUnit, ZANGYO_PARTS } from '../lib/zangyo.mjs';
-import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 
 export const ZANGYO_HOUR_IDS = ['over', 'night', 'holiday'];
 export const numVal = (id) => parseNum($(id).value);
@@ -56,5 +56,6 @@ export function zangyoSetup(inputs, update) {
     update();
   });
   enterToNext(inputs);
+  focusHints(document.querySelector('.box-rows'));
   update();
 }

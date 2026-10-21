@@ -15,7 +15,8 @@ const SRC_60 = 'https://www.mhlw.go.jp/topics/2008/12/dl/tp1216-1l-02.pdf';
 
 // 2つのページで同じ部品：残業・深夜・休日の時間（単位は名前の右）と、結果の書類（残業代明細書）
 // 書類は、題・クリア・いちばん大きな残業代（二重線）・時給の行・明細の表（時間外・深夜割増・休日出勤。60時間をこえたら60時間超の行）
-const TRIO = `<div class="trio">${boxField('over', '残業', '時間', '20')}${boxField('night', '深夜', '時間', '0')}${boxField('holiday', '休日', '時間', '0')}</div>`;
+// 名前だけでは迷う欄は、さわっている間だけ1行の説明を出す（よくある質問の答えと同じ中身）
+const TRIO = `<div class="trio">${boxField('over', '残業', '時間', '20', '', '1日8時間・週40時間をこえた時間')}${boxField('night', '深夜', '時間', '0', '', '夜10時〜朝5時の時間。残業の分も入れます')}${boxField('holiday', '休日', '時間', '0', '', '法定休日（週1日の休み）にはたらいた時間')}</div>`;
 const doc = (info) => `<div class="doc" aria-live="polite">
     <p class="doc-title">残業代明細書</p>
     <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
@@ -145,8 +146,8 @@ ${section(
     script: 'zangyo-gekkyu.js',
     calc: `<div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-link">${boxField('salary', '月給', '円', '300,000')}<a class="wide-btn" href="/zangyo-dai/">時給から計算</a></div>
-    <div class="pair">${boxField('holidays', '年間休日', '日', '120')}${boxField('daily', '1日の所定時間', '時間', '8')}</div>
+    <div class="box-row-link">${boxField('salary', '月給', '円', '300,000', '', '基本給と手当。通勤手当や家族手当はのぞく')}<a class="wide-btn" href="/zangyo-dai/">時給から計算</a></div>
+    <div class="pair">${boxField('holidays', '年間休日', '日', '120', '', '1年の休みの日数。土日と祝日なら約120日')}${boxField('daily', '1日の所定時間', '時間', '8', '', '休けいをのぞいた、会社で決まった時間')}</div>
     ${TRIO}
   </div>
   ${doc(`<p class="doc-info"><span id="y-left">出勤</span><span id="y-right">休日</span></p>

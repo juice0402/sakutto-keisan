@@ -440,7 +440,7 @@ h1 {
 .box-field { position: relative; margin: 0; min-width: 0; }
 .box-field > label { position: absolute; left: 12px; top: 7px; z-index: 1; margin: 0; font-size: 13px; font-weight: 700; line-height: 16px; color: var(--text); opacity: .8; pointer-events: none; white-space: nowrap; }
 .box-field .input { padding: 0 12px; }
-.box-field .input input { padding: 20px 0 2px; }
+.box-field .input input { padding: 20px 0 2px; line-height: 1.6; } /* 高さは、ほかの欄と同じ --ctl-h に（端末のフォントで変わらないように） */
 .box-field .unit, .mix-field .unit { align-self: flex-end; margin-bottom: 13px; } /* 単位は数字の高さに（上の名前とかさならない） */
 .fx-inputs { display: grid; gap: 12px; margin: 12px 0 0; }
 /* いちばん上の1段：通貨ペア・買いか売りか（維持率のページは通貨ペアだけ）・クリア */
@@ -502,6 +502,8 @@ h1 {
 .fx-big.is-error { color: var(--error); }
 /* 名前を欄の中に書いた欄を並べるカード（利益率・清掃の作業時間）：欄の段、欄｜クリアの段、答え */
 .box-rows { display: grid; gap: 12px; }
+/* さわっている欄の1行の説明（入力の段のすぐ下。src/client/ui.mjs の focusHints） */
+.field-hint { margin: 8px 2px -6px; font-size: 13px; line-height: 18px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .box-rows .pair { gap: 10px; }
 .box-row-clear { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
 .box-row-clear .clear-btn { padding-left: 2px; }

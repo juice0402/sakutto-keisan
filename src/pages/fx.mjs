@@ -7,10 +7,12 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
 import { boxField } from '../fields.mjs';
-import { FX_PAIRS, fxSwapEstimate, swapText } from '../lib/fx.mjs';
+import { FX_PAIRS, fxSwapEstimate, swapText, rateDigits } from '../lib/fx.mjs';
 import { fmt } from '../lib/number.mjs';
 import { POLICY_RATES, FX_RATES_CHECKED, FX_SPOT_DATE, FX_SPOT_URL } from '../data/fx-swap.mjs';
 
+// いまのレートの欄のうすい例（参考のレート。通貨ペアを変えると、スクリプトがその通貨ペアの数字にする）
+const RATE_EX = FX_PAIRS[0].example.toFixed(rateDigits(FX_PAIRS[0].example));
 const CAUTION = '<p class="note">FXの会社ごとにルールが違うので、目安です。</p>';
 const jpDate = (iso) => { const [, m, d] = iso.split('-').map(Number); return `${m}月${d}日`; };
 // スワップの目安の表：通貨ペアごとに、その通貨の政策金利（中央銀行へのリンク＝出典）と、1万通貨を買ったときの1日の額（src/data/fx-swap.mjs から作る）
@@ -36,7 +38,7 @@ const ACCOUNT = `<div class="chart" aria-live="polite">
       </svg>
       <p class="acct-ans"><span class="fx-cap" id="r-cap">証拠金維持率</span><span class="fx-big" id="r-big"><span id="r-num">？</span><small>％</small></span></p>
     </div>
-    <p class="chart-foot"><span id="r-amount"></span><span id="r-need">レバレッジか通貨の量を入れてください</span></p>
+    <p class="chart-foot"><span id="r-amount"></span><span id="r-need">口座のお金を入れてください</span></p>
   </div>`;
 const CUT_CHART = `<div class="chart" aria-live="polite">
     <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span id="c-ratio"></span></p>
@@ -45,7 +47,7 @@ const CUT_CHART = `<div class="chart" aria-live="polite">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${GRID}<rect class="chart-band" id="c-band" x="0" y="0" width="100" height="0"/><path class="chart-cut" id="c-cut" d=""/><path class="chart-now" id="c-now" d=""/><path class="chart-line" id="c-line" d=""/></svg>
       <span class="chart-dot" id="c-dot" hidden></span><span class="chart-tag is-now" id="t-now" hidden></span><span class="chart-tag is-cut" id="t-cut" hidden></span>
     </div>
-    <p class="chart-foot"><span id="r-price"></span><span id="r-need">通貨の量・口座のお金・レートを入れてください</span></p>
+    <p class="chart-foot"><span id="r-price"></span><span id="r-need">通貨の量をえらんでください</span></p>
   </div>`;
 const SWAP_CHART = `<div class="chart" aria-live="polite">
     <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span id="c-diff"></span></p>
@@ -69,8 +71,8 @@ const PAGES = [
     calc: `<div class="calc" id="calc" data-tool="iji">
   ${fxTopPair()}
   <div class="fx-inputs">
-    ${boxField('rate', 'いまのレート', '円', '150.00')}
-    ${boxField('money', '口座のお金', '円', '100,000')}
+    ${boxField('money', '口座のお金', '円', '100,000', '', 'アプリの有効証拠金。まだなら入金した額')}
+    ${boxField('rate', 'いまのレート', '円', RATE_EX)}
     <div class="pair pair-lev">${boxField('lev', 'レバレッジ', '倍', '10')}${boxField('qty', '通貨の量', '通貨', '10,000')}</div>
   </div>
   ${ACCOUNT}
@@ -138,8 +140,8 @@ ${section(
   ${fxTop()}
   <div class="field" id="f-tiles"><p class="sr-only" id="l-qty">通貨の量</p>${qtyTiles('l-qty')}</div>
   <div class="fx-inputs">
-    ${boxField('money', '口座のお金', '円', '100,000')}
-    <div class="pair">${boxField('rate', 'いまのレート', '円', '150.00')}${boxField('cut', 'ロスカットの基準', '％', '100', '100')}</div>
+    ${boxField('money', '口座のお金', '円', '100,000', '', 'アプリの有効証拠金。入金に損益を足した額')}
+    <div class="pair">${boxField('rate', 'いまのレート', '円', RATE_EX)}${boxField('cut', 'ロスカットの基準', '％', '100', '100', '会社で違います。50％や100％が多いです')}</div>
   </div>
   ${CUT_CHART}
   ${noteAndNoscript}

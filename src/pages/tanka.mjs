@@ -22,6 +22,10 @@ const cell = (id, label, unit, placeholder) =>
 const qtyCell = (k) =>
   `<div class="field" id="f-qty-${k}"><label class="sr-only" for="qty-${k}">${k.toUpperCase()}の量</label><div class="input input-sel">${numInput(`qty-${k}`, EXAMPLES[k][1])}<select id="unit-${k}" class="unit-select" aria-label="${k.toUpperCase()}の量の単位">${UNIT_OPTIONS.map((u) => `<option value="${u}"${u === 'g' ? ' selected' : ''}>${u}</option>`).join('')}</select></div></div>`;
 
+// 入り数と割引シールの欄は、見出しの行がないので、名前を欄の中に書く（読み上げは「Aの入り数」）
+const boxCell = (id, k, label, unit, placeholder) =>
+  `<div class="field box-field" id="f-${id}"><label for="${id}"><span class="sr-only">${k.toUpperCase()}の</span>${label}</label><div class="input">${numInput(id, placeholder)}<span class="unit">${unit}</span></div></div>`;
+
 // 商品の行。まとめ買いのページ（extra）は、値段・量の下に入り数と割引シールの段
 const item = (k, i, first, extra) => `<div class="item${extra ? ' is-set' : ''}" id="item-${k}"${i >= first ? ' hidden' : ''}>
   <p class="item-k" aria-hidden="true">${k.toUpperCase()}</p>
@@ -30,8 +34,8 @@ const item = (k, i, first, extra) => `<div class="item${extra ? ' is-set' : ''}"
     ${qtyCell(k)}
   </div>${extra ? `
   <div class="pair extra">
-    ${cell(`packs-${k}`, `${k.toUpperCase()}の入り数`, '個入り', '1')}
-    ${cell(`disc-${k}`, `${k.toUpperCase()}の割引シール`, '％オフ', '0')}
+    ${boxCell(`packs-${k}`, k, '入り数', '個入り', '1')}
+    ${boxCell(`disc-${k}`, k, '割引シール', '％オフ', '0')}
   </div>` : ''}
 </div>`;
 

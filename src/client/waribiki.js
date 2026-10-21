@@ -117,7 +117,7 @@ function update() {
   const rate2 = S.more ? num(inRate2.value) : null;
   markErrors(nanIds({ price, rate, rate2 }));
   const r = calcDiscount({ price, rate, rate2, rounding: $('rounding').value });
-  if (r.empty) return drawTag({ save: '値段と割引を入れると、値札ができます' });
+  if (r.empty) return drawTag({ save: price === null ? `${$('l-price').textContent}を入れてください` : '値引きをえらんでください' });
   if (!r.ok) return drawTag({ note: r.error, error: true });
   const two = r.steps.length > 1;
   drawTag({
@@ -224,5 +224,6 @@ $('clear').addEventListener('click', () => {
 numericOnly([inPrice, inRate, inRate2]);
 tidyOnBlur([inPrice], true);
 inPrice.addEventListener('blur', () => { item().price = inPrice.value; });
-enterToNext([inPrice, inRate, inRate2]);
+enterToNext([inPrice]); // 元の値段のあとはタイルをえらぶので、キーボードを閉じる
+enterToNext([inRate, inRate2]);
 setMode('off');

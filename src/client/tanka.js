@@ -52,6 +52,15 @@ function showEmpty(base, msg) {
   lastWin = '';
 }
 
+/** 入れかけの商品（値段か量の片方だけ）があれば、足りない欄の案内（上の商品から） */
+function partialText(keys, items, results) {
+  const i = items.findIndex((it, n) => results[n].empty && Object.values(it).some((x) => x !== null && typeof x === 'number'));
+  if (i < 0) return '';
+  const it = items[i];
+  if (it.price === null) return `${K(keys[i])}の値段を入れてください`;
+  return `${K(keys[i])}の${EXTRA ? '量か入り数' : '量'}を入れてください`;
+}
+
 function update() {
   const keys = visible();
   const items = keys.map(readItem);
@@ -76,7 +85,7 @@ function update() {
       return setNote(`${dims.join('と')}はくらべられません。同じ種類の単位にしてください。`, true);
     }
     const okCount = r.results.filter((x) => x.ok).length;
-    showEmpty(base, okCount === 1 ? 'もう1つ入れると、くらべられます' : '2つ以上入れると、安い順に並びます');
+    showEmpty(base, partialText(keys, items, r.results) || (okCount === 1 ? 'もう1つ入れると、くらべられます' : '2つ以上入れると、安い順に並びます'));
     return setNote(errIndex >= 0 ? `${K(keys[errIndex])}：${r.results[errIndex].error}` : '', errIndex >= 0);
   }
 
