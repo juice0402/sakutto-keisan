@@ -437,9 +437,10 @@ h1 {
 .tk-n b { font-size: 25px; color: var(--red); letter-spacing: -.02em; }
 .pic-side { min-width: 0; }
 .pic-side .slip-k { display: block; margin: 0; }
-.pic-side .slip-v { display: block; margin: 0; text-align: left; }
-.pic-side .slip-v b { font-size: 38px; }
+.pic-side .slip-v { display: block; margin: 0; text-align: left; white-space: nowrap; }
+.pic-side .slip-v b { font-size: 36px; }
 .pic-side .slip-v.is-long b { font-size: 29px; }
+@media (max-width: 374px) { .pic-row { grid-template-columns: 96px 1fr; } .tk-tank, .en-bowl { width: 96px; } .pic-side .slip-v b { font-size: 32px; } .pic-side .slip-v.is-long b { font-size: 25px; } }
 .tk-cans { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 3px; min-height: 18px; margin: 4px 0 0; }
 .tk-can { position: relative; width: 12px; height: 15px; border-radius: 2px 2px 3px 3px; background: linear-gradient(to top, #2e6fb7 var(--f, 100%), #d5e2f2 var(--f, 100%)); }
 .tk-can::before { content: ""; position: absolute; top: -3px; left: 2px; width: 5px; height: 3px; border-radius: 1px 1px 0 0; background: #2e6fb7; }

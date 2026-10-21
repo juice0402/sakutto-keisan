@@ -88,7 +88,7 @@ CASES = {
         (('fill', '#hours', '8'), None, None),
     ],
     'touyu-dai': [
-        (None, '#r-foot', '暖房をえらんでください'),
+        (None, '#r-foot', 'ヒーターの大きさをえらんでください'),
         (('click', '.tile[data-lph]'), '#r-foot', '1日に使う時間を入れてください'),
         (('fill', '#hours', '8'), None, None),
     ],

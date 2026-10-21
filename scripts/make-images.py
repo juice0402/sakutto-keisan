@@ -732,6 +732,7 @@ VISUALS = {
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
     'enbun-noudo': salt_slip,
+    'touyu-dai': lambda img, cx, top: touyu_slip(img, cx, top, '7.5日', '10,252', 4.0, '1か月 72L・18L缶 4本', ('42.7円', '342円', '142.4円')),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),
     # 電気代の計算の下のページ（家電別）
     'kotatsu': lambda img, cx, top: denki_slip(img, cx, top, 'こたつ', '強', 180, 8),

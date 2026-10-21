@@ -1,14 +1,14 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { touyu, TOUYU_CAN } from '../lib/touyu.mjs';
+import { touyu } from '../lib/touyu.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 
-// 灯油代の計算：暖房のマスをえらぶと、1時間に使う灯油（メーカーの燃料消費量）が入る（自分で入れてもよい）。1日に使う時間と灯油の値段から、1か月の灯油代と18Lが何日もつか
+// 灯油代の計算：ファンヒーターの大きさのマスをえらぶと、1時間に使う灯油（メーカーの燃料消費量）が入る（自分で入れてもよい）。1日に使う時間と灯油の値段から、1か月の灯油代と18Lが何日もつか
 // 結果はポリタンクの絵：タンクのラベルに「18Lで何日」、横にいちばん大きな1か月の灯油代と、1か月に使うポリタンクの数
 const INPUTS = ['lph', 'hours', 'price'].map((id) => $(id));
 const TILES = [...document.querySelectorAll('.tile[data-lph]')];
 const val = (id) => parseNum($(id).value);
 let picked = null; // えらんだマス（1時間の灯油の欄を書きかえたら外す）
-const EMPTY = { lph: '暖房をえらんでください', price: '灯油の値段を入れてください' };
+const EMPTY = { lph: 'ヒーターの大きさをえらんでください', price: '灯油の値段を入れてください' };
 const MAX_CANS = 10; // 絵に出すポリタンクの数
 
 function setNote(text = '', error = false) {
@@ -35,7 +35,7 @@ function drawCans(cans) {
 function setBig(cap, yen, label, unit) {
   $('r-cap').textContent = cap;
   $('r-num').textContent = yen;
-  $('r-num').parentElement.classList.toggle('is-long', yen.length > 6);
+  $('r-num').parentElement.classList.toggle('is-long', yen.length > 5);
   $('t-days').textContent = label;
   $('t-unit').textContent = unit;
 }
@@ -66,11 +66,11 @@ function update() {
   if (res.canDays === null) setBig('1か月', '0', '—', '日');
   else setBig('1か月', yenText(res.month), fmt(res.canDays, res.canDays < 10 ? 1 : 0), '日');
   drawCans(res.cans);
-  $('t-liters').textContent = `1か月 ${fmt(res.litersMonth, 1)}L・${TOUYU_CAN}L缶 ${fmt(res.cans, 1)}本`;
+  $('t-liters').textContent = `${fmt(res.litersMonth, 1)}L（${fmt(res.cans, 1)}缶）`;
   $('r-foot').textContent = '';
 }
 
-/* ---- 暖房のマス：えらぶと、1時間に使う灯油の欄に目安の数字を入れる ---- */
+/* ---- 大きさのマス：えらぶと、1時間に使う灯油の欄に目安の数字を入れる ---- */
 document.querySelector('.tiles').addEventListener('click', (e) => {
   const t = e.target.closest('.tile[data-lph]');
   if (!t) return;

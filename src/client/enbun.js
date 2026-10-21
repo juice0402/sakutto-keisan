@@ -85,12 +85,14 @@ function update() {
   $('b-base').textContent = res.ok ? `${gText(res.base)}g` : '';
   if (!res.ok) {
     $('r-num').textContent = '？';
+    $('r-num').parentElement.classList.remove('is-long');
     $('r-foot').textContent = res.empty ? enbunEmpty() : '';
     ['d-salt', 'd-pct', 'd-whole'].forEach((id) => { $(id).textContent = '—'; });
     drawSpoons(null);
     return;
   }
   $('r-num').textContent = out === 'pct' ? fmt(res.pct, 2) : gText(res[out]);
+  $('r-num').parentElement.classList.toggle('is-long', $('r-num').textContent.length > 5);
   $('d-salt').textContent = `${gText(res.salt)}g`;
   $('d-pct').textContent = `${fmt(res.pct, 2)}%`;
   $('d-whole').textContent = `${fmt(res.whole, 2)}%`;
