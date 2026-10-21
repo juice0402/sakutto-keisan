@@ -22,6 +22,7 @@ S = 2  # 2倍で描いて縮小（線をなめらかに）
 
 # src/styles/site.css の色と合わせる（方眼ノート：紺のペン・赤ペン・黄色のマーカー）
 INK, PENCIL, RED, MARKER, PAPER = '#1C2F4A', '#5A6779', '#C8323C', '#FFF09A', '#FBFCFD'
+SHEET = '#F3F1EA'  # 結果の紙（レシート・書類・お知らせ・メモ）。site.css の --sheet と同じ
 GRID = (70, 120, 190, 22)  # 方眼の線
 THEMES = {
     'home': dict(bg=PAPER, text=INK, muted=PENCIL, red=RED, marker=MARKER, paper='grid'),
@@ -185,7 +186,7 @@ def recipe_memo(img, cx, top):
     w, h = 400 * S, 300 * S
     x0, y0 = cx - w // 2, top + 30 * S
     ld.rectangle([x0 + 4 * S, y0 + 6 * S, x0 + w + 4 * S, y0 + h + 6 * S], fill=(28, 47, 74, 20))  # 影
-    ld.rectangle([x0, y0, x0 + w, y0 + h], fill='#FFFFFF', outline='#D3DCE8', width=2 * S)
+    ld.rectangle([x0, y0, x0 + w, y0 + h], fill=SHEET, outline='#D3DCE8', width=2 * S)
     f_title, f_name, f_amt, f_unit = font('black', 34), font('bold', 30), font('black', 40), font('black', 26)
     title = '4人分の材料'
     tw = ld.textlength(title, font=f_title)
@@ -265,7 +266,7 @@ def doc_sheet(img, cx, top, title, sum_k, sum_v, unit, head, rows, stamp=None, e
     x0, x1 = cx - 236 * S, cx + 266 * S
     y0, y1 = top - 30 * S, top + 336 * S
     d.rectangle([x0 - 7 * S, y0 - 7 * S, x1 + 7 * S, y1 + 7 * S], outline='#B9C0CC', width=2 * S)
-    d.rectangle([x0, y0, x1, y1], fill='#FFFFFF', outline=t['text'], width=2 * S)
+    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline=t['text'], width=2 * S)
     spaced(d, (x0 + x1) / 2, y0 + 18 * S, title, font('bold', 30, serif=True), t['text'], 14 * S)
     # いちばん大きな数字（右）と名前（左）、下に二重線
     ys = y0 + 70 * S
@@ -511,7 +512,7 @@ def receipt(img, cx, top, lines, tickets, rows):
     pts = [(x0, y0), (x1, y0), (x1, y1)]
     for i in range(1, teeth + 1):
         pts += [(x1 - (i - 0.5) * (x1 - x0) / teeth, y1 + 12 * S), (x1 - i * (x1 - x0) / teeth, y1)]
-    d.polygon(pts, fill='#FFFFFF', outline='#B4C1D2', width=2 * S)
+    d.polygon(pts, fill=SHEET, outline='#B4C1D2', width=2 * S)
     spaced(d, (x0 + x1) / 2, y0 + 14 * S, 'お会計', font('black', 26), INK, 18 * S)
 
     def dashed(y):
@@ -565,7 +566,7 @@ def meter_slip(img, cx, top, what, digits, month, cells):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 220 * S, cx + 240 * S
     y0, y1 = top - 70 * S, top + 290 * S
-    d.rectangle([x0, y0, x1, y1], fill='#FFFFFF', outline='#B4C1D2', width=2 * S)
+    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
     d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
     d.text((x0 + 22 * S, y0 + 24 * S), '電気代のお知らせ', font=font('black', 26), fill=INK)
     tw = d.textlength('目安', font=font('bold', 18))
@@ -620,7 +621,7 @@ def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 220 * S, cx + 240 * S
     y0, y1 = top - 70 * S, top + 290 * S
-    d.rectangle([x0, y0, x1, y1], fill='#FFFFFF', outline='#B4C1D2', width=2 * S)
+    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
     d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
     d.text((x0 + 22 * S, y0 + 24 * S), title, font=font('black', 26), fill=INK)
     tw = d.textlength('目安', font=font('bold', 18))

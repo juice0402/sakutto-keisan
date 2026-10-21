@@ -52,6 +52,7 @@ function receiptCanvas(spec) {
   const red = color('--red', '#c8323c');
   const muted = color('--muted', '#5a6779');
   const rule = color('--border', '#b4c1d2');
+  const sheet = color('--sheet', '#f3f1ea');
   const font = (w, size) => `${w} ${size}px system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif`;
   const W = 720;
   const X0 = 70;
@@ -78,7 +79,7 @@ function receiptCanvas(spec) {
     g.lineTo(X1 - (i * (X1 - X0)) / teeth, bottom);
   }
   g.closePath();
-  g.fillStyle = '#ffffff';
+  g.fillStyle = sheet;
   g.fill();
   g.strokeStyle = rule;
   g.lineWidth = 2;
