@@ -740,6 +740,19 @@ h1 {
 .stamp { display: grid; place-content: center; flex: none; width: 66px; height: 66px; margin: 0 0 4px 2px; border: 2.5px solid #c8323c; border-radius: 50%; color: #c8323c; text-align: center; line-height: 1.1; font-size: 11px; font-weight: 800; transform: rotate(-12deg); }
 .stamp b { display: block; margin: 0; font-size: 16px; line-height: 1.15; color: inherit; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .doc .rieki-bar, .doc .floor-plan { margin: 10px 0 0; }
+/* ふるさと納税：お金の流れ（寄付する → 住民税が減る → 自己負担）。3つの点を線でつなぐ */
+.fz-flow { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 10px 0 2px; padding: 0; list-style: none; }
+.fz-flow::before { content: ""; position: absolute; left: 16.6%; right: 16.6%; top: 22px; border-top: 1.5px solid var(--text); }
+.fz-flow li { display: flex; flex-direction: column; align-items: center; min-width: 0; text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); }
+.fz-flow li::before { content: ""; order: 1; position: relative; width: 10px; height: 10px; margin: 1px 0 3px; border-radius: 50%; background: var(--text); }
+.fz-when { order: 0; line-height: 16px; white-space: nowrap; }
+.fz-flow b { order: 2; font-size: 16px; line-height: 1.3; color: var(--text); font-variant-numeric: tabular-nums; }
+.fz-flow li:nth-child(2) b { color: var(--red); }
+.fz-flow li > span:last-child { order: 3; }
+.fz-flow.is-empty b { color: var(--muted); }
+.fz-table td:last-child { width: 1%; white-space: nowrap; }
+.src-list { margin: 0 0 8px; padding-left: 1.2em; font-size: 13px; }
+.src-list li { margin: 0 0 4px; }
 /* 作業指示書の床の図：図面のように紺の線で囲んで、1人ずつ番号 */
 .doc .floor-strips { height: 52px; border: 1.5px solid var(--text); background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 12px); }
 .floor-strip { display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }
@@ -880,6 +893,7 @@ tr:last-child td { border-bottom: 0; }
 th { font-weight: 700; border-bottom: 1.5px solid var(--text); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tbl-tight th, .tbl-tight td { padding-left: 6px; padding-right: 6px; } /* 列の多い早見表（学歴・和暦）を、スマホの幅に入れる */
+.fz-quick th, .fz-quick td { padding-left: 4px; padding-right: 4px; font-size: 13px; } /* ふるさと納税の早見表（年収と子の4つ） */
 .note { font-size: 14px; color: var(--muted); }
 
 /* よくある質問：線で区切った Q と答え */

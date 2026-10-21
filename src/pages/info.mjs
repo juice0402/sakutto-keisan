@@ -2,7 +2,7 @@ import { SITE } from '../site.mjs';
 import { page, section } from '../layout.mjs';
 
 // 固定ページ（このサイトについて・プライバシーポリシー・免責事項・404）
-const UPDATED = '2026-10-17'; // sitemap の更新日（中身を変えたら直す）
+const UPDATED = '2026-10-22'; // sitemap の更新日（中身を変えたら直す）
 const ESTABLISHED_JA = '2026年10月16日'; // プライバシーポリシー・免責事項の制定日
 
 const info = (path, name, description, body) => ({
@@ -37,6 +37,7 @@ ${section(
   'policy',
   '運営について',
   `<p>個人で運営しています。料率など毎年変わる数字は、年に1回以上見直します。</p>
+<p>ふるさと納税の上限は、総務省の式で計算した目安です。税理士の監修ではありません。税金の数字には、各ページに出典と確認した日を書いています。</p>
 <p><a href="/disclaimer/">免責事項</a>・<a href="/privacy/">プライバシーポリシー</a></p>`,
 )}`,
     ),

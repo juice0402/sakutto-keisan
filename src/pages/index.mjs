@@ -12,9 +12,12 @@ const card = (t) =>
 export default function render() {
   const top = TOOLS.filter((t) => t.published && !t.parent);
   const picks = top.filter((t) => t.pick).sort((a, b) => a.pick - b.pick);
+  // 季節のツール（ふるさと納税は11〜12月）は、ビルドした月（日本時間）に「よく使う計算」の決めた番目と入れかえる
+  const month = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', month: 'numeric' }).format(new Date()));
+  for (const t of top.filter((x) => x.pickSeason?.months.includes(month))) picks[t.pickSeason.replaces - 1] = t;
 
   const cats = CATEGORIES.map((c) => {
-    const tools = top.filter((t) => t.category === c.id && !t.pick);
+    const tools = top.filter((t) => t.category === c.id && !picks.includes(t));
     const shown = tools.filter((t) => !t.more);
     const more = tools.filter((t) => t.more);
     if (!tools.length) return '';

@@ -5,6 +5,8 @@
 //   pick: 1〜8 … いちばん上の「よく使う計算」に、この順で出す（王道）。pickName はそこに出す短い名前（なければ name から「の計算」を取る）
 //   more: true … カテゴリの「ほかの計算」にたたむ（すき間の計算）
 //   どちらもないもの … カテゴリにそのまま出す。parent があるもの（下のページ）はトップに出さない
+//   pickSeason: { months, replaces } … その月にビルドしたときだけ、「よく使う計算」の replaces 番目と入れかえる（ふるさと納税は11〜12月）
+// path … コーナーのページは入れ子のURL（/furusato/jougen/）。なければ /<slug>/
 
 export const TOOLS = [
   {
@@ -385,8 +387,31 @@ export const TOOLS = [
     updated: '2026-10-19',
     related: ['fx-iji-ritsu', 'fx-losscut'],
   },
+  // ふるさと納税のコーナー（10/22 統合。claude/sakutto-tougou-plan.md）。入口は /furusato/、ページは /furusato/ の下
+  {
+    slug: 'furusato',
+    path: '/furusato/',
+    name: 'ふるさと納税の上限の目安',
+    pickName: 'ふるさと納税',
+    pickSeason: { months: [11, 12], replaces: 8 },
+    category: 'furusato',
+    short: '年収と家族から、いくらまで寄付できるか',
+    published: true,
+    updated: '2026-10-22',
+    related: ['furusato-jougen', 'shohizei', 'zangyo-dai', 'loan'],
+  },
+  {
+    slug: 'furusato-jougen',
+    path: '/furusato/jougen/',
+    name: '控除上限額の計算',
+    category: 'furusato',
+    short: '住民税の決定通知書の所得割から上限',
+    published: true,
+    updated: '2026-10-22',
+    related: ['furusato', 'shohizei', 'zangyo-dai', 'loan'],
+  },
 ];
 
 export const publishedTools = () => TOOLS.filter((t) => t.published);
 export const toolBySlug = (slug) => TOOLS.find((t) => t.slug === slug);
-export const toolUrl = (t) => `/${t.slug}/`;
+export const toolUrl = (t) => t.path || `/${t.slug}/`;

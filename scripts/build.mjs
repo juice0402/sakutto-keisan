@@ -223,5 +223,7 @@ writeFileSync(
 writeFileSync(join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
 // IndexNow の鍵のファイル（検索エンジンが「このサイトの持ち主からの知らせか」を確かめる）
 if (SITE.indexnowKey) writeFileSync(join(DIST, `${SITE.indexnowKey}.txt`), SITE.indexnowKey);
+// AdSense の ads.txt（運営者IDを入れたときだけ）
+if (SITE.adsense) writeFileSync(join(DIST, 'ads.txt'), `google.com, ${SITE.adsense.replace(/^ca-/, '')}, DIRECT, f08c47fec0942fa0\n`);
 
 console.log(`built ${pages.length} pages, ${Object.keys(scripts).length} scripts → dist/`);

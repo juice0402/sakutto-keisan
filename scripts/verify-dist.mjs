@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 const { SITE } = await import(pathToFileURL(join(ROOT, 'src/site.mjs')));
-const { TOOLS } = await import(pathToFileURL(join(ROOT, 'src/tools.mjs')));
+const { TOOLS, toolUrl } = await import(pathToFileURL(join(ROOT, 'src/tools.mjs')));
 const { OCR_VERSION } = await import(pathToFileURL(join(ROOT, 'src/client/ocr.mjs')));
 
 const errors = [];
@@ -53,7 +53,7 @@ for (const file of htmlFiles) {
   if (emoji.length) fail(rel, `絵文字がある: ${[...new Set(emoji)].join(' ')}`);
 
   if (!html.startsWith('<!doctype html>')) fail(rel, 'doctype がない');
-  if (!html.includes('<html lang="ja">')) fail(rel, 'lang="ja" がない');
+  if (!/<html lang="ja"[ >]/.test(html)) fail(rel, 'lang="ja" がない');
   if (!html.includes('name="viewport"')) fail(rel, 'viewport がない');
   if (count(html, /<title>/g) !== 1) fail(rel, '<title> が1つではない');
   const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || '';
@@ -93,8 +93,24 @@ for (const file of htmlFiles) {
   const ogImg = (html.match(/<meta property="og:image" content="([^"]+)">/) || [])[1] || '';
   if (!ogImg.startsWith(SITE.url + '/') || !existsSync(join(DIST, ogImg.slice(SITE.url.length)))) fail(rel, `og:image の画像がない: ${ogImg}`);
   // 外部のファイルを読み込まない（入力した数字を送らない約束・表示の速さのため）
+  // 例外はページの印（<html data-ext>）で決めたものだけ（10/22 統合の設計）
+  //   adsense：計算・解説のページの AdSense のスクリプト／rakuten-img：返礼品のページの楽天の商品画像。2つを同じページに入れない
+  const ext = (html.match(/<html lang="ja" data-ext="([^"]+)">/) || [])[1] || '';
+  const EXT_OK = { adsense: /^<script async src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-\d+"/, 'rakuten-img': /^<img\b[^>]*\bsrc="https:\/\/thumbnail\.image\.rakuten\.co\.jp\// };
+  if (ext && !EXT_OK[ext]) fail(rel, `知らない読み込みの印: ${ext}`);
   for (const m of html.matchAll(/<(?:script|img|link|iframe)\b[^>]*\b(?:src|href)="(https?:)?\/\/[^"]*"/g)) {
-    if (!m[0].includes('rel="canonical"')) fail(rel, `外部のファイルを読み込んでいる: ${m[0].slice(0, 80)}`);
+    if (m[0].includes('rel="canonical"') || (EXT_OK[ext] && EXT_OK[ext].test(m[0]))) continue;
+    fail(rel, `外部のファイルを読み込んでいる: ${m[0].slice(0, 80)}`);
+  }
+  if (ext === 'adsense' && !SITE.adsense) fail(rel, 'AdSense の印があるのに、運営者IDがない');
+  if (ext === 'rakuten-img' && html.includes('googlesyndication')) fail(rel, '楽天の商品のページに AdSense がある（楽天ウェブサービスの規約 第10条）');
+  // AI がよく使う言い回しを使わない（文章の決まり）。ふるさと納税のページは、総務省のQ&Aが挙げる言葉も使わない
+  {
+    const visible = shown.replace(/<[^>]+>/g, ' ');
+    const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'コツ', '——'];
+    if (rel.startsWith('/furusato/')) NG.push('お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント');
+    const hit = NG.filter((w) => visible.includes(w));
+    if (hit.length) fail(rel, `使わない言葉がある: ${hit.join('・')}`);
   }
   for (const m of html.matchAll(/\b(?:href|src)="(\/[^"]*)"/g)) {
     if (!resolves(m[1])) fail(rel, `リンク先がない: ${m[1]}`);
@@ -112,16 +128,17 @@ for (const file of htmlFiles) {
 // 公開中のツールのページがあり、sitemap に載っているか
 const sitemap = readFileSync(join(DIST, 'sitemap.xml'), 'utf8');
 for (const t of TOOLS.filter((x) => x.published)) {
-  const f = join(DIST, t.slug, 'index.html');
-  if (!existsSync(f)) { fail(`/${t.slug}/`, '公開中なのにページがない'); continue; }
+  const url = toolUrl(t);
+  const f = join(DIST, url, 'index.html');
+  if (!existsSync(f)) { fail(url, '公開中なのにページがない'); continue; }
   const title = (readFileSync(f, 'utf8').match(/<title>([^<]*)<\/title>/) || [])[1] || '';
-  if (!title.startsWith(t.name.replace(/（.*$/, ''))) fail(`/${t.slug}/`, `title の先頭がツール名でない: ${title}`);
-  if (!sitemap.includes(`<loc>${SITE.url}/${t.slug}/</loc>`)) fail('/sitemap.xml', `${t.slug} が載っていない`);
-  if (!t.updated) fail(`/${t.slug}/`, 'tools.mjs に updated がない');
-  if (!readFileSync(f, 'utf8').includes(`/og/${t.slug}.png`)) fail(`/${t.slug}/`, 'ツール専用の共有画像を使っていない（scripts/make-images.py で作る）');
+  if (!title.startsWith(t.name.replace(/（.*$/, ''))) fail(url, `title の先頭がツール名でない: ${title}`);
+  if (!sitemap.includes(`<loc>${SITE.url}${url}</loc>`)) fail('/sitemap.xml', `${t.slug} が載っていない`);
+  if (!t.updated) fail(url, 'tools.mjs に updated がない');
+  if (!readFileSync(f, 'utf8').includes(`/og/${t.slug}.png`)) fail(url, 'ツール専用の共有画像を使っていない（scripts/make-images.py で作る）');
 }
 for (const t of TOOLS.filter((x) => !x.published)) {
-  if (existsSync(join(DIST, t.slug))) fail(`/${t.slug}/`, '準備中なのにページがある');
+  if (existsSync(join(DIST, toolUrl(t)))) fail(toolUrl(t), '準備中なのにページがある');
 }
 // 写真の読み取りソフト（scripts/fetch-ocr.mjs が公開のときに置く）。GitHub Actions では必ずあること
 const ocrDir = join(DIST, 'ocr', OCR_VERSION);
@@ -131,7 +148,7 @@ if (process.env.CI || existsSync(ocrDir)) {
 } else {
   console.log(`（写真の読み取りソフト ocr/${OCR_VERSION}/ はこの環境にないので点検しません。GitHub Actions で点検します）`);
 }
-for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favicon.svg', 'apple-touch-icon.png', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png']) {
+for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favicon.svg', 'apple-touch-icon.png', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', ...(SITE.adsense ? ['ads.txt'] : [])]) {
   if (!existsSync(join(DIST, need))) fail(need, 'ない');
 }
 
@@ -160,7 +177,9 @@ for (const file of htmlFiles) {
 const tmpDir = mkdtempSync(join(tmpdir(), 'sakutto-verify-'));
 for (const file of htmlFiles) {
   const html = readFileSync(file, 'utf8');
-  if (/<script\b[^>]*\bsrc=/.test(html)) fail(relative(DIST, file), 'スクリプトは埋め込む（src で読み込まない）');
+  // AdSense のスクリプトだけは src で読む（印 data-ext="adsense" のページ。上の外部読み込みの点検で見ている）
+  const own = html.replace(/<script async src="https:\/\/pagead2\.googlesyndication\.com\/[^"]*" crossorigin="anonymous"><\/script>/, '');
+  if (/<script\b[^>]*\bsrc=/.test(own)) fail(relative(DIST, file), 'スクリプトは埋め込む（src で読み込まない）');
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach((m, i) => {
     const tmp = join(tmpDir, `s${i}.js`);
     writeFileSync(tmp, m[1]);
