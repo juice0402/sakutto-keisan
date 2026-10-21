@@ -20,3 +20,36 @@ export const DENKI_APPLIANCES = [
   { name: '電気ケトル', watt: 1300, cond: '0.8L', src: 'タイガー', url: 'https://www.tiger-corporation.com/ja/jpn/product/kettle-pot/pck-a1/' },
   { name: '電子レンジ', watt: 1400, cond: '消費電力。600Wは温める力', src: 'パナソニック', url: 'https://panasonic.jp/range/products/NE-FL1C/spec.html' },
 ];
+
+// 家電別の電気代のページ（電気代の計算の下のページ）。マスは強さごとの消費電力（W）
+// メーカーが「1時間の消費電力量（Wh）」を出しているもの（こたつ）はその数字、「1時間の電気代」だけのもの（電気毛布・ホットカーペット）は、
+// その電気代を31円で割って出した目安の W（表と1時間の電気代はメーカーの表示と同じになる）。最大は製品の消費電力（ヒーターがずっとついたとき）
+// product は出典の製品、url は仕様のページ。cond は表示の条件
+export const DENKI_USES = [
+  {
+    slug: 'kotatsu', name: 'こたつ', hours: 8, product: '山善の家具調こたつ（GKR-HDN802H）', url: 'https://book.yamazen.co.jp/product/detail/I00008272',
+    modes: [{ b: '強', watt: 180 }, { b: '弱', watt: 70 }, { b: '最大', watt: 600 }], basis: 'wh',
+  },
+  {
+    slug: 'denki-moufu', name: '電気毛布', hours: 8, product: 'パナソニックの電気しき毛布（DB-U12T）', url: 'https://panasonic.jp/danbo/products/DB-U12T/spec.html',
+    modes: [{ b: '強', watt: 32 }, { b: '目盛3', watt: 19 }, { b: '最大', watt: 54 }], basis: 'yen', cond: '室温10℃',
+  },
+  {
+    slug: 'hot-carpet', name: 'ホットカーペット', hours: 8, product: 'パナソニックの3畳用（DC-3NK）', url: 'https://panasonic.jp/danbo/products/DC-3NK/spec.html',
+    modes: [{ b: '高', watt: 471 }, { b: '中', watt: 335 }, { b: '最大', watt: 710 }], basis: 'yen', cond: '室温15℃',
+  },
+  {
+    slug: 'ceramic-heater', name: 'セラミックヒーター', hours: 4, product: 'パナソニックのセラミックファンヒーター（DS-FS1200）', url: 'https://panasonic.jp/danbo/products/DS-FS1200/spec.html',
+    modes: [{ b: '強', watt: 1170 }, { b: '弱', watt: 640 }], basis: 'w', cond: '50Hz',
+  },
+  {
+    slug: 'oil-heater', name: 'オイルヒーター', hours: 8, product: 'デロンギのオイルヒーター（RHJ10F1015-DG）', url: 'https://www.delonghi.com/ja-jp/p/oiruhi%E3%83%BCta%E3%83%BC-rhj10f1015-dg-oiruhi%E3%83%BCta%E3%83%BC-da%E3%83%BCkugure%E3%83%BC/RHJ10F1015-DG.html?pid=0108776317',
+    modes: [{ b: '強', watt: 1500 }, { b: '中', watt: 900 }, { b: '弱', watt: 600 }], basis: 'w',
+  },
+];
+// ほかの出典（よくある質問で使う）
+export const DENKI_MORE = {
+  nitoriKotatsu: { name: 'ニトリ', url: 'https://www.nitori-net.jp/ec/product/5692266/' },
+  delonghiFaq: { name: 'デロンギ', url: 'https://www.delonghi.com/ja-jp/faqs/%E3%81%94%E8%B3%BC%E5%85%A5%E5%89%8D%E3%81%AE%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E3%81%94%E8%B3%AA%E5%95%8F/a/253341' },
+  aircon: { name: 'パナソニック', url: 'https://panasonic.jp/aircon/products/CS-J226D/spec.html' },
+};

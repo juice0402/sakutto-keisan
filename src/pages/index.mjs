@@ -36,7 +36,7 @@ ${
 
   const html = page({
     path: '/',
-    title: `${SITE.name}｜割引・単価の比較・レシピの分量・希釈の計算ツール`,
+    title: `${SITE.name}｜割引・割り勘・電気代・希釈などの計算ツール`,
     description: SITE.description,
     body,
     jsonLd: [

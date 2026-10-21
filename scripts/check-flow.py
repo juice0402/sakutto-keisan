@@ -62,6 +62,31 @@ CASES = {
         (('click', '.tile[data-watt="600"]'), '#r-foot', '1日に使う時間を入れてください'),
         (('fill', '#hours', '8'), None, None),
     ],
+    'kotatsu': [
+        (None, '#r-foot', '強さをえらんでください'),
+        (('click', '.tile[data-watt="180"]'), '#r-foot', '1日に使う時間を入れてください'),
+        (('fill', '#hours', '8'), None, None),
+    ],
+    'denki-moufu': [
+        (None, '#r-foot', '強さをえらんでください'),
+        (('click', '.tile[data-watt="32"]'), '#r-foot', '1日に使う時間を入れてください'),
+        (('fill', '#hours', '8'), None, None),
+    ],
+    'hot-carpet': [
+        (None, '#r-foot', '強さをえらんでください'),
+        (('click', '.tile[data-watt="471"]'), '#r-foot', '1日に使う時間を入れてください'),
+        (('fill', '#hours', '8'), None, None),
+    ],
+    'ceramic-heater': [
+        (None, '#r-foot', '強さをえらんでください'),
+        (('click', '.tile[data-watt="1170"]'), '#r-foot', '1日に使う時間を入れてください'),
+        (('fill', '#hours', '8'), None, None),
+    ],
+    'oil-heater': [
+        (None, '#r-foot', '強さをえらんでください'),
+        (('click', '.tile[data-watt="1500"]'), '#r-foot', '1日に使う時間を入れてください'),
+        (('fill', '#hours', '8'), None, None),
+    ],
     'recipe': [
         (None, None, None),
         (('fill', '#amt-1', '300'), None, None),
