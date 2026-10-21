@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """1画面の点検：スマホ（幅390・360、高さ660＝iPhone の Safari で見える高さの目安）で、
 ふつうに入力したときの答えが、スクロールしないで見えるかを確かめる。
+あわせて、上下にならぶ欄・ボタン・結果の絵が、くっついていない（あいだが6px以上ある）かも見る（10/21 割り勘の合計と人数がくっついていた）。
 
 使い方（Claude の作業環境で。Playwright が要る）:
     python3 -m http.server 8766 --directory dist &   # ビルドした dist を出しておく
@@ -20,6 +21,9 @@ CASES = {
     'waribiki-ritsu': (lambda pg: (pg.fill('#price', '2000'), pg.fill('#sale', '1700')), '.rieki-bar'),
     'tanka': (lambda pg: (pg.fill('#price-a', '198'), pg.fill('#qty-a', '500'), pg.fill('#price-b', '298'), pg.fill('#qty-b', '1000')), '#tag .tag-price'),
     'matomegai': (lambda pg: (pg.fill('#price-a', '1180'), pg.fill('#qty-a', '350'), pg.select_option('#unit-a', 'ml'), pg.fill('#packs-a', '6'), pg.fill('#price-b', '208'), pg.fill('#qty-b', '350'), pg.select_option('#unit-b', 'ml')), '#tag .tag-price'),
+    'warikan': (lambda pg: (pg.fill('#total', '10000'), pg.fill('#people', '3')), '.rc-sum'),
+    'warikan-keisha': (lambda pg: (pg.fill('#total', '30000'), pg.fill('#people-0', '1'), pg.fill('#people-1', '4'), pg.fill('#people-2', '2')), '#rc-g-2'),
+    'denki-dai': (lambda pg: (pg.click('.tile[data-watt="600"]'), pg.fill('#hours', '8')), '.slip-sum'),
     'recipe': (lambda pg: pg.fill('#amt-1', '300'), '#out-1'),
     'kishaku': (lambda pg: (pg.click('.tile[data-ratio="100"]'), pg.fill('#v-total', '500')), '#f-water'),
     'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),
@@ -34,6 +38,22 @@ CASES = {
     'fx-swap': (lambda pg: pg.click('.tile[data-qty="10000"]'), '#r-big'),
 }
 
+# 上下にならぶ部品のあいだ（横に重なっている2つで、上の下はしと下の上はしが6pxより近いもの）
+TOUCH = """() => {
+  const els = [...document.querySelectorAll('#calc .input, #calc .tile, #calc .seg, #calc .step-btn, #calc .tool-btn, #calc .wide-btn, #calc .receipt, #calc .slip, #calc .doc, #calc .chart, #calc .pricetag, #calc .select, #calc .big-select')]
+    .filter((e) => e.offsetParent !== null && e.getBoundingClientRect().height > 0);
+  const R = els.map((e) => e.getBoundingClientRect());
+  const out = [];
+  for (let i = 0; i < els.length; i++) for (let j = 0; j < els.length; j++) {
+    if (i === j || els[i].contains(els[j]) || els[j].contains(els[i])) continue;
+    const a = R[i], b = R[j];
+    if (Math.min(a.right, b.right) - Math.max(a.left, b.left) <= 4) continue;
+    const gap = b.top - a.bottom;
+    if (gap >= -1 && gap < 6) out.push(`${els[i].id || els[i].className} と ${els[j].id || els[j].className}（${Math.round(gap)}px）`);
+  }
+  return out;
+}"""
+
 bad = 0
 with sync_playwright() as p:
     browser = p.chromium.launch()
@@ -47,6 +67,9 @@ with sync_playwright() as p:
             ok = bottom <= HEIGHT
             bad += not ok
             print(('OK  ' if ok else 'NG  ') + f'{width}px /{slug}/ 答え（{answer}）の下 {bottom}px')
+            for t in page.evaluate(TOUCH):
+                bad += 1
+                print(f'NG  {width}px /{slug}/ くっついている：{t}')
         page.close()
     browser.close()
 print('ALL OK' if not bad else f'NG {bad}')

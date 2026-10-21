@@ -10,7 +10,7 @@ export const TOOLS = [
     short: '割引後の値段と、いくら安くなるか',
     published: true,
     updated: '2026-10-21',
-    related: ['waribiki-ritsu', 'tanka', 'rieki-ritsu', 'percent', 'shohizei'],
+    related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
   {
@@ -51,6 +51,35 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-17',
     related: ['tanka', 'waribiki', 'kishaku'],
+  },
+  {
+    slug: 'warikan',
+    name: '割り勘の計算',
+    category: 'seikatsu',
+    short: '合計と人数から、1人いくらか',
+    published: true,
+    updated: '2026-10-21',
+    related: ['warikan-keisha', 'waribiki', 'tanka', 'denki-dai'],
+  },
+  // 割り勘の計算の下のページ（多めに払う人がいるとき）
+  {
+    slug: 'warikan-keisha',
+    name: '傾斜割り勘の計算',
+    category: 'seikatsu',
+    parent: 'warikan',
+    short: '多めに払う人がいるときの割り勘',
+    published: true,
+    updated: '2026-10-21',
+    related: ['warikan', 'waribiki', 'rieki-ritsu'],
+  },
+  {
+    slug: 'denki-dai',
+    name: '電気代の計算',
+    category: 'seikatsu',
+    short: 'こたつやヒーターの1時間・1か月の電気代',
+    published: true,
+    updated: '2026-10-21',
+    related: ['warikan', 'tanka', 'waribiki', 'kishaku'],
   },
   {
     slug: 'kishaku',
