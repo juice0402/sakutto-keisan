@@ -57,6 +57,11 @@ CASES = {
         (('fill', '#people-0', '1'), '#r-foot', 'ふつうの人数を入れてください'),
         (('fill', '#people-1', '4'), None, None),
     ],
+    'denki-dai': [
+        (None, '#r-foot', '家電をえらんでください'),
+        (('click', '.tile[data-watt="600"]'), '#r-foot', '1日に使う時間を入れてください'),
+        (('fill', '#hours', '8'), None, None),
+    ],
     'recipe': [
         (None, None, None),
         (('fill', '#amt-1', '300'), None, None),

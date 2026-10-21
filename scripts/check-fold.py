@@ -22,6 +22,7 @@ CASES = {
     'matomegai': (lambda pg: (pg.fill('#price-a', '1180'), pg.fill('#qty-a', '350'), pg.select_option('#unit-a', 'ml'), pg.fill('#packs-a', '6'), pg.fill('#price-b', '208'), pg.fill('#qty-b', '350'), pg.select_option('#unit-b', 'ml')), '#tag .tag-price'),
     'warikan': (lambda pg: (pg.fill('#total', '10000'), pg.fill('#people', '3')), '.rc-sum'),
     'warikan-keisha': (lambda pg: (pg.fill('#total', '30000'), pg.fill('#people-0', '1'), pg.fill('#people-1', '4'), pg.fill('#people-2', '2')), '#rc-g-2'),
+    'denki-dai': (lambda pg: (pg.click('.tile[data-watt="600"]'), pg.fill('#hours', '8')), '.slip-sum'),
     'recipe': (lambda pg: pg.fill('#amt-1', '300'), '#out-1'),
     'kishaku': (lambda pg: (pg.click('.tile[data-ratio="100"]'), pg.fill('#v-total', '500')), '#f-water'),
     'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),

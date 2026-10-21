@@ -547,7 +547,7 @@ def meter_slip(img, cx, top, what, digits, month, cells):
     """電気代：電気代のお知らせ（サイトの結果と同じ見た目）。digits は1か月の使用量（整数4けた＋小数1けたの文字）、cells は（1時間, 1日, 1年）"""
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 220 * S, cx + 240 * S
-    y0, y1 = top - 70 * S, top + 316 * S
+    y0, y1 = top - 70 * S, top + 290 * S
     d.rectangle([x0, y0, x1, y1], fill='#FFFFFF', outline='#B4C1D2', width=2 * S)
     d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
     d.text((x0 + 22 * S, y0 + 24 * S), '電気代のお知らせ', font=font('black', 26), fill=INK)
@@ -565,6 +565,8 @@ def meter_slip(img, cx, top, what, digits, month, cells):
     d.rounded_rectangle([wx0, my - 6 * S, wx1, my + bh + 6 * S], radius=4 * S, fill=INK)
     for i, ch in enumerate(digits):
         bx = wx0 + 6 * S + i * (bw + gap)
+        if i == len(digits) - 1:
+            d.ellipse([bx - gap / 2 - 3 * S, my + bh - 7 * S, bx - gap / 2 + 3 * S, my + bh - 1 * S], fill='#FFFFFF')
         dec = i == len(digits) - 1
         d.rounded_rectangle([bx, my, bx + bw, my + bh], radius=3 * S, fill=RED if dec else '#FFFFFF')
         cw = d.textlength(ch, font=font('black', 30))
@@ -603,6 +605,7 @@ VISUALS = {
     'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
+    'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),
     'waribiki-ritsu': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '15', '%オフ', '300円 おトク！', None),
     'matomegai': lambda img, cx, top: compare_tags(img, cx, top, (('A', '56.2', '6本 1,180円', True), ('B', '59.4', '1本 208円', False)), '100mlあたり'),
     # 希釈率の使いみち別

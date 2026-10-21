@@ -399,6 +399,8 @@ h1 {
 .rc-g.is-off { opacity: .35; }
 
 /* 電気代：電気代のお知らせ（検針票のような紙）。1か月の使用量のメーターの数字と、いちばん大きな1か月の電気代 */
+.tiles .tile-word b { font-size: 17px; letter-spacing: -0.02em; } /* 電気代の家電のマス（ことばと W 数） */
+@media (max-width: 374px) { .tiles .tile-word b { font-size: 15px; } }
 .slip { margin: 16px 2px 0; padding: 12px 16px 10px; background: #fff; border: 1.5px solid var(--border); border-top: 6px solid var(--text); font-variant-numeric: tabular-nums; }
 .slip-title { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .08em; }
 .slip-title small { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0; }
@@ -407,6 +409,7 @@ h1 {
 .m-digits { display: flex; gap: 3px; margin-left: auto; padding: 4px; background: var(--text); border-radius: 3px; }
 .m-d { width: 22px; height: 30px; display: grid; place-items: center; background: #fff; color: var(--text); font-size: 20px; font-weight: 800; border-radius: 2px; }
 .m-d.is-dec { background: var(--red); color: #fff; }
+.m-dot { align-self: flex-end; margin: 0 -1px; color: #fff; font-size: 18px; font-weight: 800; line-height: 1; }
 .m-digits.is-off .m-d { color: var(--rule); }
 .m-digits.is-off .m-d.is-dec { background: #f3d6d8; color: #fff; }
 .slip-meter .m-u { font-size: 13px; font-weight: 800; }
@@ -416,6 +419,7 @@ h1 {
 .slip-v { min-width: 0; text-align: right; color: var(--red); overflow-wrap: anywhere; }
 .slip-v b { font-size: 42px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; }
 .slip-v small { font-size: 16px; font-weight: 800; margin: 0 2px; }
+.slip-v.is-long b { font-size: 30px; }
 .slip-table { width: 100%; margin: 8px 0 0; border-collapse: collapse; table-layout: fixed; }
 .slip-table th { padding: 0 2px 2px; font-size: 12.5px; font-weight: 700; color: var(--muted); text-align: center; }
 .slip-table td { padding: 2px; font-size: 16px; font-weight: 800; text-align: center; overflow-wrap: anywhere; }

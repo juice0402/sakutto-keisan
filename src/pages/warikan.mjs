@@ -96,7 +96,7 @@ ${section(
   'formula',
   '計算式',
   `<div class="formula">
-<span>1人の額 ＝ 合計 ÷ 人数（単位に切り上げ）</span>
+<span>1人の額 ＝ 合計 ÷ 人数（切り上げ）</span>
 <span>おつり ＝ 1人の額 × 人数 − 合計</span>
 </div>
 <p>例：10,000円を3人で、100円単位なら3,333.3…円が3,400円。集めると10,200円で、おつりは200円です。</p>`,
@@ -203,8 +203,8 @@ ${section(
   'formula',
   '計算式',
   `<div class="formula">
-<span>1倍の額 ＝ 合計 ÷（人数 × 何倍 を足したもの）</span>
-<span>1人の額 ＝ 1倍の額 × 何倍（単位に切り上げ）</span>
+<span>1倍の額 ＝ 合計 ÷ 人数×何倍の合計</span>
+<span>1人の額 ＝ 1倍の額 × 何倍（切り上げ）</span>
 </div>
 <p>例：30,000円を、2倍の人1人・1倍の人4人・0.5倍の人2人で。2 ＋ 4 ＋ 1 ＝ 7 なので、1倍の額は約4,286円です。</p>`,
 )}
@@ -213,11 +213,11 @@ ${section(
   'examples',
   '計算例',
   `<div class="tbl-wrap"><table>
-<thead><tr><th>合計と人数</th><th class="num">多め</th><th class="num">ふつう</th><th class="num">少なめ</th></tr></thead>
+<thead><tr><th class="num">合計</th><th class="num">多め</th><th class="num">ふつう</th><th class="num">少なめ</th></tr></thead>
 <tbody>
-<tr><td class="wrap"><span class="nw">30,000円</span><wbr><span class="nw">（2倍1人・</span><wbr><span class="nw">1倍4人・</span><wbr><span class="nw">0.5倍2人）</span></td><td class="num">8,600円</td><td class="num">4,300円</td><td class="num">2,200円</td></tr>
-<tr><td class="wrap"><span class="nw">50,000円</span><wbr><span class="nw">（1.5倍2人・</span><wbr><span class="nw">1倍5人）</span></td><td class="num">9,400円</td><td class="num">6,300円</td><td class="num">—</td></tr>
-<tr><td class="wrap"><span class="nw">12,000円</span><wbr><span class="nw">（2倍1人・</span><wbr><span class="nw">1倍2人・</span><wbr><span class="nw">0.5倍2人）</span></td><td class="num">4,800円</td><td class="num">2,400円</td><td class="num">1,200円</td></tr>
+<tr><td class="num">30,000円</td><td class="num">8,600円<br><small>2倍・1人</small></td><td class="num">4,300円<br><small>1倍・4人</small></td><td class="num">2,200円<br><small>0.5倍・2人</small></td></tr>
+<tr><td class="num">50,000円</td><td class="num">9,400円<br><small>1.5倍・2人</small></td><td class="num">6,300円<br><small>1倍・5人</small></td><td class="num">—</td></tr>
+<tr><td class="num">12,000円</td><td class="num">4,800円<br><small>2倍・1人</small></td><td class="num">2,400円<br><small>1倍・2人</small></td><td class="num">1,200円<br><small>0.5倍・2人</small></td></tr>
 </tbody>
 </table></div>
 <p class="note">100円単位で集めるときです。</p>

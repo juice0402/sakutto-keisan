@@ -73,6 +73,15 @@ export const TOOLS = [
     related: ['warikan', 'waribiki', 'rieki-ritsu'],
   },
   {
+    slug: 'denki-dai',
+    name: '電気代の計算',
+    category: 'seikatsu',
+    short: 'こたつやヒーターの1時間・1か月の電気代',
+    published: true,
+    updated: '2026-10-21',
+    related: ['warikan', 'tanka', 'waribiki', 'kishaku'],
+  },
+  {
     slug: 'kishaku',
     name: '希釈率の計算',
     category: 'seikatsu',
