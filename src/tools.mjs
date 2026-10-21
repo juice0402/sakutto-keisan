@@ -10,7 +10,7 @@ export const TOOLS = [
     short: '割引後の値段と、いくら安くなるか',
     published: true,
     updated: '2026-10-21',
-    related: ['waribiki-ritsu', 'tanka', 'rieki-ritsu', 'percent', 'shohizei'],
+    related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
   {
