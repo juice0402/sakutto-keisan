@@ -64,6 +64,7 @@ export const breadcrumbLd = (items) => ({
  * @param {boolean}[p.noindex]
  * @param {string} [p.theme]    home / seikatsu / shigoto / fx（ツールはカテゴリのテーマ）
  * @param {string} [p.ogImage]  SNSで共有したときの画像（public/og/ の中。scripts/make-images.py で作る）
+ * @param {boolean}[p.noAds]    AdSense を置かない（楽天APIの情報を出すページ。楽天ウェブサービスの規約 第10条）
  */
 export function page(p) {
   const fullTitle = p.path === '/' ? p.title : `${p.title}｜${SITE.name}`;
@@ -73,9 +74,11 @@ export function page(p) {
   if (crumbs.length >= 2) ld.push(breadcrumbLd(crumbs));
   const year = new Date().getFullYear();
   const theme = p.theme || 'home';
+  // 外部の読み込みは決めたものだけ。印（data-ext）を見て scripts/verify-dist.mjs が見張る
+  const ads = Boolean(SITE.adsense) && !p.noAds && !p.noindex;
 
   return `<!doctype html>
-<html lang="ja">
+<html lang="ja"${ads ? ' data-ext="adsense"' : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -98,7 +101,7 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<style>${inlineCss}</style>
+${ads ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsense}" crossorigin="anonymous"></script>\n` : ''}<style>${inlineCss}</style>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceAll('<', '\\u003c')}</script>`).join('\n')}
 </head>
 <body data-theme="${theme}">

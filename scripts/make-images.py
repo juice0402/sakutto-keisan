@@ -30,7 +30,7 @@ THEMES = {
     'shigoto': dict(bg='#F6F6F4', text='#1E2A44', muted='#5D6676', red='#7D2333', marker='#E3E8F1', paper='ruled'),  # 紺の革のシステム手帳（site.css と同じ）
     'fx': dict(bg='#16191E', text='#E9EDF2', muted='#9AA4B1', red='#FFD84D', marker='#4A4220', paper='dots'),
 }
-CATEGORY_THEME = {'seikatsu': 'seikatsu', 'shigoto': 'shigoto', 'fx': 'fx'}
+CATEGORY_THEME = {'seikatsu': 'seikatsu', 'shigoto': 'shigoto', 'furusato': 'shigoto', 'fx': 'fx'}
 TAPE = [(226, 202, 150, 215), (238, 220, 178, 215)]  # マスキングテープのしま
 
 
@@ -843,6 +843,18 @@ def jikan_slip(img, cx, top):
             d.line([(x0 + 18 * S + cw3 * i, ty), (x0 + 18 * S + cw3 * i, ty + 58 * S)], fill='#D3DCE8', width=2 * S)
 
 
+def furusato_doc(img, cx, top):
+    """ふるさと納税の上限の目安（年収500万円・ひとり。2026年の寄付）：寄付する → 住民税が減る → 自己負担"""
+    doc_sheet(img, cx, top, '寄付の上限', '上限の目安', '57,000', '円', ('いつ', 'お金', '金額'),
+              (('今年中', '寄付する', '57,000円'), ('翌年6月から', '住民税が減る', ('55,000円',)), ('のこり', '自己負担', '2,000円')))
+
+
+def furusato_jougen_doc(img, cx, top):
+    """控除上限額の計算（所得割235,500円・所得税率5%）"""
+    doc_sheet(img, cx, top, '控除上限額', '上限の目安', '57,000', '円', ('計算', '金額'),
+              (('所得割×20%', '47,100円'), ('特例の割合', '84.895%'), ('住民税が減る', ('55,000円',))))
+
+
 def loan_doc(img, cx, top):
     """ローン：返済予定表（3,000万円・金利1％・35年）。書類に入りきるよう、共有画像では帯をのせない"""
     doc_sheet(img, cx, top, '返済予定表', '毎月の返済', '84,686', '円', ('経過', '返した額', 'のこり'),
@@ -940,6 +952,7 @@ VISUALS = {
     'percent': percent_slip,
     'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
+    'furusato': furusato_doc, 'furusato-jougen': furusato_jougen_doc,
     'shohizei': lambda img, cx, top: receipt(img, cx, top, [('税込', '2,178', '')], [], [('税抜', '1,980円'), ('消費税（10%）', '198円'), ('税込', '2,178円')]),
     'touyu-dai': lambda img, cx, top: touyu_slip(img, cx, top, '7.5日', '10,252', 4.0, '1か月 72L・18L缶 4本', ('42.7円', '342円', '142.4円')),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),

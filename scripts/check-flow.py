@@ -48,6 +48,15 @@ CASES = {
         (None, '#r-foot', '生年月日を入れてください'),
         (('fill', '#birth', '1987-06-15'), None, None),
     ],
+    'furusato': [
+        (None, '#r-foot', '年収を入れてください'),
+        (('fill', '#income', '500'), None, None),
+    ],
+    'furusato/jougen': [
+        (None, '#r-foot', '住民税の所得割を入れてください'),
+        (('fill', '#shotokuwari', '235500'), '#r-foot', '所得税の税率をえらんでください'),
+        (('click', '.tile[data-rate="0.05"]'), None, None),
+    ],
     'gakureki': [
         (None, '#r-foot', '生年月日を入れてください'),
         (('fill', '#birth', '2004-06-10'), None, None),
