@@ -52,9 +52,10 @@ export const breadcrumbLd = (items) => ({
 });
 
 // 値をえらぶ付箋の場所（.tiles・.seg）に、ページの上から順に番号を付ける。site.css が番号で付箋の色を変える（10/22 しょーくん「選択の場所が違うものは付箋の色を変えて」）
+// data-fresh：まださわっていない印。はじめから入っている値に丸を付けない（notes.js がさわったら外す）
 function numberNotes(body) {
   let n = 0;
-  return body.replace(/class="((?:tiles|seg)(?: [^"]*)?)"/g, (_, c) => `class="${c}" data-note="${Math.min(++n, 3)}"`);
+  return body.replace(/class="((?:tiles|seg)(?: [^"]*)?)"/g, (_, c) => `class="${c}" data-note="${Math.min(++n, 3)}" data-fresh`);
 }
 
 /**

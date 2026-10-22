@@ -2,11 +2,13 @@
 // .tiles と .seg のある全ページに、layout.mjs が入れる。ページごとの計算のスクリプトにはさわらない
 //   さわってえらぶ → ほかの付箋が剥がれて消え、えらんだ付箋が先頭へ。赤ペンで丸を描く（めくれと傾きは site.css）
 //   えらんだ付箋をもう一度さわる → 剥がした付箋を貼り直す（計算のスクリプトには、そのタップを渡さない）
-//   クリアなどで、えらんだものがなくなったとき → 貼り直す
+//   クリアを押したとき・えらんだものがなくなったとき → 貼り直す
 //   自分で入れる付箋（?%）は、さわっても剥がさない（キーボードで入れている途中なので）
+//   はじめから入っている値には、えらんだしるしを付けない（data-fresh。さわったら外し、クリアなどでもどったら付け直す）
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const PEEL_MS = 480;
 const STEP_MS = 45;
+const resets = [];
 
 for (const group of document.querySelectorAll('.tiles, .seg')) {
   const notes = () => [...group.children].filter((el) => el.matches('.tile, .seg-btn'));
@@ -48,7 +50,8 @@ for (const group of document.querySelectorAll('.tiles, .seg')) {
     );
   };
 
-  const restore = () => {
+  const restore = (fresh) => {
+    if (fresh) group.setAttribute('data-fresh', '');
     const note = picked;
     picked = null;
     const back = notes().filter((x) => x.hidden);
@@ -78,7 +81,9 @@ for (const group of document.querySelectorAll('.tiles, .seg')) {
   // さわってえらんだら、計算のスクリプトが印をつけたあとに剥がす
   group.addEventListener('click', (e) => {
     const note = e.target.closest('.tile, .seg-btn');
-    if (!e.isTrusted || !note || note.classList.contains('tile-input')) return;
+    if (!e.isTrusted || !note) return;
+    group.removeAttribute('data-fresh');
+    if (note.classList.contains('tile-input')) return;
     requestAnimationFrame(() => {
       if (note.getAttribute('aria-pressed') !== 'true') return;
       note.classList.add('is-drawn');
@@ -89,6 +94,13 @@ for (const group of document.querySelectorAll('.tiles, .seg')) {
 
   // 計算のスクリプトが、えらんだものを外したり変えたりしたら、貼り直す
   new MutationObserver(() => {
-    if (picked && !busy && picked.getAttribute('aria-pressed') !== 'true') restore();
+    if (picked && !busy && picked.getAttribute('aria-pressed') !== 'true') restore(true);
   }).observe(group, { subtree: true, attributes: true, attributeFilter: ['aria-pressed'] });
+
+  resets.push(() => (picked && !busy ? restore(true) : group.setAttribute('data-fresh', '')));
 }
+
+// クリアを押したら、どの付箋も貼り直して、はじめの形にもどす
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.clear-btn')) requestAnimationFrame(() => resets.forEach((f) => f()));
+});
