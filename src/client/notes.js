@@ -4,7 +4,7 @@
 //   えらんだ付箋をもう一度さわる → 剥がした付箋を貼り直す（計算のスクリプトには、そのタップを渡さない）
 //   クリアを押したとき・えらんだものがなくなったとき → 貼り直す
 //   自分で入れる付箋（?%）は、さわっても剥がさない（キーボードで入れている途中なので）
-//   はじめから入っている値には、えらんだしるしを付けない（data-fresh。さわったら外し、クリアなどでもどったら付け直す）
+//   はじめから入っている値には、えらんだしるしを付けない（data-fresh。さわったり、入れた数字で付箋がえらばれたりしたら外し、クリアで付け直す）
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const PEEL_MS = 480;
 const STEP_MS = 45;
@@ -92,10 +92,13 @@ for (const group of document.querySelectorAll('.tiles, .seg')) {
     });
   });
 
-  // 計算のスクリプトが、えらんだものを外したり変えたりしたら、貼り直す
-  new MutationObserver(() => {
-    if (picked && !busy && picked.getAttribute('aria-pressed') !== 'true') restore(true);
-  }).observe(group, { subtree: true, attributes: true, attributeFilter: ['aria-pressed'] });
+  // 計算のスクリプトが、えらんだものを外したり変えたりしたら、貼り直す。
+  // 入れた数字に合わせて付箋がえらばれたとき（和暦の元号・掛け率など）は答えの一部なので、しるしを付ける
+  new MutationObserver((records) => {
+    const lit = records.some((r) => r.oldValue !== 'true' && r.target.getAttribute('aria-pressed') === 'true');
+    if (picked && !busy && picked.getAttribute('aria-pressed') !== 'true') restore(!lit);
+    else if (lit) group.removeAttribute('data-fresh');
+  }).observe(group, { subtree: true, attributes: true, attributeFilter: ['aria-pressed'], attributeOldValue: true });
 
   resets.push(() => (picked && !busy ? restore(true) : group.setAttribute('data-fresh', '')));
 }
