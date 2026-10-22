@@ -22,7 +22,7 @@
   - PR → プレビュー（PRに自動でURLのコメント）／ main → 本番
   - Secrets：`CLOUDFLARE_API_TOKEN`（Pages の編集だけ）・`CLOUDFLARE_ACCOUNT_ID`
   - 本番では、アップロードの前後に `scripts/indexnow.mjs` が動き、**中身が変わったページだけ**を IndexNow（Bing・Yandex・Naver・Seznam・Yep）に知らせる。前回の指紋は本番の `/indexnow-pages.json`、鍵は `SITE.indexnowKey`（ビルドが `/<鍵>.txt` を置く）。結果は Actions の注意書き（IndexNow）で見る。Google は IndexNow に入っていないので、サイトマップとリンクで見つけてもらう
-- 公式のページの見張り（10/22 統合の設計）：`.github/workflows/watch.yml` が `scripts/watch-pages.mjs` を動かす（結果の数は Actions の注意書きにも出る）。3時間おきにお買い物マラソンの公式のページ（日付・時刻・「◯ポイント」「◯倍」の数字だけ）、週1回（月曜の朝）にふるさと納税の出典のページ（本文の指紋だけ）を前回とくらべ、変わったら Issue（開いている同じ Issue があればコメント）。前回の数字は Actions のキャッシュ（リポジトリに入れない）。公式の文は保存しない・Issue に貼らない。Issue が来たら、しょーくんがチャットで声をかけ、Claude が公式を開いて `src/data/` を直す。Claude の予約タスクは当面ふやさない（マラソン1〜2回ぶん見て、誤検知の数で決める）
+- 公式のページの見張り（10/22 統合の設計）：`.github/workflows/watch.yml` が `scripts/watch-pages.mjs` を動かす（結果の数は Actions の注意書きにも出る）。3時間おきにお買い物マラソンの公式のページ（日付・時刻・「◯ポイント」「◯倍」の数字だけ）、週1回（月曜の朝）にふるさと納税の出典のページ（本文の指紋だけ）を前回とくらべ、変わったら Issue（開いている同じ Issue があればコメント）。前回の数字は Actions のキャッシュ（リポジトリに入れない）。公式の文は保存しない・Issue に貼らない。Issue の対応は、毎日8:32の予約タスク「サクッと計算 公式ページの見張りの対応（Claude）」がする（10/22 しょーくん「見張りの部分は自動化できる？」）：開いている見張りの Issue と、ふるさと納税の出典の確認日（残り7日以内）と、本番の公開の失敗を gh api で見て、なければすぐ終わる。あれば公式を開いて確かめ、`src/data/point.mjs`・`src/data/furusato.mjs`・ふるさと納税とマラソンのページの文・テストだけを直して PR → CI が緑なら Merge して、Issue を閉じる。計算のしくみ（`src/lib/`）まで変える必要があるときは Merge せずに報告
 - 返礼品のページ（10/22 第3弾）：楽天市場の商品検索API（2026-07-01版。applicationId・accessKey・affiliateId と Referer）で、**公開のときにビルドの中で取ってHTMLにするだけ**。取ったデータ（`.henreihin/`）はコミットしない・成果物に上げない・ログには件数だけ（楽天ウェブサービスの規約 第10条9号）。ビルドが終わったら消す
   - モード（`scripts/henreihin-mode.mjs`）：`HENREIHIN_LIVE` が true でキーがあれば api（本番もPRも楽天のデータ）、まだのときの PR は fixture（`tests/fixtures/henreihin.json` の作り話の見本の商品。noindex と「見本」の帯）、ほかは off（ページを作らない）。手元では `HENREIHIN=fixture npm run build` で見本のページを作れる
   - 取れなかったとき・量が読めた返礼品が5件より少ない一覧があるときは、公開を止める（前の公開がそのまま残る）
@@ -34,6 +34,7 @@
   - 本番に出す手順：しょーくんが楽天のアプリ登録（アプリ名 サクッと計算・URL と許可されたWebサイトは sakutto-keisan.com・楽天市場API）と、楽天アフィリエイトのサイト登録をして、Secrets を入れる → Claude が `henreihin-check.yml` を手で動かして、件数・ふるさと納税の店の数・多いジャンルIDを注意書きで見る → `genreId` を入れる → `HENREIHIN_LIVE = true` のPR → プレビューで量の読み取りを、しょーくんといっしょに目で見る → Merge
 - 流れ：ブランチ `claude/...` → PR → CI が緑・プレビューで確認 → **しょーくんに知らせてから Merge**
   - 例外：毎月1日の予約タスク「サクッと計算 スワップの金利の更新（Claude）」は、`src/data/fx-swap.mjs` だけを直したPRを、CI が緑なら自分で Merge して、しょーくんに報告する（10/19 しょーくんが「金利は毎月、予約タスクで確かめて更新」をえらんだ）
+  - 例外：毎日の予約タスク「サクッと計算 公式ページの見張りの対応（Claude）」のPRも、CI が緑なら自分で Merge して報告する。税金の数字や手続きが変わったときも同じ（10/22 しょーくんが「全部自動でマージ」をえらんだ）
 
 ## ファイル
 | 場所 | 中身 |
