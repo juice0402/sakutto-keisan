@@ -36,6 +36,30 @@ test('読めないもの・迷うものは出さない', () => {
   assert.deepEqual(pick(kg('見本の干物 12月1日〜12月25日発送 1kg')), [1, '1kg', 1]); // 日付の「〜」は幅ではない
 });
 
+test('量や回数をえらぶ返礼品は出さない（寄付額がどの量の額かわからない）', () => {
+  assert.equal(kg('見本米 5kg / 10kg / 20kg'), null);
+  assert.equal(kg('見本米 選べる容量 5kg 10kg'), null);
+  assert.equal(kg('見本の牛肉【内容量＆発送時期が選べる！】1kg'), null);
+  assert.equal(kg('見本の牛肉 切り落とし (500g or 1kg)'), null);
+  assert.equal(kg('見本の鮭 約1kg・約2kg'), null);
+  assert.equal(kg('見本のしらす 600g～'), null); // 下だけ書いた量
+  assert.equal(kg('見本のかに 総重量 700g〜1.3kg'), null);
+  assert.equal(kg('見本米 5kg 定期便 3回 6回 12回'), null);
+  assert.equal(kg('見本米 5kg 単品・定期便から選べる'), null);
+  assert.equal(kg('見本のしらす 最大2kg'), null);
+  assert.deepEqual(pick(kg('見本の鮭 約2kg 発送時期が選べる')), [2, '2kg', 1]); // 発送の時期だけえらぶのはよい
+  assert.equal(readAmount('見本のトイレットペーパー 24ロールor64ロールor72ロール', 'ロール'), null);
+  assert.equal(readAmount('見本のトイレットペーパー 選べるロール数 16・32・64 ロール', 'ロール'), null);
+  assert.equal(readAmount('見本のティッシュ 50箱 選べる組数 200組 / 150組', '箱'), null);
+  assert.equal(readAmount('見本のティッシュ 15箱 ＆ トイレットペーパー 48ロール セット', '箱'), null); // ほかの物とのセット
+});
+
+test('日用品：長巻きはふつうのロールの数に。1箱あたりの組数は数えない', () => {
+  assert.deepEqual(pick(readAmount('見本のトイレットペーパー 3倍長持ち 4ロール(ダブル)×12パック', 'ロール')), [144, '4ロール(ダブル)×12パック・3倍巻き', 1]);
+  assert.deepEqual(pick(readAmount('見本のトイレットペーパー 48ロール 163ロール相当 3.4倍巻', 'ロール')), [163, '163ロール相当', 1]);
+  assert.deepEqual(pick(readAmount('見本のティッシュ 60箱(1箱220組(440枚))(5個入り×12セット)', '箱')), [60, '60箱', 1]);
+});
+
 test('日用品：ロールと箱', () => {
   assert.deepEqual(pick(readAmount('見本のトイレットペーパー 12ロール×8パック ダブル', 'ロール')), [96, '12ロール×8パック', 1]);
   assert.deepEqual(pick(readAmount('見本のトイレットペーパー 96ロール(12R×8)', 'ロール')), [96, '12R×8', 1]);
