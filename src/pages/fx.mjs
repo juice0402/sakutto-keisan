@@ -30,7 +30,7 @@ const SRC_FSA = '<p class="note">出典：<a href="https://www.fsa.go.jp/news/21
 const GRID = '<path class="chart-grid" d="M0 25H100M0 50H100M0 75H100M25 0V100M50 0V100M75 0V100"/>';
 const ARC = 'M20 112A90 90 0 0 1 200 112'; // メーターの半円（中心 110,112・半径 90）
 const ACCOUNT = `<div class="chart" aria-live="polite">
-    <p class="chart-bar"><span id="c-pair">ドル円</span><span>口座の状況</span></p>
+    <p class="chart-bar"><span id="c-pair">ドル円</span><span class="cb-r"><span>口座の状況</span><button type="button" class="clear-btn" id="clear">クリア</button></span></p>
     <div class="acct">
       <svg class="acct-gauge" viewBox="0 0 220 126" aria-hidden="true">
         <path class="gauge-arc" d="${ARC}"/><path class="gauge-zone" d="${ARC}" pathLength="500" stroke-dasharray="100 600"/><path class="gauge-val" id="g-val" d="${ARC}" pathLength="500" stroke-dasharray="0 600"/>
@@ -41,7 +41,7 @@ const ACCOUNT = `<div class="chart" aria-live="polite">
     <p class="chart-foot"><span id="r-amount"></span><span id="r-need">口座のお金を入れてください</span></p>
   </div>`;
 const CUT_CHART = `<div class="chart" aria-live="polite">
-    <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span id="c-ratio"></span></p>
+    <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span class="cb-r"><span id="c-ratio"></span><button type="button" class="clear-btn" id="clear">クリア</button></span></p>
     <div class="chart-ans is-static"><p class="fx-cap" id="r-cap">ロスカットまで、あと</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">円の損</small></p></div>
     <div class="chart-plot is-short">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${GRID}<rect class="chart-band" id="c-band" x="0" y="0" width="100" height="0"/><path class="chart-cut" id="c-cut" d=""/><path class="chart-now" id="c-now" d=""/><path class="chart-line" id="c-line" d=""/></svg>
@@ -50,7 +50,7 @@ const CUT_CHART = `<div class="chart" aria-live="polite">
     <p class="chart-foot"><span id="r-price"></span><span id="r-need">通貨の量をえらんでください</span></p>
   </div>`;
 const SWAP_CHART = `<div class="chart" aria-live="polite">
-    <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span id="c-diff"></span></p>
+    <p class="chart-bar"><span id="c-pair">ドル円・買い</span><span class="cb-r"><span id="c-diff"></span><button type="button" class="clear-btn" id="clear">クリア</button></span></p>
     <div class="chart-plot has-axis">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${GRID}<path class="chart-area" id="s-area" d=""/><path class="chart-step" id="s-line" d=""/></svg>
       <span class="chart-dot" id="d-month" hidden></span><span class="chart-dot" id="d-year" hidden></span><span class="chart-label" id="t-month" hidden></span><span class="chart-label" id="t-year" hidden></span>

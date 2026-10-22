@@ -15,15 +15,15 @@ export const hourYen = (watt) => `約${fmt((watt * DENKI_PRICE.value) / 1000, 1)
 export function denkiCard({ tiles, label, name = '', empty, wattEx = '600', hoursEx = '8' }) {
   const P = String(DENKI_PRICE.value);
   return `<div class="calc" id="calc"${name ? ` data-name="${name}"` : ''} data-empty="${empty}">
-  <div class="field" id="f-tiles"><div class="tiles" role="group" aria-label="${label}">${tiles
+  <div class="field" id="f-tiles"><div class="tiles${tiles.length === 2 ? ' tiles-2' : tiles.length === 4 ? ' tiles-4' : ''}" role="group" aria-label="${label}">${tiles
     .map((t) => `<button type="button" class="tile tile-word" data-watt="${t.watt}" aria-pressed="false"><b>${t.b}</b><small>${t.small}</small></button>`)
     .join('')}</div></div>
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('watt', '消費電力', 'W', wattEx, '', '家電のラベルや説明書の「消費電力」')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('watt', '消費電力', 'W', wattEx, '', '家電のラベルや説明書の「消費電力」')}
     <div class="pair">${boxField('hours', '1日に使う時間', '時間', hoursEx)}${boxField('price', '1kWhの単価', '円', P, P, `電気料金の明細の単価。目安は${P}円`)}</div>
   </div>
   <div class="slip" aria-live="polite">
-    <p class="slip-title">電気代のお知らせ<small>目安</small></p>
+    <p class="slip-title"><span>電気代のお知らせ<small>目安</small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <div class="slip-meter" aria-hidden="true"><span>1か月の<br>使用量</span><span class="m-digits" id="m-digits"></span><span class="m-u">kWh</span></div>
     <p class="m-what" id="m-what"></p>
     <p class="slip-sum"><span class="slip-k" id="r-cap">1か月</span><span class="slip-v"><small>約</small><b id="r-num">？</b><small>円</small></span></p>

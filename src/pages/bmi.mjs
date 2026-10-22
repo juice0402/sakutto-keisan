@@ -68,11 +68,11 @@ export default function render() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('cm', '身長', 'cm', '170')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('cm', '身長', 'cm', '170')}
     ${boxField('kg', '体重', 'kg', '65')}
   </div>
   <div class="slip" aria-live="polite">
-    <p class="slip-title">BMI<small>大人の目安</small></p>
+    <p class="slip-title"><span>BMI<small>大人の目安</small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <p class="slip-sum"><span class="slip-k" id="r-level">？</span><span class="slip-v"><b id="r-num">？</b></span></p>
     ${SCALE}
     <table class="slip-table"><thead><tr><th>標準体重</th><th>普通体重の範囲</th></tr></thead><tbody><tr><td id="d-std">—</td><td id="d-range">—</td></tr></tbody></table>

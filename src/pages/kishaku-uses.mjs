@@ -3,7 +3,8 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
-import { numInput, mixTiles, mixStage } from '../mix.mjs';
+import { mixTiles, mixStage } from '../mix.mjs';
+import { boxField } from '../fields.mjs';
 
 const head = (labelId, label) =>
   `<div class="field-head calc-head"><p class="label" id="${labelId}">${label}</p><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
@@ -79,7 +80,7 @@ ${src([
       { id: 'target', post: '%', label: 'その他' },
     )}
   </div>
-  <div class="field src-row" id="f-src"><label for="src">漂白剤の濃度</label><div class="input">${numInput('src', '6', '6')}<span class="unit">％</span></div></div>
+  <div class="src-box">${boxField('src', '漂白剤の濃度', '％', '6', '6', 'ボトルの表示の濃度。ハイターは6％')}</div>
   ${mixStage({ conc: '漂白剤', label: '？％', hint: '作りたい濃度をえらんでください' })}
   <p class="note calc-note">手や指に使わず、酸性のものとまぜない</p>
 </div>`,

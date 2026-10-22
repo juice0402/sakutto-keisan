@@ -203,13 +203,14 @@ function renderJougen() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('shotokuwari', '住民税の所得割', '円', '235,500', '', '決定通知書の所得割の額（市と県の合計）')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('shotokuwari', '住民税の所得割', '円', '235,500', '', '決定通知書の所得割の額（市と県の合計）')}
     <div class="tiles tiles-4" role="group" aria-label="所得税の税率">
       ${RATE_TILES}
     </div>
   </div>
   <div class="doc" aria-live="polite">
     <p class="doc-title">控除上限額</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
     <p class="doc-sum"><span class="doc-sum-k">上限の目安</span><span class="doc-sum-v"><b id="r-num">？</b>円</span></p>
     <table class="doc-table fz-table"><tbody>
       <tr><td>所得割 × 20%</td><td id="d-cap">—</td></tr>

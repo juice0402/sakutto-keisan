@@ -53,12 +53,13 @@ export default function render() {
 <div class="calc" id="calc">
   <div class="field" id="f-tiles">${TILES}</div>
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('speed', '1人1時間に掃除できる面積', '㎡', '100')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('speed', '1人1時間に掃除できる面積', '㎡', '100')}
     <div class="pair">${boxField('area', '面積', '㎡', '600')}${boxField('people', '人数', '人', '2')}</div>
     ${boxField('hours', '作業時間', '時間', '3')}
   </div>
   <div class="doc" aria-live="polite">
     <p class="doc-title">作業指示書</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
     <p class="doc-sum"><span class="doc-sum-k" id="r-cap">かかる時間</span><span class="doc-sum-v"><b id="r-num">？</b></span></p>
     <table class="doc-table"><thead><tr><th>作業</th><th>面積</th><th>人数</th><th>1人あたり</th></tr></thead><tbody><tr><td id="d-work">—</td><td id="d-area">—</td><td id="d-people">—</td><td id="d-per">—</td></tr></tbody></table>
     <div class="floor-plan" aria-hidden="true"><div class="floor-strips" id="s-floor"></div></div>

@@ -1,6 +1,6 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText, capText, mlValue, literText } from '../lib/kishaku.mjs';
-import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 
 // 希釈率の計算と、使いみち別のページ（めんつゆ・漂白剤・液体肥料）で共通。ページごとのちがいは #calc の data-*
 //   data-how：薄め方を決めておく（times：何倍 / pct：濃度）。ないときは上の3つのタブでえらぶ
@@ -155,6 +155,8 @@ $(`f-${CUSTOM}`).addEventListener('click', () => $(CUSTOM).focus());
 const ratioInputs = RATIO_IDS.map((id) => $(id));
 const amountInputs = AMOUNTS.map((k) => $(`v-${k}`));
 numericOnly([...ratioInputs, ...amountInputs]);
+const srcBox = document.querySelector('.src-box');
+if (srcBox) focusHints(srcBox); // 次亜塩素酸ナトリウム：漂白剤の濃度の1行の説明
 ratioInputs.forEach((el) => el.addEventListener('input', update));
 $(CUSTOM).addEventListener('input', fitCustom);
 // 量の欄：入れた欄から、ほかの2つを出す。答えの出ている欄をさわったら、まるごと書きかえられるように選んでおく

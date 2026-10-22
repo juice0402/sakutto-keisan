@@ -73,12 +73,12 @@ export default function render() {
 
 <div class="calc" id="calc" data-tsp="${TSP}" data-tbsp="${TBSP}">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('base', '水や食材の重さ', 'g', '500', '', '水は1ml＝1g。浅漬けは野菜の重さ')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('base', '水や食材の重さ', 'g', '500', '', '水は1ml＝1g。浅漬けは野菜の重さ')}
     <div class="tiles tiles-4" role="group" aria-label="用途をえらぶ">${TILES}</div>
     <div class="pair">${boxField('pct', '濃度', '％', '2', '', '水や食材の重さに対する塩の割合')}${boxField('salt', '塩', 'g', '10')}</div>
   </div>
   <div class="slip pic" aria-live="polite">
-    <p class="slip-title">塩の量<small>目安</small></p>
+    <p class="slip-title"><span>塩の量<small>目安</small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <div class="pic-row">
       <div class="en-bowl">${BOWL}<p class="en-label" id="b-base"></p></div>
       <div class="pic-side">

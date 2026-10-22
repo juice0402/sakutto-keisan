@@ -28,20 +28,17 @@ const ROWS = `<dl class="rc-rows">
     </dl>`;
 
 // 集める単位（レシートの下。はじめは100円）
-const UNIT_ROW = `<div class="field people-row unit-row" id="f-unit"><p class="label" id="l-unit">単位</p><div class="seg seg-4" role="group" aria-labelledby="l-unit">${WARIKAN_UNITS.map(
+const UNIT_ROW = `<div class="field unit-row" id="f-unit"><p class="label" id="l-unit">単位</p><div class="seg seg-4" role="group" aria-labelledby="l-unit">${WARIKAN_UNITS.map(
   (u) => `<button type="button" class="seg-btn" data-unit="${u}" aria-pressed="${u === 100}">${u}円</button>`,
 ).join('')}</div></div>`;
 
 const shareBtn = '<button type="button" class="tool-btn span-2" id="share" disabled>画像で送る</button>';
 
-// 人数：大きな −／＋ と、まん中の欄（レシピの人数と同じ形）
-const STEPPER = `<div class="field people-row" id="f-people">
-    <label for="people">人数</label>
-    <div class="stepper">
-      <button type="button" class="step-btn" id="people-minus" aria-label="人数を1人へらす">${icon('<path d="M5 12h14"/>')}</button>
-      <div class="input"><input id="people" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="4"><span class="unit">人</span></div>
-      <button type="button" class="step-btn" id="people-plus" aria-label="人数を1人ふやす">${icon('<path d="M5 12h14M12 5v14"/>')}</button>
-    </div>
+// 人数：大きな −／＋ と、名前を中に書いたまん中の欄（ほかの欄と左右のはしをそろえる）
+const STEPPER = `<div class="stepper box-stepper">
+    <button type="button" class="step-btn" id="people-minus" aria-label="人数を1人へらす">${icon('<path d="M5 12h14"/>')}</button>
+    <div class="field box-field" id="f-people"><label for="people">人数</label><div class="input"><input id="people" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="4"><span class="unit">人</span></div></div>
+    <button type="button" class="step-btn" id="people-plus" aria-label="人数を1人ふやす">${icon('<path d="M5 12h14M12 5v14"/>')}</button>
   </div>`;
 
 const FAQS = [
@@ -76,11 +73,12 @@ function renderMain() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('total', '合計', '円', '12,800')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('total', '合計', '円', '12,800')}
     ${STEPPER}
   </div>
   <div class="receipt" aria-live="polite">
     <p class="rc-title">お会計</p>
+    <button type="button" class="clear-btn rc-clear" id="clear">クリア</button>
     <p class="rc-sum"><span class="rc-k" id="r-cap">1人</span><span class="rc-v"><b id="r-num">？</b><small>円</small></span></p>
     <div class="rc-tickets" id="rc-tickets" aria-hidden="true"></div>
     ${ROWS}
@@ -194,11 +192,12 @@ function renderKeisha() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('total', '合計', '円', '30,000')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('total', '合計', '円', '30,000')}
     ${groupRows}
   </div>
   <div class="receipt" aria-live="polite">
     <p class="rc-title">お会計</p>
+    <button type="button" class="clear-btn rc-clear" id="clear">クリア</button>
     <div class="rc-groups" id="rc-groups">
       ${groupLines}
     </div>

@@ -9,10 +9,10 @@ const pairSelect = () =>
 
 /** いちばん上の1段：通貨ペア・買いか売りか・クリア（ロスカット） */
 export const fxTop = () =>
-  `<div class="fx-top">${pairSelect()}<div class="seg seg-2" role="group" aria-label="買いか売りか"><button type="button" class="seg-btn" data-side="buy" aria-pressed="true">買い</button><button type="button" class="seg-btn" data-side="sell" aria-pressed="false">売り</button></div><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
+  `<div class="fx-top">${pairSelect()}<div class="seg seg-2" role="group" aria-label="買いか売りか"><button type="button" class="seg-btn" data-side="buy" aria-pressed="true">買い</button><button type="button" class="seg-btn" data-side="sell" aria-pressed="false">売り</button></div></div>`;
 
 /** いちばん上の1段：通貨ペア・クリア（証拠金維持率。買いでも売りでも維持率は同じ） */
-export const fxTopPair = () => `<div class="fx-top fx-top-pair">${pairSelect()}<button type="button" class="clear-btn" id="clear">クリア</button></div>`;
+export const fxTopPair = () => `<div class="fx-top fx-top-pair">${pairSelect()}</div>`;
 
 /** 通貨の量のマス：1,000通貨・1万通貨・10万通貨・その他（万通貨） */
 export const qtyTiles = (labelId) =>

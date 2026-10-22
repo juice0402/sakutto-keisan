@@ -48,11 +48,12 @@ export default function render() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('man', '借りる額', '万円', '3,000')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('man', '借りる額', '万円', '3,000')}
     <div class="pair">${boxField('rate', '金利（年）', '％', '1', '', '1年あたりの金利。変動ならいまの金利')}${boxField('years', '返済の年数', '年', '35')}</div>
   </div>
   <div class="doc" aria-live="polite">
     <p class="doc-title">返済予定表</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
     <p class="doc-sum"><span class="doc-sum-k">毎月の返済</span><span class="doc-sum-v"><b id="r-num">？</b>円</span></p>
     <p class="doc-info"><span id="r-total"></span><span id="r-interest"></span></p>
     <div class="rieki-bar" aria-hidden="true">

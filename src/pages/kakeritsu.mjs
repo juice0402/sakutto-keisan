@@ -55,12 +55,13 @@ export default function render() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('jodai', '上代', '円', '3,000', '', 'お店で売るときの定価')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('jodai', '上代', '円', '3,000', '', 'お店で売るときの定価')}
     <div class="tiles tiles-4" role="group" aria-label="掛け率をえらぶ">${TILES}</div>
     <div class="pair">${boxField('rate', '掛け率', '％', '60', '', '6掛けなら60か6と入れます')}${boxField('gedai', '下代', '円', '1,800', '', '仕入れの値段（卸値）')}</div>
   </div>
   <div class="doc" aria-live="polite">
     <p class="doc-title">納品書</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
     <p class="doc-sum" id="r-sum"><span class="doc-sum-k" id="r-cap">下代</span><span class="doc-sum-v"><b id="r-num">？</b><span id="r-unit">円</span></span><span class="stamp" id="r-stamp" hidden><b id="r-kake"></b>掛け</span></p>
     <table class="doc-table"><thead><tr><th>上代</th><th>掛率</th><th>下代</th><th>粗利</th></tr></thead><tbody><tr id="r-row"><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
     <div class="rieki-bar" aria-hidden="true">
