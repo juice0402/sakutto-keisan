@@ -66,6 +66,7 @@ export const breadcrumbLd = (items) => ({
  * @param {string} [p.ogImage]  SNSで共有したときの画像（public/og/ の中。scripts/make-images.py で作る）
  * @param {boolean}[p.noAds]    AdSense を置かない（楽天APIの情報を出すページ。楽天ウェブサービスの規約 第10条）
  * @param {string} [p.footNote] フッターの「送信・保存しません」の1行を、このページだけ差しかえる（寄付メモは端末の中に保存する）
+ * @param {string} [p.ext]      外部の読み込みの印（rakuten-img＝返礼品のページの楽天の商品画像）。scripts/verify-dist.mjs が見張る
  */
 export function page(p) {
   const fullTitle = p.path === '/' ? p.title : `${p.title}｜${SITE.name}`;
@@ -76,10 +77,11 @@ export function page(p) {
   const year = new Date().getFullYear();
   const theme = p.theme || 'home';
   // 外部の読み込みは決めたものだけ。印（data-ext）を見て scripts/verify-dist.mjs が見張る
-  const ads = Boolean(SITE.adsense) && !p.noAds && !p.noindex;
+  const ads = Boolean(SITE.adsense) && !p.noAds && !p.noindex && !p.ext;
+  const ext = p.ext || (ads ? 'adsense' : '');
 
   return `<!doctype html>
-<html lang="ja"${ads ? ' data-ext="adsense"' : ''}>
+<html lang="ja"${ext ? ` data-ext="${ext}"` : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

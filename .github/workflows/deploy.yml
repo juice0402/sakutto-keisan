@@ -2,6 +2,9 @@ name: Build and Deploy
 
 # テスト → ビルド → 写真の読み取りソフトを用意 → 全ページ点検 →（PRでは写真の読み取りのテスト）→ Cloudflare Pages へ直接アップロード（Direct Upload）
 # →（本番では）変わったページを IndexNow で検索エンジンに知らせる
+# 返礼品のページ（/furusato/henreihin/）は、楽天のデータでビルドのときに作る（scripts/henreihin-mode.mjs・fetch-henreihin.mjs）。
+#   取ったデータはランナーの中だけ（.henreihin/。コミットしない・成果物に上げない・ログには件数だけ）
+#   毎日の取り直しは henreihin-daily.yml がこのワークフローを main で動かす
 # Cloudflare 側ではビルドしないので、アカウント共有の「月500回のビルド枠」を使わない
 #   main への push        → 本番（https://sakutto-keisan.com）
 #   プルリクエスト        → プレビュー（PRにURLをコメント）
@@ -37,14 +40,40 @@ jobs:
       - name: テスト
         run: npm test
 
+      - name: 返礼品のページをどう作るか（本番は楽天のデータ、まだのときのPRは見本）
+        id: hr
+        env:
+          RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+        run: node scripts/henreihin-mode.mjs
+
+      - name: 返礼品を楽天から取る
+        # 取れなかったとき・量が読めた返礼品が少なすぎるときは止める（前の公開がそのまま残る）
+        if: steps.hr.outputs.mode == 'api'
+        env:
+          RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+        run: node scripts/fetch-henreihin.mjs
+
       - name: ビルド
+        env:
+          HENREIHIN: ${{ steps.hr.outputs.mode }}
         run: npm run build
 
       - name: 写真の読み取りソフトを用意（Tesseract.js・日本語のデータ）
         run: node scripts/fetch-ocr.mjs
 
       - name: 全ページ点検
+        env:
+          HENREIHIN: ${{ steps.hr.outputs.mode }}
         run: npm run verify
+
+      - name: 楽天のデータを消す
+        # ビルドしたら要らない。アップロードするのは dist/ だけ
+        if: always()
+        run: rm -rf .henreihin
 
       - name: 写真の読み取りのテスト（プルリクエストのとき）
         if: github.event_name == 'pull_request'
@@ -55,7 +84,7 @@ jobs:
 
       - name: 検索エンジンに知らせるページをえらぶ（本番のとき）
         # 本番にある前回の指紋とくらべて、中身が変わったページ・新しいページだけをえらぶ
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: node scripts/indexnow.mjs prepare
 
       - name: Cloudflare Pages へアップロード
@@ -80,8 +109,16 @@ jobs:
 
       - name: 検索エンジンに知らせる（IndexNow・本番のとき）
         # Bing・Yandex・Naver・Seznam・Yep に、変わったページだけを知らせる。失敗しても公開は止めない
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: node scripts/indexnow.mjs send
+
+      - name: 古い公開を消す（返礼品のページを出しているとき・本番のとき）
+        # 古いプレビューにも、そのときの楽天の情報が残るので、いまの本番以外で3日より古いものを消す。失敗しても止めない
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.hr.outputs.live == '1'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/cleanup-deployments.mjs
 
       - name: PRにプレビューURLをコメント
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository

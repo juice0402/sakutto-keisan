@@ -873,6 +873,17 @@ def furusato_shimekiri_doc(img, cx, top):
               (('申請書', ('翌年1月10日必着',)), ('確定申告', '2月16日〜3月15日'), ('住民税', '6月から減る')))
 
 
+def furusato_seido_doc(img, cx, top):
+    """制度の変更点（2027年の寄付から、特例控除に193万円の上限）"""
+    doc_sheet(img, cx, top, '制度の変更点', '2027年の寄付から', '193万', '円', ('いつから', 'こと'),
+              (('2019年6月', '返礼品は3割以下'), ('2026年の寄付', '控除の見直し'), ('2027年の寄付', ('特例控除の上限',))))
+
+
+def henreihin_doc(title, unit, rows):
+    """返礼品：1万円あたりの量の帳面（商品は出さない。ページの計算の例と同じ数字）"""
+    return lambda img, cx, top: doc_sheet(img, cx, top, title, '1万円あたり', '5' if unit == 'kg' else '40', unit, ('量', '寄付額', '1万円あたり'), rows)
+
+
 def point_card(img, cx, top):
     """お買い物マラソン：買いまわりカード（10マスのうち5つに赤ペンの丸）と、大きな特典（合計3万円・5店舗）"""
     d = ImageDraw.Draw(img)
@@ -1015,8 +1026,14 @@ VISUALS = {
     'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
     'furusato': furusato_doc, 'furusato-jougen': furusato_jougen_doc,
-    'furusato-memo': furusato_memo_doc, 'furusato-onestop': furusato_onestop_doc, 'furusato-shimekiri': furusato_shimekiri_doc,
+    'furusato-memo': furusato_memo_doc, 'furusato-onestop': furusato_onestop_doc, 'furusato-shimekiri': furusato_shimekiri_doc, 'furusato-seido': furusato_seido_doc,
     'point': point_card,
+    # 返礼品（楽天から取ったデータで作るときだけ公開。共有画像は HENREIHIN=api python3 scripts/make-images.py で作る）
+    'furusato-henreihin': henreihin_doc('返礼品', 'kg', (('5kg×3袋', '3万円', ('5kg',)), ('1.5kg', '1.5万円', ('1kg',)), ('12ロール×8', '2万円', ('48ロール',)))),
+    'furusato-kome': henreihin_doc('お米', 'kg', (('5kg×3袋', '3万円', ('5kg',)), ('10kg', '1.7万円', ('5.9kg',)), ('2kg', '6,000円', ('3.3kg',)))),
+    'furusato-niku': henreihin_doc('肉', 'kg', (('500g×3', '1.5万円', ('1kg',)), ('4kg', '1.6万円', ('2.5kg',)), ('800g', '3万円', ('0.27kg',)))),
+    'furusato-gyokai': henreihin_doc('魚介', 'kg', (('1kg', '1.8万円', ('0.56kg',)), ('250g×2', '2万円', ('0.25kg',)), ('500g×4', '1.2万円', ('1.7kg',)))),
+    'furusato-nichiyouhin': henreihin_doc('日用品', 'ロール', (('12ロール×8', '1.6万円', ('60ロール',)), ('5箱×12', '1.4万円', ('43箱',)), ('18ロール×4', '1.3万円', ('55ロール',)))),
     'shohizei': lambda img, cx, top: receipt(img, cx, top, [('税込', '2,178', '')], [], [('税抜', '1,980円'), ('消費税（10%）', '198円'), ('税込', '2,178円')]),
     'touyu-dai': lambda img, cx, top: touyu_slip(img, cx, top, '7.5日', '10,252', 4.0, '1か月 72L・18L缶 4本', ('42.7円', '342円', '142.4円')),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),

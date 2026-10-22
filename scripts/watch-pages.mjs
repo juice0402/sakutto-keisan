@@ -6,7 +6,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { POINT_SOURCES } from '../src/data/point.mjs';
-import { FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES } from '../src/data/furusato.mjs';
+import { FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES } from '../src/data/furusato.mjs';
 
 const GROUP = process.argv[2];
 const UA = 'sakutto-keisan-watch (+https://sakutto-keisan.com/about/)';
@@ -16,7 +16,7 @@ const PAGES = {
     { name: '楽天市場「お買い物マラソン」', url: 'https://event.rakuten.co.jp/campaign/point-up/marathon/' },
     ...POINT_SOURCES.map(({ name, url }) => ({ name, url })),
   ],
-  furusato: [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES].map(({ name, url }) => ({ name, url })),
+  furusato: [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES, ...FURUSATO_SEIDO_SOURCES].map(({ name, url }) => ({ name, url })),
 }[GROUP];
 if (!PAGES) {
   console.error('使い方: node scripts/watch-pages.mjs point|furusato');
@@ -112,5 +112,11 @@ if (changes.length) {
       : '本文を開いて、計算や手続きの決まりが変わっていないか確かめてください（チャットで Claude に「ふるさと納税の出典を確かめて」）。';
   writeFileSync('watch-report.md', `${what}が前回とくらべて変わりました。\n\n${changes.join('\n')}\n\n${next}\n`);
 }
-console.log(`${what}：${PAGES.length}ページ、変わった ${changes.length}、読めない ${errors.length}`);
+const summary = `${PAGES.length}ページ、変わった ${changes.length}、読めない ${errors.length}`;
+console.log(`${what}：${summary}`);
 for (const e of errors) console.log(`  ${e}`);
+// Actions の注意書き（実行の画面と API の annotations で、ログを開かずに結果がわかる）。公式の文は入れない
+if (process.env.GITHUB_ACTIONS) {
+  console.log(`::${changes.length ? 'warning' : 'notice'} title=見張り（${what}）::${summary}`);
+  for (const e of errors) console.log(`::warning title=見張り（読めない）::${e}`);
+}

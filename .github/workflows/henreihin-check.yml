@@ -1,0 +1,28 @@
+name: Henreihin check
+
+# 楽天のキーが入った日に手で1回：返礼品が楽天の商品検索で取れるか（件数・ふるさと納税の店・ジャンルIDだけ。商品の情報は出さない）
+# 結果は注意書き（Annotations）に出る。scripts/check-henreihin.mjs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: 楽天に聞く
+        env:
+          RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+        run: node scripts/check-henreihin.mjs

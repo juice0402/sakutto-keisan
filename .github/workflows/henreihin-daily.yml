@@ -1,0 +1,35 @@
+name: Henreihin daily
+
+# 返礼品のページの毎日の取り直し：本番の公開（deploy.yml）を main で動かす
+# 1日1回（日本時間6:07）、12月は夕方（18:07）にもう1回。src/data/henreihin.mjs の HENREIHIN_LIVE が true のときだけ
+
+on:
+  schedule:
+    - cron: '7 21 * * *'
+    - cron: '7 9 * 12 *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: 返礼品のページを出しているか
+        id: live
+        run: node -e "import('./src/data/henreihin.mjs').then((m) => console.log('live=' + (m.HENREIHIN_LIVE ? 1 : 0)))" >> "$GITHUB_OUTPUT"
+
+      - name: 本番の公開を動かす
+        if: steps.live.outputs.live == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main --repo "$GITHUB_REPOSITORY"

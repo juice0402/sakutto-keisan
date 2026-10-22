@@ -764,6 +764,17 @@ h1 {
 .os-table td:first-child { width: 1%; white-space: nowrap; }
 .os-table td:last-child { text-align: left; }
 /* 締め切り：2枚の日めくり */
+/* ふるさと納税の制度の変更点：えらんだ寄付の年にかかわる変更の年表（前から・この年・まだ）。この年は赤、まだは点線の札とうすい字 */
+.sd-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.sd-item { display: grid; grid-template-columns: 50px 1fr; gap: 0 10px; padding: 7px 0; border-top: 1px dashed var(--border); }
+.sd-item:first-child { border-top: 0; }
+.sd-tag { grid-row: span 2; align-self: start; padding: 3px 0; border: 1.5px solid var(--text); border-radius: 3px; background: var(--surface); text-align: center; font-size: 12px; font-weight: 800; line-height: 1.3; }
+.sd-when { margin: 0; font-size: 12.5px; font-weight: 800; }
+.sd-what { margin: 1px 0 0; font-size: 13px; line-height: 1.45; }
+.sd-item.is-now .sd-tag { border-color: var(--red); color: var(--red); }
+.sd-item.is-now .sd-when { color: var(--red); }
+.sd-item.is-later { color: var(--muted); }
+.sd-item.is-later .sd-tag { border-style: dashed; border-color: var(--muted); }
 .sk-ato { margin-right: 2px; font-size: 16px; }
 .sk-cals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 0; }
 .sk-cal { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
@@ -793,6 +804,36 @@ h1 {
 .kifu-boxes i { width: 11px; height: 11px; border: 1.5px solid var(--text); border-radius: 2px; }
 .kifu-boxes i.is-on { background: var(--text); }
 .kifu-boxes i.is-over { background: var(--error); border-color: var(--error); }
+/* ふるさと納税の返礼品：広告の1行・寄付額のマス・帳面の一覧（画像は楽天の128px角をそのまま。押せるのは「楽天ふるさと納税で見る」だけ） */
+.hr-ad { margin: -6px 0 12px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.hr-mihon { margin: 0 0 12px; padding: 6px 10px; border: 1.5px dashed var(--red); font-size: 13px; font-weight: 700; color: var(--red); }
+.hr-sheet { margin: 16px 0 0; padding: 4px 12px 10px; background: var(--sheet); border: 1px solid var(--text); outline: 1px solid var(--border); outline-offset: 3px; }
+.hr-group + .hr-group { margin-top: 14px; }
+.hr-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; margin: 8px 0 0; padding-bottom: 4px; border-bottom: 3px double var(--text); }
+.hr-head span { font-size: 16px; font-weight: 800; }
+.hr-head small { margin-left: auto; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.hr-list { margin: 0; padding: 0; list-style: none; }
+.hr-row { display: grid; grid-template-columns: 128px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+.hr-row[hidden] { display: none; }
+.hr-img { display: block; width: 128px; height: 128px; background: #fff; }
+.hr-noimg { display: grid; place-items: center; border: 1.5px dashed var(--border); font-size: 13px; font-weight: 700; color: var(--muted); }
+.hr-body { min-width: 0; }
+.hr-body p { margin: 0; }
+.hr-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 3px !important; }
+.hr-tags span { padding: 0 5px; border: 1px solid var(--text); font-size: 11.5px; font-weight: 700; line-height: 18px; }
+.hr-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13.5px; font-weight: 700; line-height: 1.4; }
+.hr-shop { font-size: 12px; color: var(--muted); }
+.hr-per { margin-top: 2px !important; font-size: 14px; font-weight: 800; color: var(--red); white-space: nowrap; }
+.hr-per small { margin-right: 4px; font-size: 11.5px; color: var(--muted); }
+.hr-per b { font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; margin-right: 1px; }
+.hr-basis { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hr-go { display: inline-block; margin-top: 4px; font-size: 13.5px; font-weight: 700; color: var(--text); text-underline-offset: 3px; }
+.hr-none { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.hr-at { margin: 10px 0 0; font-size: 12px; color: var(--muted); text-align: right; }
+.hr-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 0; }
+.hr-cats .tool-btn { display: flex; flex-direction: column; justify-content: center; }
+.hr-cats small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.hr-credit { margin: 20px 0 0; font-size: 12px; color: var(--muted); }
 /* お買い物マラソン：回の1行と、10マスのスタンプカード */
 .pt-event { margin: 0 0 10px; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-event.is-past { color: var(--muted); }
@@ -949,6 +990,7 @@ h1 {
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap; }
 .prose td.wrap { white-space: normal; word-break: keep-all; overflow-wrap: break-word; }
+.tbl-text td:not(.nw) { white-space: normal; } /* 文の表（制度の変更点・ワンストップ特例・締め切りなど）。スマホで横にはみ出さないように折り返す。短い見出しの欄は .nw で切らない */
 .nw { white-space: nowrap; } /* 表の中で、ここでは切らない（20％オフ など） */ /* 長いことばの欄は、空白か <wbr> のところで折り返す（スマホでも表が横にはみ出さない） */
 @media (max-width: 374px) { th, td { padding: 8px 7px; } }
 tr:last-child td { border-bottom: 0; }
@@ -956,6 +998,7 @@ th { font-weight: 700; border-bottom: 1.5px solid var(--text); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tbl-tight th, .tbl-tight td { padding-left: 6px; padding-right: 6px; } /* 列の多い早見表（学歴・和暦）を、スマホの幅に入れる */
 .fz-quick th, .fz-quick td { padding-left: 4px; padding-right: 4px; font-size: 13px; } /* ふるさと納税の早見表（年収と子の4つ） */
+.pt-quick th, .pt-quick td { padding-left: 4px; padding-right: 4px; font-size: 13px; } /* お買い物マラソンの早見表（上限3つ。360pxの幅に入れる） */
 .note { font-size: 14px; color: var(--muted); }
 
 /* よくある質問：線で区切った Q と答え */

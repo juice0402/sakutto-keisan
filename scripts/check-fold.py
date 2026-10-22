@@ -59,6 +59,11 @@ CASES = {
     'fx-iji-ritsu': (lambda pg: (pg.fill('#rate', '150'), pg.fill('#money', '100000'), pg.fill('#lev', '10')), '#r-big'),
     'fx-losscut': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-big'),
     'fx-swap': (lambda pg: pg.click('.tile[data-qty="10000"]'), '#r-big'),
+    'furusato/seido': (lambda pg: pg.click('.tile[data-y="2027"]'), '#r-num'),
+    # 返礼品（HENREIHIN=fixture か api でビルドしたときだけページがある。ないときはとばす）。答えは一覧の1件目の1万円あたり
+    'furusato/henreihin': (lambda pg: None, '.hr-row .hr-per'),
+    'furusato/henreihin/kome': (lambda pg: None, '.hr-row .hr-per'),
+    'furusato/henreihin/nichiyouhin': (lambda pg: None, '.hr-row .hr-per'),
 }
 
 # 上下にならぶ部品のあいだ（横に重なっている2つで、上の下はしと下の上はしが6pxより近いもの）
@@ -83,7 +88,9 @@ with sync_playwright() as p:
     for width in (390, 360):
         page = browser.new_page(viewport={'width': width, 'height': HEIGHT})
         for slug, (act, answer) in CASES.items():
-            page.goto(f'{BASE}/{slug}/')
+            res = page.goto(f'{BASE}/{slug}/')
+            if res.status == 404 and slug.startswith('furusato/henreihin'):
+                continue
             act(page)
             box = page.locator(answer).first.bounding_box()
             bottom = round(box['y'] + box['height'])

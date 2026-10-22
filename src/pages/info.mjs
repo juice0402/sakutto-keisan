@@ -1,9 +1,18 @@
 import { SITE } from '../site.mjs';
 import { page, section } from '../layout.mjs';
+import { HENREIHIN_MODE } from '../data/henreihin.mjs';
 
 // 固定ページ（このサイトについて・プライバシーポリシー・免責事項・404）
 const UPDATED = '2026-10-22'; // sitemap の更新日（中身を変えたら直す）
 const ESTABLISHED_JA = '2026年10月16日'; // プライバシーポリシー・免責事項の制定日
+// ふるさと納税の返礼品のページ（楽天の商品検索で作る）を公開しているときだけ出す文（src/data/henreihin.mjs の HENREIHIN_LIVE）
+const HR = HENREIHIN_MODE === 'api';
+const HR_ABOUT = HR
+  ? '<p>ふるさと納税の返礼品の一覧は、楽天ウェブサービスの商品検索で毎日取った情報から作っています。寄付の申し込みは、楽天ふるさと納税のページで行います。</p>\n'
+  : '';
+const HR_PRIVACY = HR
+  ? `\n<p>ふるさと納税の返礼品のページでは、楽天アフィリエイトを利用しています。返礼品のリンクから楽天のページに移ると、楽天がCookieを使って、どのサイトから来たかを記録します。返礼品の画像は楽天のサーバーから読み込むので、そのページを開くと、お使いのブラウザから楽天のサーバーに画像のリクエストが送られます。</p>`
+  : '';
 
 const info = (path, name, description, body) => ({
   path,
@@ -39,7 +48,7 @@ ${section(
   `<p>個人で運営しています。料率など毎年変わる数字は、年に1回以上見直します。</p>
 <p>ふるさと納税の上限は、総務省の式で計算した目安です。税理士の監修ではありません。税金の数字には、各ページに出典と確認した日を書いています。</p>
 <p>お買い物マラソンのポイント計算は、楽天市場の公式のページの決まりで計算した目安です。楽天グループとは関係のない個人のサイトで、付与されるポイントは楽天の計算によります。</p>
-<p><a href="/disclaimer/">免責事項</a>・<a href="/privacy/">プライバシーポリシー</a></p>`,
+${HR_ABOUT}<p><a href="/disclaimer/">免責事項</a>・<a href="/privacy/">プライバシーポリシー</a></p>`,
 )}`,
     ),
     info(
@@ -62,7 +71,7 @@ ${section(
   'ads',
   '広告について',
   `<p>当サイトでは、第三者配信の広告サービス（Google AdSense）を利用することがあります。広告配信事業者は、ユーザーの興味に合わせた広告を表示するために、Cookieを使って当サイトやほかのサイトへのアクセス情報を利用することがあります。</p>
-<p>Googleによる広告でのCookieの使い方は「<a href="https://policies.google.com/technologies/ads?hl=ja" rel="noopener">広告 – ポリシーと規約 – Google</a>」をご覧ください。パーソナライズ広告は、Googleの「<a href="https://adssettings.google.com/" rel="noopener">広告設定</a>」で無効にできます。</p>`,
+<p>Googleによる広告でのCookieの使い方は「<a href="https://policies.google.com/technologies/ads?hl=ja" rel="noopener">広告 – ポリシーと規約 – Google</a>」をご覧ください。パーソナライズ広告は、Googleの「<a href="https://adssettings.google.com/" rel="noopener">広告設定</a>」で無効にできます。</p>${HR_PRIVACY}`,
 )}
 ${section(
   'change',

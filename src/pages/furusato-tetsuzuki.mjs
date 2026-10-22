@@ -110,14 +110,14 @@ function renderOnestop() {
 ${section(
   'items',
   '出すもの',
-  `<div class="tbl-wrap"><table>
+  `<div class="tbl-wrap"><table class="tbl-text">
 <thead><tr><th>もの</th><th>中身</th></tr></thead>
 <tbody>
-<tr><td>申請書</td><td>寄付ごとに1枚。住所・名前・マイナンバー・寄付した日と金額を書き、2つのチェック欄に印をつけます</td></tr>
-<tr><td>カードがあるとき</td><td>マイナンバーカードの表と裏のコピー</td></tr>
-<tr><td>カードがないとき</td><td>通知カードか番号の入った住民票の写しと、運転免許証などのコピー</td></tr>
-<tr><td>出す先</td><td>寄付した自治体。封筒は寄付先ごとに分けます</td></tr>
-<tr><td>期限</td><td>寄付した翌年の1月10日に届いていること</td></tr>
+<tr><td class="nw">申請書</td><td>寄付ごとに1枚。住所・名前・マイナンバー・寄付した日と金額を書き、2つのチェック欄に印をつけます</td></tr>
+<tr><td class="nw">カードがあるとき</td><td>マイナンバーカードの表と裏のコピー</td></tr>
+<tr><td class="nw">カードがないとき</td><td>通知カードか番号の入った住民票の写しと、運転免許証などのコピー</td></tr>
+<tr><td class="nw">出す先</td><td>寄付した自治体。封筒は寄付先ごとに分けます</td></tr>
+<tr><td class="nw">期限</td><td>寄付した翌年の1月10日に届いていること</td></tr>
 </tbody>
 </table></div>
 <p>2つのチェック欄は、確定申告をしないことと、寄付先が5つまでであることです。通知カードは、名前と住所が住民票と同じときだけ使えます。</p>`,
@@ -126,13 +126,13 @@ ${section(
 ${section(
   'cannot',
   '使えないとき',
-  `<div class="tbl-wrap"><table>
+  `<div class="tbl-wrap"><table class="tbl-text">
 <thead><tr><th>こんなとき</th><th>どうなるか</th></tr></thead>
 <tbody>
-<tr><td>確定申告をした</td><td>申請はぜんぶ使えない。確定申告に寄付をぜんぶ書く</td></tr>
-<tr><td>寄付先が6つ以上</td><td>5つまでの分も使えない。確定申告をする</td></tr>
-<tr><td>1月10日に届かなかった</td><td>その申請は使えない。確定申告をする</td></tr>
-<tr><td>引っ越して届け出ていない</td><td>使えない。1月10日までに変更の届出を出す</td></tr>
+<tr><td class="nw">確定申告をした</td><td>申請はぜんぶ使えない。確定申告に寄付をぜんぶ書く</td></tr>
+<tr><td class="nw">寄付先が6つ以上</td><td>5つまでの分も使えない。確定申告をする</td></tr>
+<tr><td class="nw">1月10日に届かなかった</td><td>その申請は使えない。確定申告をする</td></tr>
+<tr><td class="nw">引っ越して届け出ていない</td><td>使えない。1月10日までに変更の届出を出す</td></tr>
 </tbody>
 </table></div>
 <p>確定申告をしない会社員などで、寄付先が${ONESTOP_MAX}つまでの人が使えます。医療費控除や住宅ローン控除の1年目で確定申告をする人は、はじめから確定申告にします。</p>`,
@@ -217,14 +217,14 @@ function renderShimekiri() {
 ${section(
   'table',
   `${YEAR}年の寄付の締め切り`,
-  `<div class="tbl-wrap"><table>
+  `<div class="tbl-wrap"><table class="tbl-text">
 <thead><tr><th>こと</th><th>期限</th></tr></thead>
 <tbody>
-<tr><td>寄付の入金</td><td>${dw({ y: YEAR, m: 12, d: 31 })}</td></tr>
-<tr><td>ワンストップ特例の申請書</td><td>${dw({ y: YEAR + 1, m: 1, d: 10 })}必着</td></tr>
-<tr><td>申請のあとの変更の届出</td><td>${dw({ y: YEAR + 1, m: 1, d: 10 })}</td></tr>
-<tr><td>確定申告</td><td>${dw({ y: YEAR + 1, m: 2, d: 16 })}〜${dw(SK_END)}</td></tr>
-<tr><td>住民税が減る</td><td>${YEAR + 1}年6月から</td></tr>
+<tr><td class="nw">寄付の入金</td><td>${dw({ y: YEAR, m: 12, d: 31 })}</td></tr>
+<tr><td class="nw">特例の申請書</td><td>${dw({ y: YEAR + 1, m: 1, d: 10 })}必着</td></tr>
+<tr><td class="nw">変更の届出</td><td>${dw({ y: YEAR + 1, m: 1, d: 10 })}</td></tr>
+<tr><td class="nw">確定申告</td><td><span class="nw">${dw({ y: YEAR + 1, m: 2, d: 16 })}〜</span><wbr><span class="nw">${dw(SK_END)}</span></td></tr>
+<tr><td class="nw">住民税が減る</td><td>${YEAR + 1}年6月から</td></tr>
 </tbody>
 </table></div>
 <p>1月10日は土日でも同じ日です。確定申告の終わりの3月15日が土日のときは、次の月曜までです。</p>`,
@@ -335,13 +335,13 @@ ${section(
 ${section(
   'check',
   '寄付のあとにすること',
-  `<div class="tbl-wrap"><table>
+  `<div class="tbl-wrap"><table class="tbl-text">
 <thead><tr><th>こと</th><th>期限</th></tr></thead>
 <tbody>
-<tr><td>寄付の入金</td><td>12月31日</td></tr>
-<tr><td>ワンストップ特例の申請書を出す</td><td>翌年1月10日必着</td></tr>
-<tr><td>確定申告をする人は申告</td><td>翌年2月16日〜3月15日</td></tr>
-<tr><td>住民税の決定通知書で控除を見る</td><td>翌年6月ごろ</td></tr>
+<tr><td>寄付の入金</td><td class="nw">12月31日</td></tr>
+<tr><td>ワンストップ特例の申請書を出す</td><td class="nw">翌年1月10日必着</td></tr>
+<tr><td>確定申告をする人は申告</td><td class="nw">翌年2月16日〜3月15日</td></tr>
+<tr><td>住民税の決定通知書で控除を見る</td><td class="nw">翌年6月ごろ</td></tr>
 </tbody>
 </table></div>
 <p>確定申告をする人は、寄付先から届く受領証明書を取っておきます。くわしくは<a href="/furusato/onestop/">ワンストップ特例の申請</a>です。</p>`,

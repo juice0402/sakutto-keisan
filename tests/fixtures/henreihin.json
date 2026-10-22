@@ -1,0 +1,324 @@
+{
+ "fetchedAt": "2026-10-22T07:00:00+09:00",
+ "mihon": true,
+ "groups": {
+  "kome": [
+   {
+    "code": "k1",
+    "name": "【見本】お米 5kg×2袋 令和8年産 1月上旬から順次発送",
+    "price": 14000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "みほん市",
+    "shopCode": "f089088-mihon",
+    "reviews": 120,
+    "rating": 4.36
+   },
+   {
+    "code": "k2",
+    "name": "【見本】無洗米 10kg",
+    "price": 17000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "見本町",
+    "shopCode": "f047977-mihon",
+    "reviews": 85,
+    "rating": 4.74
+   },
+   {
+    "code": "k3",
+    "name": "【見本】お米 20kg（5kg×4袋）",
+    "price": 29000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f201726-mihon",
+    "reviews": 240,
+    "rating": 4.52
+   },
+   {
+    "code": "k4",
+    "name": "【見本】【定期便】お米 5kg 全6回",
+    "price": 60000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "さんぷる町",
+    "shopCode": "f029658-mihon",
+    "reviews": 40,
+    "rating": 4.08
+   },
+   {
+    "code": "k5",
+    "name": "【見本】お米 2kg",
+    "price": 6000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "つくり町",
+    "shopCode": "f046624-mihon",
+    "reviews": 12,
+    "rating": 4.22
+   },
+   {
+    "code": "k6",
+    "name": "【見本】玄米 15kg 12月中旬から発送",
+    "price": 22000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "つくり町",
+    "shopCode": "f040990-mihon",
+    "reviews": 55,
+    "rating": 4.74
+   },
+   {
+    "code": "k7",
+    "name": "【見本】お米 5kg 10kg 選べる",
+    "price": 9000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f127041-mihon",
+    "reviews": 300,
+    "rating": 4.57
+   },
+   {
+    "code": "k8",
+    "name": "【見本】お米 3kg×2袋",
+    "price": 11000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "見本町",
+    "shopCode": "f312568-mihon",
+    "reviews": 9,
+    "rating": 4.53
+   }
+  ],
+  "niku": [
+   {
+    "code": "n1",
+    "name": "【見本】牛こま切れ 1.5kg(500g×3パック)",
+    "price": 15000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "見本町",
+    "shopCode": "f125910-mihon",
+    "reviews": 410,
+    "rating": 4.04
+   },
+   {
+    "code": "n2",
+    "name": "【見本】豚肉 小分け 4kg 30日以内に発送",
+    "price": 16000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "れいの市",
+    "shopCode": "f161838-mihon",
+    "reviews": 230,
+    "rating": 4.38
+   },
+   {
+    "code": "n3",
+    "name": "【見本】鶏もも 2kg×2袋",
+    "price": 12000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f309323-mihon",
+    "reviews": 180,
+    "rating": 4.28
+   },
+   {
+    "code": "n4",
+    "name": "【見本】黒毛和牛 すき焼き 800g",
+    "price": 30000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "れいの市",
+    "shopCode": "f064030-mihon",
+    "reviews": 95,
+    "rating": 4.52
+   },
+   {
+    "code": "n5",
+    "name": "【見本】豚ひき肉 300g×10パック",
+    "price": 11000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "さんぷる町",
+    "shopCode": "f205243-mihon",
+    "reviews": 60,
+    "rating": 4.09
+   },
+   {
+    "code": "n6",
+    "name": "【見本】牛肉 1.5〜2kg",
+    "price": 20000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f305891-mihon",
+    "reviews": 150,
+    "rating": 4.05
+   },
+   {
+    "code": "n7",
+    "name": "【見本】ハンバーグ 詰め合わせ",
+    "price": 10000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "さんぷる町",
+    "shopCode": "f270264-mihon",
+    "reviews": 70,
+    "rating": 4.61
+   }
+  ],
+  "gyokai": [
+   {
+    "code": "g1",
+    "name": "【見本】ほたて 1kg 12月下旬から発送",
+    "price": 18000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "つくり町",
+    "shopCode": "f417491-mihon",
+    "reviews": 520,
+    "rating": 4.28
+   },
+   {
+    "code": "g2",
+    "name": "【見本】いくら 250g×2パック",
+    "price": 20000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "たとえ村",
+    "shopCode": "f199573-mihon",
+    "reviews": 330,
+    "rating": 4.27
+   },
+   {
+    "code": "g3",
+    "name": "【見本】かに 姿 1.2kg",
+    "price": 25000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "れいの市",
+    "shopCode": "f376474-mihon",
+    "reviews": 90,
+    "rating": 4.7
+   },
+   {
+    "code": "g4",
+    "name": "【見本】さば 切り身 2kg(500g×4)",
+    "price": 12000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f311163-mihon",
+    "reviews": 140,
+    "rating": 4.27
+   },
+   {
+    "code": "g5",
+    "name": "【見本】えび 1kg",
+    "price": 15000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "たとえ村",
+    "shopCode": "f468824-mihon",
+    "reviews": 75,
+    "rating": 4.31
+   },
+   {
+    "code": "g6",
+    "name": "【見本】うなぎ 3尾 計約450g",
+    "price": 22000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "たとえ村",
+    "shopCode": "f160962-mihon",
+    "reviews": 44,
+    "rating": 4.55
+   }
+  ],
+  "toilet": [
+   {
+    "code": "t1",
+    "name": "【見本】トイレットペーパー 12ロール×8パック ダブル",
+    "price": 16000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f071900-mihon",
+    "reviews": 600,
+    "rating": 4.46
+   },
+   {
+    "code": "t2",
+    "name": "【見本】トイレットペーパー 96ロール(12R×8) シングル",
+    "price": 15000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "れいの市",
+    "shopCode": "f406959-mihon",
+    "reviews": 210,
+    "rating": 4.31
+   },
+   {
+    "code": "t3",
+    "name": "【見本】トイレットペーパー 18ロール×4パック 2倍巻き",
+    "price": 13000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "たとえ村",
+    "shopCode": "f231091-mihon",
+    "reviews": 88,
+    "rating": 4.04
+   },
+   {
+    "code": "t4",
+    "name": "【見本】トイレットペーパー 100m",
+    "price": 8000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f410855-mihon",
+    "reviews": 30,
+    "rating": 4.5
+   }
+  ],
+  "tissue": [
+   {
+    "code": "s1",
+    "name": "【見本】ティッシュペーパー 5箱×12パック",
+    "price": 14000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "みほん市",
+    "shopCode": "f188322-mihon",
+    "reviews": 280,
+    "rating": 4.63
+   },
+   {
+    "code": "s2",
+    "name": "【見本】ティッシュペーパー 5箱入×6",
+    "price": 8000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "たとえ村",
+    "shopCode": "f314032-mihon",
+    "reviews": 95,
+    "rating": 4.72
+   },
+   {
+    "code": "s3",
+    "name": "【見本】ティッシュペーパー 60箱",
+    "price": 15000,
+    "url": "#mihon",
+    "img": "",
+    "shop": "ためし村",
+    "shopCode": "f450385-mihon",
+    "reviews": 40,
+    "rating": 4.08
+   }
+  ]
+ }
+}
