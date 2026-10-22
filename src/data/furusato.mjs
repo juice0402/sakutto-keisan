@@ -78,6 +78,7 @@ export const FURUSATO_TETSUZUKI_SOURCES = [
   { name: '総務省「ワンストップ特例を申請する皆様へ」', url: 'https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/file/20160818.pdf', checked: '2026-10-22', what: '6つ以上・確定申告・引っ越したとき' },
   { name: '名古屋市「ワンストップ特例の申請」', url: 'https://www.city.nagoya.jp/shisei/furusatonozei/1003647/1003650.html', checked: '2026-10-22', what: '1月10日必着・オンライン申請・添える書類' },
   { name: '長岡市「ワンストップ特例申請書」', url: 'https://www.city.nagaoka.niigata.jp/furusato/assets/pdf/onestop-01a-240403.pdf', checked: '2026-10-22', what: '申請書に書くこと・変更の届出' },
+  { name: '佐野市「佐野市へふるさと納税された方へ（引越し等で変更が生じた場合）」', url: 'https://www.city.sano.lg.jp/soshikiichiran/sougou/seisakuchoseika/gyomuannai/2/sanoshifurusatonouzeisita/23599.html', checked: '2026-10-23', what: '1月2日より後の引っ越し' },
   { name: '函館市「年末年始のふるさと納税について」', url: 'https://www.city.hakodate.hokkaido.jp/assets/files/hometown-tax/20251209_nenmatsunenshi.pdf', checked: '2026-10-22', what: '年内の入金・年末の申請書' },
   { name: '国税庁「No.2020 確定申告」', url: 'https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2020.htm', checked: '2026-10-22', what: '確定申告の期間' },
 ];

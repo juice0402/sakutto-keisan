@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { furusatoLimit, furusatoFromNotice, kyuyoShotoku, tokureiRatio, limitOf, TOKUREI_BANDS } from '../src/lib/furusato.mjs';
+import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, kyuyoShotoku, tokureiRatio, limitOf, TOKUREI_BANDS } from '../src/lib/furusato.mjs';
 import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES } from '../src/data/furusato.mjs';
 
 const Y2026 = FURUSATO_YEARS[2026];
@@ -89,6 +89,52 @@ test('年収850万円をこえて子どもがいると所得金額調整控除',
   const r = furusatoLimit({ income: man(900), koukou: 1 }, Y2026);
   assert.equal(r.total, 7050000 - 50000);
   assert.equal(furusatoLimit({ income: man(900) }, Y2026).total, 7050000);
+});
+
+test('上限は年収とともに増える（寄付額から年収の目安を2つに分けて探せる）', () => {
+  for (const f of Object.values(FAM)) {
+    let prev = 0;
+    for (let m = 50; m <= 30000; m++) {
+      const l = lim(m, f);
+      assert.ok(l >= prev, `${m}万 ${JSON.stringify(f)}`);
+      prev = l;
+    }
+  }
+});
+
+test('寄付額から年収の目安（ページの計算例・よくある質問・早見表）', () => {
+  const at = (target, fam = {}) => furusatoIncomeFor({ target, ...fam }, Y2026);
+  // 1万円きざみで上から見ていったときと同じ（いちばん低い年収）
+  const scan = (target, fam) => {
+    for (let m = 1; m <= 100000; m++) if (lim(m, fam) >= target) return m;
+    return null;
+  };
+  for (const t of [10000, 20000, 30000, 50000, 90000, 100000, 150000, 300000, 500000, 1000000]) {
+    for (const f of [{}, { spouse: true }, { koukou: 1 }, { daigaku: 1 }, { koukou: 1, daigaku: 1 }, { spouse: true, koukou: 1, daigaku: 1 }]) {
+      assert.equal(at(t, f).man, scan(t, f), `${t} ${JSON.stringify(f)}`);
+    }
+  }
+  // よくある質問：上限が1万円になる年収、5万円・30万円・50万円
+  assert.deepEqual([at(10000).man, at(10000, { spouse: true }).man], [183, 228]);
+  assert.deepEqual([at(50000).man, at(50000).limit, at(50000, { spouse: true }).man], [452, 50000, 503]);
+  assert.deepEqual([at(300000).man, at(500000).man], [1362, 1933]);
+  // 年収1,200万円ほどをこえると配偶者の控除がなくなり、夫婦もひとりと同じ
+  assert.equal(at(250000).man, at(250000, { spouse: true }).man);
+  assert.notEqual(at(200000).man, at(200000, { spouse: true }).man);
+  // 早見表の一部（ひとり・夫婦）
+  assert.deepEqual([20000, 100000, 1000000].map((t) => at(t).man), [237, 677, 3116]);
+  assert.deepEqual([20000, 100000, 1000000].map((t) => at(t, { spouse: true }).man), [301, 727, 3116]);
+  // 1つ下の年収では届かない
+  assert.ok(lim(451) < 50000 && lim(452) >= 50000);
+});
+
+test('寄付額から年収の目安：まだ入れていない・まちがった入力', () => {
+  assert.deepEqual(furusatoIncomeFor({ target: null }, Y2026), { ok: false, empty: true, missing: 'target' });
+  assert.equal(furusatoIncomeFor({ target: 0 }, Y2026).field, 'target');
+  assert.equal(furusatoIncomeFor({ target: NaN }, Y2026).field, 'target');
+  assert.equal(furusatoIncomeFor({ target: 2000 }, Y2026).error, '2,000円より多い額を入れてください。');
+  assert.equal(furusatoIncomeFor({ target: 1e9 }, Y2026).error, '年収10億円でも届かない額です。');
+  assert.equal(furusatoIncomeFor({ target: 3000 }, Y2026).man, 146); // 上限3,000円は年収146万円から（150万円で3,000円）
 });
 
 test('まだ入れていない・まちがった入力', () => {

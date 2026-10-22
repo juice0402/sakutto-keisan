@@ -849,6 +849,12 @@ def furusato_doc(img, cx, top):
               (('今年中', '寄付する', '57,000円'), ('翌年6月から', '住民税が減る', ('55,000円',)), ('のこり', '自己負担', '2,000円')))
 
 
+def furusato_nenshu_doc(img, cx, top):
+    """ふるさと納税に必要な年収（5万円・ひとり。2026年の寄付）"""
+    doc_sheet(img, cx, top, '年収の目安', '必要な年収', '452', '万円から', ('寄付額', 'ひとり', '夫婦'),
+              (('3万円', '314万', '376万'), ('5万円', ('452万',), '503万'), ('10万円', '677万', '727万')))
+
+
 def furusato_jougen_doc(img, cx, top):
     """控除上限額の計算（所得割235,500円・所得税率5%）"""
     doc_sheet(img, cx, top, '控除上限額', '上限の目安', '57,000', '円', ('計算', '金額'),
@@ -1025,7 +1031,7 @@ VISUALS = {
     'percent': percent_slip,
     'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
-    'furusato': furusato_doc, 'furusato-jougen': furusato_jougen_doc,
+    'furusato': furusato_doc, 'furusato-nenshu': furusato_nenshu_doc, 'furusato-jougen': furusato_jougen_doc,
     'furusato-memo': furusato_memo_doc, 'furusato-onestop': furusato_onestop_doc, 'furusato-shimekiri': furusato_shimekiri_doc, 'furusato-seido': furusato_seido_doc,
     'point': point_card,
     # 返礼品（楽天から取ったデータで作るときだけ公開。共有画像は HENREIHIN=api python3 scripts/make-images.py で作る）

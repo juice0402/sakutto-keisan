@@ -96,6 +96,28 @@ export function furusatoLimit({ income, spouse = false, koukou = 0, daigaku = 0 
 }
 
 /**
+ * 寄付したい額から、上限がその額に届く年収の目安（1万円きざみ）。上限は年収とともに増えるので、2つに分けて探す
+ * @param {{target:number|null, spouse:boolean, koukou:number, daigaku:number}} p  target：寄付したい額（円）
+ * @param {object} cfg  src/data/furusato.mjs の FURUSATO_YEARS[年]
+ */
+export function furusatoIncomeFor({ target, spouse = false, koukou = 0, daigaku = 0 }, cfg) {
+  if (target === null || target === undefined) return { ok: false, empty: true, missing: 'target' };
+  if (!Number.isFinite(target) || target <= 0) return { ok: false, error: '寄付したい額を入れてください。', field: 'target' };
+  if (target <= 2000) return { ok: false, error: '2,000円より多い額を入れてください。', field: 'target' };
+  const limitAt = (man) => furusatoLimit({ income: man * 10000, spouse, koukou, daigaku }, cfg);
+  let lo = 1;
+  let hi = 100000; // 1万円〜10億円
+  if (limitAt(hi).limit < target) return { ok: false, error: '年収10億円でも届かない額です。', field: 'target' };
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (limitAt(mid).limit >= target) hi = mid;
+    else lo = mid + 1;
+  }
+  const res = limitAt(lo);
+  return { ok: true, target, man: lo, income: lo * 10000, limit: res.limit, jumin: res.jumin, rate: res.rate };
+}
+
+/**
  * 控除上限額の計算：住民税の決定通知書の所得割（調整控除のあと・税額控除の前）と、所得税率から
  * @param {{shotokuwari:number|null, rate:number|null}} p
  */
