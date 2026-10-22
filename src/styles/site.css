@@ -248,13 +248,13 @@ h1 {
 }
 
 /* レシピの人数換算 */
-/* 人数：大きな −／＋ と、まん中に数字 */
+/* 人数：大きな −／＋ と、名前を中に書いたまん中の欄 */
 .people { margin: 0 0 12px; }
-.people-row { display: grid; grid-template-columns: 54px 1fr; align-items: center; gap: 8px; margin: 0 0 8px; }
-.people-row > label, .people-row > .label { margin: 0; }
+.people > .box-stepper + .box-stepper { margin-top: 8px; }
 .stepper { display: grid; grid-template-columns: var(--ctl-h) 1fr var(--ctl-h); gap: 8px; }
 .stepper .input { justify-content: center; }
 .stepper .input input { flex: 0 1 4.2ch; text-align: right; }
+.box-stepper .box-field .input { padding: 0 10px; } /* 名前を中に書いた −／＋（レシピ・割り勘の人数、お買い物マラソンの店舗、ワンストップ特例の寄付先）。ほかの欄と左右のはしがそろう */
 .step-btn {
   font: inherit; min-height: var(--ctl-h); padding: 0; border: 1.5px solid var(--border); border-radius: var(--ctl-r);
   background: var(--surface); color: var(--text); display: grid; place-items: center; cursor: pointer;
@@ -370,6 +370,7 @@ h1 {
 .rc-edge { position: absolute; left: -1.5px; top: 100%; width: calc(100% + 3px); height: 9px; overflow: visible; }
 .rc-paper { fill: var(--sheet); }
 .rc-cut { fill: none; stroke: var(--border); stroke-width: 1.5px; }
+.rc-clear { position: absolute; top: 6px; right: 8px; } /* クリアはレシートの右上（入力の段の左右のはしをそろえる） */
 .rc-title { margin: 0 0 6px; padding-bottom: 6px; border-bottom: 1.5px dashed var(--rule); text-align: center; font-size: 14px; font-weight: 800; letter-spacing: .5em; text-indent: .5em; }
 .rc-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; }
 .rc-k { font-size: 17px; font-weight: 800; }
@@ -406,6 +407,8 @@ h1 {
 .slip { margin: 16px 2px 0; padding: 12px 16px 10px; background: var(--sheet); border: 1.5px solid var(--border); border-top: 6px solid var(--text); font-variant-numeric: tabular-nums; }
 .slip-title { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .08em; }
 .slip-title small { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0; }
+.slip-title > span small { margin-left: 8px; } /* 題の右はクリア。小さな字は題のとなり */
+.slip-title > .clear-btn { margin-block: -12px -10px; }
 .slip-meter { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
 .slip-meter > span:first-child { font-size: 12.5px; font-weight: 700; color: var(--muted); line-height: 1.25; }
 .m-digits { display: flex; gap: 3px; margin-left: auto; padding: 4px; background: var(--text); border-radius: 3px; }
@@ -490,6 +493,8 @@ h1 {
 .rk-s { text-align-last: justify; } /* 学校の名前は左、その時の年齢は右に（字の下の線はそろう） */
 .rk-sn { display: inline-block; }
 .rk-s small { display: inline-block; font-size: 12.5px; color: var(--muted); }
+.rk-head { display: flex; justify-content: space-between; align-items: center; margin: 0 0 2px; padding: 0 2px; font-size: 14px; font-weight: 800; letter-spacing: .3em; }
+.rk-head .clear-btn { letter-spacing: 0; margin-block: -10px -8px; }
 .rk-end { margin: 2px 4px 0; text-align: right; font-size: 14px; font-weight: 700; }
 /* 和暦・西暦の変換：元号のマス（5つ）・和暦の欄の元号・元号の年表 */
 .tiles-5 { grid-template-columns: repeat(5, 1fr); gap: 6px; }
@@ -609,9 +614,7 @@ h1 {
 .is-tsuyu .liq-conc { background: linear-gradient(#b67a43, #8a5426); }
 .is-tsuyu .is-conc > label::before { background: #8a5426; }
 .is-tsuyu .is-total > label::before { background: linear-gradient(#aed5f0 50%, #8a5426 50%); }
-.src-row { display: grid; grid-template-columns: 1fr 132px; align-items: center; gap: 10px; margin: 8px 0 0; }
-.src-row > label { margin: 0; color: var(--muted); }
-.src-row .input { padding: 0 12px; }
+.src-box { margin: 8px 0 0; } /* 次亜塩素酸ナトリウム：漂白剤の濃度（名前は欄の中。ほかの欄と左右のはしをそろえる） */
 .calc-note { margin: 10px 0 0; }
 .tile-box span + input { text-align: left; }
 
@@ -623,20 +626,20 @@ h1 {
 .box-field .unit, .mix-field .unit { align-self: flex-end; margin-bottom: 13px; } /* 単位は数字の高さに（上の名前とかさならない） */
 .fx-inputs { display: grid; gap: 12px; margin: 12px 0 0; }
 /* いちばん上の1段：通貨ペア・買いか売りか（維持率のページは通貨ペアだけ）・クリア */
-.fx-top { display: grid; grid-template-columns: 1.15fr 1fr auto; gap: 10px; align-items: center; margin: 0 0 12px; }
+.fx-top { display: grid; grid-template-columns: 1.15fr 1fr; gap: 10px; align-items: center; margin: 0 0 12px; }
 .fx-top .big-select { width: 100%; min-width: 0; padding: 18px 28px 0 12px; font-size: 18px; font-weight: 800; background-position: right 17px center, right 11px center; }
 .fx-top .seg { margin: 0; }
-.fx-top .clear-btn { padding-left: 2px; }
-.fx-top-pair { grid-template-columns: 1fr auto; } /* 証拠金維持率：通貨ペアは下の欄と同じ幅 */
+.fx-top-pair { grid-template-columns: 1fr; } /* 証拠金維持率：通貨ペアは下の欄と同じ幅 */
 .seg-2 { grid-template-columns: 1fr 1fr; }
-.fx-inputs .src-row { margin: 0; }
 .fx-inputs .pair { grid-template-columns: 1fr 1fr; gap: 10px; }
 .fx-inputs .pair-lev { grid-template-columns: 1fr 1.25fr; } /* レバレッジ｜通貨の量（どちらかを入れると、もう片方に答え） */
 @media (max-width: 374px) { .box-field .input input { font-size: 21px; } .box-field .unit { font-size: 14px; margin-left: 3px; } }
 @media (max-width: 374px) { .item > .pair { grid-template-columns: 1fr 1.35fr; } .input-sel input { font-size: 21px; } .unit-select { padding-right: 15px; background-position: right 7px center, right 2px center; } }
 /* FX の結果：トレードアプリの画面（10/21）。上の1段に通貨ペアなど、チャート（SVG は 0〜100 の座標をのばして描き、字と点は HTML で重ねる）、下の1段 */
 .chart { margin: 16px 0 0; background: #111418; border: 1px solid #2d3239; border-radius: 4px; overflow: hidden; }
-.chart-bar { display: flex; justify-content: space-between; gap: 8px; margin: 0; padding: 6px 10px; font-size: 12.5px; font-weight: 700; color: var(--muted); background: #171a1f; border-bottom: 1px solid #2d3239; }
+.chart-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0; padding: 6px 10px; font-size: 12.5px; font-weight: 700; color: var(--muted); background: #171a1f; border-bottom: 1px solid #2d3239; }
+.cb-r { display: flex; align-items: center; gap: 10px; }
+.chart-bar .clear-btn { min-height: 36px; margin-block: -8px; } /* クリアはチャートの上の帯の右（いちばん上の段の左右のはしをそろえる） */
 .chart-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; margin: 0; padding: 6px 10px 8px; font-size: 12.5px; font-weight: 700; color: var(--muted); border-top: 1px solid #2d3239; }
 .chart-foot span:empty, .chart-bar span:empty { display: none; }
 .chart-plot { position: relative; height: 168px; }
@@ -684,9 +687,6 @@ h1 {
 /* さわっている欄の1行の説明（入力の段のすぐ下。src/client/ui.mjs の focusHints） */
 .field-hint { margin: 8px 2px -6px; font-size: 13px; line-height: 18px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .box-rows .pair { gap: 10px; }
-.box-rows .people-row { margin: 0; } /* 割り勘の人数：上の欄とのあいだは box-rows の gap */
-.box-row-clear { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
-.box-row-clear .clear-btn { padding-left: 2px; }
 .box-result { margin: 18px 0 0; }
 /* 利益率：売値の帯を原価と利益に分けた絵（赤字は足りない分をしまで）。残業代の「時給の分と割増の分」でも使う */
 .rieki-bar { margin: 8px 0 0; }
@@ -753,6 +753,67 @@ h1 {
 .fz-table td:last-child { width: 1%; white-space: nowrap; }
 .src-list { margin: 0 0 8px; padding-left: 1.2em; font-size: 13px; }
 .src-list li { margin: 0 0 4px; }
+/* ワンストップ特例：寄付先ごとの封筒（6通目からは使えない印） */
+.os-envs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+.os-envs:empty { display: none; }
+.os-env { position: relative; width: 46px; height: 32px; color: var(--text); }
+.os-env svg { width: 100%; height: 100%; fill: var(--surface); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.os-env i { position: absolute; right: 5px; bottom: 3px; font-style: normal; font-size: 12px; font-weight: 800; line-height: 1; }
+.os-env.is-over { color: var(--error); }
+.os-more { align-self: center; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.os-table td:first-child { width: 1%; white-space: nowrap; }
+.os-table td:last-child { text-align: left; }
+/* 締め切り：2枚の日めくり */
+.sk-ato { margin-right: 2px; font-size: 16px; }
+.sk-cals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 0; }
+.sk-cal { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
+.sk-cal .cal { width: 100%; max-width: 132px; }
+.sk-cal .cal-d { font-size: 40px; }
+.sk-what, .sk-left { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.sk-left { font-size: 14px; font-weight: 800; color: var(--red); }
+/* 寄付メモ：自治体・金額・申請書の行と、上限の帯・自治体の5つのマス */
+.kifu-years { margin: 0 0 10px; }
+.kifu-cols, .kifu-row { grid-template-columns: 1fr 1.3fr 50px; column-gap: 8px; }
+.kifu-row { display: grid; align-items: center; margin: 0 0 8px; }
+.kifu-row[hidden] { display: none; }
+.kifu-row .field { margin: 0; min-width: 0; }
+.kifu-row .input { padding: 0 8px; }
+.kifu-row input[inputmode="text"] { font-size: 17px; font-weight: 700; }
+.kifu-sent { position: relative; height: var(--ctl-h); border: 1.5px solid var(--border); border-radius: var(--ctl-r); background: var(--surface); color: var(--muted); font: inherit; font-size: 18px; font-weight: 800; cursor: pointer; -webkit-user-select: none; user-select: none; }
+.kifu-sent[aria-pressed="true"] { color: var(--red); border-color: var(--text); }
+.kifu-sent[aria-pressed="true"]::after { content: ""; position: absolute; inset: 9px 7px; pointer-events: none; border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-4deg); }
+.kifu-bar { position: relative; display: flex; height: 22px; margin: 8px 0 0; border: 1.5px solid var(--text); background: var(--surface); overflow: hidden; }
+.kifu-bar:empty { display: none; }
+.mb-seg { flex: none; height: 100%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; overflow: hidden; }
+.mb-seg.is-even { background: var(--red); }
+.mb-seg.is-odd { background: var(--text); }
+.mb-left { flex: none; height: 100%; background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 8px); }
+.mb-line { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--error); }
+.kifu-boxes { display: inline-flex; gap: 3px; margin-right: 6px; vertical-align: -1px; }
+.kifu-boxes i { width: 11px; height: 11px; border: 1.5px solid var(--text); border-radius: 2px; }
+.kifu-boxes i.is-on { background: var(--text); }
+.kifu-boxes i.is-over { background: var(--error); border-color: var(--error); }
+/* お買い物マラソン：回の1行と、10マスのスタンプカード */
+.pt-event { margin: 0 0 10px; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-event.is-past { color: var(--muted); }
+.pt-card { position: relative; margin: 16px 2px 0; padding: 12px 14px 10px; background: var(--sheet); border: 1.5px solid var(--border); border-radius: 4px; font-variant-numeric: tabular-nums; }
+.pt-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .08em; }
+.pt-clear { position: absolute; top: 6px; right: 8px; }
+.pt-title small { font-size: 13px; font-weight: 800; letter-spacing: 0; color: var(--red); }
+.pt-stamps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.pt-stamp { display: grid; place-items: center; height: 28px; border: 1.5px dashed var(--border); border-radius: 50%; font-size: 12px; font-weight: 700; color: var(--muted); }
+.pt-stamp.is-on { border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-6deg); color: var(--red); font-weight: 800; }
+.pt-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 8px 0 0; border-bottom: 1.5px dashed var(--rule); }
+.pt-k { font-size: 16px; font-weight: 800; }
+.pt-v { min-width: 0; text-align: right; color: var(--red); overflow-wrap: anywhere; }
+.pt-v b { font-size: 44px; font-weight: 800; line-height: 1.12; }
+.pt-v small { margin-left: 3px; font-size: 16px; font-weight: 800; }
+.pt-table { width: 100%; margin: 6px 0 0; border-collapse: collapse; font-size: 14px; }
+.pt-table td { padding: 3px 0; border-bottom: 1px dotted var(--rule); overflow-wrap: anywhere; }
+.pt-table td:first-child { white-space: normal; }
+.pt-table td:last-child { padding-left: 8px; text-align: right; font-weight: 800; white-space: nowrap; }
+.pt-foot { margin: 6px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.pt-foot:empty { display: none; }
 /* 作業指示書の床の図：図面のように紺の線で囲んで、1人ずつ番号 */
 .doc .floor-strips { height: 52px; border: 1.5px solid var(--text); background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 12px); }
 .floor-strip { display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }
@@ -819,7 +880,8 @@ h1 {
 .tag-conv { margin-top: 8px !important; font-size: 13px; font-weight: 700; color: #6b6450; }
 
 /* 値札（生活の結果表示）：ひもでぶら下がった黄色い値札 */
-.tag-stage { margin: 12px 0 0; padding: 36px 0 8px; text-align: center; }
+.tag-stage { position: relative; margin: 12px 0 0; padding: 36px 0 8px; text-align: center; }
+.stage-clear { position: absolute; top: 0; right: 0; z-index: 1; } /* 割引率の計算：値札の台の右上のクリア */
 .tag-wrap {
   position: relative; width: min(100% - 24px, 280px); margin: 0 auto;
   transform-origin: 50% 0; transform: rotate(-2deg);

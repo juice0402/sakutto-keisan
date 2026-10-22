@@ -69,11 +69,11 @@ function renderMain() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${dateField('birth', '生年月日')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${dateField('birth', '生年月日')}
     ${dateField('on', '計算する日', 'はじめは今日。入学の日なども入れられます')}
   </div>
   <div class="slip pic" aria-live="polite">
-    <p class="slip-title">年齢<small id="r-on"></small></p>
+    <p class="slip-title"><span>年齢<small id="r-on"></small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <div class="pic-row">
       <div class="eto-ring">${RING}</div>
       <div class="pic-side">
@@ -189,9 +189,10 @@ function renderGakureki() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${dateField('birth', '生年月日')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${dateField('birth', '生年月日')}
   </div>
   <div class="rireki" aria-live="polite">
+    <p class="rk-head"><span>学歴</span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <table class="rk-table">
       <thead><tr><th class="rk-y">年</th><th class="rk-m">月</th><th>学歴</th></tr></thead>
       <tbody>${RK_ROWS}</tbody>

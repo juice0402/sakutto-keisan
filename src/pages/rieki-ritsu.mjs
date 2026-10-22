@@ -39,10 +39,11 @@ export default function render() {
 <div class="calc" id="calc">
   <div class="box-rows">
     <div class="pair">${boxField('price', '売値', '円', '1,500')}${boxField('cost', '原価', '円', '1,000')}</div>
-    <div class="box-row-clear">${boxField('rate', '利益率', '％', '30')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('rate', '利益率', '％', '30')}
   </div>
   <div class="doc" aria-live="polite">
     <p class="doc-title">利益計算書</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
     <p class="doc-sum" id="r-sum"><span class="doc-sum-k" id="r-cap">利益</span><span class="doc-sum-v"><b id="r-num">？</b>円</span><span class="stamp" id="r-stamp" hidden>粗利率<b id="r-rate"></b></span></p>
     <table class="doc-table"><thead><tr><th>項目</th><th>金額</th><th>売値に対して</th></tr></thead><tbody id="r-rows"></tbody></table>
     <div class="rieki-bar" aria-hidden="true">

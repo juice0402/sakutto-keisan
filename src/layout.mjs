@@ -65,6 +65,7 @@ export const breadcrumbLd = (items) => ({
  * @param {string} [p.theme]    home / seikatsu / shigoto / fx（ツールはカテゴリのテーマ）
  * @param {string} [p.ogImage]  SNSで共有したときの画像（public/og/ の中。scripts/make-images.py で作る）
  * @param {boolean}[p.noAds]    AdSense を置かない（楽天APIの情報を出すページ。楽天ウェブサービスの規約 第10条）
+ * @param {string} [p.footNote] フッターの「送信・保存しません」の1行を、このページだけ差しかえる（寄付メモは端末の中に保存する）
  */
 export function page(p) {
   const fullTitle = p.path === '/' ? p.title : `${p.title}｜${SITE.name}`;
@@ -114,7 +115,7 @@ ${breadcrumbHtml(crumbs)}
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p class="foot-note">入力した数字は送信・保存しません。</p>
+    <p class="foot-note">${esc(p.footNote || '入力した数字は送信・保存しません。')}</p>
     <nav class="foot-nav" aria-label="サイトの情報">
       <a href="/">ツール一覧</a>
       <a href="/about/">このサイトについて</a>

@@ -18,7 +18,7 @@ const SRC_CUT = 'https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi/keigen
 const RATE_NOTE = { 10: 'ふつう', 8: '食品など' };
 const TILES = TAX_RATES.map((r) => `<button type="button" class="tile" data-rate="${r}" aria-pressed="${r === 10}"><b>${r}%</b><small>${RATE_NOTE[r]}</small></button>`).join('');
 const MODES = [['floor', '切り捨て'], ['round', '四捨五入'], ['ceil', '切り上げ']];
-const MODE_ROW = `<div class="field people-row unit-row" id="f-mode" hidden><p class="label" id="l-mode">1円未満</p><div class="seg" role="group" aria-labelledby="l-mode">${MODES.map(
+const MODE_ROW = `<div class="field unit-row" id="f-mode" hidden><p class="label" id="l-mode">1円未満</p><div class="seg" role="group" aria-labelledby="l-mode">${MODES.map(
   ([m, name]) => `<button type="button" class="seg-btn" data-mode="${m}" aria-pressed="${m === 'floor'}">${name}</button>`,
 ).join('')}</div></div>`;
 
@@ -63,11 +63,12 @@ export default function render() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear"><div class="tiles tiles-2" role="group" aria-label="税率をえらぶ">${TILES}</div><button type="button" class="clear-btn" id="clear">クリア</button></div>
+    <div class="tiles tiles-2" role="group" aria-label="税率をえらぶ">${TILES}</div>
     <div class="pair">${boxField('net', '税抜', '円', '1,980')}${boxField('gross', '税込', '円', '2,178')}</div>
   </div>
   <div class="receipt" aria-live="polite">
     <p class="rc-title">お会計</p>
+    <button type="button" class="clear-btn rc-clear" id="clear">クリア</button>
     <p class="rc-sum"><span class="rc-k" id="r-cap">税込</span><span class="rc-v"><b id="r-num">？</b><small>円</small></span></p>
     <dl class="rc-rows">
       <div><dt>税抜</dt><dd id="d-net">—</dd></div>

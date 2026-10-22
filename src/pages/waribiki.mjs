@@ -220,11 +220,12 @@ function renderRate() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('price', '元の値段', '円', '2,000')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('price', '元の値段', '円', '2,000')}
     <div class="pair">${boxField('sale', '割引後の値段', '円', '1,700')}${boxField('off', '値引きの額', '円', '300')}</div>
   </div>
 
   <div class="tag-stage" aria-live="polite">
+    <button type="button" class="clear-btn stage-clear" id="clear">クリア</button>
     <div class="tag-wrap is-empty" id="tag">
       <div class="pricetag">
         <p class="tag-was" id="t-was" hidden></p>

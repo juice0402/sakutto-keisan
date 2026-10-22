@@ -61,11 +61,11 @@ export default function render() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('base', 'もとの数', '', '200')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('base', 'もとの数', '', '200')}
     <div class="pair">${boxField('pct', '割合', '％', '15')}${boxField('part', 'その数', '', '30', '', 'もとの数の○％にあたる数')}</div>
   </div>
   <div class="slip pic" aria-live="polite">
-    <p class="slip-title">100マスでみると<small>1マス＝1％</small></p>
+    <p class="slip-title"><span>100マスでみると<small>1マス＝1％</small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <div class="pic-row">
       <div class="pc-box">${GRID}</div>
       <div class="pic-side">

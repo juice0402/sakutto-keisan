@@ -75,11 +75,11 @@ export default function render() {
 <div class="calc" id="calc">
   <div class="field" id="f-tiles"><div class="tiles tiles-4" role="group" aria-label="ファンヒーターの大きさをえらぶ">${TILES}</div></div>
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('lph', '1時間の灯油', 'L', '0.3', '', '説明書の「燃料消費量」')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('lph', '1時間の灯油', 'L', '0.3', '', '説明書の「燃料消費量」')}
     <div class="pair">${boxField('hours', '1日に使う時間', '時間', '8')}${boxField('price', '灯油の値段', '円', fmt(P18), fmt(P18), '1Lの値段か、18L（1缶）の値段')}</div>
   </div>
   <div class="slip pic" aria-live="polite">
-    <p class="slip-title">灯油代<small>目安</small></p>
+    <p class="slip-title"><span>灯油代<small>目安</small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <div class="pic-row">
       <div class="tk-tank">${TANK}<p class="tk-label"><span class="tk-k">18Lで</span><span class="tk-n"><b id="t-days">？</b><span id="t-unit">日</span></span></p></div>
       <div class="pic-side">

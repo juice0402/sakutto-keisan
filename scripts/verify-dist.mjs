@@ -109,6 +109,8 @@ for (const file of htmlFiles) {
     const visible = shown.replace(/<[^>]+>/g, ' ');
     const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'コツ', '——'];
     if (rel.startsWith('/furusato/')) NG.push('お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント');
+    // 楽天のポイントのページは、楽天アフィリエイトの決まり（予想・あおり・くじの紹介をしない）
+    if (rel.startsWith('/point/')) NG.push('お得', '最安', '必ず得', '倍確定', '予想', '次回は', 'ラッキーくじ', 'スロット', '楽天公認');
     const hit = NG.filter((w) => visible.includes(w));
     if (hit.length) fail(rel, `使わない言葉がある: ${hit.join('・')}`);
   }

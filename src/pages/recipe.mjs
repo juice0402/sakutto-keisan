@@ -18,14 +18,11 @@ const RECIPE_EXAMPLES = [
 const numInput = (id, placeholder, extra = '') =>
   `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"${extra}>`;
 
-// 人数：見出しは左、大きな −／＋ ボタンと入力欄（1段にして、計算の部分を1画面におさめる）
-const stepper = (id, label, value, who) => `<div class="field people-row" id="f-${id}">
-  <label for="${id}">${label}</label>
-  <div class="stepper">
-    <button type="button" class="step-btn" id="${id}-minus" aria-label="${who}を1人へらす">${icon('<path d="M5 12h14"/>')}</button>
-    <div class="input">${numInput(id, value, ` value="${value}"`)}<span class="unit">人分</span></div>
-    <button type="button" class="step-btn" id="${id}-plus" aria-label="${who}を1人ふやす">${icon('<path d="M5 12h14M12 5v14"/>')}</button>
-  </div>
+// 人数：大きな −／＋ と、名前を中に書いたまん中の欄（ほかの欄と左右のはしをそろえる）
+const stepper = (id, label, value, who) => `<div class="stepper box-stepper">
+  <button type="button" class="step-btn" id="${id}-minus" aria-label="${who}を1人へらす">${icon('<path d="M5 12h14"/>')}</button>
+  <div class="field box-field" id="f-${id}"><label for="${id}">${label}</label><div class="input">${numInput(id, value, ` value="${value}"`)}<span class="unit">人分</span></div></div>
+  <button type="button" class="step-btn" id="${id}-plus" aria-label="${who}を1人ふやす">${icon('<path d="M5 12h14M12 5v14"/>')}</button>
 </div>`;
 
 // 材料の行：名前（文字）と分量（数字＋単位）

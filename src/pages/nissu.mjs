@@ -52,11 +52,11 @@ export default function render() {
 
 <div class="calc" id="calc">
   <div class="box-rows">
-    <div class="box-row-clear">${dateField('start', 'はじめの日', 'はじめは今日の日付です')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${dateField('start', 'はじめの日', 'はじめは今日の日付です')}
     <div class="pair date-pair">${boxField('days', '何日後', '日', '100')}${dateField('end', 'おわりの日')}</div>
   </div>
   <div class="slip pic" aria-live="polite">
-    <p class="slip-title">カレンダー<small id="r-start"></small></p>
+    <p class="slip-title"><span>カレンダー<small id="r-start"></small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
     <div class="pic-row">
       <div class="cal" aria-hidden="true"><p class="cal-ym" id="c-ym">—</p><p class="cal-d" id="c-d">？</p><p class="cal-w" id="c-w"></p></div>
       <div class="pic-side">

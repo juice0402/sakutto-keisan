@@ -30,7 +30,7 @@ THEMES = {
     'shigoto': dict(bg='#F6F6F4', text='#1E2A44', muted='#5D6676', red='#7D2333', marker='#E3E8F1', paper='ruled'),  # 紺の革のシステム手帳（site.css と同じ）
     'fx': dict(bg='#16191E', text='#E9EDF2', muted='#9AA4B1', red='#FFD84D', marker='#4A4220', paper='dots'),
 }
-CATEGORY_THEME = {'seikatsu': 'seikatsu', 'shigoto': 'shigoto', 'furusato': 'shigoto', 'fx': 'fx'}
+CATEGORY_THEME = {'seikatsu': 'seikatsu', 'shigoto': 'shigoto', 'furusato': 'shigoto', 'point': 'seikatsu', 'fx': 'fx'}
 TAPE = [(226, 202, 150, 215), (238, 220, 178, 215)]  # マスキングテープのしま
 
 
@@ -855,6 +855,68 @@ def furusato_jougen_doc(img, cx, top):
               (('所得割×20%', '47,100円'), ('特例の割合', '84.895%'), ('住民税が減る', ('55,000円',))))
 
 
+def furusato_memo_doc(img, cx, top):
+    """寄付メモ（上限57,000円・2つの自治体に30,000円）"""
+    doc_sheet(img, cx, top, '寄付の控え', 'のこり', '27,000', '円', ('自治体', '金額', '申請書'),
+              (('A市', '10,000円', '済'), ('B町', '20,000円', ('未',)), ('合計', '30,000円', '2つ')))
+
+
+def furusato_onestop_doc(img, cx, top):
+    """ワンストップ特例（寄付先3つ・マイナンバーカードあり）"""
+    doc_sheet(img, cx, top, 'ワンストップ特例', '寄付先に出す', '3', '通', ('もの', '中身'),
+              (('申請書', '寄付ごとに1枚'), ('コピー', 'カードの表と裏'), ('期限', ('1月10日必着',))))
+
+
+def furusato_shimekiri_doc(img, cx, top):
+    """ふるさと納税はいつまで（年内の寄付・申請書・確定申告）"""
+    doc_sheet(img, cx, top, '締め切り', '年内の寄付', '12月31日', '', ('こと', '期限'),
+              (('申請書', ('翌年1月10日必着',)), ('確定申告', '2月16日〜3月15日'), ('住民税', '6月から減る')))
+
+
+def point_card(img, cx, top):
+    """お買い物マラソン：買いまわりカード（10マスのうち5つに赤ペンの丸）と、大きな特典（合計3万円・5店舗）"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 226 * S, cx + 250 * S
+    y0, y1 = top - 40 * S, top + 316 * S
+    d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=SHEET, outline='#B4C1D2', width=2 * S)
+    d.text((x0 + 22 * S, y0 + 16 * S), '買いまわりカード', font=font('black', 26), fill=INK)
+    t = '5倍'
+    d.text((x1 - 22 * S - d.textlength(t, font=font('black', 26)), y0 + 16 * S), t, font=font('black', 26), fill=RED)
+    gap = 8 * S
+    cw = (x1 - x0 - 44 * S - gap * 9) / 10
+    cy = y0 + 88 * S
+    for i in range(10):
+        sx = x0 + 22 * S + i * (cw + gap)
+        box = [sx, cy - cw / 2, sx + cw, cy + cw / 2]
+        f = font('black' if i < 5 else 'bold', 18)
+        n = str(i + 1)
+        if i < 5:
+            layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+            ImageDraw.Draw(layer).ellipse(box, outline=RED, width=4 * S)
+            img.alpha_composite(layer.rotate(-8, center=(sx + cw / 2, cy), resample=Image.BICUBIC))
+            d = ImageDraw.Draw(img)
+        else:
+            for a in range(0, 360, 30):
+                d.arc(box, a, a + 16, fill='#B4C1D2', width=2 * S)
+        d.text((sx + cw / 2 - d.textlength(n, font=f) / 2, cy - 12 * S), n, font=f, fill=RED if i < 5 else PENCIL)
+    ys = cy + 44 * S
+    d.text((x0 + 22 * S, ys + 46 * S), '特典', font=font('black', 30), fill=INK)
+    f_v, f_u = font('black', 84), font('black', 26)
+    u = 'ポイント'
+    uw = d.textlength(u, font=f_u)
+    v = '1,088'
+    d.text((x1 - 22 * S - uw, ys + 60 * S), u, font=f_u, fill=RED)
+    d.text((x1 - 22 * S - uw - 8 * S - d.textlength(v, font=f_v), ys), v, font=f_v, fill=RED)
+    x = x0 + 18 * S
+    while x < x1 - 18 * S:
+        d.line([(x, ys + 104 * S), (min(x + 10 * S, x1 - 18 * S), ys + 104 * S)], fill='#B4C1D2', width=2 * S)
+        x += 17 * S
+    for j, (k, v2) in enumerate((('上限まで', 'あと5,912ポイント'), ('あと1店舗で', '+317ポイント'))):
+        yy = ys + 118 * S + j * 40 * S
+        d.text((x0 + 22 * S, yy), k, font=font('bold', 23), fill=INK)
+        d.text((x1 - 22 * S - d.textlength(v2, font=font('black', 23)), yy), v2, font=font('black', 23), fill=INK)
+
+
 def loan_doc(img, cx, top):
     """ローン：返済予定表（3,000万円・金利1％・35年）。書類に入りきるよう、共有画像では帯をのせない"""
     doc_sheet(img, cx, top, '返済予定表', '毎月の返済', '84,686', '円', ('経過', '返した額', 'のこり'),
@@ -953,6 +1015,8 @@ VISUALS = {
     'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
     'furusato': furusato_doc, 'furusato-jougen': furusato_jougen_doc,
+    'furusato-memo': furusato_memo_doc, 'furusato-onestop': furusato_onestop_doc, 'furusato-shimekiri': furusato_shimekiri_doc,
+    'point': point_card,
     'shohizei': lambda img, cx, top: receipt(img, cx, top, [('税込', '2,178', '')], [], [('税抜', '1,980円'), ('消費税（10%）', '198円'), ('税込', '2,178円')]),
     'touyu-dai': lambda img, cx, top: touyu_slip(img, cx, top, '7.5日', '10,252', 4.0, '1か月 72L・18L缶 4本', ('42.7円', '342円', '142.4円')),
     'denki-dai': lambda img, cx, top: meter_slip(img, cx, top, 'こたつ 600W・1日8時間', '01440', '4,464', ('18.6円', '149円', '54,312円')),
