@@ -1,0 +1,35 @@
+name: Henreihin sample (temporary)
+
+# 一時的：量の読み取りを本物の名前で直すため。暗号にした名前をPRのコメントに置く（Claude が読んだら消す）。終わったらこのファイルごと消す
+on:
+  pull_request:
+    paths:
+      - scripts/sample-henreihin.mjs
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  sample:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: 楽天から名前を取って暗号にする
+        env:
+          RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+        run: node scripts/sample-henreihin.mjs > blob.txt
+      - name: PRのコメントに置く
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          printf 'hr-sample:%s' "$(cat blob.txt)" > body.txt
+          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" -F body=@body.txt --jq .id
+          rm -f blob.txt body.txt
