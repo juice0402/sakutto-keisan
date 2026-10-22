@@ -92,6 +92,9 @@ with sync_playwright() as p:
             if res.status == 404 and slug.startswith('furusato/henreihin'):
                 continue
             act(page)
+            # 付箋が剥がれる動き（src/client/notes.js）が終わってから測る
+            page.wait_for_timeout(100)
+            page.wait_for_function("() => !document.querySelector('.is-peel, .is-stick') && document.getAnimations().every((a) => a.playState !== 'running')", timeout=4000)
             box = page.locator(answer).first.bounding_box()
             bottom = round(box['y'] + box['height'])
             ok = bottom <= HEIGHT

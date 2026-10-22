@@ -127,7 +127,7 @@ ${breadcrumbHtml(crumbs)}
     <p class="copy">© ${year === SITE.startYear ? year : `${SITE.startYear}–${year}`} ${esc(SITE.name)}</p>
   </div>
 </footer>
-${(p.scripts || []).map(scriptTag).join('\n')}
+${[...(p.scripts || []), ...(/class="(?:tiles|seg)[\s"]/.test(p.body) ? ['notes.js'] : [])].map(scriptTag).join('\n')}
 </body>
 </html>
 `;

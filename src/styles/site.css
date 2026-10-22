@@ -7,6 +7,9 @@
 :root {
   --bg: #fbfcfd;        /* 紙 */
   --surface: #ffffff;   /* 計算カードの紙 */
+  --note: #fff2a8;      /* 値をえらぶ付箋 */
+  --note-back: #e3cd70; /* 付箋のめくれた裏 */
+  --note-line: transparent;
   --text: #1c2f4a;      /* 紺のペン */
   --muted: #5a6779;     /* えんぴつ */
   --border: #b4c1d2;    /* 枠の線 */
@@ -40,6 +43,9 @@
   /* 紺の革のシステム手帳：白いリフィルに罫線、ブルーブラックの万年筆、えらんだものはボルドー */
   --bg: #f6f6f4;
   --surface: #ffffff;
+  --note: #f4efe2;
+  --note-back: #d9cfb6;
+  --note-line: #d8d0bc;
   --text: #1e2a44;
   --muted: #5d6676;
   --border: #b9c0cc;
@@ -57,6 +63,9 @@
   /* 黒の革のシステム手帳：暗いリフィルに白いインク、えらんだものは金のペン */
   --bg: #1b1d21;
   --surface: #222529;
+  --note: #2f3238;
+  --note-back: #17191c;
+  --note-line: #4a4d53;
   --text: #e8e4da;
   --muted: #a19e95;
   --border: #4a4d53;
@@ -171,21 +180,53 @@ h1 {
 .cols .clear-btn { margin-block: -8px -4px; padding-top: 4px; } /* 表の見出しの右のクリア：押せる所が下の欄にかからないように、上に多めにのばす（字の位置は同じ） */
 
 /* 値をえらぶタイル（割引は「30%」と「3割引き」を両方表示）。えらんだものは赤ペンで丸をつけたように */
-.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.tile {
-  position: relative; font: inherit; color: var(--text); background: var(--surface);
-  min-height: var(--ctl-h); padding: 6px 4px; border: 1.5px solid var(--border); border-radius: var(--ctl-r);
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 8px; align-content: start; }
+/* 10/22 しょーくん「付箋のほうが断然好き」：値と入力の形は、整頓して並べた付箋。少しずつ傾けて貼る。
+   えらぶと、ほかの付箋は剥がれて消え、えらんだ付箋は少しめくれて斜めに。もう一度さわると貼り直す（src/client/notes.js） */
+.tile, .seg-btn {
+  position: relative; font: inherit; color: var(--text); background: var(--note);
+  min-height: var(--ctl-h); padding: 6px 4px; border: 0; border-radius: 1px 1px 2px 2px;
+  outline: 1px solid var(--note-line); outline-offset: -1px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  cursor: pointer; transition: transform .08s;
+  cursor: pointer; transform: rotate(var(--tilt, 0deg)); transition: transform .25s;
 }
+.tiles > :nth-child(4n+1), .seg > :nth-child(4n+1) { --tilt: -1.2deg; --fly: -36px; }
+.tiles > :nth-child(4n+2), .seg > :nth-child(4n+2) { --tilt: .8deg; --fly: 32px; }
+.tiles > :nth-child(4n+3), .seg > :nth-child(4n+3) { --tilt: -.5deg; --fly: -28px; }
+.tiles > :nth-child(4n+4), .seg > :nth-child(4n+4) { --tilt: 1deg; --fly: 40px; }
+.tile[aria-pressed="true"], .seg-btn[aria-pressed="true"] { --tilt: -2deg; }
+.tiles-2 > [aria-pressed="true"], .seg-2 > [aria-pressed="true"] { --tilt: -1.4deg; } /* 横に長い付箋は、傾けすぎると下の欄に近づく */
+/* えらんだ付箋の右下の角が、ぺろっとめくれる */
+.tile::before, .seg-btn::before {
+  content: ""; position: absolute; right: 0; bottom: 0; width: 0; height: 0; pointer-events: none;
+  background: linear-gradient(to top left, var(--surface) 50%, var(--note-back) 50%); transition: width .3s, height .3s;
+}
+.tile[aria-pressed="true"]::before, .seg-btn[aria-pressed="true"]::before { width: 16px; height: 16px; }
+/* 剥がれる（下のはしからめくれて、飛んでいく）・貼り直す */
+.is-peel { animation: peel .48s cubic-bezier(.55, 0, .8, .2) calc(var(--i, 0) * 45ms) both; transform-origin: 50% 0; pointer-events: none; }
+@keyframes peel {
+  0% { transform: rotate(var(--tilt)); }
+  35% { transform: perspective(260px) rotate(var(--tilt)) rotateX(-32deg); }
+  100% { transform: perspective(260px) translate(var(--fly), -70px) rotate(calc(var(--tilt) * 12)) rotateX(-75deg); opacity: 0; }
+}
+.is-stick { animation: stick .32s cubic-bezier(.2, .8, .3, 1.2) calc(var(--i, 0) * 45ms) both; }
+@keyframes stick {
+  0% { transform: translateY(-16px) rotate(calc(var(--tilt) * 4)) scale(1.08); opacity: 0; }
+  100% { transform: rotate(var(--tilt)); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .is-peel, .is-stick { animation: none; } .tile, .seg-btn, .tile::before, .seg-btn::before { transition: none; } }
 .tile b, .tile-box { font-size: var(--num); font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .tile small, .tile-input label { font-size: var(--cap); line-height: 1.3; color: var(--muted); font-weight: 600; }
-.tile:active { transform: scale(0.96); }
+.tile:active, .seg-btn:active { transform: rotate(var(--tilt, 0deg)) scale(0.96); }
 .tile[aria-pressed="true"], .tile[aria-pressed="true"] small { color: var(--red); }
 .tile[aria-pressed="true"]::after, .seg-btn[aria-pressed="true"]::after {
   content: ""; position: absolute; top: 4px; bottom: 4px; left: max(6px, calc(50% - 50px)); right: max(6px, calc(50% - 50px)); pointer-events: none;
   border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-4deg);
 }
+/* さわってえらんだときだけ、赤ペンで丸を描く（はじめからえらんである付箋は描かない） */
+@property --pen { syntax: "<angle>"; inherits: false; initial-value: 360deg; }
+.is-drawn[aria-pressed="true"]::after { -webkit-mask: conic-gradient(from 200deg, #000 var(--pen), transparent 0); mask: conic-gradient(from 200deg, #000 var(--pen), transparent 0); animation: pen .42s ease-out; }
+@keyframes pen { from { --pen: 0deg; } to { --pen: 360deg; } }
 /* 自分で入力するマス：数字と％の見た目はほかのタイルと同じ */
 .tile-input { cursor: text; min-width: 0; }
 .tile-box { display: flex; align-items: baseline; justify-content: center; max-width: 100%; }
@@ -195,10 +236,10 @@ h1 {
 }
 .tile-box input::placeholder { color: var(--muted); opacity: .5; }
 .tile-box input:placeholder-shown + span { color: var(--muted); opacity: .5; }
-.tile-input.is-on { border-color: var(--red); color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
+.tile-input.is-on { color: var(--red); outline: 2px solid var(--red); }
 .tile-input.is-on input { color: var(--red); }
-.tile-input:focus-within { border-color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
-.tile-input.has-error { border-color: var(--error); }
+.tile-input:focus-within { outline: 2px solid var(--text); }
+.tile-input.has-error { outline: 2px solid var(--error); }
 #f-rate2 { margin: 14px 0 0; }
 
 /* 結果の下の3つのボタン。オンのときは黄色のマーカー */
@@ -210,6 +251,13 @@ h1 {
 }
 .tool-btn:active { transform: scale(0.96); }
 .tool-btn[aria-pressed="true"] { background: var(--marker); border-color: var(--text); }
+/* 結果の下のおまけのオン・オフは、ノートのチェック欄（□に赤ペンの✓）。同じ四角いボタンを並べない（10/22 の決まり） */
+.calc-tools:has([aria-pressed]) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.calc-tools .tool-btn[aria-pressed] { position: relative; flex: 0 0 auto; min-height: 48px; gap: 8px; padding: 4px 2px 4px 4px; border-color: transparent; background: transparent; font-size: 15px; text-align: left; }
+.calc-tools .tool-btn[aria-pressed]::before { content: ""; flex: none; width: 22px; height: 22px; border: 2px solid var(--text); border-radius: 2px; transform: rotate(-3deg); }
+.calc-tools .tool-btn[aria-pressed="true"] { border-color: transparent; background: transparent; color: var(--red); }
+.calc-tools .tool-btn[aria-pressed="true"]::after { content: ""; position: absolute; left: 11px; top: calc(50% - 17px); width: 10px; height: 22px; border: solid var(--red); border-width: 0 3px 3px 0; transform: rotate(38deg); }
+.calc-tools:has([aria-pressed]) .tool-link { flex: 1 1 100%; }
 .tool-btn:disabled { opacity: .35; cursor: default; }
 /* もう1つのページへ行くボタン（割引計算の「何％オフ？」・実質単価の比較の「入り数・割引シール」など）。横に2つ分・3つ分 */
 .tool-link { text-decoration: none; }
@@ -497,7 +545,7 @@ h1 {
 .rk-head .clear-btn { letter-spacing: 0; margin-block: -10px -8px; }
 .rk-end { margin: 2px 4px 0; text-align: right; font-size: 14px; font-weight: 700; }
 /* 和暦・西暦の変換：元号のマス（5つ）・和暦の欄の元号・元号の年表 */
-.tiles-5 { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tiles-5 { grid-template-columns: repeat(5, 1fr); gap: 12px 6px; }
 .tiles-5 .tile { padding: 6px 2px; }
 .tiles-5 .tile b { font-size: 19px; }
 .tiles-5 .tile small { font-size: 11.5px; letter-spacing: -.02em; }
@@ -548,17 +596,10 @@ h1 {
 
 /* 希釈率 */
 /* 入力の形をえらぶ3つ（薄め方）。1本の枠を3つに区切り、えらんだものに赤ペンの丸 */
-.seg {
-  display: grid; grid-template-columns: repeat(3, 1fr); min-height: var(--ctl-h); margin: 0 0 10px;
-  border: 1.5px solid var(--border); border-radius: var(--ctl-r); background: var(--surface);
-}
-.seg-btn {
-  position: relative; font: inherit; font-size: 18px; font-weight: 800; color: var(--muted); background: transparent; cursor: pointer;
-  padding: 4px; border: 0; border-radius: 0;
-}
-.seg-btn + .seg-btn { border-left: 1.5px solid var(--rule); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 10px; align-content: start; }
+.seg-btn { font-size: 18px; font-weight: 800; padding: 4px; }
 .seg-btn[aria-pressed="true"] { color: var(--red); }
-.tiles-4 { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.tiles-4 { grid-template-columns: repeat(4, 1fr); gap: 12px 6px; }
 .tiles-2 { grid-template-columns: 1fr 1fr; } /* 消費税の税率（10％・8％） */
 #f-tiles { margin-bottom: 8px; }
 .tiles-4 .tile b { font-size: 21px; }
@@ -768,13 +809,12 @@ h1 {
 .sd-list { list-style: none; margin: 8px 0 0; padding: 0; }
 .sd-item { display: grid; grid-template-columns: 50px 1fr; gap: 0 10px; padding: 7px 0; border-top: 1px dashed var(--border); }
 .sd-item:first-child { border-top: 0; }
-.sd-tag { grid-row: span 2; align-self: start; padding: 3px 0; border: 1.5px solid var(--text); border-radius: 3px; background: var(--surface); text-align: center; font-size: 12px; font-weight: 800; line-height: 1.3; }
+.sd-tag { grid-row: span 2; align-self: start; padding: 1px 0 0; font-size: 12px; font-weight: 800; line-height: 1.3; } /* 枠のない字（バッジにしない。10/22 の決まり） */
 .sd-when { margin: 0; font-size: 12.5px; font-weight: 800; }
 .sd-what { margin: 1px 0 0; font-size: 13px; line-height: 1.45; }
-.sd-item.is-now .sd-tag { border-color: var(--red); color: var(--red); }
+.sd-item.is-now .sd-tag { color: var(--red); text-decoration: underline 2px; text-underline-offset: 3px; }
 .sd-item.is-now .sd-when { color: var(--red); }
 .sd-item.is-later { color: var(--muted); }
-.sd-item.is-later .sd-tag { border-style: dashed; border-color: var(--muted); }
 .sk-ato { margin-right: 2px; font-size: 16px; }
 .sk-cals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 0; }
 .sk-cal { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
@@ -819,8 +859,9 @@ h1 {
 .hr-noimg { display: grid; place-items: center; border: 1.5px dashed var(--border); font-size: 13px; font-weight: 700; color: var(--muted); }
 .hr-body { min-width: 0; }
 .hr-body p { margin: 0; }
-.hr-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 3px !important; }
-.hr-tags span { padding: 0 5px; border: 1px solid var(--text); font-size: 11.5px; font-weight: 700; line-height: 18px; }
+.hr-tags { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 3px !important; }
+.hr-tags span { font-size: 11.5px; font-weight: 700; line-height: 18px; color: var(--muted); } /* 枠のない字 */
+.hr-tags span + span::before { content: "・"; }
 .hr-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13.5px; font-weight: 700; line-height: 1.4; }
 .hr-shop { font-size: 12px; color: var(--muted); }
 .hr-per { margin-top: 2px !important; font-size: 14px; font-weight: 800; color: var(--red); white-space: nowrap; }
@@ -830,9 +871,10 @@ h1 {
 .hr-go { display: inline-block; margin-top: 4px; font-size: 13.5px; font-weight: 700; color: var(--text); text-underline-offset: 3px; }
 .hr-none { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
 .hr-at { margin: 10px 0 0; font-size: 12px; color: var(--muted); text-align: right; }
-.hr-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 0; }
-.hr-cats .tool-btn { display: flex; flex-direction: column; justify-content: center; }
-.hr-cats small { font-size: 12px; font-weight: 700; color: var(--muted); }
+/* カテゴリは、トップと同じ目次の行（点線で区切る） */
+.hr-cats { margin: 14px 0 0; }
+.hr-cats .tool-btn { flex-direction: row; justify-content: space-between; align-items: baseline; min-height: 52px; padding: 0 2px; border: 0; border-bottom: 1.5px dashed var(--border); border-radius: 0; background: none; font-size: 17px; }
+.hr-cats small { font-size: 13px; font-weight: 700; color: var(--muted); }
 .hr-credit { margin: 20px 0 0; font-size: 12px; color: var(--muted); }
 /* お買い物マラソン：回の1行と、10マスのスタンプカード */
 .pt-event { margin: 0 0 10px; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
