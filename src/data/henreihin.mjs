@@ -8,7 +8,7 @@
 // HENREIHIN_LIVE を true にすると、キーがあるときに api になり、トップ・サイトマップ・関連ツールにも出る
 // （楽天のアプリの登録とキーが入って、scripts/check-henreihin.mjs で本物が取れるのを確かめてから true にする）
 
-export const HENREIHIN_LIVE = false;
+export const HENREIHIN_LIVE = true; // 10/22 キーが入り、本物で量の読み取りを確かめた
 
 const env = globalThis.process?.env ?? {};
 export const HENREIHIN_MODE = ['fixture', 'api'].includes(env.HENREIHIN) ? env.HENREIHIN : 'off';
@@ -18,36 +18,37 @@ export const RAKUTEN_SITE = 'https://sakutto-keisan.com';
 
 // カテゴリ（最初はお米・肉・魚介・日用品。claude/sakutto-tougou-plan.md の決めごと）
 // groups：1つのページの中の一覧。単位がちがうもの（トイレットペーパーのロールとティッシュの箱）は分ける
-// keyword：楽天で探す言葉。genreId はキーが入った日に scripts/check-henreihin.mjs で確かめて入れる（それまでは null で言葉だけ）
+// keyword：楽天で探す言葉。genreId：楽天のジャンル（10/22 に本物で確かめた。食品 > 米・雑穀 > 白米、食品 > 精肉・肉加工品、食品 > 魚介類・水産加工品、トイレットペーパー、ティッシュペーパー）。
+// 言葉だけだと「米に合う」しらすや海苔、こめ油なども入るので、ジャンルでしぼる
 // ng：楽天側で外してもらう言葉（6語まで）
 export const HENREIHIN_CATS = [
   {
     slug: 'kome',
     name: 'お米',
-    groups: [{ key: 'kome', name: 'お米', unit: 'kg', keyword: 'ふるさと納税 米', ng: '餅 せんべい 米粉 甘酒 酒', genreId: null }],
+    groups: [{ key: 'kome', name: 'お米', unit: 'kg', keyword: 'ふるさと納税 米', ng: '餅 せんべい 米粉 甘酒 酒', genreId: 201184 }],
   },
   {
     slug: 'niku',
     name: '肉',
-    groups: [{ key: 'niku', name: '肉', unit: 'kg', keyword: 'ふるさと納税 肉', ng: '食事券 ハンバーグ ウインナー ジャーキー', genreId: null }],
+    groups: [{ key: 'niku', name: '肉', unit: 'kg', keyword: 'ふるさと納税 肉', ng: '食事券 ハンバーグ ウインナー ジャーキー', genreId: 100228 }],
   },
   {
     slug: 'gyokai',
     name: '魚介',
-    groups: [{ key: 'gyokai', name: '魚介', unit: 'kg', keyword: 'ふるさと納税 海鮮', ng: '食事券 だし ふりかけ 缶詰', genreId: null }],
+    groups: [{ key: 'gyokai', name: '魚介', unit: 'kg', keyword: 'ふるさと納税 海鮮', ng: '食事券 だし ふりかけ 缶詰', genreId: 100236 }],
   },
   {
     slug: 'nichiyouhin',
     name: '日用品',
     groups: [
-      { key: 'toilet', name: 'トイレットペーパー', unit: 'ロール', keyword: 'ふるさと納税 トイレットペーパー', ng: 'ホルダー', genreId: null },
-      { key: 'tissue', name: 'ティッシュペーパー', unit: '箱', keyword: 'ふるさと納税 ティッシュペーパー', ng: 'ケース カバー ウェット', genreId: null },
+      { key: 'toilet', name: 'トイレットペーパー', unit: 'ロール', keyword: 'ふるさと納税 トイレットペーパー', ng: 'ホルダー', genreId: 501098 },
+      { key: 'tissue', name: 'ティッシュペーパー', unit: '箱', keyword: 'ふるさと納税 ティッシュペーパー', ng: 'ケース カバー ウェット', genreId: 100670 },
     ],
   },
 ];
 
 // 1つの一覧に出す数と、楽天に聞くページ数（30件ずつ。レビューが多い順）
 export const HENREIHIN_SHOW = 30;
-export const HENREIHIN_PAGES = 3;
+export const HENREIHIN_PAGES = 10; // 人気の返礼品は量を選べるものが多く（10/22 の本物で8〜9割）、量が決まったものを集めるために10ページ
 // 寄付額のマス（一覧をしぼる）
 export const HENREIHIN_PRICE_TILES = [10000, 20000, 30000];

@@ -30,7 +30,7 @@ function loadData() {
 
 // 1万円あたりの量の数字（kg は小数1けた、1より少なければ2けた。ロール・箱は小数1けた）
 const perText = (x) => fmt(x, x < 1 ? 2 : 1);
-const unitName = (u) => (u === 'kg' ? 'kg' : u);
+const unitName = (u) => (u === 'ロール' ? 'ロール分' : u); // トイレットペーパーは、長巻きもふつうの長さのロールの数にする
 const altOf = (name) => name.replace(/【[^】]*】/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
 const atText = (iso) => {
   const d = new Date(iso);
@@ -69,7 +69,7 @@ const HOW = section(
 <span>1万円あたり ＝ 量 ÷ 寄付額 × 1万円</span>
 </div>
 <p>例：5kg×3袋で寄付額が3万円なら、15kg ÷ 3万円で、1万円あたり5kgです。</p>
-<p>量は商品名に書かれた数字だけで出します。量が書いていないもの、いくつも量があるもの、1.5〜2kgのように幅があるものは並べていません。定期便は回数をかけた合計です。</p>`,
+<p>量は商品名に書かれた数字だけで出します。量や回数を選べるものは、寄付額がどの量の額かわからないので並べていません。量が書いていないもの、1.5〜2kgのように幅があるものも同じです。定期便は回数をかけた合計です。</p>`,
 );
 
 const common = (mihon) => ({
@@ -93,7 +93,7 @@ function renderCat(cat, data, mihon) {
     return { g, list, from };
   });
   const many = cat.groups.length > 1;
-  const unitWord = cat.groups.map((g) => (g.unit === 'kg' ? '何kg' : `何${g.unit}`)).join('・');
+  const unitWord = cat.groups.map((g) => `何${unitName(g.unit)}`).join('・');
   const faqs = [
     {
       q: '寄付の申し込みはどこでしますか？',
@@ -101,7 +101,7 @@ function renderCat(cat, data, mihon) {
     },
     {
       q: '一覧にない返礼品があるのは？',
-      a: '<p>楽天でレビューが多い順に集めた中から、楽天ふるさと納税の自治体の返礼品で、量が商品名で読めるものだけを並べています。</p>',
+      a: '<p>楽天でレビューが多い順に集めた中から、量が1つに決まっている返礼品だけを並べています。5kg・10kg・20kgのように量を選べるものは、寄付額がどの量の額かわからないので入れていません。</p>',
     },
     {
       q: '寄付額や受付はいつの情報ですか？',
@@ -109,6 +109,9 @@ function renderCat(cat, data, mihon) {
     },
     ...(cat.slug === 'gyokai'
       ? [{ q: '「殻つき」とは？', a: '<p>殻や頭の重さもふくむ量です。食べられる量は、書いてある量より少なくなります。</p>' }]
+      : []),
+    ...(cat.slug === 'nichiyouhin'
+      ? [{ q: '2倍巻きのトイレットペーパーは？', a: '<p>ふつうの長さで何ロール分かにしています。2倍巻きの12ロールは24ロール分です。</p>' }]
       : []),
     {
       q: 'いくらまで寄付できますか？',
@@ -128,7 +131,7 @@ ${mihon ? MIHON : ''}
   ${lists
     .map(
       ({ g, list, from }) => `<section class="hr-group" aria-labelledby="g-${g.key}">
-    <p class="hr-head" id="g-${g.key}">${many ? `<span>${esc(g.name)}</span>` : ''}<small>1万円あたり${g.unit === 'kg' ? '何kg' : `何${g.unit}`}か・多い順</small></p>
+    <p class="hr-head" id="g-${g.key}">${many ? `<span>${esc(g.name)}</span>` : ''}<small>1万円あたり何${unitName(g.unit)}か・多い順</small></p>
     <ol class="hr-list">
     ${list.map((x, i) => row(x, from + i, mihon)).join('\n    ')}
     </ol>
