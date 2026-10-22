@@ -5,7 +5,8 @@ import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 
 // はじめての3問：年収・配偶者・16歳以上の子から、上限の目安と、住民税から減る額（お金の流れ）と手続き
 // 家族ははじめから「ひとり」「子なし」をえらんでおくので、年収を入れればすぐ答えが出る
-const CFG = FURUSATO_YEARS[Number($('calc').dataset.year)];
+const YEAR = Number($('calc').dataset.year);
+const CFG = FURUSATO_YEARS[YEAR];
 const FAM = { none: {}, koukou: { koukou: 1 }, daigaku: { daigaku: 1 }, both: { koukou: 1, daigaku: 1 } };
 const KID_NAME = { none: '', koukou: '・高校生', daigaku: '・大学生', both: '・高校生と大学生' };
 let spouse = false;
@@ -28,6 +29,8 @@ function update() {
   setNote(res.error || '', !!res.error);
   $('r-flow').classList.toggle('is-empty', !res.ok || res.none);
   $('r-unit').hidden = res.ok && res.none;
+  // 寄付メモへ上限を持っていく（# のうしろはサーバーに送られない）
+  $('to-memo').href = res.ok && !res.none ? `/furusato/memo/#limit=${res.limit}&y=${YEAR}` : '/furusato/memo/';
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-who').textContent = '';

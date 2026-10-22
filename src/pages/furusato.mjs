@@ -50,7 +50,7 @@ const FAQS = [
   },
   {
     q: 'ワンストップ特例とは何ですか？',
-    a: '<p>確定申告をしない会社員などは、寄付先が5つまでなら、寄付先の自治体に申請書を出すだけで住民税から控除されます。申請書にマイナンバーカードの表と裏のコピーをつけて、寄付した翌年の1月10日までに届くように出します。</p>',
+    a: '<p>確定申告をしない会社員などは、寄付先が5つまでなら、寄付先の自治体に<a href="/furusato/onestop/">申請書</a>を出すだけで住民税から控除されます。申請書にマイナンバーカードの表と裏のコピーをつけて、寄付した翌年の1月10日までに届くように出します。</p>',
   },
   {
     q: '申請書はどこでもらえますか？',
@@ -113,7 +113,7 @@ function renderMain() {
     <p class="doc-foot"><span id="r-foot">年収を入れてください</span><span id="r-how"></span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/jougen/">決定通知書から計算</a></div>
+  <div class="calc-tools"><a class="tool-btn tool-link" id="to-memo" href="/furusato/memo/">寄付メモ</a><a class="tool-btn tool-link span-2" href="/furusato/jougen/">決定通知書から計算</a></div>
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

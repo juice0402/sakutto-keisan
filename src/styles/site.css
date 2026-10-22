@@ -753,6 +753,67 @@ h1 {
 .fz-table td:last-child { width: 1%; white-space: nowrap; }
 .src-list { margin: 0 0 8px; padding-left: 1.2em; font-size: 13px; }
 .src-list li { margin: 0 0 4px; }
+/* ワンストップ特例：寄付先ごとの封筒（6通目からは使えない印） */
+.os-envs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+.os-envs:empty { display: none; }
+.os-env { position: relative; width: 46px; height: 32px; color: var(--text); }
+.os-env svg { width: 100%; height: 100%; fill: var(--surface); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.os-env i { position: absolute; right: 5px; bottom: 3px; font-style: normal; font-size: 12px; font-weight: 800; line-height: 1; }
+.os-env.is-over { color: var(--error); }
+.os-more { align-self: center; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.os-table td:first-child { width: 1%; white-space: nowrap; }
+.os-table td:last-child { text-align: left; }
+.doc-sum.is-error .doc-sum-v { color: var(--error); }
+/* 締め切り：2枚の日めくり */
+.sk-ato { margin-right: 2px; font-size: 16px; }
+.sk-cals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 0; }
+.sk-cal { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
+.sk-cal .cal { width: 100%; max-width: 132px; }
+.sk-cal .cal-d { font-size: 40px; }
+.sk-what, .sk-left { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.sk-left { font-size: 14px; font-weight: 800; color: var(--red); }
+/* 寄付メモ：自治体・金額・申請書の行と、上限の帯・自治体の5つのマス */
+.kifu-years { margin: 0 0 10px; }
+.kifu-cols, .kifu-row { grid-template-columns: 1fr 1.3fr 50px; column-gap: 8px; }
+.kifu-row { display: grid; align-items: center; margin: 0 0 8px; }
+.kifu-row[hidden] { display: none; }
+.kifu-row .field { margin: 0; min-width: 0; }
+.kifu-row .input { padding: 0 8px; }
+.kifu-row input[inputmode="text"] { font-size: 17px; font-weight: 700; }
+.kifu-sent { position: relative; height: var(--ctl-h); border: 1.5px solid var(--border); border-radius: var(--ctl-r); background: var(--surface); color: var(--muted); font: inherit; font-size: 18px; font-weight: 800; cursor: pointer; -webkit-user-select: none; user-select: none; }
+.kifu-sent[aria-pressed="true"] { color: var(--red); border-color: var(--text); }
+.kifu-sent[aria-pressed="true"]::after { content: ""; position: absolute; inset: 9px 7px; pointer-events: none; border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-4deg); }
+.kifu-bar { position: relative; display: flex; height: 22px; margin: 8px 0 0; border: 1.5px solid var(--text); background: var(--surface); overflow: hidden; }
+.kifu-bar:empty { display: none; }
+.mb-seg { flex: none; height: 100%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; overflow: hidden; }
+.mb-seg.is-even { background: var(--red); }
+.mb-seg.is-odd { background: var(--text); }
+.mb-left { flex: none; height: 100%; background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 8px); }
+.mb-line { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--error); }
+.kifu-boxes { display: inline-flex; gap: 3px; margin-right: 6px; vertical-align: -1px; }
+.kifu-boxes i { width: 11px; height: 11px; border: 1.5px solid var(--text); border-radius: 2px; }
+.kifu-boxes i.is-on { background: var(--text); }
+.kifu-boxes i.is-over { background: var(--error); border-color: var(--error); }
+/* お買い物マラソン：回の1行と、10マスのスタンプカード */
+.pt-event { margin: 0 0 10px; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-event.is-past { color: var(--muted); }
+.pt-card { margin: 16px 2px 0; padding: 12px 14px 10px; background: var(--sheet); border: 1.5px solid var(--border); border-radius: 4px; font-variant-numeric: tabular-nums; }
+.pt-title { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .08em; }
+.pt-title small { font-size: 13px; font-weight: 800; letter-spacing: 0; color: var(--red); }
+.pt-stamps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.pt-stamp { display: grid; place-items: center; height: 28px; border: 1.5px dashed var(--border); border-radius: 50%; font-size: 12px; font-weight: 700; color: var(--muted); }
+.pt-stamp.is-on { border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-6deg); color: var(--red); font-weight: 800; }
+.pt-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 8px 0 0; border-bottom: 1.5px dashed var(--rule); }
+.pt-k { font-size: 16px; font-weight: 800; }
+.pt-v { min-width: 0; text-align: right; color: var(--red); overflow-wrap: anywhere; }
+.pt-v b { font-size: 44px; font-weight: 800; line-height: 1.12; }
+.pt-v small { margin-left: 3px; font-size: 16px; font-weight: 800; }
+.pt-table { width: 100%; margin: 6px 0 0; border-collapse: collapse; font-size: 14px; }
+.pt-table td { padding: 3px 0; border-bottom: 1px dotted var(--rule); overflow-wrap: anywhere; }
+.pt-table td:first-child { white-space: normal; }
+.pt-table td:last-child { padding-left: 8px; text-align: right; font-weight: 800; white-space: nowrap; }
+.pt-foot { margin: 6px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.pt-foot:empty { display: none; }
 /* 作業指示書の床の図：図面のように紺の線で囲んで、1人ずつ番号 */
 .doc .floor-strips { height: 52px; border: 1.5px solid var(--text); background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 12px); }
 .floor-strip { display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }

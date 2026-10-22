@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { furusatoLimit, furusatoFromNotice, kyuyoShotoku, tokureiRatio, limitOf, TOKUREI_BANDS } from '../src/lib/furusato.mjs';
-import { FURUSATO_YEARS, FURUSATO_SOURCES } from '../src/data/furusato.mjs';
+import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES } from '../src/data/furusato.mjs';
 
 const Y2026 = FURUSATO_YEARS[2026];
 const man = (x) => x * 10000;
@@ -119,7 +119,7 @@ test('出典は確認日から90日以内（11〜1月は30日以内）', () => {
   const today = new Date(Date.now() + 9 * 3600e3); // 日本時間
   const month = today.getUTCMonth() + 1;
   const max = month >= 11 || month === 1 ? 30 : 90;
-  for (const s of FURUSATO_SOURCES) {
+  for (const s of [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES]) {
     const days = (today - new Date(`${s.checked}T00:00:00+09:00`)) / 86400e3;
     assert.ok(days <= max, `${s.name} の確認日 ${s.checked} から${Math.floor(days)}日たっている。本文を開いて確かめ直し、checked を直す`);
     assert.match(s.url, /^https:\/\//);

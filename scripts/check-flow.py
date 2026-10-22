@@ -57,6 +57,24 @@ CASES = {
         (('fill', '#shotokuwari', '235500'), '#r-foot', '所得税の税率をえらんでください'),
         (('click', '.tile[data-rate="0.05"]'), None, None),
     ],
+    'furusato/onestop': [
+        (None, '#r-foot', '寄付先の数を入れてください'),
+        (('fill', '#cities', '3'), None, None),
+    ],
+    'furusato/shimekiri': [
+        (None, None, None),  # 開いたときに、今日からの日数が出ている
+    ],
+    'furusato/memo': [
+        (None, '#r-foot', '上限を入れてください'),
+        (('fill', '#limit', '57000'), '#r-foot', '寄付した自治体と金額を入れてください'),
+        (('fill', '#amount-0', '10000'), None, None),
+    ],
+    'point': [
+        (None, '#r-foot', '合計を入れてください'),
+        (('fill', '#total', '30000'), '#r-foot', '店舗の数を入れてください'),
+        (('fill', '#shops', '5'), '#r-foot', '上限をえらんでください'),
+        (('click', '.tile[data-cap="7000"]'), None, None),
+    ],
     'gakureki': [
         (None, '#r-foot', '生年月日を入れてください'),
         (('fill', '#birth', '2004-06-10'), None, None),
