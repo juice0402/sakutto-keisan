@@ -103,6 +103,14 @@ for (const file of htmlFiles) {
     fail(rel, `外部のファイルを読み込んでいる: ${m[0].slice(0, 80)}`);
   }
   if (ext === 'adsense' && !SITE.adsense) fail(rel, 'AdSense の印があるのに、運営者IDがない');
+  // 広告の枠（SITE.adSlot）は AdSense のページだけ、計算カードより下に2つまで（答えが1画面に見える決まり。10/22 しょーくん「ツールの下と本文の終わり」）
+  {
+    const slots = [...html.matchAll(/<ins class="adsbygoogle"/g)].map((m) => m.index);
+    if (slots.length && ext !== 'adsense') fail(rel, 'AdSense の印がないページに広告の枠がある');
+    if (slots.length > 2) fail(rel, `広告の枠が多い（${slots.length}）`);
+    const calc = html.indexOf('id="calc"');
+    if (slots.length && (calc < 0 || slots[0] < calc)) fail(rel, '広告の枠が計算カードより上にある');
+  }
   if (ext === 'rakuten-img' && html.includes('googlesyndication')) fail(rel, '楽天の商品のページに AdSense がある（楽天ウェブサービスの規約 第10条）');
   // AI がよく使う言い回しを使わない（文章の決まり）。ふるさと納税のページは、総務省のQ&Aが挙げる言葉も使わない
   {

@@ -1030,6 +1030,12 @@ h1 {
 
 /* 本文（画面の外にあるうちは描画を後回しにして、最初の表示を速く） */
 .prose { margin: 40px 0 0; content-visibility: auto; contain-intrinsic-size: auto 480px; }
+/* 広告の枠（SITE.adSlot）：計算カードの下と関連ツールの前。「広告」の字は広告が入ったときだけ出し、入らなかった枠はたたむ */
+.ad { margin: 32px 0 0; }
+.ad-label { display: none; margin: 0 0 4px; font-size: 12px; color: var(--muted); }
+.ad:has(ins[data-ad-status="filled"]) .ad-label { display: block; }
+.ad:has(ins[data-ad-status="unfilled"]) { display: none; }
+.adsbygoogle { display: block; }
 .prose h2 { font-size: 19px; line-height: 1.45; margin: 0 0 12px; padding: 0 0 4px; border-bottom: 2px solid var(--text); }
 .prose h3 { font-size: 16px; margin: 18px 0 6px; }
 .prose p, .prose ul, .prose ol { margin: 0 0 12px; }

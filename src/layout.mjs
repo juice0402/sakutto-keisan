@@ -51,6 +51,19 @@ export const breadcrumbLd = (items) => ({
   })),
 });
 
+// 広告の枠（SITE.adSlot）：計算カードの下（計算カードのあとの最初の本文の前）と、関連ツールの前。
+// 「広告」の字は広告が入ったときだけ出す（site.css の .ad）。読み込みは head の AdSense のスクリプト1つだけ
+const AD_UNIT = () =>
+  `<div class="ad"><p class="ad-label">広告</p><ins class="adsbygoogle" data-ad-client="${SITE.adsense}" data-ad-slot="${SITE.adSlot}" data-ad-format="auto" data-full-width-responsive="true"></ins></div>\n`;
+const AD_PUSH = `<script>for(const ad of document.querySelectorAll('ins.adsbygoogle'))(window.adsbygoogle=window.adsbygoogle||[]).push({})</script>`;
+function withAds(body) {
+  const calc = body.indexOf('id="calc"');
+  if (calc < 0) return body;
+  const at = [body.indexOf('<section class="prose"', calc), body.lastIndexOf('<section class="prose" aria-labelledby="related">')].filter((i) => i > calc);
+  for (const i of [...new Set(at)].sort((a, b) => b - a)) body = body.slice(0, i) + AD_UNIT() + body.slice(i);
+  return body;
+}
+
 // 値をえらぶ付箋の場所（.tiles・.seg）に、ページの上から順に番号を付ける。site.css が番号で付箋の色を変える（10/22 しょーくん「選択の場所が違うものは付箋の色を変えて」）
 // data-fresh：まださわっていない印。はじめから入っている値に丸を付けない（notes.js がさわったら外す）
 function numberNotes(body) {
@@ -86,6 +99,7 @@ export function page(p) {
   // 外部の読み込みは決めたものだけ。印（data-ext）を見て scripts/verify-dist.mjs が見張る
   const ads = Boolean(SITE.adsense) && !p.noAds && !p.noindex && !p.ext;
   const ext = p.ext || (ads ? 'adsense' : '');
+  const body = ads && SITE.adSlot ? withAds(p.body) : p.body;
 
   return `<!doctype html>
 <html lang="ja"${ext ? ` data-ext="${ext}"` : ''}>
@@ -119,7 +133,7 @@ ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceA
   <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>
 <main class="wrap">
-${numberNotes(p.body)}
+${numberNotes(body)}
 ${breadcrumbHtml(crumbs)}
 </main>
 <footer class="site-footer">
@@ -134,8 +148,8 @@ ${breadcrumbHtml(crumbs)}
     <p class="copy">© ${year === SITE.startYear ? year : `${SITE.startYear}–${year}`} ${esc(SITE.name)}</p>
   </div>
 </footer>
-${[...(p.scripts || []), ...(/class="(?:tiles|seg)[\s"]/.test(p.body) ? ['notes.js'] : [])].map(scriptTag).join('\n')}
-</body>
+${[...(p.scripts || []), ...(/class="(?:tiles|seg)[\s"]/.test(body) ? ['notes.js'] : [])].map(scriptTag).join('\n')}
+${body.includes('class="adsbygoogle"') ? `${AD_PUSH}\n` : ''}</body>
 </html>
 `;
 }
