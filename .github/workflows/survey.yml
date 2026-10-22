@@ -1,0 +1,35 @@
+name: 調べもの（検索候補）
+
+# 一時的な調べもの用（main には入れない）。survey/ のブランチに push したときだけ動き、結果をこのブランチに保存する
+on:
+  push:
+    branches:
+      - 'survey/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: survey
+  cancel-in-progress: false
+
+jobs:
+  suggest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: 検索候補を集める
+        run: node scripts/survey-suggest.mjs
+      - name: 結果をこのブランチに保存
+        run: |
+          if [ -f survey/suggest.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add survey/suggest.json
+            git commit -m "調べもの：検索候補の結果" || true
+            git push
+          fi
