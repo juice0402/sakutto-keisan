@@ -18,7 +18,7 @@ from playwright.sync_api import sync_playwright
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8766'
 
-# slug: [(操作, 案内の場所, 案内の文)]。最初の行は開いたとき（操作なし）。答えが出たら案内は None（見ない）
+# slug: [(操作, 案内の場所, 案内の文)]。最初の行は開いたとき（操作なし）。答えが出たら案内は None（見ない）。日によって変わる案内は文のタプル（どれか）
 # 操作：('fill', 欄, 数字) か ('click', セレクタ)
 CASES = {
     'waribiki': [
@@ -72,8 +72,14 @@ CASES = {
     'point': [
         (None, '#r-foot', '合計を入れてください'),
         (('fill', '#total', '30000'), '#r-foot', '店舗の数を入れてください'),
-        (('fill', '#shops', '5'), '#r-foot', '上限をえらんでください'),
+        # 上限が公式でわかっている回の前と最中は、上限のマスがはじめからえらばれている（そのときは案内なし）
+        (('fill', '#shops', '5'), '#r-foot', ('上限をえらんでください', '')),
         (('click', '.tile[data-cap="7000"]'), None, None),
+    ],
+    'point/spu': [
+        (None, '#r-foot', '今月の買い物を入れてください'),
+        (('fill', '#total', '30000'), '#r-foot', '使っているサービスをえらんでください'),
+        (('click', '.spu-chk[data-id="mobile"]'), None, None),
     ],
     'gakureki': [
         (None, '#r-foot', '生年月日を入れてください'),
@@ -273,7 +279,7 @@ with sync_playwright() as p:
                 if sel:
                     got = page.inner_text(sel).strip()
                     where = f'{width}px /{slug}/ {act[1] if act else "はじめ"}'
-                    check(got == text, f'{where} の案内「{got}」（「{text}」のはず）')
+                    check(got == text if isinstance(text, str) else got in text, f'{where} の案内「{got}」（「{text}」のはず）')
                     check(page.evaluate(LINES, sel) <= 1, f'{where} の案内「{got}」が1行に入らない')
             # Enter：答えの欄（点線の枠）に入らない
             for id_ in page.evaluate(OUT_ENTER):
