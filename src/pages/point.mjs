@@ -35,7 +35,7 @@ const REACH_ROWS = Array.from({ length: POINT_MAX_SHOPS - 1 }, (_, i) => i + 2)
   .join('\n');
 
 const EVENT_ROWS = POINT_EVENTS.map(
-  (e) => `<tr><td>${esc(e.name)}</td><td>${jaDate(e.start)} ${e.start.slice(11)}〜${jaDate(e.end)} ${e.end.slice(11)}</td><td class="num">${e.cap ? fmt(e.cap) : '公式で確かめる'}</td></tr>`,
+  (e) => `<tr><td><span class="nw">${esc(e.name)}</span><br><span class="nw">${jaDate(e.start)} ${e.start.slice(11)}〜</span><wbr><span class="nw">${jaDate(e.end)} ${e.end.slice(11)}</span></td><td class="num nw">${e.cap ? fmt(e.cap) : '公式で確かめる'}</td></tr>`,
 ).join('\n');
 
 const FAQS = [
@@ -124,7 +124,7 @@ ${section(
 ${section(
   'table',
   '上限に届く合計の早見表',
-  `<div class="tbl-wrap"><table class="tbl-tight">
+  `<div class="tbl-wrap"><table class="tbl-tight pt-quick">
 <thead><tr><th class="num">店舗</th><th class="num">倍率</th>${POINT_CAPS.map((c) => `<th class="num">上限${capName(c)}</th>`).join('')}</tr></thead>
 <tbody>
 ${REACH_ROWS}
@@ -137,8 +137,8 @@ ${REACH_ROWS}
 ${section(
   'events',
   '開催の期間',
-  `<div class="tbl-wrap"><table>
-<thead><tr><th>回</th><th>期間</th><th class="num">上限</th></tr></thead>
+  `<div class="tbl-wrap"><table class="tbl-text">
+<thead><tr><th>回と期間</th><th class="num">上限</th></tr></thead>
 <tbody>
 ${EVENT_ROWS}
 </tbody>

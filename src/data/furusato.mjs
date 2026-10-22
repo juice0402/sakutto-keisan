@@ -64,6 +64,13 @@ export const FURUSATO_SOURCES = [
   { name: '柏市「個人住民税がかからないかた」', url: 'https://www.city.kashiwa.lg.jp/shiminzei/kojinshiminzei/r8hikazei.html', checked: '2026-10-22', what: '所得割がかからない基準' },
 ];
 
+// 制度の変更点（/furusato/seido/）の出典。確認日の決まりは FURUSATO_SOURCES と同じ。2026年の寄付の控除の見直しは FURUSATO_SOURCES の国税庁・財務省・渋谷区
+export const FURUSATO_SEIDO_SOURCES = [
+  { name: '総務省「ふるさと納税指定制度における令和元年6月1日以降の指定等について」', url: 'https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/file/report20190514_02.pdf', checked: '2026-10-22', what: '指定制度・返礼品は3割以下の地場産品' },
+  { name: '総務省「令和8年度地方税制改正(案)について」', url: 'https://www.soumu.go.jp/main_content/001047636.pdf', checked: '2026-10-22', what: '特例控除の193万円の上限' },
+  { name: '総務省「ふるさと納税について（指定基準に係る告示改正）」', url: 'https://www.soumu.go.jp/main_content/001070694.pdf', checked: '2026-10-22', what: '自治体が使えるお金の割合・指定の取り消し' },
+];
+
 // 手続き（ワンストップ特例・締め切り・寄付メモ）の出典。確認日の決まりは FURUSATO_SOURCES と同じ
 export const FURUSATO_TETSUZUKI_SOURCES = [
   { name: '総務省「ふるさと納税の流れ」', url: 'https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/procedure.html', checked: '2026-10-22', what: 'ワンストップ特例の条件と確定申告' },

@@ -106,13 +106,35 @@ for (const file of htmlFiles) {
   if (ext === 'rakuten-img' && html.includes('googlesyndication')) fail(rel, '楽天の商品のページに AdSense がある（楽天ウェブサービスの規約 第10条）');
   // AI がよく使う言い回しを使わない（文章の決まり）。ふるさと納税のページは、総務省のQ&Aが挙げる言葉も使わない
   {
-    const visible = shown.replace(/<[^>]+>/g, ' ');
+    // 返礼品の商品名（楽天から取ったそのままの名前。自治体が書いたもの）は見ない
+    const visible = shown.replace(/<p class="hr-name">[\s\S]*?<\/p>/g, ' ').replace(/<[^>]+>/g, ' ');
     const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'コツ', '——'];
     if (rel.startsWith('/furusato/')) NG.push('お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント');
     // 楽天のポイントのページは、楽天アフィリエイトの決まり（予想・あおり・くじの紹介をしない）
     if (rel.startsWith('/point/')) NG.push('お得', '最安', '必ず得', '倍確定', '予想', '次回は', 'ラッキーくじ', 'スロット', '楽天公認');
     const hit = NG.filter((w) => visible.includes(w));
     if (hit.length) fail(rel, `使わない言葉がある: ${hit.join('・')}`);
+  }
+  // 返礼品のページ（楽天の商品を出すページ）の決まり（楽天ウェブサービスの規約・楽天アフィリエイトのガイドライン。10/22 統合の設計）
+  if (html.includes('class="hr-list"')) {
+    const mihon = html.includes('class="hr-mihon"');
+    const ad = html.indexOf('<p class="hr-ad">広告　楽天アフィリエイトを利用しています</p>');
+    if (ad < 0 || ad > html.indexOf('class="hr-list"')) fail(rel, '一覧より上に「広告　楽天アフィリエイトを利用しています」がない');
+    if (!html.includes('<!-- Rakuten Web Services Attribution Snippet FROM HERE -->\n<a href="https://developers.rakuten.com/" target="_blank">Supported by Rakuten Developers</a>\n<!-- Rakuten Web Services Attribution Snippet TO HERE -->')) fail(rel, '楽天のクレジットがない（指定のHTMLのまま）');
+    if (html.includes('googlesyndication') || ext === 'adsense') fail(rel, '楽天の商品のページに AdSense がある');
+    if (!mihon && ext !== 'rakuten-img') fail(rel, '楽天の商品画像の印（data-ext="rakuten-img"）がない');
+    for (const m of html.matchAll(/<a\b[^>]*\bhref="(https?:\/\/[^"]+)"/g)) {
+      const host = new URL(m[1]).host;
+      if (!['hb.afl.rakuten.co.jp', 'item.rakuten.co.jp', 'www.rakuten.co.jp', 'developers.rakuten.com'].includes(host)) fail(rel, `楽天の商品のページに楽天以外へのリンク: ${host}`);
+    }
+    for (const m of html.matchAll(/<a class="hr-go" href="([^"]*)"([^>]*)>/g)) {
+      if (!/rel="[^"]*sponsored/.test(m[2])) fail(rel, '返礼品へのリンクに rel="sponsored" がない');
+      if (!(mihon ? m[1] === '#mihon' : /^https:\/\/(hb\.afl|item)\.rakuten\.co\.jp\//.test(m[1]))) fail(rel, `返礼品へのリンクが楽天でない: ${m[1].slice(0, 60)}`);
+    }
+    [...html.matchAll(/<img class="hr-img"[^>]*>/g)].forEach((m, i) => {
+      if (!/width="128" height="128"/.test(m[0])) fail(rel, '商品画像に幅と高さ（128）がない');
+      if (i >= 4 && !m[0].includes('loading="lazy"')) fail(rel, '5枚目からの商品画像が loading="lazy" でない');
+    });
   }
   for (const m of html.matchAll(/\b(?:href|src)="(\/[^"]*)"/g)) {
     if (!resolves(m[1])) fail(rel, `リンク先がない: ${m[1]}`);
@@ -140,7 +162,9 @@ for (const t of TOOLS.filter((x) => x.published)) {
   if (!readFileSync(f, 'utf8').includes(`/og/${t.slug}.png`)) fail(url, 'ツール専用の共有画像を使っていない（scripts/make-images.py で作る）');
 }
 for (const t of TOOLS.filter((x) => !x.published)) {
-  if (existsSync(join(DIST, toolUrl(t)))) fail(toolUrl(t), '準備中なのにページがある');
+  const f = join(DIST, toolUrl(t), 'index.html');
+  // 返礼品の見本のページ（PRのプレビュー。noindex・作り話の商品）はよい
+  if (existsSync(f) && !readFileSync(f, 'utf8').includes('class="hr-mihon"')) fail(toolUrl(t), '準備中なのにページがある');
 }
 // 写真の読み取りソフト（scripts/fetch-ocr.mjs が公開のときに置く）。GitHub Actions では必ずあること
 const ocrDir = join(DIST, 'ocr', OCR_VERSION);

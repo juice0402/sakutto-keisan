@@ -7,6 +7,10 @@
 //   どちらもないもの … カテゴリにそのまま出す。parent があるもの（下のページ）はトップに出さない
 //   pickSeason: { months, replaces } … その月にビルドしたときだけ、「よく使う計算」の replaces 番目と入れかえる（ふるさと納税は11〜12月）
 // path … コーナーのページは入れ子のURL（/furusato/jougen/）。なければ /<slug>/
+import { HENREIHIN_MODE } from './data/henreihin.mjs';
+
+// 返礼品のページは、楽天から取ったデータで作るときだけ公開（src/data/henreihin.mjs）
+const HR_LIVE = HENREIHIN_MODE === 'api';
 
 export const TOOLS = [
   {
@@ -398,7 +402,7 @@ export const TOOLS = [
     short: '年収と家族から、いくらまで寄付できるか',
     published: true,
     updated: '2026-10-22',
-    related: ['furusato-memo', 'furusato-jougen', 'furusato-onestop', 'furusato-shimekiri'],
+    related: ['furusato-memo', 'furusato-henreihin', 'furusato-jougen', 'furusato-onestop', 'furusato-shimekiri'],
   },
   {
     slug: 'furusato-jougen',
@@ -409,7 +413,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-22',
     more: true,
-    related: ['furusato', 'furusato-memo', 'furusato-onestop', 'loan'],
+    related: ['furusato', 'furusato-seido', 'furusato-memo', 'furusato-onestop'],
   },
   // 第2弾（10/22）：寄付メモ・ワンストップ特例・締め切り
   {
@@ -421,7 +425,7 @@ export const TOOLS = [
     short: '寄付の記録と、残りの枠・自治体の数',
     published: true,
     updated: '2026-10-22',
-    related: ['furusato', 'furusato-onestop', 'furusato-shimekiri', 'furusato-jougen'],
+    related: ['furusato', 'furusato-henreihin', 'furusato-onestop', 'furusato-shimekiri', 'furusato-jougen'],
   },
   {
     slug: 'furusato-onestop',
@@ -446,6 +450,47 @@ export const TOOLS = [
     updated: '2026-10-22',
     related: ['furusato-onestop', 'furusato-memo', 'furusato', 'nissu'],
   },
+  {
+    slug: 'furusato-seido',
+    path: '/furusato/seido/',
+    name: 'ふるさと納税の制度の変更点',
+    ogTitle: 'ふるさと納税の\n制度の変更点',
+    more: true,
+    category: 'furusato',
+    short: '寄付の年ごとに、かかわる制度の変更',
+    published: true,
+    updated: '2026-10-22',
+    related: ['furusato', 'furusato-shimekiri', 'furusato-onestop', 'furusato-memo'],
+  },
+  // 第3弾（10/22）：返礼品。楽天市場の商品検索APIでビルドのときに取る。キーが入って HENREIHIN_LIVE にするまでは公開しない
+  {
+    slug: 'furusato-henreihin',
+    path: '/furusato/henreihin/',
+    name: 'ふるさと納税の返礼品',
+    ogTitle: 'ふるさと納税の\n返礼品',
+    category: 'furusato',
+    short: '1万円あたりの量でくらべる（お米・肉・魚介・日用品）',
+    published: HR_LIVE,
+    updated: '2026-10-22',
+    related: ['furusato', 'furusato-memo', 'furusato-onestop', 'furusato-shimekiri'],
+  },
+  ...[
+    ['kome', 'お米', '1万円あたり何kgか、多い順'],
+    ['niku', '肉', '1万円あたり何kgか、多い順'],
+    ['gyokai', '魚介', '1万円あたり何kgか、多い順'],
+    ['nichiyouhin', '日用品', 'トイレットペーパーとティッシュ、1万円あたりの数'],
+  ].map(([slug, name, short]) => ({
+    slug: `furusato-${slug}`,
+    path: `/furusato/henreihin/${slug}/`,
+    name: `ふるさと納税の${name}`,
+    ogTitle: `ふるさと納税の\n${name}`,
+    category: 'furusato',
+    parent: 'furusato-henreihin',
+    short,
+    published: HR_LIVE,
+    updated: '2026-10-22',
+    related: ['furusato-henreihin', 'furusato', 'furusato-memo', 'furusato-shimekiri'],
+  })),
   // 楽天のポイントのコーナー（10/22 統合）。お買い物マラソンの買いまわりの計算。楽天APIは使わない
   {
     slug: 'point',
