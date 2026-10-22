@@ -35,14 +35,12 @@ const tile2 = (attr, label, opts) => `<div class="tiles tiles-2" role="group" ar
     </div>`;
 
 /* ---- /furusato/onestop/ ワンストップ特例の申請 ---- */
-const STEPPER = `<div class="field people-row" id="f-cities">
-    <label for="cities">寄付先</label>
-    <div class="stepper">
+// 寄付先の数：大きな −／＋ と、名前を中に書いたまん中の欄（下のマスと左右のはしをそろえる）
+const STEPPER = `<div class="stepper box-stepper">
       <button type="button" class="step-btn" id="cities-minus" aria-label="寄付先を1つへらす">${icon('<path d="M5 12h14"/>')}</button>
-      <div class="input"><input id="cities" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="3" data-hint="寄付した自治体の数。同じ自治体は1つ"><span class="unit">つ</span></div>
+      <div class="field box-field" id="f-cities"><label for="cities">寄付先</label><div class="input"><input id="cities" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="3" data-hint="寄付した自治体の数。同じ自治体は1つ"><span class="unit">つ</span></div></div>
       <button type="button" class="step-btn" id="cities-plus" aria-label="寄付先を1つふやす">${icon('<path d="M5 12h14M12 5v14"/>')}</button>
-    </div>
-  </div>`;
+    </div>`;
 
 const OS_FAQS = [
   {
@@ -93,7 +91,7 @@ function renderOnestop() {
     ${tile2('data-card', 'マイナンバーカード', [['1', 'カードあり', 'マイナンバー', true], ['0', 'カードなし', '通知カードなど', false]])}
   </div>
   <div class="doc" aria-live="polite">
-    <p class="doc-title">ワンストップ特例</p>
+    <p class="doc-title">特例の申請</p>
     <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
     <p class="doc-sum" id="r-sum"><span class="doc-sum-k" id="r-cap">出す申請書</span><span class="doc-sum-v"><b id="r-num">？</b><span id="r-unit">通</span></span></p>
     <p class="doc-info"><span id="r-due"></span><span id="r-left"></span></p>

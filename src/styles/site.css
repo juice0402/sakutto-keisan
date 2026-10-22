@@ -255,6 +255,7 @@ h1 {
 .stepper { display: grid; grid-template-columns: var(--ctl-h) 1fr var(--ctl-h); gap: 8px; }
 .stepper .input { justify-content: center; }
 .stepper .input input { flex: 0 1 4.2ch; text-align: right; }
+.box-stepper .box-field .input { padding: 0 10px; } /* 名前を中に書いた −／＋（お買い物マラソンの店舗・ワンストップ特例の寄付先）。ほかの欄と左右のはしがそろう */
 .step-btn {
   font: inherit; min-height: var(--ctl-h); padding: 0; border: 1.5px solid var(--border); border-radius: var(--ctl-r);
   background: var(--surface); color: var(--text); display: grid; place-items: center; cursor: pointer;
@@ -796,8 +797,9 @@ h1 {
 /* お買い物マラソン：回の1行と、10マスのスタンプカード */
 .pt-event { margin: 0 0 10px; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-event.is-past { color: var(--muted); }
-.pt-card { margin: 16px 2px 0; padding: 12px 14px 10px; background: var(--sheet); border: 1.5px solid var(--border); border-radius: 4px; font-variant-numeric: tabular-nums; }
-.pt-title { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .08em; }
+.pt-card { position: relative; margin: 16px 2px 0; padding: 12px 14px 10px; background: var(--sheet); border: 1.5px solid var(--border); border-radius: 4px; font-variant-numeric: tabular-nums; }
+.pt-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .08em; }
+.pt-clear { position: absolute; top: 6px; right: 8px; }
 .pt-title small { font-size: 13px; font-weight: 800; letter-spacing: 0; color: var(--red); }
 .pt-stamps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
 .pt-stamp { display: grid; place-items: center; height: 28px; border: 1.5px dashed var(--border); border-radius: 50%; font-size: 12px; font-weight: 700; color: var(--muted); }

@@ -15,14 +15,12 @@ const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${N
 const capName = (c) => (c >= 10000 ? `${c / 10000}万` : fmt(c));
 const EX = marathonPoints({ total: 30000, shops: 5, cap: 7000, minYen: POINT_MIN_YEN, maxShops: POINT_MAX_SHOPS });
 
-const STEPPER = `<div class="field people-row" id="f-shops">
-    <label for="shops">店舗</label>
-    <div class="stepper">
+// 店舗の数：大きな −／＋ と、名前を中に書いたまん中の欄（ほかの欄と左右のはしをそろえる）
+const STEPPER = `<div class="stepper box-stepper">
       <button type="button" class="step-btn" id="shops-minus" aria-label="店舗を1つへらす">${icon('<path d="M5 12h14"/>')}</button>
-      <div class="input"><input id="shops" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="5" data-hint="1店舗1,000円以上の注文がある店の数"><span class="unit">店</span></div>
+      <div class="field box-field" id="f-shops"><label for="shops">店舗</label><div class="input"><input id="shops" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="5" data-hint="1店舗1,000円以上の注文がある店の数"><span class="unit">店</span></div></div>
       <button type="button" class="step-btn" id="shops-plus" aria-label="店舗を1つふやす">${icon('<path d="M5 12h14M12 5v14"/>')}</button>
-    </div>
-  </div>`;
+    </div>`;
 
 const CAP_TILES = `<div class="tiles tiles-3" role="group" aria-label="上限">
       ${POINT_CAPS.map((c) => `<button type="button" class="tile" data-cap="${c}" aria-pressed="false"><b>${capName(c)}</b><small>上限</small></button>`).join('\n      ')}
@@ -90,12 +88,13 @@ export default function render() {
 <div class="calc" id="calc" data-events="${esc(JSON.stringify(POINT_EVENTS.map(({ start, end, cap, name }) => ({ start, end, cap, name }))))}" data-min="${POINT_MIN_YEN}" data-max="${POINT_MAX_SHOPS}">
   <p class="pt-event" id="pt-event" hidden></p>
   <div class="box-rows">
-    <div class="box-row-clear">${boxField('total', '合計', '円', '30,000', '', '税込。クーポンのあと、送料はのぞく')}<button type="button" class="clear-btn" id="clear">クリア</button></div>
+    ${boxField('total', '合計', '円', '30,000', '', '税込。クーポンのあと、送料はのぞく')}
     ${STEPPER}
     ${CAP_TILES}
   </div>
   <div class="pt-card" aria-live="polite">
     <p class="pt-title">買いまわりカード<small id="r-rate"></small></p>
+    <button type="button" class="clear-btn pt-clear" id="clear">クリア</button>
     <div class="pt-stamps" aria-hidden="true">${STAMPS}</div>
     <p class="pt-sum"><span class="pt-k" id="r-cap">特典</span><span class="pt-v"><b id="r-num">？</b><small>ポイント</small></span></p>
     <table class="pt-table"><tbody>
