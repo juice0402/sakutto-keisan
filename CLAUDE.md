@@ -27,7 +27,8 @@
   - モード（`scripts/henreihin-mode.mjs`）：`HENREIHIN_LIVE` が true でキーがあれば api（本番もPRも楽天のデータ）、まだのときの PR は fixture（`tests/fixtures/henreihin.json` の作り話の見本の商品。noindex と「見本」の帯）、ほかは off（ページを作らない）。手元では `HENREIHIN=fixture npm run build` で見本のページを作れる
   - 取れなかったとき・量が読めた返礼品が5件より少ない一覧があるときは、公開を止める（前の公開がそのまま残る）
   - 毎日の取り直し：`.github/workflows/henreihin-daily.yml` が日本時間6:07（12月は18:07も）に本番の公開を動かす。LIVE のときは、本番の公開のあとに、いまの本番以外で3日より古い公開を消す（古いプレビューに楽天の情報を残さない）
-  - Secrets：`RAKUTEN_APPLICATION_ID`・`RAKUTEN_ACCESS_KEY`・`RAKUTEN_AFFILIATE_ID`（しょーくんが GitHub に直接入れる。チャットに貼らない）
+  - Secrets：`RAKUTEN_APPLICATION_ID`・`RAKUTEN_ACCESS_KEY`・`RAKUTEN_AFFILIATE_ID`（しょーくんが GitHub に直接入れる。チャットに貼らない）。10/22 に楽天のアプリ「サクッと計算」を登録して入れた。アプリの有効期限は **2027年10月22日**（その前に楽天のアプリ一覧で「有効期限延長」。切れると毎日の取り直しが止まる）。楽天アフィリエイトのサイト登録もした（3位）
+  - `henreihin-check.yml` は、手で動かすほかに、返礼品の探し方（`src/data/henreihin.mjs`・`src/lib/henreihin.mjs`・`scripts/rakuten.mjs`）を変えたPRでも動く（main にない workflow_dispatch は動かせないので）
   - 本番に出す手順：しょーくんが楽天のアプリ登録（アプリ名 サクッと計算・URL と許可されたWebサイトは sakutto-keisan.com・楽天市場API）と、楽天アフィリエイトのサイト登録をして、Secrets を入れる → Claude が `henreihin-check.yml` を手で動かして、件数・ふるさと納税の店の数・多いジャンルIDを注意書きで見る → `genreId` を入れる → `HENREIHIN_LIVE = true` のPR → プレビューで量の読み取りを、しょーくんといっしょに目で見る → Merge
 - 流れ：ブランチ `claude/...` → PR → CI が緑・プレビューで確認 → **しょーくんに知らせてから Merge**
   - 例外：毎月1日の予約タスク「サクッと計算 スワップの金利の更新（Claude）」は、`src/data/fx-swap.mjs` だけを直したPRを、CI が緑なら自分で Merge して、しょーくんに報告する（10/19 しょーくんが「金利は毎月、予約タスクで確かめて更新」をえらんだ）
