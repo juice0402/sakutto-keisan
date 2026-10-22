@@ -26,7 +26,8 @@ jobs:
 
       - name: 返礼品のページを出しているか
         id: live
-        run: node -e "import('./src/data/henreihin.mjs').then((m) => console.log('live=' + (m.HENREIHIN_LIVE ? 1 : 0)))" >> "$GITHUB_OUTPUT"
+        run: |
+          node -e "import('./src/data/henreihin.mjs').then((m) => console.log('live=' + (m.HENREIHIN_LIVE ? 1 : 0)))" >> "$GITHUB_OUTPUT"
 
       - name: 本番の公開を動かす
         if: steps.live.outputs.live == '1'
