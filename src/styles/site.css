@@ -267,7 +267,8 @@ h1 {
 .calc-tools .tool-btn[aria-pressed]::before { content: ""; flex: none; width: 22px; height: 22px; border: 2px solid var(--text); border-radius: 2px; transform: rotate(-3deg); }
 .calc-tools .tool-btn[aria-pressed="true"] { border-color: transparent; background: transparent; color: var(--red); }
 .calc-tools .tool-btn[aria-pressed="true"]::after { content: ""; position: absolute; left: 11px; top: calc(50% - 17px); width: 10px; height: 22px; border: solid var(--red); border-width: 0 3px 3px 0; transform: rotate(38deg); }
-.calc-tools:has([aria-pressed]) .tool-link { flex: 1 1 100%; }
+.calc-tools:has([aria-pressed]) > :not([aria-pressed]) { order: -1; flex: 1 1 calc(50% - 8px); } /* 押すだけのボタン（レシピの＋材料を追加・結果をコピー）は、チェック欄の上に横長で */
+.calc-tools:has([aria-pressed]) .tool-link { order: 1; flex: 1 1 100%; } /* ほかのページへ行くボタンは、チェック欄の下 */
 .tool-btn:disabled { opacity: .35; cursor: default; }
 /* もう1つのページへ行くボタン（割引計算の「何％オフ？」・実質単価の比較の「入り数・割引シール」など）。横に2つ分・3つ分 */
 .tool-link { text-decoration: none; }
@@ -863,7 +864,7 @@ h1 {
 .hr-head span { font-size: 16px; font-weight: 800; }
 .hr-head small { margin-left: auto; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .hr-list { margin: 0; padding: 0; list-style: none; }
-.hr-row { display: grid; grid-template-columns: 128px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+.hr-row { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
 .hr-row[hidden] { display: none; }
 .hr-img { display: block; width: 128px; height: 128px; background: #fff; }
 .hr-noimg { display: grid; place-items: center; border: 1.5px dashed var(--border); font-size: 13px; font-weight: 700; color: var(--muted); }
@@ -877,6 +878,7 @@ h1 {
 .hr-per { margin-top: 2px !important; font-size: 14px; font-weight: 800; color: var(--red); white-space: nowrap; }
 .hr-per small { margin-right: 4px; font-size: 11.5px; color: var(--muted); }
 .hr-per b { font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; margin-right: 1px; }
+@media (max-width: 374px) { .hr-per small { display: block; margin: 0; } } /* 幅360pxで「1万円あたり110.8ロール分」がはみ出していた */
 .hr-basis { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .hr-go { display: inline-block; margin-top: 4px; font-size: 13.5px; font-weight: 700; color: var(--text); text-underline-offset: 3px; }
 .hr-none { margin: 10px 0 0; font-size: 13px; color: var(--muted); }

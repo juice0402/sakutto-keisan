@@ -39,7 +39,8 @@ const item = (k, i, first, extra) => `<div class="item${extra ? ' is-set' : ''}"
   </div>` : ''}
 </div>`;
 
-const toolBtn = (id, label) => `<button type="button" class="tool-btn" id="${id}" aria-pressed="false"><span>${label}</span></button>`;
+// 押すだけのボタン（＋1つ追加）。オン・オフではないので aria-pressed は付けない（付けると site.css がチェック欄の形にする）
+const toolBtn = (id, label) => `<button type="button" class="tool-btn" id="${id}"><span>${label}</span></button>`;
 
 const FAQS = [
   {
