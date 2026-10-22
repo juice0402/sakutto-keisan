@@ -51,6 +51,13 @@ export const breadcrumbLd = (items) => ({
   })),
 });
 
+// 値をえらぶ付箋の場所（.tiles・.seg）に、ページの上から順に番号を付ける。site.css が番号で付箋の色を変える（10/22 しょーくん「選択の場所が違うものは付箋の色を変えて」）
+// data-fresh：まださわっていない印。はじめから入っている値に丸を付けない（notes.js がさわったら外す）
+function numberNotes(body) {
+  let n = 0;
+  return body.replace(/class="((?:tiles|seg)(?: [^"]*)?)"/g, (_, c) => `class="${c}" data-note="${Math.min(++n, 3)}" data-fresh`);
+}
+
 /**
  * ページ全体のHTML
  * @param {object} p
@@ -112,7 +119,7 @@ ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceA
   <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>
 <main class="wrap">
-${p.body}
+${numberNotes(p.body)}
 ${breadcrumbHtml(crumbs)}
 </main>
 <footer class="site-footer">
@@ -127,7 +134,7 @@ ${breadcrumbHtml(crumbs)}
     <p class="copy">© ${year === SITE.startYear ? year : `${SITE.startYear}–${year}`} ${esc(SITE.name)}</p>
   </div>
 </footer>
-${(p.scripts || []).map(scriptTag).join('\n')}
+${[...(p.scripts || []), ...(/class="(?:tiles|seg)[\s"]/.test(p.body) ? ['notes.js'] : [])].map(scriptTag).join('\n')}
 </body>
 </html>
 `;
