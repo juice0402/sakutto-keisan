@@ -9,7 +9,7 @@ export const SITE = {
   indexnowKey: '267ca6c686146dbec62c311f4559fea0',
   // Google AdSense の運営者ID（ca-pub-から始まる。公開してよい値）。入れると全ページ（noindex と noAds のページはのぞく）に
   // AdSense のスクリプトを入れ、ビルドが /ads.txt を置く。空のあいだは何も入らない（10/22 統合の設計：計算・解説のページだけ）
-  adsense: '',
+  adsense: 'ca-pub-7891863499821813',
 };
 
 // ツールのカテゴリ（並び順もこの順）

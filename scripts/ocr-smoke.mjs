@@ -28,8 +28,12 @@ const notice = (title, text) => {
 const check = (ok, msg) => { console.log(`${ok ? '✓' : '✗'} ${msg}`); if (!ok) errors.push(msg); };
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+// AdSense のスクリプト（SITE.adsense を入れたページの head）は読まずに止める。広告の通信は読み取りとは関係がなく、
+// 止めておけば、ほかの通信は下の「このサイトのほかに通信しない」でこれまでどおり見張れる
+const AD_SCRIPT = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+await page.route((u) => u.href.startsWith(AD_SCRIPT), (r) => r.abort());
 const requests = [];
-page.on('request', (r) => requests.push(r.url()));
+page.on('request', (r) => { if (!r.url().startsWith(AD_SCRIPT)) requests.push(r.url()); });
 page.on('pageerror', (e) => errors.push(`ページのエラー: ${e.message}`));
 
 await page.goto(`${BASE}/recipe/`);
