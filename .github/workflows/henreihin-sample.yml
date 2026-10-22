@@ -14,7 +14,7 @@ jobs:
   sample:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -30,6 +30,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          printf 'hr-sample:%s' "$(cat blob.txt)" > body.txt
-          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" -F body=@body.txt --jq .id
-          rm -f blob.txt body.txt
+          split -b 60000 -d -a 2 blob.txt part-
+          n=$(ls part-* | wc -l)
+          i=0
+          for f in part-*; do
+            i=$((i+1))
+            printf 'hr-sample:%s/%s:%s' "$i" "$n" "$(cat "$f")" > body.txt
+            gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" -F body=@body.txt --jq .id
+          done
+          rm -f blob.txt body.txt part-*

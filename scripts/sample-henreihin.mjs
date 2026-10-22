@@ -1,9 +1,9 @@
-// 一時的（量の読み取りを本物の名前で直すため。終わったら消す）：楽天から返礼品の名前を取り、
+// 一時的（量の読み取りとカテゴリのしぼり方を本物の名前で直すため。終わったら消す）：楽天から返礼品の名前とジャンルの親子を取り、
 // Claude の手元にだけある鍵で暗号にして、PRのコメントに置く。ログには件数だけ。名前はどこにも読める形で残さない
 import { publicEncrypt, randomBytes, createCipheriv, constants } from 'node:crypto';
 import { gzipSync as gz } from 'node:zlib';
-import { HENREIHIN_CATS } from '../src/data/henreihin.mjs';
-import { rakutenKeys, searchPage } from './rakuten.mjs';
+import { HENREIHIN_CATS, RAKUTEN_SITE } from '../src/data/henreihin.mjs';
+import { rakutenKeys, searchPage, ENDPOINT } from './rakuten.mjs';
 
 const PUB = `-----BEGIN PUBLIC KEY-----
 MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAvLc3TCectKKv5lHadj4O
@@ -18,16 +18,29 @@ I8L02gtnP5ePfcj9gT3jAcdqLJVH2spUQKRAHN9q9Oh7AgMBAAE=
 -----END PUBLIC KEY-----`;
 const keys = rakutenKeys();
 if (!keys) process.exit(1);
-const out = {};
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const out = { groups: {}, genres: {} };
+const seen = new Set();
 for (const cat of HENREIHIN_CATS) {
   for (const g of cat.groups) {
     const names = [];
-    for (let page = 1; page <= 2; page++) {
-      const r = await searchPage(keys, { keyword: g.keyword, page, ngKeyword: g.ng, genreId: g.genreId });
-      names.push(...r.items.map((x) => [x.name, x.price, x.genre]));
+    for (let page = 1; page <= 10; page++) {
+      const r = await searchPage(keys, { keyword: g.keyword, page, ngKeyword: g.ng });
+      names.push(...r.items.map((x) => [x.name, x.price, x.genre, x.reviews]));
+      if (page >= r.pageCount) break;
     }
-    out[g.key] = names;
+    out.groups[g.key] = names;
+    for (const n of names) seen.add(n[2]);
   }
+}
+// ジャンルごとに親子（GenreInformation）を1回ずつ
+for (const id of [...seen].slice(0, 120)) {
+  await sleep(1100);
+  const p = new URLSearchParams({ applicationId: keys.appId, accessKey: keys.accessKey, genreId: id, hits: '1', genreInformationFlag: '1', formatVersion: '2' });
+  const res = await fetch(`${ENDPOINT}?${p}`, { headers: { Referer: RAKUTEN_SITE + '/', Origin: RAKUTEN_SITE } });
+  if (!res.ok) { out.genres[id] = { error: res.status }; continue; }
+  const j = await res.json();
+  out.genres[id] = j.GenreInformation ?? j.genreInformation ?? null;
 }
 const plain = gz(Buffer.from(JSON.stringify(out)));
 const key = randomBytes(32);
@@ -35,6 +48,5 @@ const iv = randomBytes(12);
 const c = createCipheriv('aes-256-gcm', key, iv);
 const body = Buffer.concat([c.update(plain), c.final()]);
 const ek = publicEncrypt({ key: PUB, oaepHash: 'sha256', padding: constants.RSA_PKCS1_OAEP_PADDING }, key);
-const blob = [ek, iv, c.getAuthTag(), body].map((b) => b.toString('base64')).join('.');
-process.stdout.write(blob);
-console.error(`件数：${Object.entries(out).map(([k, v]) => k + ' ' + v.length).join('・')}`);
+process.stdout.write([ek, iv, c.getAuthTag(), body].map((b) => b.toString('base64')).join('.'));
+console.error(`件数：${Object.entries(out.groups).map(([k, v]) => k + ' ' + v.length).join('・')}・ジャンル ${Object.keys(out.genres).length}`);
