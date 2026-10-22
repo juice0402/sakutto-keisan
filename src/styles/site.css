@@ -10,6 +10,8 @@
   --note: #fff2a8;      /* 値をえらぶ付箋 */
   --note-back: #e3cd70; /* 付箋のめくれた裏 */
   --note-line: transparent;
+  --note2: #d9eafc; --note2-back: #9fc3e8;  /* 2つめのえらぶ場所の付箋（水色） */
+  --note3: #ffdbe2; --note3-back: #e9a3b1;  /* 3つめ（ピンク） */
   --text: #1c2f4a;      /* 紺のペン */
   --muted: #5a6779;     /* えんぴつ */
   --border: #b4c1d2;    /* 枠の線 */
@@ -46,6 +48,8 @@
   --note: #f4efe2;
   --note-back: #d9cfb6;
   --note-line: #d8d0bc;
+  --note2: #dbe5f3; --note2-back: #aebfd8;
+  --note3: #f2e4e6; --note3-back: #d6b8bd;
   --text: #1e2a44;
   --muted: #5d6676;
   --border: #b9c0cc;
@@ -66,6 +70,8 @@
   --note: #2f3238;
   --note-back: #17191c;
   --note-line: #4a4d53;
+  --note2: #2c3b50; --note2-back: #141a22;
+  --note3: #3a2d33; --note3-back: #1d1619;
   --text: #e8e4da;
   --muted: #a19e95;
   --border: #4a4d53;
@@ -190,10 +196,13 @@ h1 {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   cursor: pointer; transform: rotate(var(--tilt, 0deg)); transition: transform .25s;
 }
-.tiles > :nth-child(4n+1), .seg > :nth-child(4n+1) { --tilt: -1.2deg; --fly: -36px; }
-.tiles > :nth-child(4n+2), .seg > :nth-child(4n+2) { --tilt: .8deg; --fly: 32px; }
-.tiles > :nth-child(4n+3), .seg > :nth-child(4n+3) { --tilt: -.5deg; --fly: -28px; }
-.tiles > :nth-child(4n+4), .seg > :nth-child(4n+4) { --tilt: 1deg; --fly: 40px; }
+.tiles > :nth-child(4n+1), .seg > :nth-child(4n+1) { --tilt: -.5deg; --fly: -36px; }
+.tiles > :nth-child(4n+2), .seg > :nth-child(4n+2) { --tilt: .35deg; --fly: 32px; }
+.tiles > :nth-child(4n+3), .seg > :nth-child(4n+3) { --tilt: -.25deg; --fly: -28px; }
+.tiles > :nth-child(4n+4), .seg > :nth-child(4n+4) { --tilt: .45deg; --fly: 40px; }
+/* えらぶ場所ごとに付箋の色を変える（data-note は layout.mjs がページの上から順に付ける。1つめは黄色） */
+[data-note="2"] > * { --note: var(--note2); --note-back: var(--note2-back); }
+[data-note="3"] > * { --note: var(--note3); --note-back: var(--note3-back); }
 .tile[aria-pressed="true"], .seg-btn[aria-pressed="true"] { --tilt: -2deg; }
 .tiles-2 > [aria-pressed="true"], .seg-2 > [aria-pressed="true"] { --tilt: -1.4deg; } /* 横に長い付箋は、傾けすぎると下の欄に近づく */
 /* えらんだ付箋の右下の角が、ぺろっとめくれる */
