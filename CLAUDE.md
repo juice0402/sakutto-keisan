@@ -22,6 +22,7 @@
   - PR → プレビュー（PRに自動でURLのコメント）／ main → 本番
   - Secrets：`CLOUDFLARE_API_TOKEN`（Pages の編集だけ）・`CLOUDFLARE_ACCOUNT_ID`
   - 本番では、アップロードの前後に `scripts/indexnow.mjs` が動き、**中身が変わったページだけ**を IndexNow（Bing・Yandex・Naver・Seznam・Yep）に知らせる。前回の指紋は本番の `/indexnow-pages.json`、鍵は `SITE.indexnowKey`（ビルドが `/<鍵>.txt` を置く）。結果は Actions の注意書き（IndexNow）で見る。Google は IndexNow に入っていないので、サイトマップとリンクで見つけてもらう
+- 公式のページの見張り（10/22 統合の設計）：`.github/workflows/watch.yml` が `scripts/watch-pages.mjs` を動かす。3時間おきにお買い物マラソンの公式のページ（日付・時刻・「◯ポイント」「◯倍」の数字だけ）、週1回（月曜の朝）にふるさと納税の出典のページ（本文の指紋だけ）を前回とくらべ、変わったら Issue（開いている同じ Issue があればコメント）。前回の数字は Actions のキャッシュ（リポジトリに入れない）。公式の文は保存しない・Issue に貼らない。Issue が来たら、しょーくんがチャットで声をかけ、Claude が公式を開いて `src/data/` を直す。Claude の予約タスクは当面ふやさない（マラソン1〜2回ぶん見て、誤検知の数で決める）
 - 流れ：ブランチ `claude/...` → PR → CI が緑・プレビューで確認 → **しょーくんに知らせてから Merge**
   - 例外：毎月1日の予約タスク「サクッと計算 スワップの金利の更新（Claude）」は、`src/data/fx-swap.mjs` だけを直したPRを、CI が緑なら自分で Merge して、しょーくんに報告する（10/19 しょーくんが「金利は毎月、予約タスクで確かめて更新」をえらんだ）
 

@@ -763,7 +763,6 @@ h1 {
 .os-more { align-self: center; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .os-table td:first-child { width: 1%; white-space: nowrap; }
 .os-table td:last-child { text-align: left; }
-.doc-sum.is-error .doc-sum-v { color: var(--error); }
 /* 締め切り：2枚の日めくり */
 .sk-ato { margin-right: 2px; font-size: 16px; }
 .sk-cals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 0; }
