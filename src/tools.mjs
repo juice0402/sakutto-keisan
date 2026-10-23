@@ -505,6 +505,29 @@ export const TOOLS = [
     related: ['furusato-henreihin', 'furusato', 'furusato-memo', 'furusato-shimekiri'],
   })),
   // 楽天のポイントのコーナー（10/22 統合）。お買い物マラソンの買いまわりの計算。楽天APIは使わない
+  // 10/23 しょーくん「楽天初心者向けが欲しい。Amazon の人は SPU をそもそも知らない」
+  {
+    slug: 'point-shikumi',
+    path: '/point/shikumi/',
+    name: '楽天のポイントのしくみ',
+    ogTitle: '楽天のポイントの\nしくみ',
+    category: 'point',
+    short: 'はじめての人向けに、ポイントがふえる3つのしくみ',
+    published: true,
+    updated: '2026-10-23',
+    related: ['point-spu', 'point', 'point-amazon', 'waribiki'],
+  },
+  {
+    slug: 'point-amazon',
+    path: '/point/amazon/',
+    name: '楽天とAmazonのポイント比較',
+    ogTitle: '楽天とAmazonの\nポイント比較',
+    category: 'point',
+    short: '同じ買い物で、どちらのポイントが多いか',
+    published: true,
+    updated: '2026-10-23',
+    related: ['point-shikumi', 'point-spu', 'point', 'waribiki'],
+  },
   {
     slug: 'point',
     path: '/point/',
@@ -514,7 +537,7 @@ export const TOOLS = [
     short: '合計と店舗の数から、買いまわりの特典の目安',
     published: true,
     updated: '2026-10-23',
-    related: ['point-spu', 'waribiki', 'shohizei', 'percent'],
+    related: ['point-spu', 'point-shikumi', 'waribiki', 'shohizei'],
   },
   // 10/23 しょーくん「SPU はしくみが複雑なので、最新情報としてすぐにページを」。倍率と上限は src/data/spu.mjs
   {
@@ -526,7 +549,7 @@ export const TOOLS = [
     short: '使っているサービスから、倍率と上限',
     published: true,
     updated: '2026-10-23',
-    related: ['point', 'waribiki', 'shohizei', 'percent'],
+    related: ['point', 'point-shikumi', 'waribiki', 'shohizei'],
   },
 ];
 
