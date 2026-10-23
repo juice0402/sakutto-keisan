@@ -1018,6 +1018,36 @@ def floors_card(title, rate, rows, k, v, foot):
     return draw
 
 
+def taishou_card(img, cx, top):
+    """買いまわりの1店舗の判定：数える額の棒と1,000円の点線、大きな「数える」（1,280円の商品に300円のクーポン→980円で数えない、の例はページの本文。絵は1,280円で数える）"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 226 * S, cx + 250 * S
+    y0, y1 = top - 40 * S, top + 316 * S
+    d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=SHEET, outline='#B4C1D2', width=2 * S)
+    d.text((x0 + 22 * S, y0 + 16 * S), '1店舗の判定', font=font('black', 26), fill=INK)
+    ys = y0 + 56 * S
+    d.text((x0 + 22 * S, ys + 46 * S), 'この買い物は', font=font('black', 26), fill=INK)
+    v = '数える'
+    f_v = font('black', 64)
+    d.text((x1 - 22 * S - d.textlength(v, font=f_v), ys + 14 * S), v, font=f_v, fill=RED)
+    bx0, bx1 = x0 + 22 * S, x1 - 22 * S
+    by, bh = ys + 110 * S, 36 * S
+    d.rectangle([bx0, by, bx1, by + bh], fill='#FFFFFF')
+    d.rectangle([bx0, by, bx0 + (bx1 - bx0) * 0.64, by + bh], fill=RED)
+    d.rectangle([bx0, by, bx1, by + bh], outline=INK, width=3 * S)
+    mx = (bx0 + bx1) / 2
+    yy = by - 8 * S
+    while yy < by + bh + 8 * S:
+        d.line([(mx, yy), (mx, min(yy + 7 * S, by + bh + 8 * S))], fill=INK, width=3 * S)
+        yy += 12 * S
+    t = '1,000円'
+    d.text((mx - d.textlength(t, font=font('bold', 18)) / 2, by + bh + 12 * S), t, font=font('bold', 18), fill=PENCIL)
+    for j, (k, v2) in enumerate((('数える額', '1,280円'), ('送料', '入れない'))):
+        yy = by + bh + 50 * S + j * 36 * S
+        d.text((x0 + 22 * S, yy), k, font=font('bold', 23), fill=INK)
+        d.text((x1 - 22 * S - d.textlength(v2, font=font('black', 23)), yy), v2, font=font('black', 23), fill=INK)
+
+
 def loan_doc(img, cx, top):
     """ローン：返済予定表（3,000万円・金利1％・35年）。書類に入りきるよう、共有画像では帯をのせない"""
     doc_sheet(img, cx, top, '返済予定表', '毎月の返済', '84,686', '円', ('経過', '返した額', 'のこり'),
@@ -1117,7 +1147,7 @@ VISUALS = {
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
     'furusato': furusato_doc, 'furusato-nenshu': furusato_nenshu_doc, 'furusato-fuufu': furusato_fuufu_doc, 'furusato-jougen': furusato_jougen_doc,
     'furusato-memo': furusato_memo_doc, 'furusato-onestop': furusato_onestop_doc, 'furusato-shimekiri': furusato_shimekiri_doc, 'furusato-seido': furusato_seido_doc,
-    'point': point_card, 'point-spu': spu_card,
+    'point': point_card, 'point-spu': spu_card, 'point-taishou': taishou_card,
     'point-shikumi': floors_card('今月のポイント', '12倍', (('キャンペーン', 1360, '#D98A90'), ('SPU', 1662, RED), ('いつもの1倍', 272, INK)), 'ポイント', '3,294', ''),
     'point-amazon': floors_card('ポイントくらべ', '4倍・3%', (('楽天', 1116, RED), ('Amazon', 900, INK)), '楽天が多い', '216', '3万円・5と0のつく日とプライム会員'),
     # 返礼品（楽天から取ったデータで作るときだけ公開。共有画像は HENREIHIN=api python3 scripts/make-images.py で作る）

@@ -85,6 +85,10 @@ CASES = {
         (('fill', '#shops', '5'), '#r-foot', ('上限をえらんでください', '')),
         (('click', '.tile[data-cap="7000"]'), None, None),
     ],
+    'point/taishou': [
+        (None, '#r-foot', '商品の値段を入れてください'),
+        (('fill', '#price', '1280'), None, None),
+    ],
     'point/shikumi': [
         (None, '#r-foot', '今月の買い物を入れてください'),
         (('fill', '#total', '30000'), '#r-foot', '使っているものをえらんでください'),

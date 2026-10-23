@@ -32,6 +32,7 @@ CASES = {
     'furusato/memo': (lambda pg: (pg.fill('#limit', '57000'), pg.fill('#name-0', 'A市'), pg.fill('#amount-0', '10000')), '.doc-sum'),
     'point': (lambda pg: (pg.fill('#total', '30000'), pg.fill('#shops', '5'), pg.click('.tile[data-cap="7000"]')), '.pt-sum'),
     'point/spu': (lambda pg: (pg.fill('#total', '30000'), pg.click('.spu-chk[data-id="card"]'), pg.click('.spu-chk[data-id="mobile"]')), '.pt-sum'),
+    'point/taishou': (lambda pg: (pg.fill('#price', '1280'), pg.fill('#coupon', '300')), '.pt-sum'),
     'point/shikumi': (lambda pg: (pg.fill('#total', '30000'), pg.click('.spu-chk[data-k="card"]'), pg.click('.spu-chk[data-k="marathon"]')), '.pt-sum'),
     'point/amazon': (lambda pg: (pg.fill('#total', '30000'), pg.fill('#apct', '1'), pg.click('.spu-chk[data-k="card"]'), pg.click('.spu-chk[data-k="prime"]')), '.pt-sum'),
     'gakureki': (lambda pg: pg.fill('#birth', '2004-06-10'), '#y-7'),

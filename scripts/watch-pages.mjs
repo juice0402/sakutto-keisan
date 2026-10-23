@@ -1,12 +1,12 @@
 // 公式のページの見張り（GitHub Actions の .github/workflows/watch.yml から。10/22 統合の設計「見張りは Actions → Issue」）
 //   node scripts/watch-pages.mjs point     … お買い物マラソンの公式のページ（3時間おき）：日付・時刻・「◯ポイント」「◯倍」の数字だけを前回とくらべる
-//   node scripts/watch-pages.mjs spu       … SPU の公式のページ（毎日）：日付・「◯ポイント」「◯pt」「◯円」「◯倍」の数字だけを前回とくらべる
+//   node scripts/watch-pages.mjs spu       … SPU の公式のページ（毎日）：日付・「◯ポイント」「◯pt」「◯円」「◯倍」の数字だけを前回とくらべる。mode: 'text' のページ（買いまわりの決まり）は本文の指紋で
 //   node scripts/watch-pages.mjs furusato  … ふるさと納税の出典のページ（週1回）：本文の指紋（ハッシュ）だけを前回とくらべる
 // 前回の数字と指紋は .watch/state.json（Actions のキャッシュ。リポジトリには入れない）。公式の文は保存しない・Issue にも貼らない
 // 変わったページがあれば watch-report.md を書く（Issue の本文）。はじめて見るページは覚えるだけ。読む前に robots.txt を確かめる
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { POINT_SOURCES, MARATHON } from '../src/data/point.mjs';
+import { POINT_SOURCES, MARATHON, POINT_COUNT_SOURCES } from '../src/data/point.mjs';
 import { SPU_SOURCES, POINT_DAY } from '../src/data/spu.mjs';
 import { AMAZON_SOURCES } from '../src/data/amazon.mjs';
 import { FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../src/data/furusato.mjs';
@@ -16,10 +16,10 @@ const UA = 'sakutto-keisan-watch (+https://sakutto-keisan.com/about/)';
 const STATE = '.watch/state.json';
 const PAGES = {
   point: [{ name: '楽天市場「お買い物マラソン」', url: MARATHON }, ...POINT_SOURCES],
-  spu: [...SPU_SOURCES, POINT_DAY, ...AMAZON_SOURCES],
+  spu: [...SPU_SOURCES, POINT_DAY, ...AMAZON_SOURCES, ...POINT_COUNT_SOURCES],
   furusato: [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES, ...FURUSATO_SEIDO_SOURCES, ...FURUSATO_FUUFU_SOURCES],
 }[GROUP]
-  ?.map(({ name, url }) => ({ name, url }))
+  ?.map(({ name, url, mode }) => ({ name, url, mode }))
   .filter((p, i, all) => all.findIndex((q) => q.url === p.url) === i); // 同じページは1回だけ読む
 if (!PAGES) {
   console.error('使い方: node scripts/watch-pages.mjs point|spu|furusato');
@@ -90,7 +90,7 @@ for (const p of PAGES) {
     continue;
   }
   const prev = state[p.url];
-  if (GROUP === 'point' || GROUP === 'spu') {
+  if ((GROUP === 'point' || GROUP === 'spu') && p.mode !== 'text') {
     const tokens = (GROUP === 'spu' ? spuTokensOf : tokensOf)(textOf(body));
     const now = { hash: sha(tokens.join('|')), tokens };
     if (prev && prev.hash !== now.hash) {

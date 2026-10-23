@@ -923,6 +923,13 @@ h1 {
 .spu-chk small { font-size: 12px; font-weight: 700; line-height: 1.25; color: var(--muted); }
 .spu-chk[aria-pressed="true"] span, .spu-chk[aria-pressed="true"] small { color: var(--red); }
 .spu-chk[aria-pressed="true"]::after { content: ""; position: absolute; left: 8px; top: calc(50% - 16px); width: 9px; height: 20px; border: solid var(--red); border-width: 0 3px 3px 0; transform: rotate(38deg); }
+/* 買いまわりの1店舗の判定：数える額の棒（2,000円で右はし）と1,000円の点線。足りないときはうすい赤 */
+.tk-bar { position: relative; height: 22px; margin: 8px 0 20px; border: 1.5px solid var(--text); background: #fff; }
+.tk-bar i { display: block; width: 0; height: 100%; background: var(--red); }
+.tk-bar i.is-short { background: #d98a90; }
+.tk-line { position: absolute; left: 50%; top: -5px; bottom: -5px; border-left: 2px dashed var(--text); }
+.tk-line span { position: absolute; top: 100%; left: 0; transform: translateX(-50%); margin-top: 2px; font-size: 11.5px; font-weight: 700; white-space: nowrap; color: var(--muted); }
+.pt-v.is-no { color: var(--muted); }
 /* 楽天のポイントのしくみ：3段（キャンペーン・SPU・いつもの1倍）の棒と、2列のチェック欄。楽天とAmazonのポイント比較も同じ棒 */
 .sk-floors { margin: 0; padding: 0; list-style: none; }
 .sk-floor { display: grid; grid-template-columns: 88px minmax(0, 1fr) 64px; align-items: center; gap: 8px; height: 30px; border-bottom: 1px dotted var(--rule); font-size: 13px; font-weight: 700; }
