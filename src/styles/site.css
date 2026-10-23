@@ -923,6 +923,16 @@ h1 {
 .spu-chk small { font-size: 12px; font-weight: 700; line-height: 1.25; color: var(--muted); }
 .spu-chk[aria-pressed="true"] span, .spu-chk[aria-pressed="true"] small { color: var(--red); }
 .spu-chk[aria-pressed="true"]::after { content: ""; position: absolute; left: 8px; top: calc(50% - 16px); width: 9px; height: 20px; border: solid var(--red); border-width: 0 3px 3px 0; transform: rotate(38deg); }
+/* 楽天のポイントのしくみ：3段（キャンペーン・SPU・いつもの1倍）の棒と、2列のチェック欄。楽天とAmazonのポイント比較も同じ棒 */
+.sk-floors { margin: 0; padding: 0; list-style: none; }
+.sk-floor { display: grid; grid-template-columns: 88px minmax(0, 1fr) 64px; align-items: center; gap: 8px; height: 30px; border-bottom: 1px dotted var(--rule); font-size: 13px; font-weight: 700; }
+.sk-k { white-space: nowrap; }
+.sk-bar { height: 16px; background: #fff; border: 1.5px solid var(--text); overflow: hidden; }
+.sk-bar i { display: block; width: 0; height: 100%; background: var(--red); }
+.sk-floor.is-soft .sk-bar i { background: #d98a90; }
+.sk-floor.is-ink .sk-bar i { background: var(--text); }
+.sk-floor b { text-align: right; font-size: 15px; font-variant-numeric: tabular-nums; }
+.spu-list.sk-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .spu-table { table-layout: fixed; } /* 条件の行（4列ぶち抜き）の長さで、名前の列がつぶれないように */
 .spu-table th:nth-child(1) { width: 37%; }
 .spu-table th:nth-child(2) { width: 18%; }
