@@ -35,6 +35,11 @@ function showEvent() {
   box.classList.toggle('is-past', when === 'past');
   box.hidden = false;
   if (when !== 'past' && e.cap) cap = e.cap;
+  // 付与日と有効期限（その回の公式のページに出ているときだけ）
+  if (when !== 'past' && e.grant) {
+    $('d-grant').textContent = `${md(e.grant)}ごろ・${md(e.expires)}まで`;
+    $('r-grant').hidden = false;
+  }
 }
 
 function setNote(text = '', error = false) {

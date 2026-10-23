@@ -2,6 +2,7 @@ name: Watch official pages
 
 # 公式のページの見張り（scripts/watch-pages.mjs）。変わったら Issue を立てる（スマホに通知が届く）
 #   3時間おき：お買い物マラソンの公式のページ（日付・時刻・ポイント・倍の数字だけをくらべる）
+#   毎日（朝6:53）：SPU の公式のページ（日付・ポイント・円・倍の数字だけをくらべる）
 #   週1回（月曜の朝）：ふるさと納税の出典のページ（本文の指紋だけをくらべる）
 # 前回の数字はキャッシュに置く（リポジトリには入れない）。公式の文は保存しない・Issue にも貼らない
 # 同じ見張りの Issue が開いているあいだは、新しい Issue を立てずにコメントを足す
@@ -10,10 +11,11 @@ on:
   schedule:
     - cron: '23 */3 * * *'
     - cron: '41 21 * * 0'
+    - cron: '53 21 * * *'
   workflow_dispatch:
     inputs:
       group:
-        description: 'point か furusato'
+        description: 'point・spu・furusato のどれか'
         required: true
         default: point
 
@@ -40,6 +42,7 @@ jobs:
         id: g
         run: |
           if [ "${{ github.event.schedule }}" = "41 21 * * 0" ]; then g=furusato
+          elif [ "${{ github.event.schedule }}" = "53 21 * * *" ]; then g=spu
           elif [ -n "${{ inputs.group }}" ]; then g="${{ inputs.group }}"
           else g=point; fi
           echo "group=$g" >> "$GITHUB_OUTPUT"
@@ -66,7 +69,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GROUP: ${{ steps.g.outputs.group }}
         run: |
-          if [ "$GROUP" = point ]; then title='お買い物マラソンの公式のページが変わりました'; else title='ふるさと納税の出典のページが変わりました'; fi
+          case "$GROUP" in
+            point) title='お買い物マラソンの公式のページが変わりました' ;;
+            spu) title='SPUの公式のページが変わりました' ;;
+            *) title='ふるさと納税の出典のページが変わりました' ;;
+          esac
           open=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
           if [ -n "$open" ]; then gh issue comment "$open" --body-file watch-report.md
           else gh issue create --title "$title" --body-file watch-report.md; fi

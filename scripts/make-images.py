@@ -934,6 +934,48 @@ def point_card(img, cx, top):
         d.text((x1 - 22 * S - d.textlength(v2, font=font('black', 23)), yy), v2, font=font('black', 23), fill=INK)
 
 
+def spu_card(img, cx, top):
+    """SPU：今月のSPUのカード（倍率の帯に楽天会員の1倍と使っているサービスの分）と、大きなポイント（3万円・楽天カード・モバイル・銀行・ブックス）"""
+    d = ImageDraw.Draw(img)
+    x0, x1 = cx - 226 * S, cx + 250 * S
+    y0, y1 = top - 40 * S, top + 316 * S
+    d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=SHEET, outline='#B4C1D2', width=2 * S)
+    d.text((x0 + 22 * S, y0 + 16 * S), '今月のSPU', font=font('black', 26), fill=INK)
+    t = '8倍'
+    d.text((x1 - 22 * S - d.textlength(t, font=font('black', 26)), y0 + 16 * S), t, font=font('black', 26), fill=RED)
+    bx0, bx1 = x0 + 22 * S, x1 - 22 * S
+    by, bh = y0 + 70 * S, 40 * S
+    d.rectangle([bx0, by, bx1, by + bh], fill='#FFFFFF')
+    x = bx0
+    for k, (rate, color, label) in enumerate(((1, INK, '1'), (2, RED, '+2'), (4, '#D98A90', '+4'), (0.5, RED, ''), (0.5, '#D98A90', ''))):
+        w = (bx1 - bx0) * rate / 18.5
+        d.rectangle([x, by, x + w, by + bh], fill=color)
+        if label:
+            f = font('black', 20)
+            d.text((x + w / 2 - d.textlength(label, font=f) / 2, by + 8 * S), label, font=f, fill='#FFFFFF')
+        x += w
+    d.rectangle([bx0, by, bx1, by + bh], outline=INK, width=3 * S)
+    d.text((bx0, by + bh + 4 * S), '1倍', font=font('bold', 18), fill=PENCIL)
+    t = '全部で18.5倍'
+    d.text((bx1 - d.textlength(t, font=font('bold', 18)), by + bh + 4 * S), t, font=font('bold', 18), fill=PENCIL)
+    ys = by + bh + 40 * S
+    d.text((x0 + 22 * S, ys + 46 * S), 'ポイント', font=font('black', 30), fill=INK)
+    f_v, f_u = font('black', 68), font('black', 26)
+    u = 'ポイント'
+    uw = d.textlength(u, font=f_u)
+    v = '2,206'
+    d.text((x1 - 22 * S - uw, ys + 60 * S), u, font=f_u, fill=RED)
+    d.text((x1 - 22 * S - uw - 8 * S - d.textlength(v, font=f_v), ys + 14 * S), v, font=f_v, fill=RED)
+    x = x0 + 18 * S
+    while x < x1 - 18 * S:
+        d.line([(x, ys + 104 * S), (min(x + 10 * S, x1 - 18 * S), ys + 104 * S)], fill='#B4C1D2', width=2 * S)
+        x += 17 * S
+    k, v2 = '楽天モバイルの上限', '55,000円で'
+    yy = ys + 118 * S
+    d.text((x0 + 22 * S, yy), k, font=font('bold', 23), fill=INK)
+    d.text((x1 - 22 * S - d.textlength(v2, font=font('black', 23)), yy), v2, font=font('black', 23), fill=INK)
+
+
 def loan_doc(img, cx, top):
     """ローン：返済予定表（3,000万円・金利1％・35年）。書類に入りきるよう、共有画像では帯をのせない"""
     doc_sheet(img, cx, top, '返済予定表', '毎月の返済', '84,686', '円', ('経過', '返した額', 'のこり'),
@@ -1033,7 +1075,7 @@ VISUALS = {
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
     'furusato': furusato_doc, 'furusato-nenshu': furusato_nenshu_doc, 'furusato-jougen': furusato_jougen_doc,
     'furusato-memo': furusato_memo_doc, 'furusato-onestop': furusato_onestop_doc, 'furusato-shimekiri': furusato_shimekiri_doc, 'furusato-seido': furusato_seido_doc,
-    'point': point_card,
+    'point': point_card, 'point-spu': spu_card,
     # 返礼品（楽天から取ったデータで作るときだけ公開。共有画像は HENREIHIN=api python3 scripts/make-images.py で作る）
     'furusato-henreihin': henreihin_doc('返礼品', 'kg', (('5kg×3袋', '3万円', ('5kg',)), ('1.5kg', '1.5万円', ('1kg',)), ('12ロール×8', '2万円', ('48ロール',)))),
     'furusato-kome': henreihin_doc('お米', 'kg', (('5kg×3袋', '3万円', ('5kg',)), ('10kg', '1.7万円', ('5.9kg',)), ('2kg', '6,000円', ('3.3kg',)))),

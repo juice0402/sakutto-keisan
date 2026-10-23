@@ -909,6 +909,27 @@ h1 {
 .pt-table td:last-child { padding-left: 8px; text-align: right; font-weight: 800; white-space: nowrap; }
 .pt-foot { margin: 6px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .pt-foot:empty { display: none; }
+/* SPU のポイント計算：倍率の帯（全部そろったときの長さに、楽天会員の1倍とえらんだサービスの分）と、使っているサービスのチェック欄（□に赤ペンの✓） */
+.spu-bar { display: flex; height: 26px; margin: 2px 0 0; border: 1.5px solid var(--text); background: #fff; overflow: hidden; }
+.spu-seg { flex: none; height: 100%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; overflow: hidden; }
+.spu-seg.is-base { background: var(--text); }
+.spu-seg.is-even { background: var(--red); }
+.spu-seg.is-odd { background: #d98a90; }
+.spu-scale { display: flex; justify-content: space-between; margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--muted); }
+.spu-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 6px; margin: 12px 0 0; }
+.spu-chk { position: relative; display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: 6px; align-items: center; min-height: 46px; padding: 2px 0; border: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.spu-chk::before { content: ""; grid-row: 1 / 3; width: 20px; height: 20px; border: 2px solid var(--text); border-radius: 2px; transform: rotate(-3deg); box-sizing: border-box; }
+.spu-chk span { font-size: 13px; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spu-chk small { font-size: 12px; font-weight: 700; line-height: 1.25; color: var(--muted); }
+.spu-chk[aria-pressed="true"] span, .spu-chk[aria-pressed="true"] small { color: var(--red); }
+.spu-chk[aria-pressed="true"]::after { content: ""; position: absolute; left: 8px; top: calc(50% - 16px); width: 9px; height: 20px; border: solid var(--red); border-width: 0 3px 3px 0; transform: rotate(38deg); }
+.spu-table { table-layout: fixed; } /* 条件の行（4列ぶち抜き）の長さで、名前の列がつぶれないように */
+.spu-table th:nth-child(1) { width: 37%; }
+.spu-table th:nth-child(2) { width: 18%; }
+.spu-table th:nth-child(3) { width: 18%; }
+.spu-table .spu-name td { padding-bottom: 0; border-bottom: 0; font-weight: 700; }
+.spu-table .spu-cond { padding-top: 2px; font-size: 12.5px; color: var(--muted); }
+@media (max-width: 374px) { .spu-list { column-gap: 4px; } .spu-chk { grid-template-columns: 18px minmax(0, 1fr); column-gap: 5px; } .spu-chk::before { width: 18px; height: 18px; } .spu-chk[aria-pressed="true"]::after { left: 7px; } .spu-chk span { font-size: 12px; } }
 /* 作業指示書の床の図：図面のように紺の線で囲んで、1人ずつ番号 */
 .doc .floor-strips { height: 52px; border: 1.5px solid var(--text); background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 12px); }
 .floor-strip { display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }

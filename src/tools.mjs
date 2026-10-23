@@ -513,8 +513,20 @@ export const TOOLS = [
     category: 'point',
     short: '合計と店舗の数から、買いまわりの特典の目安',
     published: true,
-    updated: '2026-10-22',
-    related: ['waribiki', 'shohizei', 'percent', 'tanka'],
+    updated: '2026-10-23',
+    related: ['point-spu', 'waribiki', 'shohizei', 'percent'],
+  },
+  // 10/23 しょーくん「SPU はしくみが複雑なので、最新情報としてすぐにページを」。倍率と上限は src/data/spu.mjs
+  {
+    slug: 'point-spu',
+    path: '/point/spu/',
+    name: 'SPUのポイント計算',
+    ogTitle: 'SPUの\nポイント計算',
+    category: 'point',
+    short: '使っているサービスから、倍率と上限',
+    published: true,
+    updated: '2026-10-23',
+    related: ['point', 'waribiki', 'shohizei', 'percent'],
   },
 ];
 

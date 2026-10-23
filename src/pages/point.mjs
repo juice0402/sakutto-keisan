@@ -34,6 +34,10 @@ const REACH_ROWS = Array.from({ length: POINT_MAX_SHOPS - 1 }, (_, i) => i + 2)
   .map((n) => `<tr><td class="num">${n}店舗</td><td class="num">${n}倍</td>${POINT_CAPS.map((c) => `<td class="num">${fmt(pointReach(n, c))}</td>`).join('')}</tr>`)
   .join('\n');
 
+// 付与日と有効期限がわかっている、いちばん新しい回（よくある質問に出す）
+const GRANT = [...POINT_EVENTS].reverse().find((e) => e.grant && e.expires);
+const mdJa = (s) => `${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
+
 const EVENT_ROWS = POINT_EVENTS.map(
   (e) => `<tr><td><span class="nw">${esc(e.name)}</span><br><span class="nw">${jaDate(e.start)} ${e.start.slice(11)}〜</span><wbr><span class="nw">${jaDate(e.end)} ${e.end.slice(11)}</span></td><td class="num nw">${e.cap ? fmt(e.cap) : '公式で確かめる'}</td></tr>`,
 ).join('\n');
@@ -52,6 +56,18 @@ const FAQS = [
     a: '<p>回によって、5,000・7,000・10,000ポイントのどれかです。今回の上限は、公式のページで確かめてからえらんでください。</p>',
   },
   {
+    q: 'エントリーは買ったあとでもいいですか？',
+    a: '<p>期間中にエントリーすれば、エントリーの前の買い物も対象になります。ポイントアップの期間の外で買った分は入りません。</p>',
+  },
+  {
+    q: '買う順番で変わりますか？',
+    a: '<p>変わりません。期間の合計の金額と店舗の数で決まり、はじめに買った店にも最後の倍率がかかります。</p>',
+  },
+  {
+    q: 'ふるさと納税は1店舗に数えますか？',
+    a: '<p>数えません。2025年10月1日からの楽天ふるさと納税の寄付は、店舗の数にも、ポイントの計算にも入りません。</p>',
+  },
+  {
     q: 'なぜ税込で入れるのですか？',
     a: '<p>1店舗の1,000円は税込で数え、ポイントは税抜の金額にかかるからです。このツールは税込を10％で割って税抜にするので、食品が多いと少し多めに出ます。</p>',
   },
@@ -60,12 +76,20 @@ const FAQS = [
     a: '<p>クーポンで値引きされたあとの金額を入れます。ポイントで払った分も、支払いの金額に入ります。</p>',
   },
   {
-    q: 'SPUの分は入っていますか？',
-    a: '<p>入っていません。SPUやほかのキャンペーンの上限は、買いまわりとは別に数えます。</p>',
+    q: 'キャンセルしたら？',
+    a: '<p>特典をつける時点でキャンセルされている注文は、キャンペーンの対象になりません。</p>',
   },
   {
-    q: 'ポイントはいつもらえますか？',
-    a: '<p>通常の1倍の分は、買った日からおよそ20日後です。買いまわりの特典は、キャンペーンが終わった翌月の15日ごろに、期間限定ポイントでもらえます。</p>',
+    q: 'SPUの分は入っていますか？',
+    a: '<p>入っていません。SPUの上限は買いまわりとは別に数え、<a href="/point/spu/">SPUのポイント計算</a>で出せます。</p>',
+  },
+  {
+    q: 'ポイントはいつもらえて、いつまで使えますか？',
+    a: `<p>通常の1倍の分は、買った日からおよそ20日後です。買いまわりの特典は期間限定ポイントで、${GRANT ? `${mdJa(GRANT.start)}からの回は${mdJa(GRANT.grant)}ごろにつき、${mdJa(GRANT.expires)}まで使えます` : 'キャンペーンが終わった翌月の15日ごろにつきます'}。</p>`,
+  },
+  {
+    q: 'スーパーSALEも同じ計算ですか？',
+    a: '<p>買いまわりの数え方は同じで、1店舗1,000円以上・送料をのぞく・期間の合計で決まります。上限は回ごとにちがうので、公式のページで確かめてください。</p>',
   },
   {
     q: 'これは楽天のツールですか？',
@@ -85,7 +109,7 @@ export default function render() {
 <h1>${tool.name}</h1>
 <p class="lead">買いまわりでもらえるポイントを出します。</p>
 
-<div class="calc" id="calc" data-events="${esc(JSON.stringify(POINT_EVENTS.map(({ start, end, cap, name }) => ({ start, end, cap, name }))))}" data-min="${POINT_MIN_YEN}" data-max="${POINT_MAX_SHOPS}">
+<div class="calc" id="calc" data-events="${esc(JSON.stringify(POINT_EVENTS.map(({ start, end, cap, name, grant, expires }) => ({ start, end, cap, name, grant, expires }))))}" data-min="${POINT_MIN_YEN}" data-max="${POINT_MAX_SHOPS}">
   <p class="pt-event" id="pt-event" hidden></p>
   <div class="box-rows">
     ${boxField('total', '合計', '円', '30,000', '', '税込。クーポンのあと、送料はのぞく')}
@@ -102,6 +126,7 @@ export default function render() {
       <tr><td>上限まで</td><td id="d-left">—</td></tr>
       <tr><td id="d-reach-k">上限に届く合計</td><td id="d-reach">—</td></tr>
       <tr><td>あと1店舗で</td><td id="d-next">—</td></tr>
+      <tr id="r-grant" hidden><td>付与と期限</td><td id="d-grant">—</td></tr>
     </tbody></table>
     <p class="pt-foot" id="r-foot">合計を入れてください</p>
   </div>
@@ -154,8 +179,8 @@ ${relatedHtml(tool)}
 `;
   const html = page({
     path,
-    title: 'お買い物マラソンのポイント計算｜買いまわりの特典と上限に届く金額（早見表）',
-    description: '楽天市場のお買い物マラソンで、買い物の合計と店舗の数から、買いまわりの特典ポイントの目安を計算します。上限まであと何ポイントか、上限に届く合計、あと1店舗でふえる分もわかります。',
+    title: 'お買い物マラソンのポイント計算｜上限の計算と上限に届く金額（スーパーSALEも・早見表）',
+    description: '楽天市場のお買い物マラソンやスーパーSALEで、買い物の合計と店舗の数から、買いまわりの特典ポイントの目安を計算します。上限まであと何ポイントか、上限に届く合計、あと1店舗でふえる分もわかります。',
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },
