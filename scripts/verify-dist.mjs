@@ -174,7 +174,7 @@ if (process.env.CI || existsSync(ocrDir)) {
 } else {
   console.log(`（写真の読み取りソフト ocr/${OCR_VERSION}/ はこの環境にないので点検しません。GitHub Actions で点検します）`);
 }
-for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favicon.svg', 'apple-touch-icon.png', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', ...(SITE.adsense ? ['ads.txt'] : [])]) {
+for (const need of ['robots.txt', 'sitemap.xml', '404.html', '_headers', 'favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', ...(SITE.adsense ? ['ads.txt'] : [])]) {
   if (!existsSync(join(DIST, need))) fail(need, 'ない');
 }
 

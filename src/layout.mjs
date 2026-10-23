@@ -26,6 +26,8 @@ export const icon = (inner, cls = 'ico') =>
   `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
 
 // ロゴ：「計」の赤いはんこ（public/favicon.svg と同じ形。scripts/make-images.py のアイコンもこれに合わせる）
+// アイコンの版：アイコンの絵を変えたら1つ上げる（スマホのブラウザに残った古いアイコンを読み直させる。10/23 最初のオレンジのアイコンが残っていた）
+const ICON_V = 2;
 export const LOGO_SVG = `<svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-8 16 16)"><circle cx="16" cy="16" r="13.6" fill="#fff" stroke="#c8323c" stroke-width="2.4"/><text x="16" y="21.6" text-anchor="middle" font-size="16" font-weight="700" fill="#c8323c" font-family="'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif">計</text></g></svg>`;
 
 // breadcrumbs: [{ name, path }]（最後が今のページ）
@@ -109,8 +111,9 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon.ico?v=${ICON_V}" sizes="48x48">
+<link rel="icon" href="/favicon.svg?v=${ICON_V}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=${ICON_V}">
 ${ads ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsense}" crossorigin="anonymous"></script>\n` : ''}<style>${inlineCss}</style>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceAll('<', '\\u003c')}</script>`).join('\n')}
 </head>
