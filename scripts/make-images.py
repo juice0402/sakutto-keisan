@@ -7,6 +7,7 @@
     public/og/default.png        トップ・固定ページ用（1200×630）
     public/og/<slug>.png         公開中の各ツール用（1200×630）
     public/icon-192.png / icon-512.png / apple-touch-icon.png   ホーム画面用
+    public/favicon.ico   ブラウザのタブ用（SVG を使わないブラウザ・検索結果）
 ツールを公開したら、このスクリプトを動かして画像もコミットする（全ページ点検が画像の有無を確かめる）。
 """
 import json
@@ -1229,6 +1230,15 @@ def icon(path, px):
     print('wrote', path.relative_to(ROOT))
 
 
+def favicon(path):
+    """ブラウザのタブ用：白地に赤い「計」のはんこだけ（public/favicon.svg と同じ形）。16・32・48px を1つの .ico に"""
+    big = 48 * 8
+    img = Image.new('RGBA', (big, big), (0, 0, 0, 0))
+    logo(img, big / 2, big / 2, big)
+    img.save(path, format='ICO', sizes=[(16, 16), (32, 32), (48, 48)])
+    print('wrote', path.relative_to(ROOT))
+
+
 def main():
     tools = json.loads(subprocess.check_output(
         ['node', '--input-type=module', '-e',
@@ -1242,6 +1252,7 @@ def main():
     icon(PUBLIC / 'icon-192.png', 192)
     icon(PUBLIC / 'icon-512.png', 512)
     icon(PUBLIC / 'apple-touch-icon.png', 180)
+    favicon(PUBLIC / 'favicon.ico')
 
 
 if __name__ == '__main__':
