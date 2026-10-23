@@ -549,7 +549,19 @@ export const TOOLS = [
     short: '合計と店舗の数から、買いまわりの特典の目安',
     published: true,
     updated: '2026-10-23',
-    related: ['point-spu', 'point-shikumi', 'waribiki', 'shohizei'],
+    related: ['point-spu', 'point-taishou', 'point-shikumi', 'waribiki'],
+  },
+  // 10/23 討論で合意：買いまわりの1店舗の判定（数える店・数えない店）
+  {
+    slug: 'point-taishou',
+    path: '/point/taishou/',
+    name: '買いまわりの1店舗の判定',
+    ogTitle: '買いまわりの\n1店舗の判定',
+    category: 'point',
+    short: 'ふるさと納税・送料・クーポンは1店舗に数えるか',
+    published: true,
+    updated: '2026-10-23',
+    related: ['point', 'point-spu', 'point-shikumi', 'waribiki'],
   },
   // 10/23 しょーくん「SPU はしくみが複雑なので、最新情報としてすぐにページを」。倍率と上限は src/data/spu.mjs
   {
