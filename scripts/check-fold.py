@@ -25,6 +25,7 @@ CASES = {
     'nenrei': (lambda pg: pg.fill('#birth', '1987-06-15'), '.pic-side .slip-v'),
     'furusato': (lambda pg: pg.fill('#income', '500'), '.doc-sum'),
     'furusato/nenshu': (lambda pg: pg.fill('#target', '50000'), '.doc-sum'),
+    'furusato/uchiwake': (lambda pg: (pg.fill('#donation', '50000'), pg.fill('#income', '500')), '.doc-sum'),
     'furusato/fuufu': (lambda pg: (pg.fill('#income1', '600'), pg.fill('#income2', '300'), pg.click('.tile[data-kids="koukou"]')), '.doc-sum'),
     'furusato/jougen': (lambda pg: (pg.fill('#shotokuwari', '235500'), pg.click('.tile[data-rate="0.05"]')), '.doc-sum'),
     'furusato/onestop': (lambda pg: pg.fill('#cities', '3'), '.doc-sum'),

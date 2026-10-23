@@ -430,6 +430,18 @@ export const TOOLS = [
     related: ['furusato', 'furusato-nenshu', 'furusato-memo', 'furusato-onestop'],
   },
   {
+    slug: 'furusato-uchiwake',
+    path: '/furusato/uchiwake/',
+    name: '控除の内わけ',
+    ogTitle: 'ふるさと納税の\n控除の内わけ',
+    more: true,
+    category: 'furusato',
+    short: '寄付額が、所得税・住民税・自己負担にどう分かれるか',
+    published: true,
+    updated: '2026-10-23',
+    related: ['furusato', 'furusato-nenshu', 'furusato-onestop', 'furusato-jougen'],
+  },
+  {
     slug: 'furusato-jougen',
     path: '/furusato/jougen/',
     name: '控除上限額の計算',

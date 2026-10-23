@@ -803,6 +803,15 @@ h1 {
 .fz-flow li > span:last-child { order: 3; }
 .fz-flow.is-empty b { color: var(--muted); }
 .fz-table td:last-child { width: 1%; white-space: nowrap; }
+/* 控除の内わけ：寄付額の帯を、所得税・住民税の基本分・特例分・自己負担（上限をこえた分は斜線）に分ける。表の頭に同じ色の四角 */
+.uw-track { display: flex; height: 28px; margin: 10px 0 2px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); overflow: hidden; }
+.uw-seg { flex: none; height: 100%; width: 0; }
+.uw-key { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 2px; }
+.uw-seg.is-it, .uw-key.is-it { background: color-mix(in srgb, var(--text) 45%, #fff); }
+.uw-seg.is-kihon, .uw-key.is-kihon { background: color-mix(in srgb, var(--text) 22%, #fff); }
+.uw-seg.is-tokurei, .uw-key.is-tokurei { background: var(--red); }
+.uw-seg.is-self, .uw-key.is-self { background: var(--text); }
+.uw-seg.is-over { background: repeating-linear-gradient(-45deg, var(--error) 0 4px, transparent 4px 8px); }
 .src-list { margin: 0 0 8px; padding-left: 1.2em; font-size: 13px; }
 .src-list li { margin: 0 0 4px; }
 /* ワンストップ特例：寄付先ごとの封筒（6通目からは使えない印） */

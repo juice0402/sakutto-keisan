@@ -19,6 +19,21 @@ const fzBand = (bands, x) => bands.find((b) => x <= b[0]);
 const fzBandValue = (bands, x) => fzBand(bands, x)[1];
 const fzFloor = (x, unit) => Math.floor(x / unit) * unit;
 
+// 所得税の速算表（課税所得 → 税額。国税庁 No.2260）。控除の内わけで、所得税から戻る額の上限に使う
+const IT_TABLE = [
+  [1950000, 0.05, 0],
+  [3300000, 0.1, 97500],
+  [6950000, 0.2, 427500],
+  [9000000, 0.23, 636000],
+  [18000000, 0.33, 1536000],
+  [40000000, 0.4, 2796000],
+  [Infinity, 0.45, 4796000],
+];
+const fzIncomeTax = (taxable) => {
+  const [, rate, minus] = fzBand(IT_TABLE, taxable);
+  return Math.max(0, Math.floor(taxable * rate - minus));
+};
+
 /** 特例控除の割合（90% − 所得税率 × 1.021）。小数の誤差を消す */
 export const tokureiRatio = (rate) => Number((0.9 - rate * 1.021).toFixed(6));
 
@@ -168,6 +183,35 @@ export function furusatoIncomeFor({ target, spouse = false, koukou = 0, daigaku 
   }
   const res = limitAt(lo);
   return { ok: true, target, man: lo, income: lo * 10000, limit: res.limit, jumin: res.jumin, rate: res.rate };
+}
+
+/**
+ * 控除の内わけ：寄付額を、所得税から戻る分・住民税の基本分・住民税の特例分・自己負担に分ける（総務省の式）
+ * 所得税 ＝（寄付額 − 2,000円）× 所得税率 × 1.021、基本分 ＝（寄付額 − 2,000円）× 10%、
+ * 特例分 ＝（寄付額 − 2,000円）×（90% − 所得税率 × 1.021）を所得割の20%まで。1円未満は四捨五入（目安）。のこりが自己負担
+ * 所得税と基本分の、所得に対する上限（40%・30%）は、給与の人の目安では届かないので入れない
+ * @param {{donation:number|null, income:number|null, spouse:boolean, koukou:number, daigaku:number}} p  donation：1年の寄付の合計（円）
+ */
+export function furusatoBreakdown({ donation, income, spouse = false, koukou = 0, daigaku = 0 }, cfg) {
+  if (donation === null || donation === undefined) return { ok: false, empty: true, missing: 'donation' };
+  if (!Number.isFinite(donation) || donation <= 0) return { ok: false, error: '寄付の合計を入れてください。', field: 'donation' };
+  if (donation > 1e9) return { ok: false, error: '寄付の合計は10億円までにしてください。', field: 'donation' };
+  const r = furusatoLimit({ income, spouse, koukou, daigaku }, cfg);
+  if (!r.ok) return r;
+  if (r.none) return { ok: true, none: true, donation, limit: 0, it: 0, kihon: 0, tokurei: 0, self: donation, over: donation };
+  const base = Math.max(0, donation - 2000);
+  // 所得税がかからない人（課税所得0円）は所得税からは戻らない。戻るのは所得税（復興特別所得税こみ）の額まで
+  const itRate = r.itTaxable > 0 ? r.itRate : 0;
+  const itTax = Math.floor(fzIncomeTax(r.itTaxable) * 1.021);
+  const it = Math.min(Math.round(base * itRate * 1.021), itTax);
+  const kihon = Math.round(base * 0.1);
+  const cap = Math.floor(r.shotokuwari * 0.2);
+  const raw = base * tokureiRatio(r.rate);
+  const capped = raw > cap;
+  // 特例分は、所得税と基本分の残りを埋める額（税率が同じなら合計で寄付額 − 2,000円）。四捨五入の1円のずれを出さない
+  const tokurei = capped ? cap : itRate === r.rate && it < itTax ? base - it - kihon : Math.round(raw);
+  const self = donation - it - kihon - tokurei;
+  return { ok: true, none: false, donation, limit: r.limit, it, kihon, tokurei, cap, capped, self, over: Math.max(0, self - 2000), itRate, rate: r.rate };
 }
 
 /**

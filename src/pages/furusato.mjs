@@ -7,7 +7,7 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, spouseIncomeEdges, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
+import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, furusatoBreakdown, spouseIncomeEdges, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
 import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../data/furusato.mjs';
 import { fmt } from '../lib/number.mjs';
 
@@ -425,6 +425,116 @@ ${relatedHtml(tool)}
   return { path, html, sitemap: true, updated: tool.updated };
 }
 
+/* ---- /furusato/uchiwake/ 控除の内わけ（10/23 しょーくんが「11月中に作る」をえらんだ。検索候補「自己負担 2000円」「仕組み 図解」） ---- */
+const U_ROWS = [10000, 30000, 50000, 57000, 70000, 100000];
+const U_EX = furusatoBreakdown({ donation: 50000, income: 5000000 }, CFG);
+const U_EX_OVER = furusatoBreakdown({ donation: 70000, income: 5000000 }, CFG);
+const uwTable = () =>
+  `<div class="tbl-wrap"><table class="tbl-tight fz-quick">
+<thead><tr><th class="num">寄付</th><th class="num">所得税</th><th class="num">基本分</th><th class="num">特例分</th><th class="num">自己負担</th></tr></thead>
+<tbody>
+${U_ROWS.map((d) => {
+  const r = furusatoBreakdown({ donation: d, income: 5000000 }, CFG);
+  return `<tr><td class="num">${fmt(d)}</td><td class="num">${fmt(r.it)}</td><td class="num">${fmt(r.kihon)}</td><td class="num">${fmt(r.tokurei)}</td><td class="num">${fmt(r.self)}</td></tr>`;
+}).join('\n')}
+</tbody>
+</table></div>`;
+
+const U_FAQS = [
+  {
+    q: '自己負担が2,000円になるのはなぜですか？',
+    a: '<p>控除は、寄付額から2,000円を引いた額で計算するからです。2,000円は、寄付先や寄付の回数がいくつあっても1年で1回です。</p>',
+  },
+  {
+    q: '基本分と特例分のちがいは？',
+    a: '<p>基本分は（寄付額 − 2,000円）の10%で、ほかの寄付金と同じ控除です。特例分はふるさと納税だけの控除で、住民税の所得割の20%が上限です。</p>',
+  },
+  {
+    q: '上限をこえて寄付するとどうなりますか？',
+    a: `<p>特例分が所得割の20%で止まるので、こえた分のほとんどが自己負担になります。例：年収500万円・ひとりで7万円寄付すると、自己負担は約${yen(U_EX_OVER.self)}です。</p>`,
+  },
+  {
+    q: 'ワンストップ特例だと内わけは変わりますか？',
+    a: '<p>所得税からの控除はなく、所得税の分もふくめた全額が、翌年度の住民税から引かれます。確定申告なら、所得税の分は還付で戻ります。</p>',
+  },
+];
+
+function renderUchiwake() {
+  const tool = toolBySlug('furusato-uchiwake');
+  const parent = toolBySlug('furusato');
+  const path = '/furusato/uchiwake/';
+  const body = `
+<h1>${tool.name}</h1>
+<p class="lead">寄付額がどの税金から戻るかを出します。</p>
+
+<div class="calc" id="calc" data-year="${YEAR}">
+  <div class="box-rows">
+    ${boxField('donation', '寄付の合計', '円', '50,000', '', '1年に寄付する額の合計')}
+    ${boxField('income', '年収', '万円', '500', '', '給与の額面（税金や保険料を引く前）')}
+    ${FAMILY_TILES}
+  </div>
+  <div class="doc" aria-live="polite">
+    <p class="doc-title">控除の内わけ</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
+    <p class="doc-sum"><span class="doc-sum-k">自己負担</span><span class="doc-sum-v"><b id="r-num">？</b><span id="r-unit">円</span></span></p>
+    <div class="uw-track" aria-hidden="true"><span class="uw-seg is-it" id="s-it"></span><span class="uw-seg is-kihon" id="s-kihon"></span><span class="uw-seg is-tokurei" id="s-tokurei"></span><span class="uw-seg is-self" id="s-self"></span><span class="uw-seg is-over" id="s-over"></span></div>
+    <table class="doc-table fz-table"><tbody>
+      <tr><td><i class="uw-key is-it"></i>所得税から</td><td id="d-it">—</td></tr>
+      <tr><td><i class="uw-key is-kihon"></i>住民税の基本分</td><td id="d-kihon">—</td></tr>
+      <tr><td><i class="uw-key is-tokurei"></i>住民税の特例分</td><td id="d-tokurei">—</td></tr>
+      <tr><td><i class="uw-key is-self"></i>自己負担</td><td id="d-self">—</td></tr>
+    </tbody></table>
+    <p class="doc-foot"><span id="r-foot">寄付の合計を入れてください</span><span id="r-how"></span></p>
+  </div>
+  <p class="tag-note" id="r-note" hidden></p>
+  <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/">上限の目安</a></div>
+  <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
+</div>
+
+${section(
+  'formula',
+  '計算のしかた',
+  `<div class="formula">
+<span>所得税 ＝（寄付額 − 2,000円）× 所得税率 × 1.021</span>
+<span>基本分 ＝（寄付額 − 2,000円）× 10%</span>
+<span>特例分 ＝（寄付額 − 2,000円）×（90% − 所得税率 × 1.021）</span>
+</div>
+<p>特例分は住民税の所得割の20%までで、のこりが自己負担です。上限までの寄付なら、3つを足すと寄付額から2,000円を引いた額になります。例：年収500万円・ひとりで5万円寄付すると、所得税${yen(U_EX.it)}・基本分${yen(U_EX.kihon)}・特例分${yen(U_EX.tokurei)}で、自己負担は${yen(U_EX.self)}です。</p>
+<p>年収から出すときは、<a href="/furusato/">上限の目安</a>と同じく、給与だけで社会保険料は年収の15%としています。1円未満は四捨五入の目安です。</p>`,
+)}
+
+${section(
+  'table',
+  `寄付額ごとの内わけ（年収500万円・ひとり・${YEAR}年の寄付）`,
+  `${uwTable()}
+<p class="note">どれも円です。上限は${yen(U_EX.limit)}です。</p>
+<p>上限をこえると、特例分が${yen(U_EX.cap)}で止まり、自己負担がふえます。</p>`,
+)}
+
+${section('faq', 'よくある質問', faqHtml(U_FAQS))}
+
+${section('sources', '出典', SOURCES)}
+
+${relatedHtml(tool)}
+`;
+  const html = page({
+    path,
+    title: `控除の内わけ｜ふるさと納税の自己負担2,000円と所得税・住民税の計算（${YEAR}年の寄付）`,
+    description: 'ふるさと納税の寄付額が、所得税から戻る分・住民税の基本分・住民税の特例分・自己負担にどう分かれるかを、寄付額と年収・家族から計算します。自己負担が2,000円になるしくみと、上限をこえたときの自己負担もわかります。',
+    breadcrumbs: [
+      { name: 'ホーム', path: '/' },
+      { name: parent.name, path: '/furusato/' },
+      { name: tool.name, path },
+    ],
+    jsonLd: [toolLd(tool, 'ふるさと納税の寄付額を、所得税・住民税の基本分・特例分・自己負担に分けて計算するツール。'), faqLd(U_FAQS)],
+    theme: themeOf(tool),
+    ogImage: `/og/${tool.slug}.png`,
+    scripts: ['furusato-uchiwake.js'],
+    body,
+  });
+  return { path, html, sitemap: true, updated: tool.updated };
+}
+
 /* ---- /furusato/jougen/ 控除上限額の計算（決定通知書から） ---- */
 const RANGE = ['〜195万', '〜330万', '〜695万', '〜900万', '〜1800万', '〜4000万', '4000万〜'];
 const RANGE_TEXT = ['195万円まで', '330万円まで', '695万円まで', '900万円まで', '1,800万円まで', '4,000万円まで', '4,000万円をこえる'];
@@ -533,5 +643,5 @@ ${relatedHtml(tool)}
 }
 
 export default function render() {
-  return [renderMain(), renderNenshu(), renderFuufu(), renderJougen()];
+  return [renderMain(), renderNenshu(), renderFuufu(), renderUchiwake(), renderJougen()];
 }
