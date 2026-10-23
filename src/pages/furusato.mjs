@@ -7,7 +7,7 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { furusatoLimit, furusatoFromNotice, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
+import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
 import { FURUSATO_YEARS, FURUSATO_SOURCES } from '../data/furusato.mjs';
 import { fmt } from '../lib/number.mjs';
 
@@ -30,7 +30,7 @@ const KIDS = [
   ['both', '両方', '1人ずつ'],
 ];
 const KID_FAM = { none: {}, koukou: { koukou: 1 }, daigaku: { daigaku: 1 }, both: { koukou: 1, daigaku: 1 } };
-const ROWS = [200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1200, 1500, 2000];
+const ROWS = [100, 130, 150, 180, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1200, 1500, 2000];
 const quickTable = (spouse) =>
   `<div class="tbl-wrap"><table class="tbl-tight fz-quick">
 <thead><tr><th class="num">年収</th>${KIDS.map(([, b]) => `<th class="num">${b}</th>`).join('')}</tr></thead>
@@ -41,7 +41,18 @@ ${ROWS.map((m) => `<tr><td class="num">${fmt(m)}万</td>${KIDS.map(([k]) => {
 }).join('')}</tr>`).join('\n')}
 </tbody>
 </table></div>`;
+// 配偶者と16歳以上の子のマス（上限の目安と、寄付額から年収の目安で同じ。はじめは「ひとり」「子なし」）
+const FAMILY_TILES = `<div class="tiles tiles-2" role="group" aria-label="配偶者">
+      <button type="button" class="tile tile-word" data-spouse="0" aria-pressed="true"><b>ひとり</b><small>共働きも</small></button>
+      <button type="button" class="tile tile-word" data-spouse="1" aria-pressed="false"><b>夫婦</b><small>配偶者を扶養</small></button>
+    </div>
+    <div class="tiles tiles-4" role="group" aria-label="扶養している16歳以上の子">
+      ${KIDS.map(([k, b, s]) => `<button type="button" class="tile tile-word" data-kids="${k}" aria-pressed="${k === 'none'}"><b>${b}</b><small>${s}</small></button>`).join('\n      ')}
+    </div>`;
 const EX = furusatoLimit({ income: 5000000 }, CFG);
+// 上限が1万円になる年収（よくある質問の「年収いくらから」）
+const FROM_SINGLE = furusatoIncomeFor({ target: 10000 }, CFG);
+const FROM_COUPLE = furusatoIncomeFor({ target: 10000, spouse: true }, CFG);
 
 const FAQS = [
   {
@@ -49,12 +60,24 @@ const FAQS = [
     a: '<p>こえた分は控除されず、そのまま自己負担になります。上限は目安なので、ぎりぎりではなく少し下の額にしておくと、こえる心配が減ります。</p>',
   },
   {
+    q: '年収は、いつの年収ですか？',
+    a: `<p>寄付する年の1月から12月までの年収です。${YEAR}年の寄付なら${YEAR}年の年収で、年の途中なら見こみの額で計算します。</p>`,
+  },
+  {
+    q: '年収は手取りですか、額面ですか？',
+    a: '<p>額面です。源泉徴収票の「支払金額」の数字で、非課税の通勤手当は入りません。</p>',
+  },
+  {
+    q: '年収いくらから控除がありますか？',
+    a: `<p>控除があるのは住民税の所得割がかかる人で、この計算では上限が1万円になるのは、ひとりで年収${FROM_SINGLE.man}万円、夫婦で${FROM_COUPLE.man}万円からです。ほかの額は<a href="/furusato/nenshu/">ふるさと納税に必要な年収</a>で出せます。</p>`,
+  },
+  {
     q: 'ワンストップ特例とは何ですか？',
     a: '<p>確定申告をしない会社員などは、寄付先が5つまでなら、寄付先の自治体に<a href="/furusato/onestop/">申請書</a>を出すだけで住民税から控除されます。申請書にマイナンバーカードの表と裏のコピーをつけて、寄付した翌年の1月10日までに届くように出します。</p>',
   },
   {
-    q: '申請書はどこでもらえますか？',
-    a: '<p>寄付を申し込むときに送ってもらうか、寄付先の自治体のページから印刷します。マイナンバーカードをスマホで読み取って、オンラインで出せる自治体もあります。</p>',
+    q: '年末調整で控除されますか？',
+    a: '<p>されません。会社員は、寄付先にワンストップ特例の申請書を出すか、確定申告をします。</p>',
   },
   {
     q: '確定申告をする人は？',
@@ -73,8 +96,8 @@ const FAQS = [
     a: '<p>寄付した翌年の6月から、その次の年の5月までの住民税が減ります。会社員は毎月の給与から引かれる住民税が少なくなります。</p>',
   },
   {
-    q: 'ほかのサイトと少しちがうのはなぜ？',
-    a: '<p>社会保険料の置き方や、調整控除を入れるかで変わります。このツールは総務省の式のとおり、調整控除のあとの所得割で計算しています。</p>',
+    q: '限度額はどのサイトが正しいですか？',
+    a: '<p>どれも目安で、社会保険料の置き方や調整控除を入れるかで少しずつ変わります。このツールは総務省の式のとおり調整控除のあとの所得割で計算していて、決定通知書があれば<a href="/furusato/jougen/">控除上限額の計算</a>のほうが近い額になります。</p>',
   },
   {
     q: `${YEAR}年の寄付は何で計算していますか？`,
@@ -96,13 +119,7 @@ function renderMain() {
 <div class="calc" id="calc" data-year="${YEAR}">
   <div class="box-rows">
     ${boxField('income', '年収', '万円', '500', '', '給与の額面（税金や保険料を引く前）')}
-    <div class="tiles tiles-2" role="group" aria-label="配偶者">
-      <button type="button" class="tile tile-word" data-spouse="0" aria-pressed="true"><b>ひとり</b><small>共働きも</small></button>
-      <button type="button" class="tile tile-word" data-spouse="1" aria-pressed="false"><b>夫婦</b><small>配偶者を扶養</small></button>
-    </div>
-    <div class="tiles tiles-4" role="group" aria-label="扶養している16歳以上の子">
-      ${KIDS.map(([k, b, s]) => `<button type="button" class="tile tile-word" data-kids="${k}" aria-pressed="${k === 'none'}"><b>${b}</b><small>${s}</small></button>`).join('\n      ')}
-    </div>
+    ${FAMILY_TILES}
   </div>
   <div class="doc" aria-live="polite">
     <p class="doc-title">寄付の上限</p>
@@ -129,6 +146,7 @@ ${section(
 <span>割合 ＝ 90% − 所得税率 × 1.021</span>
 </div>
 <p>所得割は住民税の所得割（調整控除のあと）で、割合は特例控除の割合です。例：年収500万円・ひとりなら、所得割${yen(EX.shotokuwari)}・所得税率5%で、上限は約${yen(EX.limit)}です。</p>
+<p>自己負担の2,000円は、寄付先や寄付の回数がいくつあっても、1年の合計で1回です。</p>
 <p>年収から出すときは、給与だけで、社会保険料は年収の15%、ほかの控除はないものとしています。1,000円未満は切り捨てです。正確な額は、住民税の決定通知書や市区町村で確かめてください。</p>`,
 )}
 
@@ -152,8 +170,8 @@ ${relatedHtml(tool)}
 `;
   const html = page({
     path,
-    title: `ふるさと納税の上限の目安｜年収と家族から計算（${YEAR}年の寄付・早見表）`,
-    description: `ふるさと納税の上限（控除上限額）の目安を計算します。年収と、配偶者・16歳以上の子をえらぶと、${YEAR}年の寄付の上限と、翌年の住民税から減る額がわかります。年収・家族別の早見表と、総務省の式による計算のしかたものせています。`,
+    title: `ふるさと納税の上限の目安｜限度額を年収と家族から計算（${YEAR}年の寄付・早見表）`,
+    description: `ふるさと納税の上限（控除上限額・限度額）の目安を計算します。年収と、配偶者・16歳以上の子をえらぶと、${YEAR}年の寄付の上限と、翌年の住民税から減る額がわかります。年収・家族別の早見表と、総務省の式による計算のしかたものせています。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },
@@ -162,6 +180,119 @@ ${relatedHtml(tool)}
     theme: themeOf(tool),
     ogImage: `/og/${tool.slug}.png`,
     scripts: ['furusato.js'],
+    body,
+  });
+  return { path, html, sitemap: true, updated: tool.updated };
+}
+
+/* ---- /furusato/nenshu/ ふるさと納税に必要な年収（上限の目安の逆。10/23 検索候補「5万円 年収」など） ---- */
+const N_ROWS = [10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 120000, 150000, 200000, 250000, 300000, 400000, 500000, 1000000];
+const nenshuTable = (spouse) =>
+  `<div class="tbl-wrap"><table class="tbl-tight fz-quick">
+<thead><tr><th class="num">寄付額</th>${KIDS.map(([, b]) => `<th class="num">${b}</th>`).join('')}</tr></thead>
+<tbody>
+${N_ROWS.map((t) => `<tr><td class="num">${fmt(t / 10000)}万円</td>${KIDS.map(([k]) => `<td class="num">${fmt(furusatoIncomeFor({ target: t, spouse, ...KID_FAM[k] }, CFG).man)}万</td>`).join('')}</tr>`).join('\n')}
+</tbody>
+</table></div>`;
+const N_EX = furusatoIncomeFor({ target: 50000 }, CFG);
+const N_EX2 = furusatoIncomeFor({ target: 50000, spouse: true }, CFG);
+const N_EX30 = furusatoIncomeFor({ target: 300000 }, CFG);
+const N_EX50 = furusatoIncomeFor({ target: 500000 }, CFG);
+
+const N_FAQS = [
+  {
+    q: '5万円の寄付には、年収がいくら必要ですか？',
+    a: `<p>この計算では、ひとりで年収${N_EX.man}万円、夫婦（配偶者を扶養）で${N_EX2.man}万円からです。16歳以上の子を扶養していると、もう少し高くなります。</p>`,
+  },
+  {
+    q: '30万円や50万円の寄付は？',
+    a: `<p>ひとりなら、30万円は年収${fmt(N_EX30.man)}万円、50万円は${fmt(N_EX50.man)}万円からです。年収1,200万円ほどをこえると、配偶者の控除がなくなるので、夫婦もひとりと同じになります。</p>`,
+  },
+  {
+    q: '表の年収ちょうどなら、だいじょうぶですか？',
+    a: '<p>表の年収は、上限がちょうど寄付額に届く年収です。社会保険料やほかの控除で上限は変わるので、年収に少し余裕をみてください。</p>',
+  },
+  {
+    q: '年収は手取りですか？',
+    a: '<p>額面です。源泉徴収票の「支払金額」の数字で、寄付する年の1月から12月までの年収です。</p>',
+  },
+  {
+    q: '共働きの夫婦は？',
+    a: '<p>2人とも、それぞれ自分の年収で「ひとり」をえらびます。控除は寄付した人の税金から引かれるので、寄付は控除を受ける本人の名前でします。</p>',
+  },
+];
+
+function renderNenshu() {
+  const tool = toolBySlug('furusato-nenshu');
+  const parent = toolBySlug('furusato');
+  const path = '/furusato/nenshu/';
+  const body = `
+<h1>${tool.name}</h1>
+<p class="lead">寄付したい額に必要な年収を出します。</p>
+
+<div class="calc" id="calc" data-year="${YEAR}">
+  <div class="box-rows">
+    ${boxField('target', '寄付したい額', '円', '50,000', '', '1年に寄付する額の合計')}
+    ${FAMILY_TILES}
+  </div>
+  <div class="doc" aria-live="polite">
+    <p class="doc-title">年収の目安</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
+    <p class="doc-sum"><span class="doc-sum-k">必要な年収</span><span class="doc-sum-v"><b id="r-num">？</b><span id="r-unit">万円から</span></span></p>
+    <p class="doc-info"><span id="r-who"></span><span>${YEAR}年の寄付</span></p>
+    <ol class="fz-flow is-empty" id="r-flow" aria-label="お金の流れ">
+      <li><span class="fz-when">今年中</span><b id="f-give">—</b><span>寄付する</span></li>
+      <li><span class="fz-when">翌年6月から</span><b id="f-back">—</b><span>住民税が減る</span></li>
+      <li><span class="fz-when">のこり</span><b id="f-self">2,000円</b><span>自己負担</span></li>
+    </ol>
+    <p class="doc-foot"><span id="r-foot">寄付したい額を入れてください</span><span id="r-how"></span></p>
+  </div>
+  <p class="tag-note" id="r-note" hidden></p>
+  <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/">年収から上限を計算</a></div>
+  <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
+</div>
+
+${section(
+  'formula',
+  '計算のしかた',
+  `<div class="formula">
+<span>上限 ＝ 所得割 × 20% ÷ 割合 ＋ 2,000円</span>
+<span>年収の目安 ＝ 上限が寄付額に届く、いちばん低い年収</span>
+</div>
+<p>年収を1万円ずつ変えて、<a href="/furusato/">上限の目安</a>と同じ計算で上限を出し、寄付したい額に届く年収を探しています。例：5万円なら、ひとりで年収${N_EX.man}万円の上限が${yen(N_EX.limit)}です。</p>
+<p>給与だけで、社会保険料は年収の15%、ほかの控除はないものとしています。正確な額は、住民税の決定通知書や市区町村で確かめてください。</p>`,
+)}
+
+${section(
+  'table',
+  `寄付額ごとの年収の早見表（${YEAR}年の寄付）`,
+  `<p>ひとり・共働き（配偶者を扶養していない）</p>
+${nenshuTable(false)}
+<p>夫婦（配偶者を扶養している）</p>
+${nenshuTable(true)}
+<p class="note">年収は万円で、その年収から寄付できます。</p>
+<p>子は扶養している16歳以上の子です。「両方」は高校生と大学生が1人ずつです。</p>`,
+)}
+
+${section('faq', 'よくある質問', faqHtml(N_FAQS))}
+
+${section('sources', '出典', SOURCES)}
+
+${relatedHtml(tool)}
+`;
+  const html = page({
+    path,
+    title: `ふるさと納税に必要な年収｜5万円・10万円の寄付は年収いくらから（${YEAR}年の寄付・早見表）`,
+    description: `ふるさと納税で寄付したい額から、上限がその額に届く年収の目安を計算します。5万円ならひとりで年収${N_EX.man}万円からです。配偶者と16歳以上の子をえらべて、寄付額1万円〜100万円の早見表ものせています。`,
+    breadcrumbs: [
+      { name: 'ホーム', path: '/' },
+      { name: parent.name, path: '/furusato/' },
+      { name: tool.name, path },
+    ],
+    jsonLd: [toolLd(tool, '寄付したい額と家族構成から、ふるさと納税の上限がその額に届く年収の目安を総務省の式で計算するツール。'), faqLd(N_FAQS)],
+    theme: themeOf(tool),
+    ogImage: `/og/${tool.slug}.png`,
+    scripts: ['furusato-nenshu.js'],
     body,
   });
   return { path, html, sitemap: true, updated: tool.updated };
@@ -194,6 +325,10 @@ const FAQS2 = [
   {
     q: '住宅ローン控除がある人は？',
     a: '<p>住民税から住宅ローン控除を受けている人は、ふるさと納税の控除が引ききれないことがあります。くわしくは市区町村に確かめてください。</p>',
+  },
+  {
+    q: '個人事業主や年金の人も使えますか？',
+    a: '<p>使えます。住民税の納税通知書の所得割の額を入れて、所得税の税率は確定申告書の「課税される所得金額」の帯でえらびます。</p>',
   },
 ];
 
@@ -254,8 +389,8 @@ ${relatedHtml(tool)}
 `;
   const html = page({
     path,
-    title: '控除上限額の計算｜ふるさと納税の上限を住民税の決定通知書の所得割から',
-    description: 'ふるさと納税の控除上限額を、住民税の決定通知書の所得割と所得税の税率から、総務省の式で計算します。特例控除の割合の表と、決定通知書の見方ものせています。',
+    title: '控除上限額の計算｜ふるさと納税の上限を決定通知書の所得割から（個人事業主・年金も）',
+    description: 'ふるさと納税の控除上限額を、住民税の決定通知書の所得割と所得税の税率から、総務省の式で計算します。個人事業主や年金の人は納税通知書の所得割で出せます。特例控除の割合の表と、決定通知書の見方ものせています。',
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: parent.name, path: '/furusato/' },
@@ -271,5 +406,5 @@ ${relatedHtml(tool)}
 }
 
 export default function render() {
-  return [renderMain(), renderJougen()];
+  return [renderMain(), renderNenshu(), renderJougen()];
 }
