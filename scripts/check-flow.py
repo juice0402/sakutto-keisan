@@ -56,6 +56,11 @@ CASES = {
         (None, '#r-foot', '寄付したい額を入れてください'),
         (('fill', '#target', '50000'), None, None),
     ],
+    'furusato/fuufu': [
+        (None, '#r-foot', 'あなたの年収を入れてください'),
+        (('fill', '#income1', '600'), '#r-foot', '配偶者の年収を入れてください'),
+        (('fill', '#income2', '300'), None, None),
+    ],
     'furusato/jougen': [
         (None, '#r-foot', '住民税の所得割を入れてください'),
         (('fill', '#shotokuwari', '235500'), '#r-foot', '所得税の税率をえらんでください'),

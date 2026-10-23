@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, kyuyoShotoku, tokureiRatio, limitOf, TOKUREI_BANDS } from '../src/lib/furusato.mjs';
-import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES } from '../src/data/furusato.mjs';
+import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, spouseIncomeEdges, kyuyoShotoku, tokureiRatio, limitOf, TOKUREI_BANDS } from '../src/lib/furusato.mjs';
+import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../src/data/furusato.mjs';
 
 const Y2026 = FURUSATO_YEARS[2026];
 const man = (x) => x * 10000;
@@ -165,9 +165,40 @@ test('出典は確認日から90日以内（11〜1月は30日以内）', () => {
   const today = new Date(Date.now() + 9 * 3600e3); // 日本時間
   const month = today.getUTCMonth() + 1;
   const max = month >= 11 || month === 1 ? 30 : 90;
-  for (const s of [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES, ...FURUSATO_SEIDO_SOURCES]) {
+  for (const s of [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES, ...FURUSATO_SEIDO_SOURCES, ...FURUSATO_FUUFU_SOURCES]) {
     const days = (today - new Date(`${s.checked}T00:00:00+09:00`)) / 86400e3;
     assert.ok(days <= max, `${s.name} の確認日 ${s.checked} から${Math.floor(days)}日たっている。本文を開いて確かめ直し、checked を直す`);
     assert.match(s.url, /^https:\/\//);
   }
+});
+
+test('共働き・夫婦の上限：配偶者控除・配偶者特別控除（令和8年分・令和9年度）', () => {
+  const cpl = (income1, income2, fam = {}) => furusatoCouple({ income1: man(income1), income2: man(income2), ...fam }, Y2026);
+  // 配偶者の年収136万円までは配偶者控除（収入なしと同じ）、137万円から配偶者特別控除、207万円をこえるとなし
+  assert.deepEqual(spouseIncomeEdges(Y2026), { koujo: 1360000, tokubetsu: 2070000 });
+  assert.equal(cpl(500, 136).a.haigu, 'koujo');
+  assert.equal(cpl(500, 136).a.limit, lim(500, { spouse: true }));
+  assert.equal(cpl(500, 137).a.haigu, 'tokubetsu');
+  assert.equal(cpl(500, 208).a.haigu, null);
+  assert.equal(cpl(500, 250).a.limit, lim(500));
+  // 配偶者特別控除が小さくなるほど上限は上がる（500万円の人）
+  assert.deepEqual([136, 150, 180, 200, 250].map((b) => cpl(500, b).a.limit), [49000, 49000, 51000, 56000, 57000]);
+  // ページの計算例：600万円と300万円・600万円と150万円・500万円と150万円
+  const ex = cpl(600, 300);
+  assert.deepEqual([ex.a.limit, ex.b.limit, ex.total, ex.a.haigu], [77000, 28000, 105000, null]);
+  assert.deepEqual([cpl(600, 150).a.limit, cpl(600, 150).total], [69000, 72000]);
+  assert.equal(cpl(500, 150).a.limit, 49000);
+  // 子の扶養はえらんだほうだけ
+  assert.equal(cpl(600, 300, { koukou: 1, kidsWith: 1 }).a.limit, lim(600, { koukou: 1 }));
+  assert.equal(cpl(600, 300, { koukou: 1, kidsWith: 2 }).b.limit, lim(300, { koukou: 1 }));
+  // 配偶者特別控除はおたがいには受けない（年収の多いほう、同じならあなた）
+  const same = cpl(180, 180);
+  assert.deepEqual([same.a.haigu, same.b.haigu], ['tokubetsu', null]);
+  // 本人の合計所得が1,000万円をこえると配偶者の控除はない
+  assert.equal(cpl(1300, 0).a.haigu, null);
+  // 収入なしの配偶者は「—」、まちがい
+  assert.equal(cpl(600, 0).b.none, true);
+  assert.equal(furusatoCouple({ income1: null, income2: 0 }, Y2026).missing, 'income1');
+  assert.equal(furusatoCouple({ income1: 0, income2: 0 }, Y2026).error, 'どちらかの年収を入れてください。');
+  assert.equal(furusatoCouple({ income1: 5e6, income2: -1 }, Y2026).field, 'income2');
 });

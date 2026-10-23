@@ -7,8 +7,8 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
-import { FURUSATO_YEARS, FURUSATO_SOURCES } from '../data/furusato.mjs';
+import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, spouseIncomeEdges, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
+import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../data/furusato.mjs';
 import { fmt } from '../lib/number.mjs';
 
 const YEAR = 2026; // 寄付の年（1月1日に次の年へ。src/data/furusato.mjs に足してから）
@@ -89,7 +89,7 @@ const FAQS = [
   },
   {
     q: '共働きや中学生以下の子は？',
-    a: '<p>配偶者を扶養していない共働きは「ひとり」をえらびます。15歳以下の子は扶養控除がないので、上限には関係しません。</p>',
+    a: '<p>配偶者を扶養していない共働きは「ひとり」をえらびます。2人の上限と合計は<a href="/furusato/fuufu/">共働き・夫婦の上限</a>で出せます。15歳以下の子は扶養控除がないので、上限には関係しません。</p>',
   },
   {
     q: '住民税はいつ減りますか？',
@@ -298,6 +298,133 @@ ${relatedHtml(tool)}
   return { path, html, sitemap: true, updated: tool.updated };
 }
 
+/* ---- /furusato/fuufu/ 共働き・夫婦の上限（10/23 しょーくんが「ページを作る」をえらんだ） ---- */
+const EDGE = spouseIncomeEdges(CFG); // 配偶者控除・配偶者特別控除になる配偶者の年収（給与だけ）
+const KIDS_TILES = `<div class="tiles tiles-4" role="group" aria-label="扶養している16歳以上の子">
+      ${KIDS.map(([k, b, s]) => `<button type="button" class="tile tile-word" data-kids="${k}" aria-pressed="${k === 'none'}"><b>${b}</b><small>${s}</small></button>`).join('\n      ')}
+    </div>`;
+const WHO_TILES = `<div class="tiles tiles-2" id="who" role="group" aria-label="子を扶養する人" hidden>
+      <button type="button" class="tile tile-word" data-who="1" aria-pressed="true"><b>あなた</b><small>の扶養</small></button>
+      <button type="button" class="tile tile-word" data-who="2" aria-pressed="false"><b>配偶者</b><small>の扶養</small></button>
+    </div>`;
+const F_COLS = [0, 150, 200, 300]; // 配偶者の年収（万円。136万円までは「なし」と同じ）
+const F_ROWS = [300, 400, 500, 600, 700, 800, 1000];
+const fuufuTable = () =>
+  `<div class="tbl-wrap"><table class="tbl-tight fz-quick">
+<thead><tr><th class="num">あなた</th>${F_COLS.map((c) => `<th class="num">${c ? `${c}万` : 'なし'}</th>`).join('')}</tr></thead>
+<tbody>
+${F_ROWS.map((m) => `<tr><td class="num">${fmt(m)}万</td>${F_COLS.map((c) => {
+  const r = furusatoCouple({ income1: m * 10000, income2: c * 10000 }, CFG);
+  return `<td class="num">${r.a.none ? '—' : fmt(r.a.limit)}</td>`;
+}).join('')}</tr>`).join('\n')}
+</tbody>
+</table></div>`;
+const F_EX = furusatoCouple({ income1: 6000000, income2: 3000000 }, CFG);
+const F_EX2 = furusatoCouple({ income1: 5000000, income2: 1500000 }, CFG);
+const man = (y) => `${fmt(y / 10000)}万円`;
+
+const F_FAQS = [
+  {
+    q: '夫と妻、どちらの名前で寄付しますか？',
+    a: '<p>控除は寄付した人の税金から引かれるので、それぞれ自分の上限までを、自分の名前で寄付します。2人の上限を足して1人で使うことはできません。</p>',
+  },
+  {
+    q: '専業主婦（主夫）やパートの配偶者は？',
+    a: `<p>給与だけで配偶者の年収が${man(EDGE.koujo)}までなら、年収の多い人が配偶者控除を、${man(EDGE.tokubetsu)}までなら配偶者特別控除を受けられます。そのぶん年収の多い人の上限は少し下がり、住民税の所得割がかからない配偶者には控除がありません。</p>`,
+  },
+  {
+    q: '子どもはどちらの扶養に入れますか？',
+    a: '<p>扶養控除は、1人の子につき夫婦のどちらか1人が受けます。扶養に入れたほうの上限が少し下がります。</p>',
+  },
+  {
+    q: 'ワンストップ特例は2人とも使えますか？',
+    a: '<p>使えます。5つまでの数え方も申請書も1人ずつで、それぞれが自分の寄付先に出します。</p>',
+  },
+  {
+    q: '2人の年収が同じくらいのときは？',
+    a: '<p>配偶者特別控除は、夫婦がおたがいに受けることはできません。この計算では、年収の多いほうだけが受けるものとしています。</p>',
+  },
+];
+
+const FUUFU_SOURCES = `<ul class="src-list">${[...FURUSATO_SOURCES, ...FURUSATO_FUUFU_SOURCES].map(
+  (s) => `<li><a href="${s.url}" rel="noopener">${esc(s.name)}</a>（${esc(s.what)}、${jaDate(s.checked)}に確認）</li>`,
+).join('')}</ul>
+<p>個人で作っているツールで、税理士の監修ではありません。</p>`;
+
+function renderFuufu() {
+  const tool = toolBySlug('furusato-fuufu');
+  const parent = toolBySlug('furusato');
+  const path = '/furusato/fuufu/';
+  const body = `
+<h1>${tool.name}</h1>
+<p class="lead">2人の年収から、それぞれの上限を出します。</p>
+
+<div class="calc" id="calc" data-year="${YEAR}">
+  <div class="box-rows">
+    ${boxField('income1', 'あなたの年収', '万円', '600', '', '給与の額面（税金や保険料を引く前）')}
+    ${boxField('income2', '配偶者の年収', '万円', '300', '', '給与の額面。収入がなければ0')}
+    ${KIDS_TILES}
+    ${WHO_TILES}
+  </div>
+  <div class="doc" aria-live="polite">
+    <p class="doc-title">夫婦の上限</p>
+    <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
+    <p class="doc-sum"><span class="doc-sum-k">2人の合計</span><span class="doc-sum-v"><b id="r-num">？</b><span id="r-unit">円</span></span></p>
+    <div class="rieki-bar" aria-hidden="true">
+      <div class="rb-track"><div class="rb-profit" id="b-a"></div><div class="rb-cost" id="b-b"></div></div>
+      <p class="rb-legend"><span>あなた</span><span>配偶者</span></p>
+    </div>
+    <table class="doc-table fz-table"><tbody>
+      <tr><td>あなたの上限</td><td id="d-a">—</td></tr>
+      <tr><td>配偶者の上限</td><td id="d-b">—</td></tr>
+    </tbody></table>
+    <p class="doc-foot"><span id="r-foot">あなたの年収を入れてください</span><span id="r-how"></span></p>
+  </div>
+  <p class="tag-note" id="r-note" hidden></p>
+  <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/">1人の上限の目安</a></div>
+  <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
+</div>
+
+${section(
+  'formula',
+  '計算のしかた',
+  `<p>1人ずつ<a href="/furusato/">上限の目安</a>と同じ式で計算し、2人を足します。配偶者の年収が${man(EDGE.koujo)}までなら配偶者控除、${man(EDGE.tokubetsu)}までなら配偶者特別控除を、年収の多いほうの計算に入れます。</p>
+<p>例：あなたが年収600万円・配偶者が300万円なら、あなたは約${yen(F_EX.a.limit)}、配偶者は約${yen(F_EX.b.limit)}で、合計は約${yen(F_EX.total)}です。配偶者が150万円なら、あなたの上限は配偶者特別控除で約${yen(F_EX2.a.limit)}になります。</p>
+<p>給与だけで、社会保険料は年収の15%、ほかの控除はないものとしています。正確な額は、住民税の決定通知書や市区町村で確かめてください。</p>`,
+)}
+
+${section(
+  'table',
+  `配偶者の年収で変わる、あなたの上限（${YEAR}年の寄付）`,
+  `${fuufuTable()}
+<p class="note">年収は万円、上限は円です。</p>
+<p>子の扶養がないときの、あなたの上限です。配偶者の年収が${man(EDGE.koujo)}までは「なし」と同じです。配偶者の上限は、配偶者の年収で<a href="/furusato/">上限の目安</a>の「ひとり」をえらんだ額になります。</p>`,
+)}
+
+${section('faq', 'よくある質問', faqHtml(F_FAQS))}
+
+${section('sources', '出典', FUUFU_SOURCES)}
+
+${relatedHtml(tool)}
+`;
+  const html = page({
+    path,
+    title: `共働き・夫婦の上限｜ふるさと納税を2人の年収から計算（${YEAR}年の寄付・早見表）`,
+    description: `共働きや夫婦のふるさと納税の上限（控除上限額）の目安を、2人の年収と16歳以上の子の扶養から計算します。配偶者控除・配偶者特別控除も入れて、それぞれの上限と合計がわかります。配偶者の年収別の早見表ものせています。`,
+    breadcrumbs: [
+      { name: 'ホーム', path: '/' },
+      { name: parent.name, path: '/furusato/' },
+      { name: tool.name, path },
+    ],
+    jsonLd: [toolLd(tool, '共働き・夫婦の2人の年収と子の扶養から、ふるさと納税の上限の目安をそれぞれ計算するツール。'), faqLd(F_FAQS)],
+    theme: themeOf(tool),
+    ogImage: `/og/${tool.slug}.png`,
+    scripts: ['furusato-fuufu.js'],
+    body,
+  });
+  return { path, html, sitemap: true, updated: tool.updated };
+}
+
 /* ---- /furusato/jougen/ 控除上限額の計算（決定通知書から） ---- */
 const RANGE = ['〜195万', '〜330万', '〜695万', '〜900万', '〜1800万', '〜4000万', '4000万〜'];
 const RANGE_TEXT = ['195万円まで', '330万円まで', '695万円まで', '900万円まで', '1,800万円まで', '4,000万円まで', '4,000万円をこえる'];
@@ -406,5 +533,5 @@ ${relatedHtml(tool)}
 }
 
 export default function render() {
-  return [renderMain(), renderNenshu(), renderJougen()];
+  return [renderMain(), renderNenshu(), renderFuufu(), renderJougen()];
 }

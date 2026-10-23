@@ -402,7 +402,7 @@ export const TOOLS = [
     short: '年収と家族から、いくらまで寄付できるか',
     published: true,
     updated: '2026-10-23',
-    related: ['furusato-memo', 'furusato-henreihin', 'furusato-nenshu', 'furusato-jougen', 'furusato-onestop', 'furusato-shimekiri'],
+    related: ['furusato-memo', 'furusato-henreihin', 'furusato-nenshu', 'furusato-fuufu', 'furusato-jougen', 'furusato-onestop', 'furusato-shimekiri'],
   },
   // 10/23 検索候補の調べ（claude/sakutto-chishiki-debate-2026-10-23.md）：寄付額から年収の目安
   {
@@ -415,7 +415,19 @@ export const TOOLS = [
     short: '寄付したい額に、年収がいくら必要か',
     published: true,
     updated: '2026-10-23',
-    related: ['furusato', 'furusato-memo', 'furusato-jougen', 'furusato-onestop'],
+    related: ['furusato', 'furusato-fuufu', 'furusato-memo', 'furusato-jougen'],
+  },
+  {
+    slug: 'furusato-fuufu',
+    path: '/furusato/fuufu/',
+    name: '共働き・夫婦の上限',
+    ogTitle: '共働き・夫婦の\nふるさと納税の上限',
+    more: true,
+    category: 'furusato',
+    short: '2人の年収から、それぞれの上限と合計',
+    published: true,
+    updated: '2026-10-23',
+    related: ['furusato', 'furusato-nenshu', 'furusato-memo', 'furusato-onestop'],
   },
   {
     slug: 'furusato-jougen',

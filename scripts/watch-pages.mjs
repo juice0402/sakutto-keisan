@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { POINT_SOURCES, MARATHON } from '../src/data/point.mjs';
 import { SPU_SOURCES, POINT_DAY } from '../src/data/spu.mjs';
 import { AMAZON_SOURCES } from '../src/data/amazon.mjs';
-import { FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES } from '../src/data/furusato.mjs';
+import { FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../src/data/furusato.mjs';
 
 const GROUP = process.argv[2];
 const UA = 'sakutto-keisan-watch (+https://sakutto-keisan.com/about/)';
@@ -17,7 +17,7 @@ const STATE = '.watch/state.json';
 const PAGES = {
   point: [{ name: '楽天市場「お買い物マラソン」', url: MARATHON }, ...POINT_SOURCES],
   spu: [...SPU_SOURCES, POINT_DAY, ...AMAZON_SOURCES],
-  furusato: [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES, ...FURUSATO_SEIDO_SOURCES],
+  furusato: [...FURUSATO_SOURCES, ...FURUSATO_TETSUZUKI_SOURCES, ...FURUSATO_SEIDO_SOURCES, ...FURUSATO_FUUFU_SOURCES],
 }[GROUP]
   ?.map(({ name, url }) => ({ name, url }))
   .filter((p, i, all) => all.findIndex((q) => q.url === p.url) === i); // 同じページは1回だけ読む

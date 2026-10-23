@@ -34,13 +34,21 @@ export function kyuyoShotoku(income, cfg) {
   return Math.max(0, Math.min(income - cfg.kyuyoMin, byBand));
 }
 
+/** 配偶者特別控除の額（配偶者の合計所得の区分 × 本人の合計所得 900万円以下・950万円以下・1,000万円以下） */
+function spouseSpecial(table, spouseTotal, total) {
+  if (total > 10000000) return 0;
+  const row = table.find((r) => spouseTotal <= r[0]);
+  return row ? row[1][total <= 9000000 ? 0 : total <= 9500000 ? 1 : 2] : 0;
+}
+
 /**
  * はじめての3問：年収と家族から
- * @param {{income:number|null, spouse:boolean, koukou:number, daigaku:number}} p
+ * @param {{income:number|null, spouse:boolean, spouseIncome:number|null, koukou:number, daigaku:number}} p
  *   income：年収（給与の額面・円）　spouse：配偶者を扶養（収入なし）　koukou：扶養している高校生（16〜18歳）　daigaku：大学生（19〜22歳）
+ *   spouseIncome：配偶者の年収（給与の額面・円。共働き・夫婦の上限で使う）。入れると、配偶者の合計所得から配偶者控除か配偶者特別控除を決める
  * @param {object} cfg  src/data/furusato.mjs の FURUSATO_YEARS[年]
  */
-export function furusatoLimit({ income, spouse = false, koukou = 0, daigaku = 0 }, cfg) {
+export function furusatoLimit({ income, spouse = false, spouseIncome = null, koukou = 0, daigaku = 0 }, cfg) {
   if (income === null || income === undefined) return { ok: false, empty: true, missing: 'income' };
   if (!Number.isFinite(income) || income <= 0) return { ok: false, error: '年収を入れてください。', field: 'income' };
   if (income > 1e9) return { ok: false, error: '年収は10億円までにしてください。', field: 'income' };
@@ -50,18 +58,29 @@ export function furusatoLimit({ income, spouse = false, koukou = 0, daigaku = 0 
   const adjust = income > 8500000 && kids > 0 ? Math.ceil((Math.min(income, 10000000) - 8500000) * 0.1) : 0;
   const total = Math.max(0, kyuyo - adjust); // 合計所得金額（＝総所得金額等）
   const social = Math.floor(income * cfg.socialRate);
-  const people = 1 + (spouse ? 1 : 0) + kids;
+  // 配偶者：収入なし（spouse）か、配偶者の年収から。配偶者控除（koujo）・配偶者特別控除（tokubetsu）・なし
+  let haigu = spouse ? 'koujo' : null;
+  let spouseTotal = 0;
+  if (spouseIncome !== null && spouseIncome !== undefined) {
+    spouseTotal = kyuyoShotoku(spouseIncome, cfg);
+    haigu = spouseTotal <= cfg.spouseLimit ? 'koujo' : spouseTotal <= cfg.spouseSpecialMax ? 'tokubetsu' : null;
+  }
+  const isSpouse = haigu === 'koujo';
+  const people = 1 + (isSpouse ? 1 : 0) + kids;
 
   // 住民税：所得割がかからない人
   const hikazei = cfg.hikazei.per * people + cfg.hikazei.plus + (people > 1 ? cfg.hikazei.family : 0);
   // 所得税の課税所得（税率を見るため）
   const itBasic = fzBandValue(cfg.basicIncomeTax, total);
-  const itDeduct = social + itBasic + (spouse ? fzBandValue(cfg.spouseIncomeTax, total) : 0) + koukou * cfg.koukou.incomeTax + daigaku * cfg.daigaku.incomeTax;
+  const itSpouse = isSpouse ? fzBandValue(cfg.spouseIncomeTax, total) : haigu === 'tokubetsu' ? spouseSpecial(cfg.spouseSpecialIncomeTax, spouseTotal, total) : 0;
+  const itDeduct = social + itBasic + itSpouse + koukou * cfg.koukou.incomeTax + daigaku * cfg.daigaku.incomeTax;
   const itTaxable = fzFloor(Math.max(0, total - itDeduct), 1000);
   // 住民税の課税所得と所得割
-  const rtDeduct = social + fzBandValue(cfg.basicResident, total) + (spouse ? fzBandValue(cfg.spouseResident, total) : 0) + koukou * cfg.koukou.resident + daigaku * cfg.daigaku.resident;
+  const rtSpouse = isSpouse ? fzBandValue(cfg.spouseResident, total) : haigu === 'tokubetsu' ? spouseSpecial(cfg.spouseSpecialResident, spouseTotal, total) : 0;
+  const rtDeduct = social + fzBandValue(cfg.basicResident, total) + rtSpouse + koukou * cfg.koukou.resident + daigaku * cfg.daigaku.resident;
   const taxable = fzFloor(Math.max(0, total - rtDeduct), 1000);
-  const diff = fzBandValue(cfg.diffBasic, total) + (spouse ? fzBandValue(cfg.diffSpouse, total) : 0) + koukou * cfg.diffKoukou + daigaku * cfg.diffDaigaku;
+  // 調整控除の人的控除の差（配偶者特別控除の分はない。綾川町の令和8年度以降の表）
+  const diff = fzBandValue(cfg.diffBasic, total) + (isSpouse ? fzBandValue(cfg.diffSpouse, total) : 0) + koukou * cfg.diffKoukou + daigaku * cfg.diffDaigaku;
   let shotokuwari = 0;
   if (total > hikazei && taxable > 0) {
     const before = fzFloor(taxable * 0.06, 100) + fzFloor(taxable * 0.04, 100); // 市町村6%・都道府県4%
@@ -70,7 +89,7 @@ export function furusatoLimit({ income, spouse = false, koukou = 0, daigaku = 0 
     shotokuwari = Math.max(0, Math.floor(before - adj));
   }
   if (shotokuwari === 0) {
-    return { ok: true, none: true, income, kyuyo, total, social, taxable, shotokuwari: 0, limit: 0 };
+    return { ok: true, none: true, income, kyuyo, total, social, taxable, shotokuwari: 0, limit: 0, haigu: rtSpouse ? haigu : null };
   }
   // 特例控除の割合を決める所得税率
   const sabun = diff + Math.max(0, itBasic - cfg.basicIncomeTaxBase);
@@ -92,7 +111,41 @@ export function furusatoLimit({ income, spouse = false, koukou = 0, daigaku = 0 
     ratio: tokureiRatio(rate),
     limit,
     jumin: limit - 2000, // ワンストップ特例なら、翌年度の住民税から減る額（上限まで寄付したとき）
+    haigu: rtSpouse ? haigu : null, // 受けた配偶者の控除（本人の合計所得が1,000万円をこえると、なし）
   };
+}
+
+/** 配偶者控除・配偶者特別控除になる配偶者の年収（給与だけのとき）の上限（1,000円きざみ）。共働き・夫婦の上限のよくある質問 */
+export function spouseIncomeEdges(cfg) {
+  const edge = (limit) => {
+    let y = 0;
+    while (kyuyoShotoku(y + 1000, cfg) <= limit) y += 1000;
+    return y;
+  };
+  return { koujo: edge(cfg.spouseLimit), tokubetsu: edge(cfg.spouseSpecialMax) };
+}
+
+/**
+ * 共働き・夫婦の上限：2人の年収と、扶養している16歳以上の子と、子を扶養する人から、それぞれの上限と合計
+ * 配偶者控除・配偶者特別控除は、年収の多いほう（同じならあなた）だけが受ける（2人がおたがいに受けることはできない）
+ * @param {{income1:number|null, income2:number|null, koukou:number, daigaku:number, kidsWith:1|2}} p  income1：あなたの年収（円）　income2：配偶者の年収（円。0もよい）
+ */
+export function furusatoCouple({ income1, income2, koukou = 0, daigaku = 0, kidsWith = 1 }, cfg) {
+  for (const [v, field] of [[income1, 'income1'], [income2, 'income2']]) {
+    if (v === null || v === undefined) return { ok: false, empty: true, missing: field };
+    if (!Number.isFinite(v) || v < 0) return { ok: false, error: '年収を入れてください。', field };
+    if (v > 1e9) return { ok: false, error: '年収は10億円までにしてください。', field };
+  }
+  if (income1 === 0 && income2 === 0) return { ok: false, error: 'どちらかの年収を入れてください。', field: 'income1' };
+  const kids = { koukou, daigaku };
+  const firstHigh = income1 >= income2;
+  const one = (income, other, claim, withKids) =>
+    income > 0
+      ? furusatoLimit({ income, spouseIncome: claim ? other : null, ...(withKids ? kids : {}) }, cfg)
+      : { ok: true, none: true, income: 0, limit: 0, haigu: null };
+  const a = one(income1, income2, firstHigh, kidsWith === 1);
+  const b = one(income2, income1, !firstHigh, kidsWith === 2);
+  return { ok: true, a, b, total: a.limit + b.limit };
 }
 
 /**
