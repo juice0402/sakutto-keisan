@@ -862,6 +862,12 @@ def furusato_fuufu_doc(img, cx, top):
               (('あなた', '600万円', ('77,000円',)), ('配偶者', '300万円', '28,000円'), ('配偶者150万', 'あなた', '69,000円')))
 
 
+def furusato_uchiwake_doc(img, cx, top):
+    """控除の内わけ（年収500万円・ひとりで5万円。2026年の寄付）"""
+    doc_sheet(img, cx, top, '控除の内わけ', '自己負担', '2,000', '円', ('税', '戻る額'),
+              (('所得税', '2,450円'), ('住民税 基本分', '4,800円'), ('住民税 特例分', ('40,750円',))))
+
+
 def furusato_jougen_doc(img, cx, top):
     """控除上限額の計算（所得割235,500円・所得税率5%）"""
     doc_sheet(img, cx, top, '控除上限額', '上限の目安', '57,000', '円', ('計算', '金額'),
@@ -1145,7 +1151,7 @@ VISUALS = {
     'percent': percent_slip,
     'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
-    'furusato': furusato_doc, 'furusato-nenshu': furusato_nenshu_doc, 'furusato-fuufu': furusato_fuufu_doc, 'furusato-jougen': furusato_jougen_doc,
+    'furusato': furusato_doc, 'furusato-nenshu': furusato_nenshu_doc, 'furusato-fuufu': furusato_fuufu_doc, 'furusato-uchiwake': furusato_uchiwake_doc, 'furusato-jougen': furusato_jougen_doc,
     'furusato-memo': furusato_memo_doc, 'furusato-onestop': furusato_onestop_doc, 'furusato-shimekiri': furusato_shimekiri_doc, 'furusato-seido': furusato_seido_doc,
     'point': point_card, 'point-spu': spu_card, 'point-taishou': taishou_card,
     'point-shikumi': floors_card('今月のポイント', '12倍', (('キャンペーン', 1360, '#D98A90'), ('SPU', 1662, RED), ('いつもの1倍', 272, INK)), 'ポイント', '3,294', ''),

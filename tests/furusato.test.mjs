@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, spouseIncomeEdges, kyuyoShotoku, tokureiRatio, limitOf, TOKUREI_BANDS } from '../src/lib/furusato.mjs';
+import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, furusatoBreakdown, spouseIncomeEdges, kyuyoShotoku, tokureiRatio, limitOf, TOKUREI_BANDS } from '../src/lib/furusato.mjs';
 import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../src/data/furusato.mjs';
 
 const Y2026 = FURUSATO_YEARS[2026];
@@ -201,4 +201,25 @@ test('共働き・夫婦の上限：配偶者控除・配偶者特別控除（�
   assert.equal(furusatoCouple({ income1: null, income2: 0 }, Y2026).missing, 'income1');
   assert.equal(furusatoCouple({ income1: 0, income2: 0 }, Y2026).error, 'どちらかの年収を入れてください。');
   assert.equal(furusatoCouple({ income1: 5e6, income2: -1 }, Y2026).field, 'income2');
+});
+
+test('控除の内わけ（ページの計算例と表）', () => {
+  const b = (donation, income = 500, fam = {}) => furusatoBreakdown({ donation, income: man(income), ...fam }, Y2026);
+  const ex = b(50000);
+  assert.deepEqual([ex.it, ex.kihon, ex.tokurei, ex.self, ex.limit], [2450, 4800, 40750, 2000, 57000]);
+  // 上限までは自己負担2,000円、こえると特例分が所得割の20%（47,100円）で止まる
+  assert.deepEqual([10000, 30000, 57000].map((d) => b(d).self), [2000, 2000, 2000]);
+  const over = b(70000);
+  assert.deepEqual([over.tokurei, over.cap, over.self, over.capped], [47100, 47100, 12629, true]);
+  assert.equal(b(100000).self, 38097);
+  // 上限ちょうどの寄付は、ほとんどの年収・家族で自己負担2,000円
+  for (const inc of [300, 400, 600, 800, 1000, 1500]) for (const fam of [{}, { spouse: true }, { koukou: 1, daigaku: 1 }]) {
+    const L = lim(inc, fam);
+    assert.equal(b(L, inc, fam).self, 2000, `${inc}万 ${JSON.stringify(fam)}`);
+  }
+  // 所得割がかからない年収は全部自己負担、まちがい
+  assert.deepEqual([b(10000, 100).none, b(10000, 100).self], [true, 10000]);
+  assert.equal(furusatoBreakdown({ donation: null, income: man(500) }, Y2026).missing, 'donation');
+  assert.equal(furusatoBreakdown({ donation: 10000, income: null }, Y2026).missing, 'income');
+  assert.equal(furusatoBreakdown({ donation: 0, income: man(500) }, Y2026).field, 'donation');
 });
