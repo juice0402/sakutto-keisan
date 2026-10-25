@@ -86,7 +86,7 @@ export const FURUSATO_SOURCES = [
   { name: '財務省「令和8年度税制改正の大綱」', url: 'https://www.mof.go.jp/tax_policy/tax_reform/outline/fy2026/08taikou_01.htm', checked: '2026-10-22', what: '給与所得控除の最低保障額' },
   { name: '渋谷区「令和9年度住民税の税制改正のお知らせ」', url: 'https://www.city.shibuya.tokyo.jp/kurashi/juminzei/zesei/zeisei_kaisei09.html', checked: '2026-10-22', what: '住民税の給与所得控除・基礎控除' },
   { name: '各務原市「税額控除」', url: 'https://www.city.kakamigahara.lg.jp/life/zeikin/1001574/1001580.html', checked: '2026-10-22', what: '調整控除と人的控除差調整額' },
-  { name: '練馬区「寄附金税額控除」', url: 'https://www.city.nerima.tokyo.jp/kurashi/zei/jyuminzei/zeigakukojo/kifukinzeigakukojo.html', checked: '2026-10-22', what: '特例控除の割合' },
+  { name: '練馬区「寄附金税額控除」', url: 'https://www.city.nerima.tokyo.jp/kurashi/zei/jyuminzei/zeigakukojo/kifukinzeigakukojo.html', checked: '2026-10-26', what: '特例控除の割合' },
   { name: '柏市「個人住民税がかからないかた」', url: 'https://www.city.kashiwa.lg.jp/shiminzei/kojinshiminzei/r8hikazei.html', checked: '2026-10-22', what: '所得割がかからない基準' },
 ];
 
@@ -110,7 +110,7 @@ export const FURUSATO_TETSUZUKI_SOURCES = [
   { name: '総務省「ふるさと納税の流れ」', url: 'https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/procedure.html', checked: '2026-10-22', what: 'ワンストップ特例の条件と確定申告' },
   { name: '総務省「ふるさと納税ワンストップ特例の取扱いについて」', url: 'https://www.soumu.go.jp/main_content/000362730.pdf', checked: '2026-10-22', what: '寄付ごとの申請・同じ自治体は1つ・特例が使えなくなるとき' },
   { name: '総務省「ワンストップ特例を申請する皆様へ」', url: 'https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/file/20160818.pdf', checked: '2026-10-22', what: '6つ以上・確定申告・引っ越したとき' },
-  { name: '名古屋市「ワンストップ特例の申請」', url: 'https://www.city.nagoya.jp/shisei/furusatonozei/1003647/1003650.html', checked: '2026-10-22', what: '1月10日必着・オンライン申請・添える書類' },
+  { name: '名古屋市「ワンストップ特例の申請」', url: 'https://www.city.nagoya.jp/shisei/furusatonozei/1003647/1003650.html', checked: '2026-10-26', what: '1月10日必着・オンライン申請・添える書類' },
   { name: '長岡市「ワンストップ特例申請書」', url: 'https://www.city.nagaoka.niigata.jp/furusato/assets/pdf/onestop-01a-240403.pdf', checked: '2026-10-22', what: '申請書に書くこと・変更の届出' },
   { name: '佐野市「佐野市へふるさと納税された方へ（引越し等で変更が生じた場合）」', url: 'https://www.city.sano.lg.jp/soshikiichiran/sougou/seisakuchoseika/gyomuannai/2/sanoshifurusatonouzeisita/23599.html', checked: '2026-10-23', what: '1月2日より後の引っ越し' },
   { name: '函館市「年末年始のふるさと納税について」', url: 'https://www.city.hakodate.hokkaido.jp/assets/files/hometown-tax/20251209_nenmatsunenshi.pdf', checked: '2026-10-22', what: '年内の入金・年末の申請書' },
