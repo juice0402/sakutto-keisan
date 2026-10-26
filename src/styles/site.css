@@ -1217,6 +1217,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 [data-theme="seikatsu"] .cal-w { margin-bottom: 10%; }
 [data-theme="seikatsu"] .cal-calm { background-image: url(/img/himekuri-calm.webp); }
 [data-theme="seikatsu"] .cal-calm .cal-ym { background: none; }
+/* 結果の紙（お知らせ・カレンダーの紙など .slip）：上に紺の帯のある紙の写真。帯とはしはのばさない */
+[data-theme="seikatsu"] .slip { background: none; border: 0 solid transparent; border-width: 6px 2px 2px; border-image: url(/img/slip.webp) 20 8 8 8 fill / 6px 2px 2px stretch; }
 
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
