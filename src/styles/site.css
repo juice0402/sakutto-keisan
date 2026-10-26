@@ -1219,6 +1219,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 [data-theme="seikatsu"] .cal-calm .cal-ym { background: none; }
 /* 結果の紙（お知らせ・カレンダーの紙など .slip）：上に紺の帯のある紙の写真。帯とはしはのばさない */
 [data-theme="seikatsu"] .slip { background: none; border: 0 solid transparent; border-width: 6px 2px 2px; border-image: url(/img/slip.webp) 20 8 8 8 fill / 6px 2px 2px stretch; }
+/* 履歴書の学歴（.rireki）・書類（.doc）：紙の写真（帯なし） */
+[data-theme="seikatsu"] .rireki, [data-theme="shigoto"] .doc { background: var(--sheet) url(/img/paper.webp) center / cover; }
 /* お仕事・ふるさと納税（紺の革）と FX（黒の革）：表紙は革の写真、付箋はテーマの色の写真の付箋 */
 [data-theme="shigoto"] .site-header, [data-theme="shigoto"] .site-footer { background: var(--leather) url(/img/leather-navy.webp) center / cover; }
 [data-theme="fx"] .site-header, [data-theme="fx"] .site-footer { background: var(--leather) url(/img/leather-black.webp) center / cover; }
