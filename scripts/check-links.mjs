@@ -87,7 +87,7 @@ await Promise.all(Array.from({ length: 4 }, async () => {
 
 const line = (u, r) => {
   const w = where.get(u);
-  const name = w?.text || u;
+  const name = w && /[^\d.,％%Wｗ円・ ]/.test(w.text) ? w.text : new URL(u).host; // 「2.75％」だけの字はサイトの名前に
   const pages = w ? [...w.pages].slice(0, 3).join('・') + (w.pages.size > 3 ? ` ほか${w.pages.size - 3}ページ` : '') : 'ページにはまだ出ていない';
   return `- [${name}](${u})（${pages}）：${r.why}`;
 };
@@ -123,5 +123,5 @@ const what = mode === 'all' ? `外部リンク ${urls.length} 件` : `この PR 
 console.log(`${what}を点検しました。${fix.length || old.length ? `直すもの ${fix.length + old.length} 件。` : '直すものはありません。'}${soft.length ? `断られた・つながらない ${soft.length} 件。` : ''}`);
 if (fix.length) console.log(`\n### 開けない・移ったリンク（${fix.length}件）\n${fix.join('\n')}\n\n同じ発行元の新しいページを探して、データやページのリンクを差しかえてください。`);
 if (old.length) console.log(`\n### 確認日が古くなる（${old.length}件）\n${old.join('\n')}\n\n公式を開いて中身を確かめ直し、checked を直してください。`);
-if (soft.length) console.log(`\n### 断られた・つながらない（${soft.length}件・消えたとは限らない）\n${soft.join('\n')}\n\nGitHub からは断られることがあります。来週も同じなら、ブラウザで開けるか確かめてください。`);
+if (soft.length) console.log(`\n### 断られた・つながらない（${soft.length}件・消えたとは限らない）\n${soft.join('\n')}\n\nGitHub からの点検を断るサイトがあるので、Issue にはしません。`);
 process.exit(fix.length || old.length ? 1 : 0);
