@@ -52,7 +52,7 @@ export const CHOJU_SOURCES = [
 // お食い初め：生後100日ごろ（農林水産省・水戸市）。日枝神社・大阪小児科医会は100日目か120日目
 // 生まれた日を1日目に数えると100日目は99日後、0日目に数えると100日後（どちらの数え方もある）
 export const OKUIZOME_SOURCES = [
-  { name: '農林水産省 子どもが生まれたら（7つの人生儀礼）', url: 'https://ouchidewashoku.maff.go.jp/article/94/' },
+  { name: '農林水産省 子どもが生まれたら（7つの人生儀礼）', url: 'https://www.maff.go.jp/j/keikaku/syokubunka/oishiiwashoku/article/94/' },
   { name: '水戸市 こどもが生まれてから20歳までの伝統行事', url: 'https://www.city.mito.lg.jp/page/119683.html' },
   { name: '日枝神社 よくある質問', url: 'https://www.hiejinja.net/faq/' },
   { name: '大阪小児科医会 食べ初め', url: 'https://www.osk-pa.or.jp/child-care/cc5/02-neonatal/20060901263.html' },
