@@ -18,6 +18,7 @@ test('原液の量から・水の量から（ページの計算例）', () => {
   assert.deepEqual(r({ ratio: 1000, amount: 2000, from: 'water' }), ['2ml', '2L', '2L']); // 2000 ÷ 999 ≒ 2.0ml
   assert.equal(dilute({ ratio: 1000, amount: 2000, from: 'water' }).concentrate.toFixed(3), '2.002');
   assert.ok(dilute({ ratio: 1, amount: 500, from: 'water' }).error);
+  assert.deepEqual(r({ ratio: 2, amount: 100, from: 'concentrate' }), ['100ml', '100ml', '200ml']); // よくある質問「2倍に薄める」
 });
 
 test('濃度（%）から倍率（ページの計算例：6％を0.05％に）', () => {

@@ -22,6 +22,8 @@ const TILES = `<div class="tiles tiles-4" role="group" aria-label="作業をえ�
 const tool = toolBySlug('seisou-jikan');
 const path = '/seisou-jikan/';
 
+const ANZEN = 'https://anzen-benricho.com';
+
 const FAQS = [
   {
     q: '1人1時間に掃除できる面積は、どうやって決めますか？',
@@ -42,6 +44,11 @@ const FAQS = [
   {
     q: '人工（にんく）で考えるときは？',
     a: '<p>1人工は、1人が1日働く量です。のべの作業時間を1日の作業時間で割ると、何人工かわかります。</p>',
+  },
+  {
+    // 清掃の安全の掲示と資格の更新は、同じ運営者の安全衛生の便利帳にある（10/26 司令塔の検索の傾向のメモ「清掃の作業時間は仕事で使う人に刺さっている。安全衛生の便利帳とつなぐ」）
+    q: '清掃の現場で使う安全の掲示はありますか？',
+    a: `<p>同じ運営者の<a href="${ANZEN}/anzen/gyoshu/seisou/">安全衛生の便利帳</a>に、清掃・ビルメンの月ごとの掲示と朝礼の文があります。清掃作業監督者の更新の期限も<a href="${ANZEN}/shikaku/koushin/">そちらで計算</a>できます。</p>`,
   },
 ];
 

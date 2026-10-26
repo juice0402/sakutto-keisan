@@ -9,7 +9,7 @@ import { calcDiscount, calcRate } from '../lib/waribiki.mjs';
 import { fmt } from '../lib/number.mjs';
 
 // よくある値段の割引の早見表（「1980円の3割引」のような検索で来る人が、表を見ればわかるように。数字は tests/waribiki.test.mjs で確かめる）
-export const QUICK_PRICES = [500, 600, 980, 1000, 1280, 1500, 1980, 2000, 2980, 3000, 3980, 5000, 10000];
+export const QUICK_PRICES = [500, 600, 880, 980, 1000, 1280, 1500, 1980, 2000, 2980, 3000, 3980, 5000, 10000];
 export const QUICK_RATES = [10, 20, 30, 50];
 const DESC_EX = { price: 1980, final: calcDiscount({ price: 1980, rate: 30 }).final }; // 説明文（meta description）の例
 const QUICK_ROWS = QUICK_PRICES.map(

@@ -124,7 +124,8 @@ for (const file of htmlFiles) {
   {
     // 返礼品の商品名（楽天から取ったそのままの名前。自治体が書いたもの）は見ない
     // 検索結果に出る title と説明文（属性の中なので、タグを消すと消える）も見る
-    const visible = `${shown.replace(/<p class="hr-name">[\s\S]*?<\/p>/g, ' ').replace(/<[^>]+>/g, ' ')} ${title} ${desc}`;
+    // 同じ運営者のサイト名「安全衛生の便利帳」は名前なので見ない（プロジェクトの site-principles.md）
+    const visible = `${shown.replace(/<p class="hr-name">[\s\S]*?<\/p>/g, ' ').replace(/<[^>]+>/g, ' ')} ${title} ${desc}`.replaceAll('安全衛生の便利帳', ' ');
     const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'コツ', '——'];
     if (rel.startsWith('/furusato/')) NG.push('お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント');
     // 楽天のポイントのページは、楽天アフィリエイトの決まり（予想・あおり・くじの紹介をしない）

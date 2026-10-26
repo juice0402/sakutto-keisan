@@ -20,7 +20,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-26',
     related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
@@ -82,7 +82,7 @@ export const TOOLS = [
     parent: 'nenrei',
     short: '生年月日から、学校の入学と卒業の年',
     published: true,
-    updated: '2026-10-22',
+    updated: '2026-10-26',
     related: ['nenrei', 'wareki', 'nissu'],
   },
   // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
@@ -92,7 +92,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '令和・平成・昭和は西暦何年か',
     published: true,
-    updated: '2026-10-22',
+    updated: '2026-10-26',
     related: ['nenrei', 'gakureki', 'nissu', 'jikan'],
   },
   {
@@ -246,7 +246,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '原液と水を何mlずつ入れるか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-26',
     related: ['enbun-noudo', 'recipe', 'tanka', 'seisou-jikan'],
   },
   {
@@ -353,7 +353,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '面積と人数から、何時間かかるか',
     published: true,
-    updated: '2026-10-20',
+    updated: '2026-10-26',
     related: ['kishaku', 'rieki-ritsu', 'zangyo-dai'],
   },
   {
