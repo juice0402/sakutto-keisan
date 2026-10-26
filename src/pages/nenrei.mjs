@@ -10,6 +10,7 @@ import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { dateField } from '../fields.mjs';
 import { ETO, warekiOfYear, etoOf } from '../lib/hizuke.mjs';
 import { gakureki } from '../lib/gakureki.mjs';
+import { printLink } from '../prints.mjs';
 import { nenrei } from '../lib/nenrei.mjs';
 
 // 年のとり方・早生まれの説明の出典（国立天文台 暦Wiki。年齢計算ニ関スル法律と民法143条による）
@@ -110,7 +111,7 @@ ${section(
 ${section(
   'table',
   `年齢早見表（${THIS_YEAR}年）`,
-  `<div class="tbl-wrap"><table>
+  `${printLink('nenrei')}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">生まれ年</th><th>和暦</th><th>干支</th><th class="num">年齢</th></tr></thead>
 <tbody>
 ${TABLE_ROWS}
@@ -232,7 +233,7 @@ ${section(
 ${section(
   'table',
   '学歴早見表',
-  `<p>4月2日から12月31日生まれの人の年です。1月1日から4月1日生まれは、1つ下の行（前の年）を見てください。</p>
+  `${printLink('gakureki')}<p>4月2日から12月31日生まれの人の年です。1月1日から4月1日生まれは、1つ下の行（前の年）を見てください。</p>
 <div class="tbl-wrap"><table class="tbl-tight">
 <thead><tr><th class="num">生まれ</th><th class="num">小学校</th><th class="num">中学校</th><th class="num">高校</th><th class="num">大学</th><th class="num">卒業</th></tr></thead>
 <tbody>

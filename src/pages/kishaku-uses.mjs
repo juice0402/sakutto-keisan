@@ -5,6 +5,9 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { mixTiles, mixStage } from '../mix.mjs';
 import { boxField } from '../fields.mjs';
+import { volumeText } from '../lib/kishaku.mjs';
+import { HYOHAKU_SRC, HYOHAKU_CAP, HYOHAKU_TARGETS, HYOHAKU_CAUTIONS, HYOHAKU_AMOUNT_SOURCES, HYOHAKU_CAUTION_SOURCES, hyohakuAmount } from '../data/hyohakuzai.mjs';
+import { printLink } from '../prints.mjs';
 
 const head = (labelId, label) =>
   `<div class="field-head calc-head"><p class="label" id="${labelId}">${label}</p><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
@@ -67,35 +70,29 @@ ${src([
       '塩素系漂白剤（次亜塩素酸ナトリウム約6％）で、0.02〜0.1％の消毒液を作るときの漂白剤と水の量を計算します。水1Lで0.05％なら漂白剤8.4ml、0.1％なら17mlです。水の量やできあがりの量から計算できます。',
     lead: 'ハイターで作る消毒液の量を計算します。',
     ld: '塩素系漂白剤（次亜塩素酸ナトリウム）の濃度と作りたい濃度から、漂白剤と水の量を出す計算ツール。',
-    calc: `<div class="calc" id="calc" data-how="pct" data-conc="漂白剤" data-label="pct" data-cap="25" data-cap-name="ハイターのキャップ" data-spoon="0" data-empty="作りたい濃度をえらんでください">
+    calc: `<div class="calc" id="calc" data-how="pct" data-conc="漂白剤" data-label="pct" data-cap="${HYOHAKU_CAP}" data-cap-name="ハイターのキャップ" data-spoon="0" data-empty="作りたい濃度をえらんでください">
   ${head('l-target', '作りたい濃度')}
   <div class="field" id="f-tiles">
     ${mixTiles(
       'l-target',
-      [
-        ['0.02', '200ppm'],
-        ['0.05', '500ppm'],
-        ['0.1', '1000ppm'],
-      ].map(([v, small]) => ({ key: 'target', value: v, big: `${v}%`, small, long: true })),
+      HYOHAKU_TARGETS.map((t) => ({ key: 'target', value: t.pct, big: `${t.pct}%`, small: t.ppm, long: true })),
       { id: 'target', post: '%', label: 'その他' },
     )}
   </div>
-  <div class="src-box">${boxField('src', '漂白剤の濃度', '％', '6', '6', 'ボトルの表示の濃度。ハイターは6％')}</div>
+  <div class="src-box">${boxField('src', '漂白剤の濃度', '％', String(HYOHAKU_SRC), String(HYOHAKU_SRC), `ボトルの表示の濃度。ハイターは${HYOHAKU_SRC}％`)}</div>
   ${mixStage({ conc: '漂白剤', label: '？％', hint: '作りたい濃度をえらんでください' })}
   <p class="note calc-note">手や指に使わず、酸性のものとまぜない</p>
 </div>`,
     body: `${section(
       'table',
       '濃度ごとの量',
-      `<div class="tbl-wrap"><table>
+      `${printLink('hyohakuzai')}<div class="tbl-wrap"><table>
 <thead><tr><th>作る濃度</th><th class="num">水500ml</th><th class="num">水1L</th></tr></thead>
 <tbody>
-<tr><td>0.02％</td><td class="num">1.7ml</td><td class="num">3.3ml</td></tr>
-<tr><td>0.05％</td><td class="num">4.2ml</td><td class="num">8.4ml</td></tr>
-<tr><td>0.1％</td><td class="num">8.5ml</td><td class="num">17ml</td></tr>
+${HYOHAKU_TARGETS.map((t) => `<tr><td>${t.pct}％</td>${[500, 1000].map((w) => `<td class="num">${volumeText(hyohakuAmount(t.pct, w))}</td>`).join('')}</tr>`).join('\n')}
 </tbody>
 </table></div>
-<p>漂白剤が6％のときの量です。古い漂白剤は濃度が下がっています。</p>`,
+<p>漂白剤が${HYOHAKU_SRC}％のときの量です。古い漂白剤は濃度が下がっています。</p>`,
     )}
 ${section(
   'use',
@@ -103,31 +100,19 @@ ${section(
   `<div class="tbl-wrap"><table>
 <thead><tr><th>濃度</th><th>使いみちの例</th></tr></thead>
 <tbody>
-<tr><td>0.02％</td><td>調理器具・ドアノブ・便座</td></tr>
-<tr><td>0.05％</td><td>テーブル・ドアノブ</td></tr>
-<tr><td>0.1％</td><td>吐いたもの・便の処理</td></tr>
+${HYOHAKU_TARGETS.map((t) => `<tr><td>${t.pct}％</td><td>${t.use}</td></tr>`).join('\n')}
 </tbody>
 </table></div>
 <p>ノロウイルスの対策では、調理器具やトイレなどの消毒に0.02％、吐いたものや便の処理に0.1％を使います。</p>
-${src([
-  ['厚生労働省', 'https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuchu/kanren/yobou/040204-1.html'],
-  ['目黒区', 'https://www.city.meguro.tokyo.jp/smph/kurashi/hoken_eisei/shinryo/yobo/jiaensosannatoriumuekinotukurika.html'],
-])}`,
+${src(HYOHAKU_AMOUNT_SOURCES)}`,
 )}
 ${section(
   'caution',
   '使うときの注意',
   `<ul>
-<li>手や指など、体には使わない</li>
-<li>酸性の洗剤などとまぜない</li>
-<li>スプレーで吹きかけない</li>
-<li>換気をする</li>
-<li>薄めた液は使うたびに作り、使い切る</li>
+${HYOHAKU_CAUTIONS.map((c) => `<li>${c}</li>`).join('\n')}
 </ul>
-${src([
-  ['厚生労働省', 'https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/syoudoku_00001.html'],
-  ['花王', 'https://www.kao.com/jp/qa/detail/18916/'],
-])}`,
+${src(HYOHAKU_CAUTION_SOURCES)}`,
 )}`,
     faqs: [
       {

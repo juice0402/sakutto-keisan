@@ -1,6 +1,10 @@
 /og/*
   Cache-Control: public, max-age=604800
 
+# 印刷用の早見表（年の入ったPDFは中身が変わらない。消毒液は変わることがある）
+/print/*
+  Cache-Control: public, max-age=86400
+
 # 写真の読み取りソフト（版ごとのフォルダなので中身は変わらない）
 /ocr/*
   Cache-Control: public, max-age=31536000, immutable
