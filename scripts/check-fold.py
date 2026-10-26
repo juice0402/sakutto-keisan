@@ -23,6 +23,8 @@ CASES = {
     'percent': (lambda pg: (pg.fill('#base', '200'), pg.fill('#pct', '15')), '.pic-side .slip-v'),
     'nissu': (lambda pg: pg.fill('#days', '100'), '.pic-side .slip-v'),
     'nenrei': (lambda pg: pg.fill('#birth', '1987-06-15'), '.pic-side .slip-v'),
+    'dai-nan-youbi': (lambda pg: pg.fill('#date', '2026-10-27'), '.slip-sum'),
+    'hensachi': (lambda pg: pg.fill('#dev', '60'), '.slip-sum'),
     'furusato': (lambda pg: pg.fill('#income', '500'), '.doc-sum'),
     'furusato/nenshu': (lambda pg: pg.fill('#target', '50000'), '.doc-sum'),
     'furusato/uchiwake': (lambda pg: (pg.fill('#donation', '50000'), pg.fill('#income', '500')), '.doc-sum'),
