@@ -959,6 +959,12 @@ h1 {
 /* 作業指示書の床の図：図面のように紺の線で囲んで、1人ずつ番号 */
 .doc .floor-strips { height: 52px; border: 1.5px solid var(--text); background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 12px); }
 .floor-strip { display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }
+/* 見積書の1年の帯：年間予定表の1行のように12か月を細い線で区切り、清掃する月に赤ペンの丸 */
+.mt-months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); margin: 10px 0 0; border: 1.5px solid var(--text); background: var(--surface); }
+.mt-m { position: relative; display: grid; place-items: center; height: 30px; font-size: 11.5px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mt-m + .mt-m { border-left: 1px solid var(--rule); }
+.mt-m.is-on { color: var(--red); font-weight: 800; }
+.mt-m.is-on::after { content: ""; position: absolute; width: min(24px, calc(100% - 2px)); aspect-ratio: 1; border: 2px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-6deg); }
 
 /* 順位と棒グラフ（安いほど短い） */
 .rank-box { margin: 18px auto 0; max-width: 460px; text-align: left; }

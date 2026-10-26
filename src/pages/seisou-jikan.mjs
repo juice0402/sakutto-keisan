@@ -6,12 +6,10 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { SEISOU_WORKS } from '../lib/seisou.mjs';
+import { SEISOU_WORKS, SEISOU_SRC } from '../lib/seisou.mjs';
 
 // 歩掛りの出典
-const SRC_DAILY = 'https://www.city.sapporo.jp/kanzai/keiyaku/ippan-syuyaku/r2-zenki/documents/nyusatusetumei_bekki4-seiso.pdf';
-const SRC_REGULAR = 'https://www.mlit.go.jp/gobuild/content/001600832.pdf';
-const SRC_VIEW = 'https://www.mlit.go.jp/gobuild/content/001601093.pdf';
+const { daily: SRC_DAILY, regular: SRC_REGULAR, view: SRC_VIEW } = SEISOU_SRC;
 
 // 作業のマス：ことばだけ（数字は「370㎡の事務室」と読まれやすいので、マスには書かない。10/20 しょーくん）。
 // えらぶと、下の「1人1時間に掃除できる面積」の欄に目安の数字が入る

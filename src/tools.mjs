@@ -354,7 +354,17 @@ export const TOOLS = [
     short: '面積と人数から、何時間かかるか',
     published: true,
     updated: '2026-10-26',
-    related: ['kishaku', 'rieki-ritsu', 'zangyo-dai'],
+    related: ['seisou-mitsumori', 'kishaku', 'rieki-ritsu', 'zangyo-dai'],
+  },
+  {
+    slug: 'seisou-mitsumori',
+    more: true,
+    name: '清掃の見積もり計算',
+    category: 'shigoto',
+    short: '㎡単価と回数から、1か月の料金',
+    published: true,
+    updated: '2026-10-26',
+    related: ['seisou-jikan', 'rieki-ritsu', 'kishaku'],
   },
   {
     slug: 'shakai-hoken',

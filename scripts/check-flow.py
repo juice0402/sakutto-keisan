@@ -253,6 +253,12 @@ CASES = {
         (('fill', '#area', '1000'), '#r-foot', '人数か作業時間を入れてください'),
         (('fill', '#people', '2'), None, None),
     ],
+    'seisou-mitsumori': [
+        (None, '#r-foot', '回数をえらんでください'),
+        (('click', '.tile[data-year="260"]'), '#r-foot', '面積を入れてください'),
+        (('fill', '#area', '300'), '#r-foot', '㎡単価か1か月の料金を入れてください'),
+        (('click', '.tile[data-price="8"]'), None, None),
+    ],
     'fx-iji-ritsu': [
         (None, '#r-need', '口座のお金を入れてください'),
         (('fill', '#money', '100000'), '#r-need', 'いまのレートを入れてください'),
