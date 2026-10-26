@@ -104,7 +104,7 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <meta property="og:description" content="${esc(p.description)}">
 <meta property="og:url" content="${canonical}">
 <meta property="og:locale" content="ja_JP">
-<meta property="og:image" content="${absUrl(p.ogImage || '/og/default.png')}">
+<meta property="og:image" content="${absUrl(p.ogImage || '/og/default.jpg')}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${esc(p.title)}">

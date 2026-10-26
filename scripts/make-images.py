@@ -4,7 +4,7 @@
 使い方（Claude の作業環境で。Pillow と日本語フォント Noto Sans CJK が必要）:
     python3 scripts/make-images.py
 できるもの:
-    public/og/default.png        トップ・固定ページ用（1200×630）
+    public/og/default.jpg        トップ・固定ページ用（1200×630）。サイトの決めの1枚（scripts/art/ogp-kirigami.jpg）に字をのせる
     public/og/<slug>.png         公開中の各ツール用（1200×630）
     public/icon-192.png / icon-512.png / apple-touch-icon.png   ホーム画面用
     public/favicon.ico   ブラウザのタブ用（SVG を使わないブラウザ・検索結果）
@@ -1281,12 +1281,38 @@ def favicon(path):
     print('wrote', path.relative_to(ROOT))
 
 
+# トップ・固定ページの共有画像：サイトの決めの1枚（10/26 しょーくんが3案から「B 切り紙」をえらんだ）に、左の方眼の所へ字をのせる
+# 絵は Canva の generate-image で作ったもの（字・数字・人なし。2000×1000）。作り直すときの prompt：
+#   Cut paper collage illustration on a white notebook page with a faint light blue square grid: a measuring cup, a blank price tag
+#   with a string, a small calculator with plain blank keys, and a pencil, each made from layered matte colored paper in navy blue,
+#   white, warm red and soft yellow, with crisp scissor-cut edges and very subtle paper shadows. Simple, calm, handmade feeling, flat
+#   lighting. Wide panoramic composition: the paper objects are grouped on the right half, the left half is empty grid paper.
+#   No people, no hands, no faces, no animals, no text, no letters, no numbers, no digits, no logos, no brand names.
+#   （LANDSCAPE_2_1 → あそびトークの docs/eyecatch.md の手順で 2000×1000 に書き出す）
+def og_home(path):
+    art = Image.open(ROOT / 'scripts' / 'art' / 'ogp-kirigami.jpg').convert('RGB')
+    img = art.crop((95, 0, 2000, 1000)).resize((1200 * S, 630 * S), Image.LANCZOS).convert('RGBA')
+    d = ImageDraw.Draw(img)
+    x, y = 70 * S, 150 * S
+    logo(img, x + 32 * S, y + 34 * S, 64 * S)
+    d.text((x + 80 * S, y), 'サクッと計算', font=font('black', 60), fill=INK)
+    sub, f_sub = '暮らしの計算ツール', font('black', 40)
+    y2 = y + 120 * S
+    d.rectangle([x - 4 * S, y2 + 30 * S, x + d.textlength(sub, font=f_sub) + 6 * S, y2 + 54 * S], fill=MARKER)
+    d.text((x, y2), sub, font=f_sub, fill=INK)
+    f = font('bold', 26)
+    d.text((x, y2 + 84 * S), '割引・割り勘・電気代・薄め方・', font=f, fill=PENCIL)
+    d.text((x, y2 + 124 * S), '残業代・FXを計算できます', font=f, fill=PENCIL)
+    d.text((x, 540 * S), 'sakutto-keisan.com', font=f, fill=PENCIL)
+    img.convert('RGB').resize((1200, 630), Image.LANCZOS).save(path, quality=88, optimize=True, progressive=True)
+
+
 def main():
     tools = json.loads(subprocess.check_output(
         ['node', '--input-type=module', '-e',
          "import('./src/tools.mjs').then((m) => console.log(JSON.stringify(m.TOOLS)))"], cwd=ROOT))
     (PUBLIC / 'og').mkdir(parents=True, exist_ok=True)
-    og(PUBLIC / 'og' / 'default.png', '暮らしの計算ツール', '割引・割り勘・電気代・薄め方・残業代・FXを計算できる無料のツール集', 'home')
+    og_home(PUBLIC / 'og' / 'default.jpg')
     for t in tools:
         if t.get('published'):
             title = t.get('ogTitle') or t['name'].split('（')[0]
