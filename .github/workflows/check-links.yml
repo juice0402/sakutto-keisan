@@ -1,0 +1,78 @@
+name: 出典の点検
+
+# 出典・外部リンクが GitHub から開けるか（WebFetch は古い写しで開けてしまうことがあるので、ここで確かめる）
+# - src を変える PR：その PR で足した・変えたリンクだけ。結果は注記に出し、PR は止めない
+#   （点検のしくみを変える PR は、ぜんぶのリンク）
+# - 毎週月曜 7:41（日本時間）：ぜんぶのリンクと、確認日が近いもの。直すものがあれば Issue「出典の点検」
+#   （開いた Issue があればコメント）。毎日 8:32 の予約タスク「公式ページの見張りの対応」が直す
+# Claude の使用量は使わない
+
+on:
+  schedule:
+    - cron: '41 22 * * 0'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'scripts/check-links.mjs'
+      - '.github/workflows/check-links.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: check-links-${{ github.event.pull_request.number || 'weekly' }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: どこまで点検するか
+        id: m
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] && ! git diff --name-only HEAD^1 HEAD | grep -qE '^(scripts/check-links\.mjs|\.github/workflows/check-links\.yml)$'; then
+            echo "arg=--changed" >> "$GITHUB_OUTPUT"
+          else
+            echo "arg=--all" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: ページを作る
+        run: npm run build > /dev/null
+
+      - name: リンクを開いてみる
+        id: chk
+        run: |
+          set +e
+          node scripts/check-links.mjs ${{ steps.m.outputs.arg }} > report.md
+          code=$?
+          set -e
+          [ "$code" -le 1 ] || { cat report.md; exit 1; }
+          echo "ng=$code" >> "$GITHUB_OUTPUT"
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+          # 画面の注記にも出す（スマホの GitHub でも見える）
+          echo "::notice title=出典の点検::$(head -1 report.md)"
+          grep '^- ' report.md | head -40 | while IFS= read -r l; do echo "::warning title=出典の点検::$l"; done
+
+      - name: Issue に書く
+        if: steps.chk.outputs.ng == '1' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create "出典の点検" --color D93F0B --description "毎週の出典・外部リンクの点検" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
+          N=$(gh issue list --repo "$GITHUB_REPOSITORY" --label "出典の点検" --state open --json number --jq '.[0].number')
+          if [ -n "$N" ]; then
+            gh issue comment "$N" --repo "$GITHUB_REPOSITORY" --body-file report.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "出典の点検：直すところがあります" --label "出典の点検" --body-file report.md
+          fi
