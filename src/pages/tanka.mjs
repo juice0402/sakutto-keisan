@@ -4,6 +4,8 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { calcUnitPrice } from '../lib/tanka.mjs';
+import { fmt } from '../lib/number.mjs';
 
 const KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']; // 実質単価の比較は最初 A〜D の4つ、「＋1つ追加」で H（8つ）まで
 const MATOME_KEYS = KEYS.slice(0, 4); // まとめ買いは最初 A・B の2つ、D（4つ）まで
@@ -151,8 +153,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '実質単価の比較｜どっちが得？100gあたりの値段を計算',
-    description:
-      '値段と内容量を入れて、100gあたり・100mlあたり・1個あたりの値段をくらべます。gとkg、mlとLの単位ちがいにも対応。スーパーでどちらが安いか迷ったときに。',
+    description: `値段と内容量から、100gあたり・100mlあたり・1個あたりの値段をくらべます。500gで198円なら100gあたり${fmt(calcUnitPrice({ price: 198, qty: 500, unit: 'g' }).per, 1)}円です。gとkg、mlとLの単位がちがっても、${KEYS.length}つまでの商品を安い順に並べます。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },
@@ -221,8 +222,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: 'まとめ買いの単価比較｜6本入り・割引シールでどっちが得か',
-    description:
-      'まとめ売りの入り数や割引シールを入れて、1本あたり・100mlあたりの値段をくらべます。6本入りとバラ、20％引きの商品とふつうの商品のどちらが安いかがわかります。',
+    description: `まとめ売りの入り数や割引シールを入れて、1本あたり・100mlあたりの値段をくらべます。350mlの6本入りが${fmt(1180)}円なら100mlあたり${fmt(calcUnitPrice({ price: 1180, qty: 350, unit: 'ml', packs: 6 }).per, 1)}円です。${MATOME_KEYS.length}つまでくらべて、6本入りとバラのどちらが安いかがわかります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: parent.name, path: `/${parent.slug}/` },

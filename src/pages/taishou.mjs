@@ -132,7 +132,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '買いまわりの1店舗の判定｜ふるさと納税・送料・クーポンは数える？（お買い物マラソン）',
-    description: '楽天市場のお買い物マラソンと楽天スーパーSALEで、買い物が1店舗に数えられるかを判定します。クーポンのあとの1,000円・送料・ポイント払い・ふるさと納税・予約商品・定期購入の決まりと、数えるもの・数えないものの一覧ものせています。',
+    description: `お買い物マラソンとスーパーSALEで、買い物が1店舗に数えられるかを判定します。${fmt(EX.price)}円の商品に${fmt(EX.coupon)}円のクーポンを使うと${fmt(EX.judge)}円で、${fmt(POINT_MIN_YEN)}円に届かず数えません。ふるさと納税や送料など${LIST.length}の決まりの表もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

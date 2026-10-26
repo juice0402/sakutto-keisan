@@ -117,8 +117,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '電気代の計算｜こたつ・ヒーターの1時間と1か月の電気代',
-    description:
-      '家電の電気代を、消費電力（W）と使う時間から計算します。こたつ・電気毛布・ヒーター・ドライヤーなどは、えらぶだけで消費電力の目安が入ります。1時間・1日・1か月・1年の電気代がわかります。',
+    description: `家電の電気代を、消費電力（W）と使う時間から計算します。600Wのこたつを1日8時間なら、単価${DENKI_PRICE.value}円で1か月約${fmt(denki({ watt: 600, hours: 8, price: DENKI_PRICE.value }).month, 0)}円です。こたつ・電気毛布・ヒーターなどは、えらぶと消費電力の目安が入ります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

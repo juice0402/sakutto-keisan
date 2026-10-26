@@ -180,7 +180,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: 'お買い物マラソンのポイント計算｜上限の計算と上限に届く金額（スーパーSALEも・早見表）',
-    description: '楽天市場のお買い物マラソンやスーパーSALEで、買い物の合計と店舗の数から、買いまわりの特典ポイントの目安を計算します。上限まであと何ポイントか、上限に届く合計、あと1店舗でふえる分もわかります。',
+    description: `楽天市場のお買い物マラソンやスーパーSALEで、買い物の合計と店舗の数から特典ポイントの目安を計算します。合計${fmt(EX.total)}円・${EX.shops}店舗なら特典は${fmt(EX.bonus)}ポイントで、あと1店舗で${fmt(EX.next)}ポイントふえます。上限に届く合計もわかります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

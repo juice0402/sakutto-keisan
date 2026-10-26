@@ -144,7 +144,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '楽天のポイントのしくみ｜SPUとお買い物マラソンとは（はじめての人向けに計算で）',
-    description: '楽天市場のポイントが「いつもの1倍・SPU・キャンペーン」の3つでふえるしくみを、今月の買い物の額から計算して見せます。楽天カード・楽天モバイル・5と0のつく日・お買い物マラソンでどれだけふえるか、Amazonとのちがいものせています。',
+    description: `楽天市場のポイントを「いつもの1倍・SPU・キャンペーン」に分けて、今月の買い物の額から計算します。${fmt(EX0.total)}円ならふだんは${fmt(EX0.points)}ポイントで、楽天カードと楽天モバイルを使い、5と0のつく日にマラソンで${SHIKUMI_SHOPS}店舗買うと${EX.rate}倍の${fmt(EX.points)}ポイントです。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

@@ -5,12 +5,13 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { calcDiscount } from '../lib/waribiki.mjs';
+import { calcDiscount, calcRate } from '../lib/waribiki.mjs';
 import { fmt } from '../lib/number.mjs';
 
 // よくある値段の割引の早見表（「1980円の3割引」のような検索で来る人が、表を見ればわかるように。数字は tests/waribiki.test.mjs で確かめる）
 export const QUICK_PRICES = [500, 600, 980, 1000, 1280, 1500, 1980, 2000, 2980, 3000, 3980, 5000, 10000];
 export const QUICK_RATES = [10, 20, 30, 50];
+const DESC_EX = { price: 1980, final: calcDiscount({ price: 1980, rate: 30 }).final }; // 説明文（meta description）の例
 const QUICK_ROWS = QUICK_PRICES.map(
   (p) => `<tr><td class="num">${fmt(p)}円</td>${QUICK_RATES.map((r) => `<td class="num">${fmt(calcDiscount({ price: p, rate: r }).final)}</td>`).join('')}</tr>`,
 ).join('\n');
@@ -174,8 +175,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '割引計算｜3割引・20％オフはいくら？値段を計算',
-    description:
-      '「3割引き」「20％オフ」の割引後の値段と、いくら安くなるかを計算します。1,980円の3割引きは1,386円。よくある値段の早見表つきで、2つの割引の比較やクーポンを重ねた二重割引にも使えます。',
+    description: `「3割引き」「20％オフ」の割引後の値段と、いくら安くなるかを計算します。${fmt(DESC_EX.price)}円の3割引きは${fmt(DESC_EX.final)}円で、${fmt(DESC_EX.price - DESC_EX.final)}円安くなります。よくある値段${QUICK_PRICES.length}通りの早見表と、二重割引の計算もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },
@@ -274,8 +274,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '割引率の計算｜何％オフか・何割引きかを計算',
-    description:
-      '元の値段と割引後の値段から、何％オフかを計算します。「300円引き」のような値引きの額からも出せます。何割引きかと、いくら安くなったかもわかります。',
+    description: `元の値段と割引後の値段から、何％オフかを計算します。${fmt(2000)}円が${fmt(1700)}円なら${calcRate({ price: 2000, sale: 1700 }).rate}％オフで、${calcRate({ price: 2000, sale: 1700 }).rate / 10}割引きです。「300円引き」のような値引きの額からも出せて、割引後のほうが高いときは何％高いかを出します。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: parent.name, path: `/${parent.slug}/` },

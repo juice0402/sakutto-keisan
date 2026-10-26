@@ -7,7 +7,7 @@ import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { TOUYU_PRICE, TOUYU_HEATERS } from '../data/touyu.mjs';
 import { touyu, literPrice } from '../lib/touyu.mjs';
-import { fmt } from '../lib/number.mjs';
+import { fmt, yenBand } from '../lib/number.mjs';
 
 const tool = toolBySlug('touyu-dai');
 const path = '/touyu-dai/';
@@ -140,8 +140,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '灯油代の計算｜ファンヒーター・ストーブの1か月の灯油代と18Lで何日もつか',
-    description:
-      '灯油代を、石油ファンヒーターやストーブの燃料消費量（1時間に使う灯油）と使う時間から計算します。1時間・1日・1か月の灯油代と、18Lのポリタンクが何日もつかがわかります。灯油の値段は1Lでも18Lでも入れられます。',
+    description: `灯油代を、ファンヒーターが1時間に使う灯油と使う時間から計算します。18Lが${yenBand(P18)}（資源エネルギー庁の${TOUYU_PRICE.date}）なら、1時間0.3Lを1日8時間で1か月${yenBand(EX.month)}、18Lは${fmt(EX.canDays, 1)}日でなくなります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

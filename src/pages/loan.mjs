@@ -99,8 +99,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: 'ローンの計算｜毎月の返済額と利息（住宅ローン・車のローン）',
-    description:
-      'ローンの毎月の返済額を計算します。借りる額・金利・返済の年数を入れると、毎月の返済額、返済総額、利息の合計、何年後にいくら残っているかがわかります。元利均等返済で計算します。',
+    description: `ローンの毎月の返済額を、元利均等返済で計算します。3,000万円を金利1％・35年で借りると、毎月約${fmt(EX.monthly)}円で、利息の合計は約${fmt(Math.round(EX.interest / 10000))}万円です。金利${RATES[0]}〜${RATES.at(-1)}％・${YEARS.join('年と')}年の早見表もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

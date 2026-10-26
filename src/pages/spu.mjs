@@ -157,7 +157,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: 'SPUのポイント計算｜楽天の倍率と上限の一覧・上限に届く金額',
-    description: `SPU（楽天市場のスーパーポイントアッププログラム）で、使っているサービスと今月の買い物の額から、倍率とポイントの目安を計算します。サービスごとの倍率・1か月の上限・上限に届く買い物の額の一覧と、確認日ものせています。`,
+    description: `楽天市場のSPUで、使っているサービスと今月の買い物の額から倍率とポイントの目安を出します。全部そろうと${SPU_MAX}倍です。${fmt(EX.total)}円で${exNames}を使うと${EX.rate}倍で${fmt(EX.points)}ポイント。倍率と上限は${jaDate(CHECKED).slice(5)}に公式で確認。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

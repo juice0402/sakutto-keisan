@@ -1,6 +1,7 @@
 import { SITE } from '../site.mjs';
 import { page, section } from '../layout.mjs';
 import { HENREIHIN_MODE } from '../data/henreihin.mjs';
+import { CALC_COUNT } from '../tools.mjs';
 
 // 固定ページ（このサイトについて・プライバシーポリシー・免責事項・404）
 const UPDATED = '2026-10-22'; // sitemap の更新日（中身を変えたら直す）
@@ -35,7 +36,7 @@ export default function render() {
     info(
       '/about/',
       'このサイトについて',
-      `${SITE.name}について。できること、入力した数字の扱い、運営のしかたを説明します。`,
+      `${SITE.name}は、買い物や家事、FXで使う${CALC_COUNT}の計算ツールを個人で運営しているサイトです。入力した数字は送信も保存もしません。ふるさと納税の上限は総務省の式による目安で、税金の数字には出典と確認日を書いています。`,
       `<p class="lead">買い物や家事、FXで使う計算のサイトです。</p>
 ${section(
   'feature',
@@ -54,7 +55,7 @@ ${HR_ABOUT}<p><a href="/disclaimer/">免責事項</a>・<a href="/privacy/">プ�
     info(
       '/privacy/',
       'プライバシーポリシー',
-      `${SITE.name}のプライバシーポリシーです。入力した数字の扱い、アクセス解析、広告配信について説明します。`,
+      `${SITE.name}のプライバシーポリシーです（${ESTABLISHED_JA}制定）。入力した数字は送信も保存もしないことと、寄付メモの記録を端末に保存すること、アクセス解析と広告のCookieについて書いています。`,
       `${section(
         'input',
         '入力した数字について',
@@ -83,7 +84,7 @@ ${section(
     info(
       '/disclaimer/',
       '免責事項',
-      `${SITE.name}の免責事項です。計算結果はあくまで目安としてお使いください。`,
+      `${SITE.name}の免責事項です（${ESTABLISHED_JA}制定）。${CALC_COUNT}の計算ツールの結果は目安で、税金の料率やFXの計算方法は変わったり会社ごとにちがったりすることと、リンク先の扱いを書いています。`,
       `${section(
         'result',
         '計算結果について',
