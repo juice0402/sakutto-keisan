@@ -150,7 +150,8 @@ ${section(
 ${QUICK_ROWS}
 </tbody>
 </table></div>
-<p class="note">割引後の値段（円）です。</p>`,
+<p class="note">割引後の値段（円）です。</p>
+<p>率ごとの早見表：<a href="/waribiki/10/">10％オフ</a>・<a href="/waribiki/15/">15％オフ</a>・<a href="/waribiki/20/">20％オフ</a>・<a href="/waribiki/30/">30％オフ</a>・<a href="/waribiki/40/">40％オフ</a>・<a href="/waribiki/50/">半額</a></p>`,
 )}
 
 ${section(

@@ -40,6 +40,10 @@ CASES = {
         (('fill', '#base', '200'), '#r-foot', '割合かその数を入れてください'),
         (('fill', '#pct', '15'), None, None),
     ],
+    'waribiki/30': [
+        (None, '#t-save', '元の値段を入れてください'),
+        (('fill', '#price', '2000'), None, None),
+    ],
     'nissu': [
         (None, '#r-foot', '何日後かおわりの日を入れてください'),
         (('fill', '#days', '100'), None, None),
