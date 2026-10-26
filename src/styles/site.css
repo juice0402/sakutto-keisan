@@ -1183,6 +1183,31 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
+/* 写真の質感（10/27 しょーくんが「A Canvaの写真」をえらんだ）：マスキングテープ・付箋・値札は、Canva で作った写真（public/img/。元の書き出しは scripts/art/canva/）。
+   方眼ノートのテーマ（生活）だけ。数字や字はいままでどおり HTML で写真の上にのせる。写真には影があるので、影はこの写真のものだけ */
+[data-theme="seikatsu"] .calc::before { width: 112px; height: 29px; top: -15px; margin-left: -56px; background: url(/img/tape.webp) center / 100% 100% no-repeat; transform: rotate(-2deg); }
+[data-theme="seikatsu"] .tile, [data-theme="seikatsu"] .seg-btn { background: url(/img/fusen-y.webp) center / 100% 100% no-repeat; outline: 0; }
+[data-theme="seikatsu"] [data-note="2"] > * { background-image: url(/img/fusen-b.webp); }
+[data-theme="seikatsu"] [data-note="3"] > * { background-image: url(/img/fusen-p.webp); }
+/* 値札：ひもと穴は写真にあるので、絵のひも・穴・枠はなし。字は写真の左の穴をよけて右に */
+[data-theme="seikatsu"] .tag-stage { padding-top: 16px; }
+[data-theme="seikatsu"] .tag-stage:has(> .stage-clear) { padding-top: 48px; } /* 右上のクリアと値札が重ならないように */
+[data-theme="seikatsu"] .tag-wrap { width: 100%; filter: none; }
+[data-theme="seikatsu"] .tag-wrap::before, [data-theme="seikatsu"] .pricetag::before { display: none; }
+[data-theme="seikatsu"] .pricetag {
+  aspect-ratio: 640 / 263; display: flex; flex-direction: column; justify-content: center;
+  padding: 10px 22px 8px 33%; background: url(/img/nefuda.webp) center / 100% 100% no-repeat; border: 0; border-radius: 0;
+}
+[data-theme="seikatsu"] .pricetag .tag-price { font-size: 44px; line-height: 1.05; }
+[data-theme="seikatsu"] .pricetag .tag-was { font-size: 12px; }
+[data-theme="seikatsu"] .pricetag .tag-save { margin-top: 2px !important; font-size: 13px; }
+[data-theme="seikatsu"] .pricetag .tag-conv { margin-top: 2px !important; font-size: 11.5px; }
+[data-theme="seikatsu"] .tag-badge { top: -30px; right: -6px; }
+[data-theme="seikatsu"] .tag-mini .pricetag { padding: 4px 6px 4px 34%; }
+[data-theme="seikatsu"] .tag-mini .tag-price { font-size: 23px; }
+[data-theme="seikatsu"] .tag-mini .tag-was, [data-theme="seikatsu"] .tag-mini .tag-save { font-size: 10.5px; }
+[data-theme="seikatsu"] .tag-mini .tag-badge { top: -24px; right: -8px; }
+
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
   .tool-list { grid-template-columns: 1fr 1fr; }
