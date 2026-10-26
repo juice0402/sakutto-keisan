@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { gakureki, cohortOf } from '../src/lib/gakureki.mjs';
-import { wareki, kanshiOf, ERA_TABLE, nenText } from '../src/lib/wareki.mjs';
+import { wareki, kanshiOf, ERA_TABLE, nenText, nenIfContinued } from '../src/lib/wareki.mjs';
 import { gradeOf } from '../src/lib/nenrei.mjs';
 import { parseYmd } from '../src/lib/hizuke.mjs';
 
@@ -145,4 +145,11 @@ test('元号の年表：どの元号にも名前が入る高さで、年の線�
     const v = nenpyoY(L, y);
     assert.ok(v > r.top && v < r.top + r.h, String(y));
   }
+});
+
+test('元号が続いていたとして数えた年（よくある質問「今年は平成何年」）', () => {
+  assert.equal(nenIfContinued('平成', 2026), 38);
+  assert.equal(nenIfContinued('昭和', 2026), 101);
+  assert.equal(nenIfContinued('平成', 2019), 31);
+  assert.equal(nenIfContinued('昭和', 1989), 64);
 });

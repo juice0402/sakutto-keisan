@@ -71,7 +71,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '生年月日から年齢・和暦・干支・学年',
     published: true,
-    updated: '2026-10-22',
+    updated: '2026-10-26',
     related: ['gakureki', 'wareki', 'nissu', 'jikan'],
   },
   // 年齢の計算の下のページ（10/22 しょーくん「何歳のときに卒業したか、いちいち調べてる」）
