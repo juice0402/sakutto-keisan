@@ -8,6 +8,7 @@ import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { warekiOfYear } from '../lib/hizuke.mjs';
 import { ERA_TABLE, kanshiOf, wareki, nenpyoLayout, nenIfContinued } from '../lib/wareki.mjs';
+import { printLink } from '../prints.mjs';
 
 const tool = toolBySlug('wareki');
 const path = '/wareki/';
@@ -118,7 +119,7 @@ ${ERA_ROWS}
 ${section(
   'table',
   '和暦・西暦の早見表',
-  `<div class="tbl-wrap"><table class="tbl-tight">
+  `${printLink('nenrei', { label: '年齢・和暦の早見表のPDF' })}<div class="tbl-wrap"><table class="tbl-tight">
 <thead><tr><th class="num">西暦</th><th>和暦</th><th>干支</th></tr></thead>
 <tbody>
 ${QUICK_ROWS}

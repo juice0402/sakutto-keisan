@@ -278,7 +278,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: 'ハイターで0.02％・0.1％の消毒液を作る量',
     published: true,
-    updated: '2026-10-18',
+    updated: '2026-10-26',
     related: ['kishaku', 'mentsuyu', 'ekihi', 'tanka'],
   },
   {

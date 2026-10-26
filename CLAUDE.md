@@ -67,6 +67,7 @@
 | `tests/*.test.mjs` | `node --test` のテスト |
 | `scripts/verify-dist.mjs` | ビルド後の全ページ点検（title・description・canonical・h1・タグの閉じ忘れ・id の重複・リンク切れ・共有画像・外部読み込みなし・入力欄の inputmode とラベル・ズーム防止・スクリプトの文法） |
 | `scripts/make-images.py` | SNSの共有画像（OGP）とホーム画面用アイコンを作る（Pillow と日本語フォントが要るので Claude の環境で動かしてコミット） |
+| `src/prints.mjs`・`scripts/make-prints.py` | 印刷用の早見表（A4・1枚のPDF。年齢・和暦／学歴／消毒液）。見た目は「手帳のおまけのページ」（10/26 しょーくんが3案からえらんだ）。表はサイトの計算とデータから作る。数字や文を変えたら `python3 scripts/make-prints.py` で作り直してコミット（`tests/prints.test.mjs` が `src/data/prints.json` の指紋で作り直し忘れを見張る）。年の入るPDFは今年と来年を置き、ページは今年のPDFにリンク（1月1日のビルドで切りかわる）。毎年11月1日の予約タスクが次の年を足す |
 
 ### ブラウザ用スクリプトの決まり（小さなバンドラーの都合）
 - import は1行で `import { a, b } from './x.mjs';` の形だけ
