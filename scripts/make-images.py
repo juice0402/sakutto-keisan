@@ -392,6 +392,12 @@ def seisou_doc(img, cx, top):
         d.text((bx + w / 2 - d.textlength(num, font=f) / 2, y0 + 10 * S), num, font=f, fill='#FFFFFF')
 
 
+def mitsumori_doc(img, cx, top):
+    """清掃の見積もり計算：見積書（ページの計算例：300㎡を㎡単価8円で週5回）。1年の帯は書類に入らないので描かない"""
+    doc_sheet(img, cx, top, '見積書', '1か月の料金', '52,000', '円', ('期間', '回数', '料金'),
+              (('1回', '1回', '2,400'), ('1か月', '約21.7回', ('52,000',)), ('1年', '260回', '624,000')))
+
+
 def fx_panel(img, cx, top, bar_l, bar_r, h=330):
     """FX：トレードアプリの画面のわく（上の段に通貨ペアなど）"""
     d = ImageDraw.Draw(img)
@@ -1142,7 +1148,7 @@ def denki_slip(img, cx, top, name, mode, watt, hours):
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart,
-    'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
+    'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'seisou-mitsumori': mitsumori_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
     # 割引計算・実質単価の比較の下のページ（10/21）
     'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],

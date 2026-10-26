@@ -62,5 +62,12 @@ export const SEISOU_WORKS = [
   { id: 'wash', name: '床洗浄', kind: '定期清掃', buai: 0.33, speed: 38 },
 ];
 
+// 歩掛りの出典（清掃の作業時間と清掃の見積もりのページで使う）。daily：日常清掃、regular：床洗浄、view：業界団体の意見
+export const SEISOU_SRC = {
+  daily: 'https://www.city.sapporo.jp/kanzai/keiyaku/ippan-syuyaku/r2-zenki/documents/nyusatusetumei_bekki4-seiso.pdf',
+  regular: 'https://www.mlit.go.jp/gobuild/content/001600832.pdf',
+  view: 'https://www.mlit.go.jp/gobuild/content/001601093.pdf',
+};
+
 /** 歩掛り（人／100㎡）から1人1時間あたりの面積 */
 export const speedFromBuai = (buai) => fix(100 / (buai * 8));
