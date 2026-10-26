@@ -1130,9 +1130,34 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tool-name { display: block; font-size: 17px; font-weight: 800; line-height: 1.45; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px; }
 .tool-desc { display: block; margin-top: 3px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 /* よく使う計算（王道）：名前だけを2列で、大きく */
-.pick-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
-.pick-card { display: flex; align-items: center; min-height: 58px; padding: 6px 2px; border-bottom: 1px dashed var(--border); color: var(--text); font-size: 18px; font-weight: 800; line-height: 1.35; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px; }
-.pick-card:active { background: var(--marker); }
+
+/* トップの「よく使う計算」の小さな絵（ノートにペンで描いた答えの絵。src/doodles.mjs） */
+.dd { width: 72px; height: 54px; flex: none; stroke: var(--text); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; fill: none; overflow: visible; }
+.dd .r { stroke: var(--red); }
+.dd .b { stroke-width: 2.6; }
+.dd .th { stroke-width: 1; }
+.dd .w6 { stroke-width: 6; stroke-linecap: butt; }
+.dd .mu { stroke: var(--border); }
+.dd .dsh { stroke-dasharray: 3 2.6; }
+.dd .ns { stroke: none; }
+.dd .fw { fill: var(--surface); }
+.dd .fs { fill: var(--sheet); }
+.dd .ft { fill: var(--tag-bg); }
+.dd .fm { fill: var(--marker); }
+.dd .f2 { fill: var(--note2); }
+.dd .f3 { fill: var(--note3); }
+.dd .fr { fill: var(--red); }
+.dd .fn { fill: var(--text); }
+.dd .fo { fill-opacity: 0.78; }
+.dd .fo2 { fill-opacity: 0.12; }
+.dd .tp { opacity: 0.85; }
+.dd .ok { stroke: var(--note2); stroke-width: 6; stroke-linecap: butt; }
+.pick-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.pick-grid li { border-bottom: 1px solid var(--border); }
+.pick-grid li:nth-child(odd) { border-right: 1px solid var(--border); }
+.pick-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px 11px; color: var(--text); font-size: 17px; font-weight: 800; text-decoration: none; }
+.pick-cell .dd { width: 84px; height: 63px; }
+.pick-cell:active { background: var(--marker); }
 /* カテゴリの「ほかの計算」：押すと開く（すき間の計算をたたんでおく） */
 .more summary { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 4px 2px; border-bottom: 1px dashed var(--border); font-size: 15px; font-weight: 700; color: var(--muted); cursor: pointer; list-style: none; }
 .more summary::-webkit-details-marker { display: none; }
@@ -1186,6 +1211,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
   .tool-list { grid-template-columns: 1fr 1fr; }
-  .pick-list { grid-template-columns: repeat(4, 1fr); }
+  .pick-grid { grid-template-columns: repeat(4, 1fr); }
+  .pick-grid li:nth-child(odd) { border-right: 0; }
+  .pick-grid li:not(:nth-child(4n)) { border-right: 1px solid var(--border); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
