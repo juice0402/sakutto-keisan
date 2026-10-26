@@ -591,4 +591,9 @@ export const TOOLS = [
 
 export const publishedTools = () => TOOLS.filter((t) => t.published);
 export const toolBySlug = (slug) => TOOLS.find((t) => t.slug === slug);
+
+// 説明文（meta description）に書く計算ツールの数。返礼品の一覧は、毎日のデータで出たり消えたりするので数えない
+export const CALC_COUNT = TOOLS.filter((t) => t.published && !t.slug.startsWith('furusato-henreihin')).length;
+// いちばん新しいツールの更新日（YYYY-MM-DD）
+export const LAST_UPDATED = TOOLS.filter((t) => t.published).map((t) => t.updated).sort().at(-1);
 export const toolUrl = (t) => t.path || `/${t.slug}/`;

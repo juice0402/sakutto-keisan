@@ -121,8 +121,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: 'パーセントの計算｜何％？○％はいくつ？割合を計算',
-    description:
-      'パーセント（割合）を計算します。「200の15％はいくつ」「30は200の何％」「○％にあたるもとの数」を、2つの数を入れるだけで出せます。％・割・小数の言い方と、よく使う割合の早見表もあります。',
+    description: `パーセント（割合）を計算します。200の15％は${fmt(percent({ base: 200, pct: 15, part: null, out: 'part' }).part)}のように、もとの数・割合・その数のうち2つから残りの1つを出します。％・割・小数の言い方と、${QUICK_BASE.map((b) => fmt(b)).join('・')}の早見表もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

@@ -28,3 +28,11 @@ export function roundBy(x, mode = 'floor') {
 /** 3桁区切りで表示（小数は maxFrac 桁まで） */
 export const fmt = (x, maxFrac = 2) =>
   fix(x).toLocaleString('ja-JP', { maximumFractionDigits: maxFrac });
+
+// 説明文（meta description）の値段は、ぴったりではなく幅で書く（検索結果に古い値段が残るので）
+// 2,563 → 2,500円台、10,252 → 1万円台、980 → 980円台
+export function yenBand(n) {
+  if (n >= 10000) return `${fmt(Math.floor(n / 10000))}万円台`;
+  const step = n >= 1000 ? 100 : 10;
+  return `${fmt(Math.floor(n / step) * step)}円台`;
+}

@@ -10,6 +10,7 @@ import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { dateField } from '../fields.mjs';
 import { ETO, warekiOfYear, etoOf } from '../lib/hizuke.mjs';
 import { gakureki } from '../lib/gakureki.mjs';
+import { nenrei } from '../lib/nenrei.mjs';
 
 // 年のとり方・早生まれの説明の出典（国立天文台 暦Wiki。年齢計算ニ関スル法律と民法143条による）
 const SRC_AGE = 'https://eco.mtk.nao.ac.jp/koyomi/wiki/CDD7C1C72F1C7AFA4C8A4CFA1A92FC7AFCEF0.html';
@@ -27,6 +28,7 @@ const RING = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="
 // 年齢早見表（ビルドした年。誕生日のあとの年齢）
 const THIS_YEAR = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', year: 'numeric' }).format(new Date()));
 const YEARS = Array.from({ length: THIS_YEAR - 1940 + 1 }, (_, i) => THIS_YEAR - i);
+const AGE_EX = nenrei({ birth: '1987-06-15', on: '2026-10-21' }); // 説明文（meta description）の例。本文の例と同じ
 const TABLE_ROWS = YEARS.map((y) => {
   const w = warekiOfYear(y);
   const e = etoOf(y);
@@ -120,8 +122,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: `年齢の計算｜生年月日から年齢・和暦・干支・学年（${THIS_YEAR}年の年齢早見表）`,
-    description:
-      '年齢を計算します。生年月日を入れると、今日の満年齢・数え年・生まれ年の和暦と干支・学年・次の誕生日まであと何日かがわかります。昭和・平成・令和の生まれ年ごとの年齢早見表もあります。',
+    description: `年齢を計算します。1987年6月15日生まれなら、2026年10月21日に${AGE_EX.age}歳で、数え年は${AGE_EX.kazoe}歳です。干支・学年・次の誕生日まであと何日かもわかり、${YEARS.at(-1)}〜${THIS_YEAR}年生まれの年齢早見表もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },
@@ -240,8 +241,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '入学・卒業年の計算｜生年月日から履歴書の学歴の年（西暦・和暦）',
-    description:
-      '入学・卒業年を計算します。生年月日を入れると、小学校・中学校・高校・大学の入学と卒業の年月を、西暦と和暦（令和・平成・昭和）で出します。早生まれ・浪人・留年・短大や専門学校にも対応。生まれた年ごとの学歴早見表もあります。',
+    description: `入学・卒業年を計算します。2004年6月10日生まれなら、小学校の入学は${GK_EX[0].y}年4月、大学の卒業は${GK_EX[7].y}年3月です。西暦と和暦で出し、早生まれ・浪人・留年にも対応。${GK_YEARS.at(-1)}〜${GK_YEARS[0]}年生まれの早見表もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: parent.name, path: `/${parent.slug}/` },

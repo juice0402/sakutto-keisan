@@ -122,8 +122,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: 'BMIの計算｜身長と体重からBMI・判定・標準体重',
-    description:
-      'BMIを計算します。身長と体重を入れると、BMIと日本肥満学会の基準での判定（低体重・普通体重・肥満）、標準体重、普通体重の範囲がわかります。身長ごとの標準体重の表もあります。',
+    description: `BMIを計算します。身長170cm・体重65kgならBMIは${fmt(EX.value, 1)}で、日本肥満学会の基準では${EX.level}、標準体重は${fmt(EX.std, 1)}kgです。身長${HEIGHTS[0]}〜${HEIGHTS.at(-1)}cmの標準体重と普通体重の範囲の表もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

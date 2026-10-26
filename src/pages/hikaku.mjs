@@ -128,7 +128,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '楽天とAmazonのポイント比較｜同じ買い物でどちらが多いか計算',
-    description: '同じ額を楽天市場とAmazonで買ったときのポイントの目安をくらべます。楽天は楽天カード・楽天モバイル・5と0のつく日・お買い物マラソン、AmazonはAmazon Mastercardとプライム会員をえらべます。ポイントのつき方のちがいの表ものせています。',
+    description: `同じ額を楽天市場とAmazonで買ったときのポイントの目安をくらべます。${fmt(EX_R.total)}円を楽天カードで5と0のつく日に買うと楽天は${fmt(EX_R.points)}ポイント、ポイント1%の商品をプライム会員がAmazon Mastercardで買うと${fmt(EX_A.points)}ポイントです。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

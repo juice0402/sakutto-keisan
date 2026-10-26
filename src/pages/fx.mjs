@@ -7,13 +7,17 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
 import { boxField } from '../fields.mjs';
-import { FX_PAIRS, fxSwapEstimate, swapText, rateDigits } from '../lib/fx.mjs';
+import { FX_PAIRS, FX_MAX_LEV, fxSwapEstimate, fxRatio, fxPosition, swapText, rateDigits, qtyText } from '../lib/fx.mjs';
 import { fmt } from '../lib/number.mjs';
 import { POLICY_RATES, FX_RATES_CHECKED, FX_SPOT_DATE, FX_SPOT_URL } from '../data/fx-swap.mjs';
 
 // いまのレートの欄のうすい例（参考のレート。通貨ペアを変えると、スクリプトがその通貨ペアの数字にする）
 const RATE_EX = FX_PAIRS[0].example.toFixed(rateDigits(FX_PAIRS[0].example));
 const CAUTION = '<p class="note">FXの会社ごとにルールが違うので、目安です。</p>';
+// 説明文（meta description）の例。本文の計算例と同じ（tests/fx.test.mjs）
+const DESC_IJI = fxRatio({ money: 100000, rate: 150, lev: 10 });
+const DESC_CUT = fxPosition({ money: 100000, qty: 10000, rate: 150 });
+const DESC_SWAP = fxSwapEstimate({ pair: FX_PAIRS[0].id, side: 'buy', qty: 10000 });
 const jpDate = (iso) => { const [, m, d] = iso.split('-').map(Number); return `${m}月${d}日`; };
 // スワップの目安の表：通貨ペアごとに、その通貨の政策金利（中央銀行へのリンク＝出典）と、1万通貨を買ったときの1日の額（src/data/fx-swap.mjs から作る）
 const bankLink = (c) => `<a href="${POLICY_RATES[c].url.replace(/&/g, '&amp;')}">${fmt(POLICY_RATES[c].rate, 3)}％</a>`;
@@ -65,7 +69,7 @@ const PAGES = [
     slug: 'fx-iji-ritsu',
     title: '証拠金維持率の計算｜レバレッジ何倍で何％になるか',
     description:
-      'FXの証拠金維持率を、口座のお金とレバレッジから計算します。いまのレートとレバレッジ（何倍）か通貨の量を入れると、取引できる量やレバレッジと、取引したときの維持率がわかります。',
+      `FXの証拠金維持率を、口座のお金とレバレッジか通貨の量から計算します。口座のお金10万円で1ドル150円をレバレッジ10倍なら約${qtyText(DESC_IJI.qty)}通貨で、維持率は${fmt(DESC_IJI.ratio, 0)}％です。レバレッジは${FX_MAX_LEV}倍まで入れられます。`,
     lead: 'レバレッジや量から、維持率を計算します。',
     ld: '口座のお金・レート・レバレッジか通貨の量から、取引したときの証拠金維持率を出す計算ツール。',
     calc: `<div class="calc" id="calc" data-tool="iji">
@@ -133,7 +137,7 @@ ${section(
     slug: 'fx-losscut',
     title: 'ロスカットの計算｜あと何円の損でロスカットか・追証の目安',
     description:
-      'FXのロスカットまで、あと何円の損まで耐えられるかを計算します。通貨ペアと買いか売りかをえらび、通貨の量・口座のお金・いまのレートを入れると、ロスカットになるレートと証拠金維持率もわかります。基準より下のときは足りないお金を出します。',
+      `FXのロスカットまで、あと何円の損かを計算します。口座のお金10万円で1ドル150円を1万通貨買うなら、あと${fmt(DESC_CUT.buyRoom)}円の損、${fmt(DESC_CUT.buyPrice)}円でロスカットです（基準${DESC_CUT.cut}％）。売りのときと、足りないお金も出します。`,
     lead: 'ロスカットまで、あと何円の損か計算します。',
     ld: '口座のお金・通貨の量・レートから、ロスカットまでの金額とロスカットになるレートを出す計算ツール。',
     calc: `<div class="calc" id="calc" data-tool="cut">
@@ -203,7 +207,7 @@ ${section(
     slug: 'fx-swap',
     title: 'スワップポイントの計算｜1日いくらもらえるか（目安）',
     description:
-      'FXのスワップポイントの目安を計算します。通貨ペアと買いか売りか、通貨の量をえらぶと、2つの国の金利の差から、1日・1か月・1年でいくらもらえるか（払うか）がわかります。',
+      `FXのスワップポイントの目安を、2つの国の政策金利の差から計算します。${FX_PAIRS[0].name}を1万通貨買うと1日約${swapText(DESC_SWAP.day)}円です。金利は${jpDate(FX_RATES_CHECKED)}に確かめたもので、${FX_PAIRS.length}の通貨ペアの1日の目安の表もあります。`,
     lead: '1日にいくらもらえるか、目安を計算します。',
     ld: '通貨ペア・買いか売りか・通貨の量から、金利の差でスワップポイントの目安を出す計算ツール。',
     calc: `<div class="calc" id="calc" data-tool="swap">

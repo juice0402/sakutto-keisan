@@ -1,9 +1,8 @@
 // サイト全体の設定。独自ドメインやサイト名を変えるときはここだけ直す。
 export const SITE = {
   name: 'サクッと計算',
+  alternateName: 'サクッとけいさん', // 検索結果のサイト名（構造化データの WebSite）の別の書き方
   url: 'https://sakutto-keisan.com', // 末尾の / なし
-  description:
-    '割引後の値段、割り勘、ふるさと納税の上限、家電の電気代、100gあたりの単価、レシピの人数換算、希釈（薄め方）、残業代、FXのロスカットなどを計算できる無料のツール集です。スマホのブラウザで使えて、入力した数字は送信しません。',
   startYear: 2026,
   // IndexNow（Bing・Yandex・Naver など）に公開したページを知らせるときの鍵。ビルドで /<鍵>.txt を置く（公開してよい値）
   indexnowKey: '267ca6c686146dbec62c311f4559fea0',

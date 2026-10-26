@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { touyu, literPrice } from '../src/lib/touyu.mjs';
 import { TOUYU_PRICE, TOUYU_HEATERS } from '../src/data/touyu.mjs';
-import { fmt } from '../src/lib/number.mjs';
+import { fmt, yenBand } from '../src/lib/number.mjs';
 
 const P = TOUYU_PRICE.can;
 
@@ -59,4 +59,12 @@ test('まだ入れていない・まちがった入力', () => {
   assert.equal(touyu({ lph: 0.3, hours: 8, price: 30000 }).field, 'price');
   const z = touyu({ lph: 0.3, hours: 0, price: P });
   assert.deepEqual([z.month, z.canDays], [0, null]);
+});
+
+test('説明文の値段は幅で書く（yenBand）', () => {
+  assert.equal(yenBand(2563), '2,500円台'); // 灯油18Lのはじめの値
+  assert.equal(yenBand(10252), '1万円台'); // 1か月の灯油代の例
+  assert.equal(yenBand(980), '980円台');
+  assert.equal(yenBand(6500), '6,500円台');
+  assert.equal(yenBand(23000), '2万円台');
 });

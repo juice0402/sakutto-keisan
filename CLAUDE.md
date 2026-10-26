@@ -121,7 +121,8 @@
 
 ## ページの決まり
 - URL はローマ字の短い名前 `/<slug>/`。一度公開したら変えない
-- title は「<検索される言葉>｜<ひとこと>｜サクッと計算」。description は30〜160文字
+- title は「<検索される言葉>｜<ひとこと>｜サクッと計算」（トップはサイト名から始める）
+- 検索結果での見え方（10/26 全サイト共通の決まり。プロジェクトの `claude/site-principles.md`）：説明文（meta description）はページごとに、そのページの計算例・早見表・出典の日・件数から作る（数字は本文の計算例と同じ計算の値を入れて、データが変わると説明文も変わるように）。全角80〜120文字・数字を入れる・ほかのページと同じにしない・使わない言葉を入れない（`verify-dist.mjs` が点検。noindex のページはのぞく）。値段は `yenBand`（`src/lib/number.mjs`）で「2,500円台」「1万円台から」のような幅に。ツールの数は `CALC_COUNT`、いちばん新しい更新日は `LAST_UPDATED`（`src/tools.mjs`）。サイト名は、トップの WebSite の構造化データ（name と alternateName は `SITE`）と、全ページの og:site_name
 - 入力欄：`type="text" inputmode="decimal"`、ラベル必須。**数字だけ入る**ようにする（`ui.mjs` の `numericOnly`。全角の数字は半角に、ほかの文字は入れたそばに消える）。材料の名前のような文字の欄は `inputmode="text"`・`maxlength` を付け、結果に出すときはエスケープする
 - **ズームさせない**（しょーくんの方針・10/16）：入力欄・選択欄の文字は16px以上（iPhoneの自動ズーム防止）、`html` に `touch-action: manipulation`（ダブルタップのズーム防止）。指2本のズームは止めない（viewport に `user-scalable`・`maximum-scale` を書かない）。`verify-dist.mjs` が点検する
 - 計算はブラウザの中だけ。**入力した数字を送らない・保存しない**（例外は寄付メモ `/furusato/memo/` だけ：記録をこの端末のブラウザの localStorage に保存し、送らない。フッターの1行は `page({ footNote })` でそのページだけ差しかえる。プライバシーポリシーにも書いた）。外部のスクリプト・画像・フォントを読み込まない。例外はページの印 `<html data-ext>` で決めた2つだけ（10/22 統合の設計）：`adsense`＝AdSense のスクリプト（`SITE.adsense` に運営者IDを入れると、noindex と `noAds` のページをのぞく全ページに入り、ビルドが `/ads.txt` を置く。空のあいだは何も入らない）、`rakuten-img`＝返礼品のページの楽天の商品画像。2つを同じページに入れない。`verify-dist.mjs` が見張る

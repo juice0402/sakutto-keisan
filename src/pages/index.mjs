@@ -1,6 +1,8 @@
 import { SITE, CATEGORIES } from '../site.mjs';
-import { TOOLS, toolUrl } from '../tools.mjs';
+import { TOOLS, toolUrl, CALC_COUNT, LAST_UPDATED } from '../tools.mjs';
 import { page, esc, absUrl } from '../layout.mjs';
+
+const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 
 // トップ（10/21 しょーくん「トップは王道で、マイナーな計算はたたんでまとめる」）
 // いちばん上に「よく使う計算」（tools.mjs の pick の順。名前だけを2列で。名前は pickName か、name から「の計算」を取ったもの）。その下にカテゴリごとの目次。
@@ -48,10 +50,10 @@ ${cats}
   const html = page({
     path: '/',
     title: `${SITE.name}｜割引・消費税・パーセント・割り勘などの計算ツール`,
-    description: SITE.description,
+    description: `割引・消費税・パーセント・割り勘・ふるさと納税の上限・家電の電気代・FXのロスカットなど、${CALC_COUNT}の計算ツールをまとめたサイトです。スマホのブラウザで使えて、入力した数字は送信しません。${jaDate(LAST_UPDATED)}更新。`,
     body,
     jsonLd: [
-      { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: absUrl('/'), inLanguage: 'ja' },
+      { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, alternateName: SITE.alternateName, url: absUrl('/'), inLanguage: 'ja' },
     ],
   });
   const updated = top.map((t) => t.updated).sort().at(-1); // トップに出ているツールだけ

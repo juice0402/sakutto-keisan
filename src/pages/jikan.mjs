@@ -93,8 +93,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '時間の計算｜時間と分の足し算・合計（小数の時間も）',
-    description:
-      '時間の足し算をします。「3時間45分」のような時間を行ごとに入れると、合計の時間と分、小数の時間、分、24時間をこえたときの日数がわかります。働いた時間や勉強時間の合計に使えます。',
+    description: `時間の足し算をします。${EX.map(([h, m]) => `${h}時間${m}分`).join('と')}を足すと${R.text}で、小数では${R.hours}時間です。${JIKAN_MAX_ROWS}行まで入れられて、分は60より多くてもよく、24時間をこえたら日数も出します。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

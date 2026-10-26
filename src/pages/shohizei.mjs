@@ -115,8 +115,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: '消費税の計算｜税込・税抜の値段と消費税（10％・8％）',
-    description:
-      '消費税を計算します。税抜の値段から税込、税込の値段から税抜と消費税がわかります。10％と8％（軽減税率）をえらべて、1円未満の切り捨て・四捨五入・切り上げも変えられます。よくある値段の税込の早見表もあります。',
+    description: `消費税を計算します。税抜${fmt(1980)}円は10％で税込${fmt(shohizei({ amount: 1980, from: 'net', rate: 10 }).gross)}円、8％で${fmt(shohizei({ amount: 1980, from: 'net', rate: 8 }).gross)}円です。税込${fmt(EX.gross)}円なら消費税は${fmt(EX.tax)}円で税抜${fmt(EX.net)}円。1円未満の端数の扱いも変えられ、よくある値段${QUICK.length}通りの早見表もあります。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: tool.name, path },

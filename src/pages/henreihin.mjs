@@ -12,7 +12,7 @@ import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { HENREIHIN_MODE, HENREIHIN_CATS, HENREIHIN_SHOW, HENREIHIN_PRICE_TILES } from '../data/henreihin.mjs';
 import { hrPrepare, firstPick } from '../lib/henreihin.mjs';
-import { fmt } from '../lib/number.mjs';
+import { fmt, yenBand } from '../lib/number.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const AD = '<p class="hr-ad">広告　楽天アフィリエイトを利用しています</p>';
@@ -32,6 +32,10 @@ function loadData() {
 const perText = (x) => fmt(x, x < 1 ? 2 : 1);
 const unitName = (u) => (u === 'ロール' ? 'ロール分' : u); // トイレットペーパーは、長巻きもふつうの長さのロールの数にする
 const altOf = (name) => name.replace(/【[^】]*】/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
+const dayText = (iso) => {
+  const j = new Date(new Date(iso).getTime() + 9 * 3600e3);
+  return `${j.getUTCMonth() + 1}月${j.getUTCDate()}日`;
+};
 const atText = (iso) => {
   const d = new Date(iso);
   const j = new Date(d.getTime() + 9 * 3600e3);
@@ -93,6 +97,8 @@ function renderCat(cat, data, mihon) {
     return { g, list, from };
   });
   const many = cat.groups.length > 1;
+  // 説明文（meta description）は、その日の一覧から作る（件数・寄付額のいちばん低い額を幅で・取った日）
+  const prices = lists.flatMap(({ list }) => list.map((x) => x.price));
   const unitWord = cat.groups.map((g) => `何${unitName(g.unit)}`).join('・');
   const faqs = [
     {
@@ -153,7 +159,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: `${tool.name}｜1万円あたり${unitWord}か多い順（楽天ふるさと納税）`,
-    description: `楽天ふるさと納税の${cat.name}の返礼品を、商品名に書かれた量から1万円あたり${unitWord}かを出して、多い順に並べています。寄付額1万円・2万円・3万円まででしぼれます。`,
+    description: `楽天ふるさと納税の${cat.name}の返礼品${at}件を、商品名の量から1万円あたり${unitWord}かを出して多い順に並べています。${prices.length ? `寄付額は${yenBand(Math.min(...prices))}からで、` : ''}量が1つに決まっているものだけです。楽天の情報は${dayText(data.fetchedAt)}の時点です。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: parent.name, path: parent.path },
@@ -223,7 +229,7 @@ ${relatedHtml(tool)}
   const html = page({
     path,
     title: `${tool.name}｜お米・肉・魚介・日用品を1万円あたりの量でくらべる（楽天ふるさと納税）`,
-    description: '楽天ふるさと納税の返礼品を、商品名に書かれた量から1万円あたりの量を出してくらべます。お米・肉・魚介・日用品の一覧と、はじめての人向けに寄付額2万円までから選んだ3件をのせています。',
+    description: `楽天ふるさと納税の返礼品を、商品名に書かれた量から1万円あたりの量を出してくらべます。${HENREIHIN_CATS.map((c) => c.name).join('・')}の${Object.values(counts).reduce((a, b) => a + b, 0)}件と、寄付額2万円までから選んだ${picks.length}件をのせています。楽天の情報は${dayText(data.fetchedAt)}の時点です。`,
     breadcrumbs: [
       { name: 'ホーム', path: '/' },
       { name: toolBySlug('furusato').name, path: '/furusato/' },

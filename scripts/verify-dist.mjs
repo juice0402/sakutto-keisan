@@ -30,6 +30,7 @@ const resolves = (href) => {
   return existsSync(target) && (statSync(target).isFile() || existsSync(join(target, 'index.html')));
 };
 
+const descSeen = new Map(); // 説明文 → はじめに使ったページ（同じ説明文のページを作らない）
 for (const file of htmlFiles) {
   const rel = '/' + relative(DIST, file).replace(/index\.html$/, '');
   const html = readFileSync(file, 'utf8');
@@ -60,6 +61,21 @@ for (const file of htmlFiles) {
   if (!title.includes(SITE.name)) fail(rel, `title にサイト名がない: ${title}`);
   const desc = (html.match(/<meta name="description" content="([^"]*)">/) || [])[1] || '';
   if (desc.length < 30 || desc.length > 160) fail(rel, `description の長さが ${desc.length} 文字（30〜160）`);
+  // 検索結果での見え方（10/26 全サイト共通の決まり）：説明文はそのページのデータから作り、具体的な数字を入れて全角80〜120文字。同じ説明文のページを作らない
+  if (!noindex) {
+    const w = textWidth(desc.replace(/&[a-z]+;/g, '&'));
+    if (w < 80 || w > 120) fail(rel, `description が全角80〜120文字ではない（${w.toFixed(1)}）: ${desc}`);
+    if (!/\d/.test(desc)) fail(rel, `description に数字がない: ${desc}`);
+    if (descSeen.has(desc)) fail(rel, `description が ${descSeen.get(desc)} と同じ`);
+    else descSeen.set(desc, rel);
+  }
+  // サイト名がドメインのまま出ないように：全ページに og:site_name、トップに WebSite の構造化データ
+  if (!html.includes(`<meta property="og:site_name" content="${SITE.name}">`)) fail(rel, 'og:site_name がない');
+  if (rel === '/') {
+    const site = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1])).flat().find((x) => x['@type'] === 'WebSite');
+    if (!site || site.name !== SITE.name || site.url !== `${SITE.url}/`) fail(rel, `WebSite の構造化データがない・名前かURLがちがう: ${JSON.stringify(site)}`);
+    if (!title.startsWith(SITE.name)) fail(rel, `トップの title がサイト名で始まっていない: ${title}`);
+  }
   if (count(html, /<h1[ >]/g) !== 1) fail(rel, '<h1> が1つではない');
   if (!noindex) {
     const canon = (html.match(/<link rel="canonical" href="([^"]+)">/) || [])[1];
@@ -107,7 +123,8 @@ for (const file of htmlFiles) {
   // AI がよく使う言い回しを使わない（文章の決まり）。ふるさと納税のページは、総務省のQ&Aが挙げる言葉も使わない
   {
     // 返礼品の商品名（楽天から取ったそのままの名前。自治体が書いたもの）は見ない
-    const visible = shown.replace(/<p class="hr-name">[\s\S]*?<\/p>/g, ' ').replace(/<[^>]+>/g, ' ');
+    // 検索結果に出る title と説明文（属性の中なので、タグを消すと消える）も見る
+    const visible = `${shown.replace(/<p class="hr-name">[\s\S]*?<\/p>/g, ' ').replace(/<[^>]+>/g, ' ')} ${title} ${desc}`;
     const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'コツ', '——'];
     if (rel.startsWith('/furusato/')) NG.push('お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント');
     // 楽天のポイントのページは、楽天アフィリエイトの決まり（予想・あおり・くじの紹介をしない）
