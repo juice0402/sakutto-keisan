@@ -1207,6 +1207,16 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 [data-theme="seikatsu"] .tag-mini .tag-price { font-size: 23px; }
 [data-theme="seikatsu"] .tag-mini .tag-was, [data-theme="seikatsu"] .tag-mini .tag-save { font-size: 10.5px; }
 [data-theme="seikatsu"] .tag-mini .tag-badge { top: -24px; right: -8px; }
+/* レシート（消費税・割り勘）：写真のレシート。下のぎざぎざは写真のまま（border-image で下のはしだけのばさない） */
+[data-theme="seikatsu"] .receipt { background: none; border: 0 solid transparent; border-bottom-width: 12px; border-image: url(/img/receipt.webp) 8 0 16 0 fill / 0 0 12px 0 stretch; }
+[data-theme="seikatsu"] .rc-edge { display: none; }
+/* 日めくり（日数・お食い初め・四十九日）：写真の日めくり。年月は写真の赤い帯（四十九日は紺）の上に */
+[data-theme="seikatsu"] .cal { display: flex; flex-direction: column; align-items: center; aspect-ratio: 300 / 343; border: 0; border-radius: 0; background: url(/img/himekuri.webp) center / 100% 100% no-repeat; overflow: visible; }
+[data-theme="seikatsu"] .cal-ym { width: 100%; margin-top: 4.5%; padding: 0; background: none; line-height: 1.5; }
+[data-theme="seikatsu"] .cal-d { margin-top: auto; }
+[data-theme="seikatsu"] .cal-w { margin-bottom: 10%; }
+[data-theme="seikatsu"] .cal-calm { background-image: url(/img/himekuri-calm.webp); }
+[data-theme="seikatsu"] .cal-calm .cal-ym { background: none; }
 
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
