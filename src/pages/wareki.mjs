@@ -7,7 +7,7 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { warekiOfYear } from '../lib/hizuke.mjs';
-import { ERA_TABLE, kanshiOf, wareki, nenpyoLayout } from '../lib/wareki.mjs';
+import { ERA_TABLE, kanshiOf, wareki, nenpyoLayout, nenIfContinued } from '../lib/wareki.mjs';
 
 const tool = toolBySlug('wareki');
 const path = '/wareki/';
@@ -44,6 +44,10 @@ const FAQS = [
   {
     q: '今年は令和何年ですか？',
     a: `<p>${THIS_YEAR}年は${NOW.text}です。令和元年は2019年なので、西暦から2018を引くと令和の年になります。</p>`,
+  },
+  {
+    q: '今年は平成何年ですか？',
+    a: `<p>平成は2019年4月30日で終わり、いまの元号は令和です。平成が続いていたとして数えると、${THIS_YEAR}年は平成${nenIfContinued('平成', THIS_YEAR)}年、昭和なら${nenIfContinued('昭和', THIS_YEAR)}年にあたります。</p>`,
   },
   {
     q: '元年とは何ですか？',

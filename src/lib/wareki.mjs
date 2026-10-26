@@ -58,6 +58,9 @@ export function nenpyoY(layout, y) {
 /** 和暦の年の書き方（1年は「元年」） */
 export const nenText = (era, nen) => `${era}${nen === 1 ? '元' : nen}年`;
 
+/** 元号が続いていたとして数えた、その西暦の年の和暦の年（「今年は平成何年」のよくある質問） */
+export const nenIfContinued = (era, y) => y - Number(ERAS.find((e) => e.name === era).start.slice(0, 4)) + 1;
+
 /**
  * @param {{from:'seireki'|'wareki'|null, seireki?:number|null, era?:string|null, nen?:number|null, thisYear:number}} p
  *   from：あとから入れたほう　seireki：西暦の年　era・nen：元号と和暦の年　thisYear：今年（ブラウザの日付）
