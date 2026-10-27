@@ -129,7 +129,7 @@ export const TOOLS = [
     short: '何日後は何日か、あと何日か',
     published: true,
     updated: '2026-10-22',
-    related: ['nenrei', 'wareki', 'okuizome', 'shijukunichi', 'jikan', 'percent'],
+    related: ['nenrei', 'dai-nan-youbi', 'okuizome', 'shijukunichi', 'wareki', 'jikan', 'percent'],
   },
   {
     slug: 'nenrei',
@@ -199,6 +199,27 @@ export const TOOLS = [
     related: ['nenrei', 'wareki', 'nissu'],
   },
   // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
+  // 10/27 しょーくん「くらしノートに負けない」。検索候補「第何曜日 数え方」「偏差値 パーセント」
+  {
+    slug: 'dai-nan-youbi',
+    name: '第何曜日の計算',
+    category: 'seikatsu',
+    more: true,
+    short: 'その日が第何◯曜日か、毎月の同じ曜日の日',
+    published: true,
+    updated: '2026-10-27',
+    related: ['nissu', 'wareki', 'nenrei', 'jikan'],
+  },
+  {
+    slug: 'hensachi',
+    name: '偏差値の計算',
+    category: 'seikatsu',
+    more: true,
+    short: '偏差値から上位何％か、得点から偏差値',
+    published: true,
+    updated: '2026-10-27',
+    related: ['percent', 'gakureki', 'nenrei', 'bmi'],
+  },
   {
     slug: 'wareki',
     name: '和暦・西暦の変換',

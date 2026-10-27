@@ -1209,6 +1209,27 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
+/* 第何曜日：その月のカレンダー（その曜日の列にマーカー、その日に赤ペンの丸） */
+.yb-cal { margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+.yb-head, .yb-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+.yb-head span { padding: 2px 0; font-size: 12.5px; font-weight: 700; color: var(--muted); border-bottom: 1.5px solid var(--text); }
+.yb-head span:first-child { color: var(--red); }
+.yb-head span:last-child { color: #2e6fb7; }
+.yb-d { position: relative; height: 30px; line-height: 30px; font-size: 15px; font-weight: 700; border-bottom: 1px solid var(--rule); }
+.yb-d.is-sun { color: var(--red); }
+.yb-d.is-sat { color: #2e6fb7; }
+.yb-d.is-col { background: var(--marker); }
+.yb-d.is-none { background: none; border-bottom-color: transparent; }
+.yb-d.is-on { color: var(--red); font-weight: 800; }
+.yb-d.is-on::after { content: ""; position: absolute; inset: 2px 6px; border: 2.5px solid var(--red); border-radius: 50% 44% 52% 47% / 56% 48% 52% 44%; transform: rotate(-4deg); }
+/* 偏差値：テストの山（自分より上の分を赤でうすくぬる、自分の位置に赤い線） */
+.hs-mount { display: block; width: 100%; height: auto; margin: 6px 0 0; }
+.hs-curve { fill: none; stroke: var(--text); stroke-width: 1.6; stroke-linejoin: round; }
+.hs-area { fill: var(--red); fill-opacity: .22; }
+.hs-base, .hs-mount line { stroke: var(--text); stroke-width: 1; }
+.hs-me { stroke: var(--red) !important; stroke-width: 2 !important; }
+.hs-mount text { fill: var(--muted); font-size: 7.5px; text-anchor: middle; }
+
 /* 家族の行事（七五三・厄年・長寿祝い・お食い初め・四十九日） */
 .kid-row { display: grid; gap: 10px; }
 .kid-row + .kid-row { padding-top: 12px; border-top: 1px dashed var(--border); }

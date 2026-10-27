@@ -48,6 +48,12 @@ CASES = {
         (None, '#r-foot', '何日後かおわりの日を入れてください'),
         (('fill', '#days', '100'), None, None),
     ],
+    'hensachi': [
+        (None, '#r-foot', '偏差値か得点を入れてください'),
+        (('fill', '#score', '72'), '#r-foot', '平均点を入れてください'),
+        (('fill', '#mean', '60'), '#r-foot', '標準偏差を入れてください'),
+        (('fill', '#sd', '12'), None, None),
+    ],
     'nenrei': [
         (None, '#r-foot', '生年月日を入れてください'),
         (('fill', '#birth', '1987-06-15'), None, None),

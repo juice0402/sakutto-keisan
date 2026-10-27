@@ -30,6 +30,8 @@ CASES = {
     'choju': (lambda pg: pg.fill('#year', '1966'), '.slip-sum'),
     'okuizome': (lambda pg: pg.fill('#birth', '2026-10-27'), '.pic-side .slip-v'),
     'shijukunichi': (lambda pg: pg.fill('#death', '2026-10-01'), '.pic-side .slip-v'),
+    'dai-nan-youbi': (lambda pg: pg.fill('#date', '2026-10-27'), '.slip-sum'),
+    'hensachi': (lambda pg: pg.fill('#dev', '60'), '.slip-sum'),
     'furusato': (lambda pg: pg.fill('#income', '500'), '.doc-sum'),
     'furusato/nenshu': (lambda pg: pg.fill('#target', '50000'), '.doc-sum'),
     'furusato/uchiwake': (lambda pg: (pg.fill('#donation', '50000'), pg.fill('#income', '500')), '.doc-sum'),

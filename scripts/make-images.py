@@ -1189,6 +1189,30 @@ def gy_sheet(title, cap, big, say, heads, rows, mark):
             d.line([(x0 + 14 * S, ry + rh), (x1 - 14 * S, ry + rh)], fill='#D3DCE8', width=2 * S)
     return draw
 
+
+def nissu_cal_only(d, x, y, ym, day, wd):
+    """日めくり（第何曜日の共有画像）"""
+    x += 14 * S
+    w, h = 160 * S, 190 * S
+    d.rectangle([x, y, x + w, y + h], fill='#FFFFFF', outline=INK, width=3 * S)
+    d.rectangle([x, y, x + w, y + 36 * S], fill=RED)
+    for t, f, yy, col in ((ym, font('black', 22), 4, '#FFFFFF'), (day, font('black', 92), 34, INK), (wd, font('black', 24), 150, PENCIL)):
+        d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + yy * S), t, font=f, fill=col)
+
+
+def hensachi_mount(d, x, y):
+    """偏差値：テストの山（60より上を赤でぬる）"""
+    import math
+    W, H = 180 * S, 150 * S
+    base = y + H
+    pts = [(x + (v - 20) / 60 * W, base - 120 * S * math.exp(-((v - 50) / 10) ** 2 / 2)) for v in [20 + i * 0.5 for i in range(121)]]
+    area = [p for p, v in zip(pts, [20 + i * 0.5 for i in range(121)]) if v >= 60]
+    d.polygon(area + [(x + W, base), (x + 40 / 60 * W, base)], fill='#F1C9CC')
+    d.line(pts, fill=INK, width=3 * S)
+    d.line([(x, base), (x + W, base)], fill=INK, width=2 * S)
+    mx = x + 40 / 60 * W
+    d.line([(mx, y + 10 * S), (mx, base)], fill=RED, width=4 * S)
+
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart,
@@ -1199,6 +1223,11 @@ VISUALS = {
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
     'enbun-noudo': salt_slip,
     'percent': percent_slip,
+    # 10/27
+    'dai-nan-youbi': lambda img, cx, top: pic_slip(img, cx, top, 'カレンダー', lambda d, x, y: nissu_cal_only(d, x, y, '2026年10月', '27', '火曜日'), '10月27日は', '第4', '火曜日',
+                                                   lambda d, x, y: d.text((x, y + 6 * S), '最後の火曜日です', font=font('black', 22), fill=INK), ('11月', '12月', '1月'), ('11月24日', '12月22日', '1月26日'), tag=''),
+    'hensachi': lambda img, cx, top: pic_slip(img, cx, top, 'テストの山', hensachi_mount, '偏差値60は', '上位15.9', '％',
+                                              lambda d, x, y: d.text((x, y + 6 * S), '100人中 16番くらい', font=font('black', 22), fill=INK), ('偏差値', '上位', '下位'), ('60.0', '15.9％', '84.1％'), tag='目安'),
     'nissu': nissu_slip, 'nenrei': nenrei_slip, 'jikan': jikan_slip, 'loan': loan_doc, 'bmi': bmi_slip,
     'gakureki': rireki_sheet, 'wareki': wareki_slip,
     'furusato': furusato_doc, 'furusato-nenshu': furusato_nenshu_doc, 'furusato-fuufu': furusato_fuufu_doc, 'furusato-uchiwake': furusato_uchiwake_doc, 'furusato-jougen': furusato_jougen_doc,
