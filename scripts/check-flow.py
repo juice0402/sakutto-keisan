@@ -48,6 +48,31 @@ CASES = {
         (None, '#r-foot', '生年月日を入れてください'),
         (('fill', '#birth', '1987-06-15'), None, None),
     ],
+    'shichigosan': [
+        (None, '#r-foot', '生年月日を入れてください'),
+        (('fill', '#birth-0', '2023-05-12'), '#r-foot', '男の子か女の子をえらんでください'),
+        (('click', '#sex-0 [data-sex="girl"]'), None, None),
+        (('click', '#add-kid'), '#r-foot', '2人目の生年月日を入れてください'),
+        (('fill', '#birth-1', '2021-06-01'), '#r-foot', '2人目の性別をえらんでください'),
+        (('click', '#sex-1 [data-sex="boy"]'), None, None),
+    ],
+    'yakudoshi': [
+        (None, '#r-foot', '生まれた年を入れてください'),
+        (('fill', '#year', '1985'), '#r-foot', '男性か女性をえらんでください'),
+        (('click', '#f-sex [data-sex="male"]'), None, None),
+    ],
+    'choju': [
+        (None, '#r-foot', '生まれた年を入れてください'),
+        (('fill', '#year', '1966'), None, None),
+    ],
+    'okuizome': [
+        (None, '#r-foot', '生年月日を入れてください'),
+        (('fill', '#birth', '2026-10-27'), None, None),
+    ],
+    'shijukunichi': [
+        (None, '#r-foot', '亡くなった日を入れてください'),
+        (('fill', '#death', '2026-10-01'), None, None),
+    ],
     'furusato': [
         (None, '#r-foot', '年収を入れてください'),
         (('fill', '#income', '500'), None, None),

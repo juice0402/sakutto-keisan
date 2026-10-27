@@ -1208,6 +1208,32 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
+/* 家族の行事（七五三・厄年・長寿祝い・お食い初め・四十九日） */
+.kid-row { display: grid; gap: 10px; }
+.kid-row + .kid-row { padding-top: 12px; border-top: 1px dashed var(--border); }
+.kid-row .seg { margin: 0; }
+.gy-table { margin-top: 8px; }
+.gy-table td { text-align: center; }
+.gy-table td small { margin-left: 2px; font-size: 11.5px; color: var(--muted); }
+.gy-table tr.is-past td, .gy-table td.is-past-y { color: var(--muted); }
+.gy-table tr.is-past .rk-y b { color: var(--muted); }
+.gy-table tr.is-next td, .gy-table tr.is-together td { background: var(--marker); }
+.gy-mark { display: inline-block; padding: 0 5px; border: 2px solid var(--red); border-radius: 50%; color: var(--red); line-height: 18px; }
+.yk-line svg { display: block; width: 100%; height: auto; margin: 6px 0 0; }
+.yk-line line { stroke: var(--text); stroke-width: 1; }
+.yk-line text { fill: var(--muted); font-size: 9px; text-anchor: middle; }
+.yk-line .yk-band { fill: var(--note3-back); }
+.yk-line .yk-hon { fill: var(--red); }
+.yk-line .yk-some { fill: var(--note3-back); opacity: .45; }
+.yk-line .yk-some-hon { fill: var(--red); opacity: .4; }
+.yk-line .yk-now { stroke-width: 2; }
+.yk-line .yk-now-dot { fill: var(--text); }
+.gy-kv { width: 100%; margin: 10px 0 0; border-collapse: collapse; border-top: 1.5px solid var(--text); font-variant-numeric: tabular-nums; }
+.gy-kv th { width: 34%; padding: 5px 2px; border-bottom: 1px solid var(--rule); font-size: 13px; font-weight: 700; color: var(--muted); text-align: left; }
+.gy-kv td { padding: 5px 2px; border-bottom: 1px solid var(--rule); font-size: 16px; font-weight: 800; }
+.cal-calm .cal-ym { background: var(--text); }
+.gy-born td small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
   .tool-list { grid-template-columns: 1fr 1fr; }
