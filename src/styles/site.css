@@ -912,6 +912,10 @@ h1 {
 .pt-v { min-width: 0; text-align: right; color: var(--red); overflow-wrap: anywhere; }
 .pt-v b { font-size: 44px; font-weight: 800; line-height: 1.12; }
 .pt-v small { margin-left: 3px; font-size: 16px; font-weight: 800; }
+/* 1店舗の判定：「数えない」が せまい画面で2行にならないように、字を段の幅に合わせる（390px でいまの大きさ） */
+.pt-fit { container-type: inline-size; }
+.pt-fit .pt-k { font-size: min(16px, 5.4cqi); }
+.pt-fit .pt-v b { font-size: min(44px, 14.9cqi); }
 .pt-table { width: 100%; margin: 6px 0 0; border-collapse: collapse; font-size: 14px; }
 .pt-table td { padding: 3px 0; border-bottom: 1px dotted var(--rule); overflow-wrap: anywhere; }
 .pt-table td:first-child { white-space: normal; }

@@ -87,7 +87,7 @@ export default function render() {
   <div class="pt-card" aria-live="polite">
     <p class="pt-title">1店舗の判定</p>
     <button type="button" class="clear-btn pt-clear" id="clear">クリア</button>
-    <p class="pt-sum"><span class="pt-k" id="r-k">この買い物は</span><span class="pt-v" id="r-v"><b id="r-num">？</b></span></p>
+    <p class="pt-sum pt-fit"><span class="pt-k" id="r-k">この買い物は</span><span class="pt-v" id="r-v"><b id="r-num">？</b></span></p>
     <div class="tk-bar" aria-hidden="true"><i id="g-fill"></i><span class="tk-line"><span>${fmt(POINT_MIN_YEN)}円</span></span></div>
     <table class="pt-table"><tbody>
       <tr><td>数える額</td><td id="d-judge">—</td></tr>
