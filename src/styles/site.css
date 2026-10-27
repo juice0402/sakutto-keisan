@@ -1059,7 +1059,7 @@ h1 {
 .tag-save { font-size: 14px; color: #6b6450; margin-top: 4px !important; }
 .tag-save.is-strong {
   display: inline-block; background: #fff; color: var(--sale); font-weight: 800; font-size: 15px;
-  padding: 2px 10px; border-radius: 3px;
+  padding: 2px 10px; border-radius: 3px; align-self: center; /* 値札の写真の穴にかからないように、字の幅だけ */
 }
 .tag-badge { /* 赤い丸の「◯%OFF」のシール */
   position: absolute; right: -4px; top: -24px; width: 70px; height: 70px; margin: 0;
@@ -1263,23 +1263,32 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 [data-theme="seikatsu"] [data-note="2"] > * { background-image: url(/img/fusen-b.webp); }
 [data-theme="seikatsu"] [data-note="3"] > * { background-image: url(/img/fusen-p.webp); }
 /* 値札：ひもと穴は写真にあるので、絵のひも・穴・枠はなし。字は写真の左の穴をよけて右に */
-[data-theme="seikatsu"] .tag-stage { padding-top: 16px; }
-[data-theme="seikatsu"] .tag-stage:has(> .stage-clear) { padding-top: 48px; } /* 右上のクリアと値札が重ならないように */
-[data-theme="seikatsu"] .tag-wrap { width: 100%; filter: none; }
+/* 字とシールは写真といっしょにのび縮みさせる（10/27 しょーくん「文字の大きさも比例して」）。390px の画面の値札（幅332px・くらべる値札159px）の大きさを cqi にした。
+   シールの上の出っぱりも cqi にするため、値札の上のすきまは台の padding ではなく値札の margin で */
+[data-theme="seikatsu"] .tag-stage { padding-top: 0; }
+[data-theme="seikatsu"] .tag-stage:has(> .stage-clear) { padding-top: 32px; } /* 右上のクリアと値札が重ならないように */
+[data-theme="seikatsu"] .tag-wrap { width: 100%; filter: none; container-type: inline-size; }
 [data-theme="seikatsu"] .tag-wrap::before, [data-theme="seikatsu"] .pricetag::before { display: none; }
 [data-theme="seikatsu"] .pricetag {
-  aspect-ratio: 640 / 263; display: flex; flex-direction: column; justify-content: center;
+  aspect-ratio: 640 / 263; display: flex; flex-direction: column; justify-content: center; margin-top: 4.8cqi;
   padding: 10px 10px 8px 31%; background: url(/img/nefuda.webp) center / 100% 100% no-repeat; border: 0; border-radius: 0;
 }
-[data-theme="seikatsu"] .pricetag .tag-price { font-size: 44px; line-height: 1.05; }
-[data-theme="seikatsu"] .pricetag .tag-was { font-size: 12px; }
-[data-theme="seikatsu"] .pricetag .tag-save { margin-top: 2px !important; font-size: 13px; }
-[data-theme="seikatsu"] .pricetag .tag-conv { margin-top: 2px !important; font-size: 11.5px; }
-[data-theme="seikatsu"] .tag-badge { top: -30px; right: -6px; }
-[data-theme="seikatsu"] .tag-mini .pricetag { padding: 4px 6px 4px 34%; }
-[data-theme="seikatsu"] .tag-mini .tag-price { font-size: 23px; }
-[data-theme="seikatsu"] .tag-mini .tag-was, [data-theme="seikatsu"] .tag-mini .tag-save { font-size: 10.5px; }
-[data-theme="seikatsu"] .tag-mini .tag-badge { top: -24px; right: -8px; }
+[data-theme="seikatsu"] .pricetag .tag-price { font-size: 13.3cqi; line-height: 1.05; }
+[data-theme="seikatsu"] .pricetag .tag-price small { font-size: 6cqi; }
+[data-theme="seikatsu"] .pricetag .tag-was { font-size: max(10px, 3.6cqi); }
+[data-theme="seikatsu"] .pricetag .tag-save { margin-top: 2px !important; font-size: max(10px, 3.9cqi); }
+[data-theme="seikatsu"] .pricetag .tag-save.is-strong { padding: .15em .75em; }
+[data-theme="seikatsu"] .pricetag .tag-conv { margin-top: 2px !important; font-size: max(10px, 3.5cqi); }
+[data-theme="seikatsu"] .tag-badge { top: -4.2cqi; right: -1.8cqi; width: 21cqi; height: 21cqi; }
+[data-theme="seikatsu"] .tag-badge span { font-size: 5.7cqi; }
+[data-theme="seikatsu"] .tag-badge small { font-size: 3.6cqi; }
+[data-theme="seikatsu"] .tag-mini .pricetag { margin-top: 0; padding: 4px 6px 4px 34%; }
+[data-theme="seikatsu"] .tag-mini .tag-price { font-size: 13cqi; }
+[data-theme="seikatsu"] .tag-mini .tag-price small { font-size: 8cqi; }
+[data-theme="seikatsu"] .tag-mini .tag-was, [data-theme="seikatsu"] .tag-mini .tag-save { font-size: max(9px, 6.6cqi); }
+[data-theme="seikatsu"] .tag-mini .tag-badge { top: -16cqi; right: -8cqi; width: 27cqi; height: 27cqi; outline-offset: -4px; } /* 元の値段の「円」を隠さない大きさ */
+[data-theme="seikatsu"] .tag-mini .tag-badge span { font-size: 7.4cqi; }
+[data-theme="seikatsu"] .tag-mini .tag-badge small { font-size: 5cqi; }
 /* レシート（消費税・割り勘）：写真のレシート。下のぎざぎざは写真のまま（border-image で下のはしだけのばさない） */
 [data-theme="seikatsu"] .receipt { background: none; border: 0 solid transparent; border-bottom-width: 12px; border-image: url(/img/receipt.webp) 8 0 16 0 fill / 0 0 12px 0 stretch; }
 [data-theme="seikatsu"] .rc-edge { display: none; }
