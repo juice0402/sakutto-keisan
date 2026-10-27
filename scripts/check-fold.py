@@ -72,6 +72,7 @@ CASES = {
     'zangyo-gekkyu': (lambda pg: (pg.fill('#salary', '300000'), pg.fill('#holidays', '120'), pg.fill('#daily', '8'), pg.fill('#over', '20'), pg.fill('#night', '5')), '.doc-sum'),
     'rieki-ritsu': (lambda pg: (pg.fill('#price', '1500'), pg.fill('#cost', '1000')), '.doc-sum'),
     'kakeritsu': (lambda pg: (pg.fill('#jodai', '3000'), pg.click('.tile[data-rate="60"]')), '.doc-sum'),
+    'gensen-choshu': (lambda pg: pg.fill('#fee', '100000'), '.gs-total'),
     'seisou-mitsumori': (lambda pg: (pg.click('.tile[data-price="8"]'), pg.click('.tile[data-year="260"]'), pg.fill('#area', '300')), '.doc-sum'),
     'fx-iji-ritsu': (lambda pg: (pg.fill('#rate', '150'), pg.fill('#money', '100000'), pg.fill('#lev', '10')), '#r-big'),
     'fx-losscut': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-big'),

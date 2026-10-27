@@ -469,7 +469,7 @@ export const TOOLS = [
     short: '売値と原価から利益率、利益率から売値',
     published: true,
     updated: '2026-10-20',
-    related: ['kakeritsu', 'waribiki', 'tanka', 'seisou-jikan'],
+    related: ['kakeritsu', 'gensen-choshu', 'waribiki', 'tanka', 'seisou-jikan'],
   },
   {
     slug: 'loan',
@@ -488,7 +488,18 @@ export const TOOLS = [
     short: '上代と掛け率から下代、下代から掛け率',
     published: true,
     updated: '2026-10-21',
-    related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka'],
+    related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka', 'gensen-choshu'],
+  },
+  // 源泉徴収（10/27 夜の作業 #62）
+  {
+    slug: 'gensen-choshu',
+    more: true,
+    name: '源泉徴収の計算',
+    category: 'shigoto',
+    short: '報酬から引かれる源泉徴収はいくらか',
+    published: true,
+    updated: '2026-10-27',
+    related: ['kakeritsu', 'rieki-ritsu', 'shohizei', 'yukyu-fuyo'],
   },
   {
     slug: 'seisou-jikan',
