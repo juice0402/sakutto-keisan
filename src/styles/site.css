@@ -1067,6 +1067,7 @@ h1 {
   background: var(--sale); color: #fff; font-weight: 800; line-height: 1.05; transform: rotate(10deg);
   box-shadow: 0 0 0 3px var(--surface); outline: 1.5px dashed rgb(255 255 255 / 0.7); outline-offset: -7px;
 }
+.tag-badge.badge-left { right: auto; left: -4px; transform: rotate(-10deg); } /* 率ごとの割引：右上はクリアなので左に */
 .tag-badge span { font-size: 19px; letter-spacing: -0.02em; }
 .tag-badge small { font-size: 12px; letter-spacing: 0.06em; }
 .tag-note { margin: 14px 0 0; font-size: 14px; color: var(--muted); }

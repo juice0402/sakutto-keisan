@@ -1222,6 +1222,13 @@ VISUALS = {
     'ceramic-heater': lambda img, cx, top: denki_slip(img, cx, top, 'ヒーター', '強', 1170, 4),
     'oil-heater': lambda img, cx, top: denki_slip(img, cx, top, 'オイルヒーター', '弱', 600, 8),
     'waribiki-ritsu': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '15', '%オフ', '300円 おトク！', None),
+    # 率ごとの割引（10/27）
+    'waribiki-10': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,800', '円', '200円 おトク！', '10%'),
+    'waribiki-15': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,700', '円', '300円 おトク！', '15%'),
+    'waribiki-20': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,600', '円', '400円 おトク！', '20%'),
+    'waribiki-30': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,400', '円', '600円 おトク！', '30%'),
+    'waribiki-40': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,200', '円', '800円 おトク！', '40%'),
+    'waribiki-50': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,000', '円', '1,000円 おトク！', '50%'),
     'matomegai': lambda img, cx, top: compare_tags(img, cx, top, (('A', '56.2', '6本 1,180円', True), ('B', '59.4', '1本 208円', False)), '100mlあたり'),
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),

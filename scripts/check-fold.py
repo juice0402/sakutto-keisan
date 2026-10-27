@@ -20,6 +20,8 @@ CASES = {
     'waribiki': (lambda pg: (pg.fill('#price', '1980'), pg.click('.tile[data-pct="30"]')), '.tag-price'),
     'waribiki-ritsu': (lambda pg: (pg.fill('#price', '2000'), pg.fill('#sale', '1700')), '.rieki-bar'),
     'shohizei': (lambda pg: pg.fill('#net', '1980'), '.rc-sum'),
+    'waribiki/30': (lambda pg: pg.fill('#price', '2000'), '.tag-price'),
+    'waribiki/50': (lambda pg: pg.fill('#sale', '1000'), '.tag-price'),
     'percent': (lambda pg: (pg.fill('#base', '200'), pg.fill('#pct', '15')), '.pic-side .slip-v'),
     'nissu': (lambda pg: pg.fill('#days', '100'), '.pic-side .slip-v'),
     'nenrei': (lambda pg: pg.fill('#birth', '1987-06-15'), '.pic-side .slip-v'),
