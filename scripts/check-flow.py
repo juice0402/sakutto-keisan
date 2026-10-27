@@ -231,6 +231,11 @@ CASES = {
         (('click', '.tile[data-lph]'), '#r-foot', '1日に使う時間を入れてください'),
         (('fill', '#hours', '8'), None, None),
     ],
+    'sentaku-senzai': [
+        (None, '#r-foot', '洗剤をえらんでください'),
+        (('click', '.tile[data-senzai="nanox"]'), '#r-foot', '水の量をえらんでください'),
+        (('click', '.tile[data-wl="45"]'), '#r-foot', '値段と内容量で1回いくらが出ます'),
+    ],
     'recipe': [
         (None, None, None),
         (('fill', '#amt-1', '300'), None, None),

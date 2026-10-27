@@ -1376,3 +1376,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .pick-grid li:not(:nth-child(4n)) { border-right: 1px solid var(--border); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+/* 洗濯洗剤の量（10/28）：洗剤のマスは2列（名前が長いので字を少し小さく）。結果は計量キャップの写真（白い背景のまま multiply で重ね、中の洗剤を透かす） */
+.sz-brands .tile b { font-size: 16px; letter-spacing: -0.03em; white-space: nowrap; }
+.sz-brands .sz-long b { font-size: 14px; letter-spacing: -0.04em; }
+.sz-cap { position: relative; width: 108px; aspect-ratio: 726 / 702; }
+.sz-cap::after { content: ""; position: absolute; inset: 0; background: url(/img/cap.webp) center / 100% 100% no-repeat; mix-blend-mode: multiply; pointer-events: none; }
+.sz-in { position: absolute; left: 14%; right: 14%; top: 4%; bottom: 4%; }
+.sz-liq { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: #9cc9ec; }
+.sz-caps { margin: 2px 0 0; font-size: 16px; font-weight: 800; color: var(--text); }
+.sz-caps:empty { display: none; }
+@media (max-width: 374px) { .sz-cap { width: 96px; } .sz-brands .sz-long b { font-size: 13px; } }

@@ -61,6 +61,7 @@ CASES = {
     'ceramic-heater': (lambda pg: (pg.click('.tile[data-watt="1170"]'), pg.fill('#hours', '8')), '.slip-sum'),
     'oil-heater': (lambda pg: (pg.click('.tile[data-watt="1500"]'), pg.fill('#hours', '8')), '.slip-sum'),
     'touyu-dai': (lambda pg: (pg.click('.tile[data-lph]'), pg.fill('#hours', '8')), '.pic-side .slip-v'),
+    'sentaku-senzai': (lambda pg: (pg.click('.tile[data-senzai="attack"]'), pg.click('.tile[data-wl="45"]')), '.pic-side .slip-v'),
     'recipe': (lambda pg: pg.fill('#amt-1', '300'), '#out-1'),
     'kishaku': (lambda pg: (pg.click('.tile[data-ratio="100"]'), pg.fill('#v-total', '500')), '#f-water'),
     'mentsuyu': (lambda pg: (pg.click('.tile[data-ratio="3"]'), pg.fill('#v-total', '100')), '#r-hints'),
