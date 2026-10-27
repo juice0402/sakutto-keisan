@@ -15,6 +15,7 @@ export const SITE = {
 // theme：そのカテゴリのツールページの見た目（ターゲットに合わせる。部品と操作はどのテーマも共通）
 export const CATEGORIES = [
   { id: 'seikatsu', name: '生活・お買い物', theme: 'seikatsu' }, // 主婦・学生 → 明るく温かい
+  { id: 'gyoji', name: '家族の行事', theme: 'seikatsu' }, // 10/27 七五三・厄年・長寿祝い・お食い初め・四十九日。生活と同じ方眼ノート
   { id: 'shigoto', name: 'お仕事・お金', theme: 'shigoto' }, // 会社員 → 明るく落ち着いた青
   { id: 'furusato', name: 'ふるさと納税', theme: 'shigoto' }, // 10/22 統合したコーナー。税金の書類なので、お仕事・お金と同じ紺の手帳
   { id: 'point', name: '楽天のポイント', theme: 'seikatsu' }, // 10/22 統合したコーナー。買い物の計算なので、生活と同じ方眼ノート

@@ -1067,6 +1067,7 @@ h1 {
   background: var(--sale); color: #fff; font-weight: 800; line-height: 1.05; transform: rotate(10deg);
   box-shadow: 0 0 0 3px var(--surface); outline: 1.5px dashed rgb(255 255 255 / 0.7); outline-offset: -7px;
 }
+.tag-badge.badge-left { right: auto; left: -4px; transform: rotate(-10deg); } /* 率ごとの割引：右上はクリアなので左に */
 .tag-badge span { font-size: 19px; letter-spacing: -0.02em; }
 .tag-badge small { font-size: 12px; letter-spacing: 0.06em; }
 .tag-note { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
@@ -1130,9 +1131,34 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tool-name { display: block; font-size: 17px; font-weight: 800; line-height: 1.45; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px; }
 .tool-desc { display: block; margin-top: 3px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 /* よく使う計算（王道）：名前だけを2列で、大きく */
-.pick-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
-.pick-card { display: flex; align-items: center; min-height: 58px; padding: 6px 2px; border-bottom: 1px dashed var(--border); color: var(--text); font-size: 18px; font-weight: 800; line-height: 1.35; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px; }
-.pick-card:active { background: var(--marker); }
+
+/* トップの「よく使う計算」の小さな絵（ノートにペンで描いた答えの絵。src/doodles.mjs） */
+.dd { width: 72px; height: 54px; flex: none; stroke: var(--text); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; fill: none; overflow: visible; }
+.dd .r { stroke: var(--red); }
+.dd .b { stroke-width: 2.6; }
+.dd .th { stroke-width: 1; }
+.dd .w6 { stroke-width: 6; stroke-linecap: butt; }
+.dd .mu { stroke: var(--border); }
+.dd .dsh { stroke-dasharray: 3 2.6; }
+.dd .ns { stroke: none; }
+.dd .fw { fill: var(--surface); }
+.dd .fs { fill: var(--sheet); }
+.dd .ft { fill: var(--tag-bg); }
+.dd .fm { fill: var(--marker); }
+.dd .f2 { fill: var(--note2); }
+.dd .f3 { fill: var(--note3); }
+.dd .fr { fill: var(--red); }
+.dd .fn { fill: var(--text); }
+.dd .fo { fill-opacity: 0.78; }
+.dd .fo2 { fill-opacity: 0.12; }
+.dd .tp { opacity: 0.85; }
+.dd .ok { stroke: var(--note2); stroke-width: 6; stroke-linecap: butt; }
+.pick-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.pick-grid li { border-bottom: 1px solid var(--border); }
+.pick-grid li:nth-child(odd) { border-right: 1px solid var(--border); }
+.pick-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px 11px; color: var(--text); font-size: 17px; font-weight: 800; text-decoration: none; }
+.pick-cell .dd { width: 84px; height: 63px; }
+.pick-cell:active { background: var(--marker); }
 /* カテゴリの「ほかの計算」：押すと開く（すき間の計算をたたんでおく） */
 .more summary { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 4px 2px; border-bottom: 1px dashed var(--border); font-size: 15px; font-weight: 700; color: var(--muted); cursor: pointer; list-style: none; }
 .more summary::-webkit-details-marker { display: none; }
@@ -1183,6 +1209,32 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
+/* 家族の行事（七五三・厄年・長寿祝い・お食い初め・四十九日） */
+.kid-row { display: grid; gap: 10px; }
+.kid-row + .kid-row { padding-top: 12px; border-top: 1px dashed var(--border); }
+.kid-row .seg { margin: 0; }
+.gy-table { margin-top: 8px; }
+.gy-table td { text-align: center; }
+.gy-table td small { margin-left: 2px; font-size: 11.5px; color: var(--muted); }
+.gy-table tr.is-past td, .gy-table td.is-past-y { color: var(--muted); }
+.gy-table tr.is-past .rk-y b { color: var(--muted); }
+.gy-table tr.is-next td, .gy-table tr.is-together td { background: var(--marker); }
+.gy-mark { display: inline-block; padding: 0 5px; border: 2px solid var(--red); border-radius: 50%; color: var(--red); line-height: 18px; }
+.yk-line svg { display: block; width: 100%; height: auto; margin: 6px 0 0; }
+.yk-line line { stroke: var(--text); stroke-width: 1; }
+.yk-line text { fill: var(--muted); font-size: 9px; text-anchor: middle; }
+.yk-line .yk-band { fill: var(--note3-back); }
+.yk-line .yk-hon { fill: var(--red); }
+.yk-line .yk-some { fill: var(--note3-back); opacity: .45; }
+.yk-line .yk-some-hon { fill: var(--red); opacity: .4; }
+.yk-line .yk-now { stroke-width: 2; }
+.yk-line .yk-now-dot { fill: var(--text); }
+.gy-kv { width: 100%; margin: 10px 0 0; border-collapse: collapse; border-top: 1.5px solid var(--text); font-variant-numeric: tabular-nums; }
+.gy-kv th { width: 34%; padding: 5px 2px; border-bottom: 1px solid var(--rule); font-size: 13px; font-weight: 700; color: var(--muted); text-align: left; }
+.gy-kv td { padding: 5px 2px; border-bottom: 1px solid var(--rule); font-size: 16px; font-weight: 800; }
+.cal-calm .cal-ym { background: var(--text); }
+.gy-born td small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+
 /* 写真の質感（10/27 しょーくんが「A Canvaの写真」をえらんだ）：マスキングテープ・付箋・値札は、Canva で作った写真（public/img/。元の書き出しは scripts/art/canva/）。
    方眼ノートのテーマ（生活）だけ。数字や字はいままでどおり HTML で写真の上にのせる。写真には影があるので、影はこの写真のものだけ */
 [data-theme="seikatsu"] .calc::before { width: 112px; height: 29px; top: -15px; margin-left: -56px; background: url(/img/tape.webp) center / 100% 100% no-repeat; transform: rotate(-2deg); }
@@ -1196,7 +1248,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 [data-theme="seikatsu"] .tag-wrap::before, [data-theme="seikatsu"] .pricetag::before { display: none; }
 [data-theme="seikatsu"] .pricetag {
   aspect-ratio: 640 / 263; display: flex; flex-direction: column; justify-content: center;
-  padding: 10px 22px 8px 33%; background: url(/img/nefuda.webp) center / 100% 100% no-repeat; border: 0; border-radius: 0;
+  padding: 10px 10px 8px 31%; background: url(/img/nefuda.webp) center / 100% 100% no-repeat; border: 0; border-radius: 0;
 }
 [data-theme="seikatsu"] .pricetag .tag-price { font-size: 44px; line-height: 1.05; }
 [data-theme="seikatsu"] .pricetag .tag-was { font-size: 12px; }
@@ -1234,6 +1286,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
   .tool-list { grid-template-columns: 1fr 1fr; }
-  .pick-list { grid-template-columns: repeat(4, 1fr); }
+  .pick-grid { grid-template-columns: repeat(4, 1fr); }
+  .pick-grid li:nth-child(odd) { border-right: 0; }
+  .pick-grid li:not(:nth-child(4n)) { border-right: 1px solid var(--border); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

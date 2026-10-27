@@ -88,7 +88,7 @@ const RESULT = `<div class="tag-stage" aria-live="polite">
       <div class="pricetag">
         <p class="tag-was" id="t-base">100gあたり</p>
         <p class="tag-price"><span id="t-price">？</span><small>円</small></p>
-        <p class="tag-save" id="t-sub">2つ以上入れると、安い順に並びます</p>
+        <p class="tag-save" id="t-sub">Aの値段を入れてください</p>
       </div>
       <p class="tag-badge" id="t-badge" hidden><span>1位</span><small>おトク</small></p>
     </div>
