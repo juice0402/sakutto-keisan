@@ -14,7 +14,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / 'public'
@@ -76,92 +76,138 @@ def logo(img, cx, cy, size):
 
 
 def tape(img, cx, cy, w, h, angle):
-    """マスキングテープ（ななめのしま）"""
+    """マスキングテープ（サイトと同じ写真）。高さは写真の形に合わせる"""
+    t = photo('tape.webp')
+    h = round(w * t.height / t.width)
     layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
-    d = ImageDraw.Draw(layer)
-    x0, y0 = cx - w / 2, cy - h / 2
-    mask = Image.new('L', img.size, 0)
-    ImageDraw.Draw(mask).rectangle([x0, y0, x0 + w, y0 + h], fill=255)
-    stripes = Image.new('RGBA', img.size, (0, 0, 0, 0))
-    sd = ImageDraw.Draw(stripes)
-    k = 12 * S
-    for i, x in enumerate(range(int(x0 - h), int(x0 + w + h), k)):
-        sd.polygon([(x, y0 + h), (x + k, y0 + h), (x + k + h, y0), (x + h, y0)], fill=TAPE[i % 2])
-    layer.paste(stripes, (0, 0), mask)
+    layer.alpha_composite(t.resize((round(w), h), Image.LANCZOS), (round(cx - w / 2), round(cy - h / 2)))
     img.alpha_composite(layer.rotate(angle, center=(cx, cy), resample=Image.BICUBIC))
 
 
+_PHOTOS = {}
+
+
+def photo(name):
+    """サイトの写真（public/img/。Canva で作って切り抜いたもの）"""
+    if name not in _PHOTOS:
+        _PHOTOS[name] = Image.open(PUBLIC / 'img' / name).convert('RGBA')
+    return _PHOTOS[name]
+
+
+def nine(img, name, box, sl, bd):
+    """CSS の border-image（fill・stretch）と同じはり方：写真の切り目 sl（上・右・下・左）の外は形を保ち、まん中をのばして box にはる。bd ははる先のはしの太さ"""
+    src = photo(name) if isinstance(name, str) else name
+    W, H = src.size
+    x0, y0, x1, y1 = (round(v) for v in box)
+    dt, dr, db, dl = (round(v) for v in bd)
+    xs, ys = (0, sl[3], W - sl[1], W), (0, sl[0], H - sl[2], H)
+    xd, yd = (x0, x0 + dl, x1 - dr, x1), (y0, y0 + dt, y1 - db, y1)
+    for i in range(3):
+        for j in range(3):
+            if xs[j + 1] <= xs[j] or ys[i + 1] <= ys[i] or xd[j + 1] <= xd[j] or yd[i + 1] <= yd[i]:
+                continue
+            piece = src.crop((xs[j], ys[i], xs[j + 1], ys[i + 1])).resize((xd[j + 1] - xd[j], yd[i + 1] - yd[i]), Image.LANCZOS)
+            img.alpha_composite(piece, (xd[j], yd[i]))
+
+
+def multiply(img, src, x, y):
+    """白い背景の写真（ボトル・ボウル）を、下の絵にかけ合わせて重ねる（CSS の mix-blend-mode: multiply と同じ）"""
+    x, y = round(x), round(y)
+    box = (x, y, x + src.width, y + src.height)
+    base = img.crop(box)
+    mixed = ImageChops.multiply(base.convert('RGB'), src.convert('RGB')).convert('RGBA')
+    mixed.putalpha(base.getchannel('A'))
+    img.paste(mixed, box)
+
+
+def slip_paper(img, x0, y0, x1, y1):
+    """結果の紙（お知らせ・カレンダーの紙など）：上に紺の帯のある紙の写真（site.css の .slip と同じ）"""
+    nine(img, 'slip.webp', (x0, y0, x1, y1), (20, 8, 8, 8), (10 * S, 3 * S, 3 * S, 3 * S))
+
+
+def card_paper(img, x0, y0, x1, y1):
+    """楽天のポイントのカード：角の丸い厚紙のカードの写真（site.css の .pt-card と同じ）"""
+    nine(img, 'card.webp', (x0, y0, x1, y1), (30, 30, 30, 30), (16 * S, 16 * S, 16 * S, 16 * S))
+
+
+def himekuri(d, x, y, ym, day, wd, calm=False):
+    """日めくり（サイトと同じ写真。年月は写真の赤い帯、四十九日は紺の帯の上）。幅 160・高さ 183"""
+    img = d._image
+    w = 160 * S
+    t = photo('himekuri-calm.webp' if calm else 'himekuri.webp')
+    h = round(w * t.height / t.width)
+    img.alpha_composite(t.resize((w, h), Image.LANCZOS), (round(x), round(y)))
+    d = ImageDraw.Draw(img)
+    for txt, f, cy, col in ((ym, font('black', 21), 0.12, '#FFFFFF'), (day, font('black', 88), 0.52, INK), (wd, font('black', 23), 0.84, PENCIL)):
+        l, tt, r, b = d.textbbox((0, 0), txt, font=f)
+        d.text((x + w / 2 - (l + r) / 2, y + h * cy - (tt + b) / 2), txt, font=f, fill=col)
+
+
 def price_tag(img, cx, top, was='元の値段 2,000円', price='1,400', unit='円', save='600円 おトク！', badge='30%'):
-    """割引計算の値札（サイトの値札と同じ見た目）。割引率の計算は大きな数字が「15%オフ」で、シールなし"""
+    """割引計算の値札（サイトと同じ写真の値札。ひもと穴は写真のまま、字は穴をよけて右に）。割引率の計算は大きな数字が「15%オフ」で、シールなし"""
+    w = 560 * S
+    t = photo('nefuda.webp')
+    h = round(w * t.height / t.width)
+    x0, y0 = cx - w // 2, top + 14 * S
     layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    layer.alpha_composite(t.resize((w, h), Image.LANCZOS), (x0, y0))
     d = ImageDraw.Draw(layer)
-    w, h = 420 * S, 312 * S
-    x0, y0 = cx - w // 2, top
-    d.line([(cx, y0 - 70 * S), (cx, y0 + 28 * S)], fill='#8D97A5', width=4 * S)  # ひも
-    d.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=18 * S, fill='#FFF3BF', outline='#E3CF80', width=3 * S)
-    d.ellipse([cx - 13 * S, y0 + 16 * S, cx + 13 * S, y0 + 42 * S], fill='#FFFFFF')  # 穴
-    d.line([(cx, y0 - 70 * S), (cx, y0 + 29 * S)], fill='#8D97A5', width=4 * S)
-    f_was, f_price, f_yen, f_save = font('bold', 30), font('black', 104), font('black', 44), font('black', 32)
+    tcx = x0 + w * 0.44 + (w * 0.56 - 16 * S) / 2  # ひもと穴をよけた字のまん中
+    f_was, f_price, f_yen, f_save = font('bold', 24), font('black', 80), font('black', 34), font('black', 26)
     tw = d.textlength(was, font=f_was)
-    d.text((cx - tw / 2, y0 + 62 * S), was, font=f_was, fill='#6B6450')
-    sx = cx - tw / 2 + d.textlength('元の値段 ', font=f_was)
-    d.line([(sx, y0 + 84 * S), (cx + tw / 2, y0 + 80 * S)], fill='#C8323C', width=4 * S)
+    d.text((tcx - tw / 2, y0 + 32 * S), was, font=f_was, fill='#6B6450')
+    sx = tcx - tw / 2 + d.textlength('元の値段 ', font=f_was)
+    if was.startswith('元の値段 '):
+        d.line([(sx, y0 + 50 * S), (tcx + tw / 2, y0 + 47 * S)], fill=RED, width=4 * S)
     pw, yw = d.textlength(price, font=f_price), d.textlength(unit, font=f_yen)
-    px = cx - (pw + yw + 6 * S) / 2
-    d.text((px, y0 + 92 * S), price, font=f_price, fill='#C8323C')
-    d.text((px + pw + 6 * S, y0 + 150 * S), unit, font=f_yen, fill='#C8323C')
+    px = tcx - (pw + yw + 6 * S) / 2
+    d.text((px, y0 + 54 * S), price, font=f_price, fill=RED)
+    d.text((px + pw + 6 * S, y0 + 98 * S), unit, font=f_yen, fill=RED)
     sw = d.textlength(save, font=f_save)
-    d.rounded_rectangle([cx - sw / 2 - 22 * S, y0 + 236 * S, cx + sw / 2 + 22 * S, y0 + 288 * S], radius=6 * S, fill='#FFFFFF')
-    d.text((cx - sw / 2, y0 + 240 * S), save, font=f_save, fill='#C8323C')
+    d.rounded_rectangle([tcx - sw / 2 - 18 * S, y0 + 156 * S, tcx + sw / 2 + 18 * S, y0 + 198 * S], radius=6 * S, fill='#FFFFFF')
+    d.text((tcx - sw / 2, y0 + 158 * S), save, font=f_save, fill=RED)
     layer = layer.rotate(3, center=(cx, top), resample=Image.BICUBIC)
+    img.alpha_composite(layer)
     if not badge:
-        img.alpha_composite(layer)
         return
     # 赤い丸の「30%OFF」
     b = Image.new('RGBA', img.size, (0, 0, 0, 0))
     bd = ImageDraw.Draw(b)
-    bx, by, r = x0 + w - 20 * S, y0 - 10 * S, 74 * S
+    bx, by, r = x0 + w - 70 * S, y0 - 46 * S, 66 * S
     bd.ellipse([bx - r - 6 * S, by - r - 6 * S, bx + r + 6 * S, by + r + 6 * S], fill='#FFFFFF')
-    bd.ellipse([bx - r, by - r, bx + r, by + r], fill='#C8323C')
-    f1, f2 = font('black', 44), font('black', 24)
-    for t, f, dy in ((badge, f1, -40), ('OFF', f2, 14)):
-        tw = bd.textlength(t, font=f)
-        bd.text((bx - tw / 2, by + dy * S), t, font=f, fill='#FFFFFF')
-    b = b.rotate(-10, center=(bx, by), resample=Image.BICUBIC)
-    img.alpha_composite(layer)
-    img.alpha_composite(b)
+    bd.ellipse([bx - r, by - r, bx + r, by + r], fill=RED)
+    f1, f2 = font('black', 40), font('black', 22)
+    for txt, f, dy in ((badge, f1, -36), ('OFF', f2, 12)):
+        tw = bd.textlength(txt, font=f)
+        bd.text((bx - tw / 2, by + dy * S), txt, font=f, fill='#FFFFFF')
+    img.alpha_composite(b.rotate(-10, center=(bx, by), resample=Image.BICUBIC))
 
 
 def compare_tags(img, cx, top, tags=(('A', '39.6', '198円 / 500g', False), ('B', '29.8', '298円 / 1kg', True)), base='100gあたり'):
-    """実質単価：小さな値札を2つ並べて、安いほうに「おトク！」"""
-    d = ImageDraw.Draw(img)
-    w, h, gap = 230 * S, 230 * S, 36 * S
-    f_lab, f_base, f_price, f_yen, f_sub = font('black', 26), font('bold', 22), font('black', 64), font('black', 28), font('bold', 20)
+    """実質単価：写真の小さな値札を2つ上下に並べて、安いほうに「おトク」（高いほうは色をうすく）"""
+    w = 440 * S
+    t = photo('nefuda.webp')
+    h = round(w * t.height / t.width)
+    gray = Image.merge('RGBA', (*[t.convert('L')] * 3, t.getchannel('A').point(lambda v: v * 0.6)))
+    f_k, f_price, f_yen, f_sub, f_win = font('black', 24), font('black', 60), font('black', 26), font('bold', 20), font('black', 24)
     for i, (k, per, sub, win) in enumerate(tags):
-        x0 = cx - w - gap // 2 + i * (w + gap)
-        y0 = top + 40 * S
+        x0, y0 = cx - w // 2 + (i * 2 - 1) * 14 * S, top - 66 * S + i * (h + 26 * S)
         layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
-        ld = ImageDraw.Draw(layer)
-        tx = x0 + w // 2
-        # ラベル（A / B がおトク！）
-        lab = f'{k} がおトク' if win else k
-        lw = ld.textlength(lab, font=f_lab)
-        ld.rounded_rectangle([tx - lw / 2 - 16 * S, top - 30 * S, tx + lw / 2 + 16 * S, top + 14 * S], radius=5 * S,
-                             fill='#FFFFFF', outline=RED if win else '#B4C1D2', width=3 * S)
-        ld.text((tx - lw / 2, top - 28 * S), lab, font=f_lab, fill=RED if win else PENCIL)
-        ld.line([(tx, top + 14 * S), (tx, y0 + 26 * S)], fill='#8D97A5', width=3 * S)
-        bg, line, text = ('#FFF3BF', '#E3CF80', RED) if win else ('#EEF1F5', '#D3DCE8', '#8D97A5')
-        ld.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=16 * S, fill=bg, outline=line, width=3 * S)
-        ld.ellipse([tx - 10 * S, y0 + 14 * S, tx + 10 * S, y0 + 34 * S], fill='#FFFFFF')
-        for t, f, y, c in ((base, f_base, 56, '#6B6450'), (sub, f_sub, 184, '#6B6450')):
-            tw = ld.textlength(t, font=f)
-            ld.text((tx - tw / 2, y0 + y * S), t, font=f, fill=c)
-        pw, yw = ld.textlength(per, font=f_price), ld.textlength('円', font=f_yen)
-        px = tx - (pw + yw + 4 * S) / 2
-        ld.text((px, y0 + 84 * S), per, font=f_price, fill=text)
-        ld.text((px + pw + 4 * S, y0 + 120 * S), '円', font=f_yen, fill=text)
-        layer = layer.rotate(-2 if win else 2, center=(tx, top), resample=Image.BICUBIC)
-        img.alpha_composite(layer)
+        layer.alpha_composite((t if win else gray).resize((w, h), Image.LANCZOS), (x0, y0))
+        d = ImageDraw.Draw(layer)
+        text = RED if win else '#8D97A5'
+        tx = x0 + w * 0.42
+        d.text((tx, y0 + 26 * S), f'{k}　{base}', font=f_k, fill=INK if win else '#8D97A5')
+        d.text((tx, y0 + 52 * S), per, font=f_price, fill=text)
+        d.text((tx + d.textlength(per, font=f_price) + 4 * S, y0 + 84 * S), '円', font=f_yen, fill=text)
+        d.text((tx, y0 + 132 * S), sub, font=f_sub, fill='#6B6450' if win else '#8D97A5')
+        if win:
+            lab = 'おトク'
+            lw = d.textlength(lab, font=f_win)
+            bx, by = x0 + w - 40 * S - lw, y0 + 128 * S
+            d.rounded_rectangle([bx - 12 * S, by - 4 * S, bx + lw + 12 * S, by + 36 * S], radius=5 * S, fill='#FFFFFF', outline=RED, width=3 * S)
+            d.text((bx, by - 1 * S), lab, font=f_win, fill=RED)
+        img.alpha_composite(layer.rotate(-2 if win else 2, center=(x0 + w // 2, y0 + h // 2), resample=Image.BICUBIC))
 
 
 def plate(d, cx, cy, r, new=False):
@@ -186,8 +232,7 @@ def recipe_memo(img, cx, top):
     ld = ImageDraw.Draw(layer)
     w, h = 400 * S, 300 * S
     x0, y0 = cx - w // 2, top + 30 * S
-    ld.rectangle([x0 + 4 * S, y0 + 6 * S, x0 + w + 4 * S, y0 + h + 6 * S], fill=(28, 47, 74, 20))  # 影
-    ld.rectangle([x0, y0, x0 + w, y0 + h], fill=SHEET, outline='#D3DCE8', width=2 * S)
+    nine(layer, 'memo.webp', (x0, y0 - 6 * S, x0 + w, y0 + h), (20, 12, 12, 12), (18 * S, 10 * S, 10 * S, 10 * S))  # 上のはしをちぎったメモの紙（写真）
     f_title, f_name, f_amt, f_unit = font('black', 34), font('bold', 30), font('black', 40), font('black', 26)
     title = '4人分の材料'
     tw = ld.textlength(title, font=f_title)
@@ -210,39 +255,48 @@ def recipe_memo(img, cx, top):
 
 
 def dilute_bottle(img, cx, top, label='10倍', rows=(('原液', '100ml'), ('水', '900ml')), conc_color='#F3B04A', conc_key='#F0A63A', share=0.1):
-    """希釈率：ボトルに原液（黄色）と水（水色）＋「10倍」のラベル、横に原液と水の量（使いみち別のページは中身を変える）"""
+    """希釈率：写真のボトルに原液（黄色）と水（水色）＋「10倍」のラベル、横に原液と水の量（使いみち別のページは中身を変える）
+    ボトルはサイトと同じ写真（ふたと肩・底は形のまま、胴をのばす）を、中身にかけ合わせて重ねる"""
     d = ImageDraw.Draw(img)
-    bx = cx - 150 * S  # ボトルのまん中
-    bw, bh = 150 * S, 250 * S
-    x0, y0 = bx - bw // 2, top + 40 * S
-    d.rounded_rectangle([bx - 26 * S, top - 20 * S, bx + 26 * S, top + 4 * S], radius=5 * S, fill=INK)  # ふた
-    d.rectangle([bx - 20 * S, top + 4 * S, bx + 20 * S, y0 + 4 * S], fill='#FFFFFF', outline='#A9C8DE', width=4 * S)
-    # 中身（下の1割が原液・その上が水）
-    body = Image.new('L', img.size, 0)
-    ImageDraw.Draw(body).rounded_rectangle([x0, y0, x0 + bw, y0 + bh], radius=38 * S, fill=255)
+    bw = 128 * S
+    bx = cx - 150 * S
+    x0, btop, bbot = bx - bw // 2, top - 40 * S, top + 300 * S
+    k = bw / 252
+    bt, bb = round(175 * k), round(56 * k)
+    # 中身（胴の内側。下が原液・その上が水）
+    ix0, ix1 = x0 + round(bw * 3 / 84), x0 + bw - round(bw * 3 / 84)
+    iy0, iy1 = btop + round(bt * 50 / 58), bbot - round(bb * 12 / 19)
+    mask = Image.new('L', img.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([ix0, iy0 - 40 * S, ix1, iy1], radius=round(bw * 10 / 84), fill=255)
     liq = Image.new('RGBA', img.size, (0, 0, 0, 0))
     ld = ImageDraw.Draw(liq)
-    ld.rectangle([x0, y0, x0 + bw, y0 + bh], fill='#FFFFFF')
-    full = y0 + bh * 0.16
-    conc = y0 + bh - bh * 0.84 * share - 18 * S
-    ld.rectangle([x0, full, x0 + bw, conc], fill='#AED5F0')
-    ld.rectangle([x0, conc, x0 + bw, y0 + bh], fill=conc_color)
-    img.paste(liq, (0, 0), body)
-    d.rounded_rectangle([x0, y0, x0 + bw, y0 + bh], radius=38 * S, outline='#A9C8DE', width=5 * S)
+    full = iy0 + (iy1 - iy0) * 0.1
+    conc = iy1 - (iy1 - iy0) * 0.9 * share - 14 * S
+    ld.rectangle([ix0, full, ix1, conc], fill='#C3E1F5')
+    ld.rectangle([ix0, conc, ix1, iy1], fill=conc_color)
+    img.paste(liq, (0, 0), Image.composite(mask, Image.new('L', img.size, 0), liq.getchannel('A')))
     # ラベル
-    f_lab = font('black', 40)
-    while d.textlength(label, font=f_lab) > bw - 40 * S:
+    d = ImageDraw.Draw(img)
+    f_lab = font('black', 36)
+    while d.textlength(label, font=f_lab) > bw - 36 * S:
         f_lab = font('black', f_lab.size // S - 2)
     lw = d.textlength(label, font=f_lab)
-    d.rectangle([x0 + 16 * S, y0 + 92 * S, x0 + bw - 16 * S, y0 + 150 * S], fill='#FFFFFF', outline='#D3DCE8', width=2 * S)
-    d.text((bx - lw / 2, y0 + 96 * S), label, font=f_lab, fill=INK)
+    ly = iy0 + (iy1 - iy0) * 0.3
+    d.rectangle([x0 + 12 * S, ly, x0 + bw - 12 * S, ly + 54 * S], fill='#FFFFFF', outline='#D3DCE8', width=2 * S)
+    l, tt, r, b = d.textbbox((0, 0), label, font=f_lab)
+    d.text((bx - (l + r) / 2, ly + 27 * S - (tt + b) / 2), label, font=f_lab, fill=INK)
+    # ボトルの写真（白い背景のまま、かけ合わせ）
+    bottle = Image.new('RGBA', (bw, bbot - btop), (255, 255, 255, 255))
+    nine(bottle, 'bottle.webp', (0, 0, bw, bbot - btop), (175, 0, 56, 0), (bt, 0, bb, 0))
+    multiply(img, bottle, x0, btop)
     # 横の数字
+    d = ImageDraw.Draw(img)
     f_k, f_v = font('bold', 30), font('black', 58)
-    for i, ((k, v), color) in enumerate(zip(rows, (conc_key, '#AED5F0'))):
+    for i, ((k2, v), color) in enumerate(zip(rows, (conc_key, '#AED5F0'))):
         y = top + 60 * S + i * 120 * S
         tx = cx - 30 * S
         d.rectangle([tx, y + 12 * S, tx + 26 * S, y + 38 * S], fill=color)
-        d.text((tx + 38 * S, y + 4 * S), k, font=f_k, fill=INK)
+        d.text((tx + 38 * S, y + 4 * S), k2, font=f_k, fill=INK)
         d.text((tx, y + 46 * S), v, font=f_v, fill=RED)
 
 
@@ -515,11 +569,7 @@ def receipt(img, cx, top, lines, tickets, rows):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 214 * S, cx + 238 * S
     y0, y1 = top - 78 * S, top + 334 * S
-    teeth = 18
-    pts = [(x0, y0), (x1, y0), (x1, y1)]
-    for i in range(1, teeth + 1):
-        pts += [(x1 - (i - 0.5) * (x1 - x0) / teeth, y1 + 12 * S), (x1 - i * (x1 - x0) / teeth, y1)]
-    d.polygon(pts, fill=SHEET, outline='#B4C1D2', width=2 * S)
+    nine(img, 'receipt.webp', (x0, y0, x1, y1 + 14 * S), (8, 0, 16, 0), (0, 0, 16 * (x1 - x0) / 360, 0))  # 写真のレシート（下のぎざぎざはのばさない）
     spaced(d, (x0 + x1) / 2, y0 + 14 * S, 'お会計', font('black', 26), INK, 18 * S)
 
     def dashed(y):
@@ -573,8 +623,7 @@ def meter_slip(img, cx, top, what, digits, month, cells):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 220 * S, cx + 240 * S
     y0, y1 = top - 70 * S, top + 290 * S
-    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
-    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    slip_paper(img, x0, y0, x1, y1)
     d.text((x0 + 22 * S, y0 + 24 * S), '電気代のお知らせ', font=font('black', 26), fill=INK)
     tw = d.textlength('目安', font=font('bold', 18))
     d.text((x1 - 22 * S - tw, y0 + 30 * S), '目安', font=font('bold', 18), fill=PENCIL)
@@ -628,8 +677,7 @@ def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 220 * S, cx + 240 * S
     y0, y1 = top - 70 * S, top + 290 * S
-    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
-    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    slip_paper(img, x0, y0, x1, y1)
     d.text((x0 + 22 * S, y0 + 24 * S), title, font=font('black', 26), fill=INK)
     tw = d.textlength(tag, font=font('bold', 18))
     d.text((x1 - 22 * S - tw, y0 + 30 * S), tag, font=font('bold', 18), fill=PENCIL)
@@ -662,16 +710,14 @@ def pic_slip(img, cx, top, title, pic, cap, value, unit, under, head, cells, pre
 def salt_slip(img, cx, top):
     """塩分濃度：ボウルの絵と塩の量、スプーンの絵（ページの計算例：水500mlで3％）"""
     def bowl(d, x, y):
-        w = 180 * S
-        # 塩の山
-        d.chord([x + 58 * S, y + 62 * S, x + 122 * S, y + 138 * S], 180, 360, fill='#EEF2F7', outline='#9AA9BB', width=3 * S)
-        # ボウルと水
-        d.chord([x, y + 10 * S, x + w, y + 190 * S], 0, 180, fill='#FFFFFF', outline=INK, width=4 * S)
-        d.chord([x + 12 * S, y + 22 * S, x + w - 12 * S, y + 178 * S], 0, 180, fill='#CFE3F3')
-        d.line([(x - 4 * S, y + 100 * S), (x + w + 4 * S, y + 100 * S)], fill=INK, width=5 * S)
+        w = 186 * S  # ガラスのボウルの写真（サイトと同じ）を、紙にかけ合わせて重ねる
+        b = photo('bowl.webp').convert('RGB')
+        b = b.resize((w, round(w * b.height / b.width)), Image.LANCZOS)
+        by = y + 36 * S
+        multiply(d._image, b, x - 4 * S, by)
         t = '500g'
         f = font('black', 26)
-        d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + 116 * S), t, font=f, fill=INK)
+        d.text((x - 4 * S + w / 2 - d.textlength(t, font=f) / 2, by + b.height * 0.56), t, font=f, fill=INK)
 
     def spoons(d, x, y):
         r = 11 * S
@@ -712,12 +758,7 @@ def percent_slip(img, cx, top):
 def nissu_slip(img, cx, top):
     """日数：日めくりカレンダー（2026年10月21日の100日後）と、大きな「100日後」"""
     def cal(d, x, y):
-        x += 14 * S
-        w, h = 160 * S, 190 * S
-        d.rectangle([x, y, x + w, y + h], fill='#FFFFFF', outline=INK, width=3 * S)
-        d.rectangle([x, y, x + w, y + 36 * S], fill=RED)
-        for t, f, yy, col in (('2027年1月', font('black', 22), 4, '#FFFFFF'), ('29', font('black', 92), 34, INK), ('金曜日', font('black', 24), 150, PENCIL)):
-            d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + yy * S), t, font=f, fill=col)
+        himekuri(d, x + 14 * S, y, '2027年1月', '29', '金曜日')
 
     def say(d, x, y):
         d.text((x, y + 6 * S), '2027年1月29日（金）', font=font('black', 22), fill=INK)
@@ -815,8 +856,7 @@ def jikan_slip(img, cx, top):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 220 * S, cx + 240 * S
     y0, y1 = top - 30 * S, top + 290 * S
-    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
-    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    slip_paper(img, x0, y0, x1, y1)
     sy = y0 + 30 * S
     d.text((x0 + 22 * S, sy + 46 * S), '合計', font=font('black', 26), fill=INK)
     f_v = font('black', 64)
@@ -914,7 +954,7 @@ def point_card(img, cx, top):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 226 * S, cx + 250 * S
     y0, y1 = top - 40 * S, top + 316 * S
-    d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=SHEET, outline='#B4C1D2', width=2 * S)
+    card_paper(img, x0, y0, x1, y1)
     d.text((x0 + 22 * S, y0 + 16 * S), '買いまわりカード', font=font('black', 26), fill=INK)
     t = '5倍'
     d.text((x1 - 22 * S - d.textlength(t, font=font('black', 26)), y0 + 16 * S), t, font=font('black', 26), fill=RED)
@@ -958,7 +998,7 @@ def spu_card(img, cx, top):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 226 * S, cx + 250 * S
     y0, y1 = top - 40 * S, top + 316 * S
-    d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=SHEET, outline='#B4C1D2', width=2 * S)
+    card_paper(img, x0, y0, x1, y1)
     d.text((x0 + 22 * S, y0 + 16 * S), '今月のSPU', font=font('black', 26), fill=INK)
     t = '8倍'
     d.text((x1 - 22 * S - d.textlength(t, font=font('black', 26)), y0 + 16 * S), t, font=font('black', 26), fill=RED)
@@ -1001,7 +1041,7 @@ def floors_card(title, rate, rows, k, v, foot):
         d = ImageDraw.Draw(img)
         x0, x1 = cx - 226 * S, cx + 250 * S
         y0, y1 = top - 40 * S, top + 316 * S
-        d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=SHEET, outline='#B4C1D2', width=2 * S)
+        card_paper(img, x0, y0, x1, y1)
         d.text((x0 + 22 * S, y0 + 16 * S), title, font=font('black', 26), fill=INK)
         d.text((x1 - 22 * S - d.textlength(rate, font=font('black', 26)), y0 + 16 * S), rate, font=font('black', 26), fill=RED)
         top_n = max(n for _, n, _ in rows)
@@ -1035,7 +1075,7 @@ def taishou_card(img, cx, top):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 226 * S, cx + 250 * S
     y0, y1 = top - 40 * S, top + 316 * S
-    d.rounded_rectangle([x0, y0, x1, y1], radius=8 * S, fill=SHEET, outline='#B4C1D2', width=2 * S)
+    card_paper(img, x0, y0, x1, y1)
     d.text((x0 + 22 * S, y0 + 16 * S), '1店舗の判定', font=font('black', 26), fill=INK)
     ys = y0 + 56 * S
     d.text((x0 + 22 * S, ys + 46 * S), 'この買い物は', font=font('black', 26), fill=INK)
@@ -1071,8 +1111,7 @@ def bmi_slip(img, cx, top):
     d = ImageDraw.Draw(img)
     x0, x1 = cx - 220 * S, cx + 240 * S
     y0, y1 = top - 30 * S, top + 290 * S
-    d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
-    d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+    slip_paper(img, x0, y0, x1, y1)
     d.text((x0 + 22 * S, y0 + 24 * S), 'BMI', font=font('black', 26), fill=INK)
     tw = d.textlength('大人の目安', font=font('bold', 18))
     d.text((x1 - 22 * S - tw, y0 + 30 * S), '大人の目安', font=font('bold', 18), fill=PENCIL)
@@ -1087,13 +1126,14 @@ def bmi_slip(img, cx, top):
     for end, col in ((18.5, '#B9CFE6'), (25, '#FFFFFF'), (30, '#F1C9CC'), (35, '#E49AA0'), (40, '#D56B74')):
         d.rectangle([pos(prev), by, pos(end), by + bh], fill=col)
         prev = end
-    d.rectangle([bx0, by, bx1, by + bh], outline=INK, width=3 * S)
+    nine(img, 'hakari.webp', (bx0 - 12 * S, by - 12 * S, bx1 + 12 * S, by + bh + 10 * S), (27, 26, 20, 28), (12 * S, 12 * S, 10 * S, 12 * S))  # 体重計の窓（写真）
+    d = ImageDraw.Draw(img)
     nx = pos(22.5)
-    d.polygon([(nx - 12 * S, by - 18 * S), (nx + 12 * S, by - 18 * S), (nx, by - 2 * S)], fill=INK)
+    d.polygon([(nx - 12 * S, by - 30 * S), (nx + 12 * S, by - 30 * S), (nx, by - 12 * S)], fill=INK)
     for v in (18.5, 25, 30, 35):
         t = str(v)
-        d.text((pos(v) - d.textlength(t, font=font('bold', 17)) / 2, by + bh + 4 * S), t, font=font('bold', 17), fill=PENCIL)
-    ty = by + bh + 40 * S
+        d.text((pos(v) - d.textlength(t, font=font('bold', 17)) / 2, by + bh + 12 * S), t, font=font('bold', 17), fill=PENCIL)
+    ty = by + bh + 44 * S
     cw2 = (x1 - x0 - 36 * S) / 2
     for i, (k, v2) in enumerate(zip(('標準体重', '普通体重の範囲'), ('63.6kg', '53.4〜72.1kg'))):
         cxx = x0 + 18 * S + cw2 * (i + 0.5)
@@ -1145,16 +1185,10 @@ def denki_slip(img, cx, top, name, mode, watt, hours):
                (f'{fmt1(hour)}円', f'{fmt0(hour * hours) if hour * hours >= 100 else fmt1(hour * hours)}円', f'{fmt0(hour * hours * 365)}円'))
 
 
-
 def gy_cal(date_ym, day, wd, head=None):
     """家族の行事：日めくり（四十九日は紺の帯）"""
     def cal(d, x, y):
-        x += 14 * S
-        w, h = 160 * S, 190 * S
-        d.rectangle([x, y, x + w, y + h], fill='#FFFFFF', outline=INK, width=3 * S)
-        d.rectangle([x, y, x + w, y + 36 * S], fill=head or RED)
-        for t, f, yy, col in ((date_ym, font('black', 22), 4, '#FFFFFF'), (day, font('black', 92), 34, INK), (wd, font('black', 24), 150, PENCIL)):
-            d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + yy * S), t, font=f, fill=col)
+        himekuri(d, x + 14 * S, y, date_ym, day, wd, calm=bool(head))
     return cal
 
 
@@ -1166,8 +1200,7 @@ def gy_sheet(title, cap, big, say, heads, rows, mark):
         y0 = top - 70 * S
         rh = 40 * S
         y1 = y0 + 190 * S + rh * len(rows) + 20 * S
-        d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
-        d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+        slip_paper(img, x0, y0, x1, y1)
         d.text((x0 + 22 * S, y0 + 24 * S), title, font=font('black', 26), fill=INK)
         d.text((x0 + 22 * S, y0 + 92 * S), cap, font=font('black', 24), fill=INK)
         f_v = font('black', 60)
@@ -1192,12 +1225,7 @@ def gy_sheet(title, cap, big, say, heads, rows, mark):
 
 def nissu_cal_only(d, x, y, ym, day, wd):
     """日めくり（第何曜日の共有画像）"""
-    x += 14 * S
-    w, h = 160 * S, 190 * S
-    d.rectangle([x, y, x + w, y + h], fill='#FFFFFF', outline=INK, width=3 * S)
-    d.rectangle([x, y, x + w, y + 36 * S], fill=RED)
-    for t, f, yy, col in ((ym, font('black', 22), 4, '#FFFFFF'), (day, font('black', 92), 34, INK), (wd, font('black', 24), 150, PENCIL)):
-        d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + yy * S), t, font=f, fill=col)
+    himekuri(d, x + 14 * S, y, ym, day, wd)
 
 
 def hensachi_mount(d, x, y):

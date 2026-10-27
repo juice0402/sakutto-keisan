@@ -1303,6 +1303,37 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 [data-theme="fx"] .tile, [data-theme="fx"] .seg-btn { background: url(/img/fusen-f1.webp) center / 100% 100% no-repeat; outline: 0; }
 [data-theme="fx"] [data-note="2"] > * { background-image: url(/img/fusen-f2.webp); }
 [data-theme="fx"] [data-note="3"] > * { background-image: url(/img/fusen-f3.webp); }
+/* 写真の質感の続き（10/27）：ボトル・ボウルは白い背景の写真を multiply で重ねる（中の水と原液、方眼が透けて見える） */
+/* ボトル（希釈）：ふたと肩・底は写真のまま、胴だけのばす。水と原液は胴の内側に */
+[data-theme="seikatsu"] .bottle { position: relative; }
+[data-theme="seikatsu"] .bottle::after {
+  content: ""; position: absolute; inset: 0; border: solid transparent; border-width: 58px 0 19px;
+  border-image: url(/img/bottle.webp) 175 0 56 fill / 58px 0 19px stretch; mix-blend-mode: multiply; pointer-events: none;
+}
+[data-theme="seikatsu"] .bottle-cap, [data-theme="seikatsu"] .bottle-neck { display: none; }
+[data-theme="seikatsu"] .bottle-body { min-height: 140px; margin: 50px 3px 12px; border: 0; border-radius: 0 0 10px 10px; background: none; }
+/* ボウル（塩分）：ガラスのボウルの写真。量の字は水の上に */
+[data-theme="seikatsu"] .en-bowl { width: 108px; aspect-ratio: 360 / 229; }
+[data-theme="seikatsu"] .en-bowl svg { display: none; }
+[data-theme="seikatsu"] .en-bowl::before { content: ""; position: absolute; inset: 0; background: url(/img/bowl.webp) center / 100% 100% no-repeat; mix-blend-mode: multiply; }
+[data-theme="seikatsu"] .en-label { top: 58%; }
+/* レシピのメモ：上のはしをちぎったメモの紙と、写真のマスキングテープ。紙はのばす（ちぎれたはしはのばさない） */
+[data-theme="seikatsu"] .memo {
+  padding: 12px 10px 6px; background: none; border: solid transparent; border-width: 14px 6px 6px; border-radius: 0; box-shadow: none;
+  border-image: url(/img/memo.webp) 20 12 12 fill / 14px 6px 6px stretch;
+}
+[data-theme="seikatsu"] .memo::before { top: -22px; width: 108px; height: 28px; margin-left: -54px; background: url(/img/tape.webp) center / 100% 100% no-repeat; }
+/* 買いまわりカード（楽天のポイントのカード）：角の丸い厚紙のカード */
+[data-theme="seikatsu"] .pt-card { padding: 0 2px; background: none; border: 13px solid transparent; border-radius: 0; border-image: url(/img/card.webp) 30 fill / 13px stretch; }
+[data-theme="seikatsu"] .pt-clear { top: -7px; right: -6px; }
+/* 体重計（BMI）：目もりは体重計の窓の写真の中に。針は窓の上、目もりの数字は窓の下 */
+[data-theme="seikatsu"] .bm-scale { padding-top: 19px; }
+[data-theme="seikatsu"] .bm-scale::before {
+  content: ""; position: absolute; left: -9px; right: -9px; top: 10px; height: 34px; z-index: 1; pointer-events: none;
+  border: solid transparent; border-width: 9px 9px 7px; border-image: url(/img/hakari.webp) 27 26 20 28 / 9px 9px 7px stretch;
+}
+[data-theme="seikatsu"] .bm-track { height: 18px; border: 0; }
+[data-theme="seikatsu"] .bm-ticks { margin-top: 9px; }
 
 @media (min-width: 640px) {
   h1 { font-size: 30px; }
