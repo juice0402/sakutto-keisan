@@ -306,6 +306,17 @@ CASES = {
         (('fill', '#money', '100000'), '#r-need', 'いまのレートを入れてください'),
         (('fill', '#rate', '150'), None, None),
     ],
+    'fx-lot': [
+        (None, '#r-need', '口座のお金を入れてください'),
+        (('fill', '#money', '100000'), '#r-need', 'いまのレートを入れてください'),
+        (('fill', '#rate', '150'), '#r-need', '許せる損を入れてください'),
+        (('click', '.tile[data-pct="2"]'), '#r-need', '損切りの幅を入れてください'),
+        (('fill', '#width', '0.2'), None, None),
+    ],
+    'yukyu-fuyo': [
+        (None, '#r-foot', '入社日を入れてください'),
+        (('fill', '#hire', '2024-04-01'), None, None),
+    ],
     'fx-swap': [
         (None, None, None),
         (('click', '.seg-btn[data-side="sell"]'), None, None),

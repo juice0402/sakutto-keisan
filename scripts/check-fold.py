@@ -76,6 +76,8 @@ CASES = {
     'fx-iji-ritsu': (lambda pg: (pg.fill('#rate', '150'), pg.fill('#money', '100000'), pg.fill('#lev', '10')), '#r-big'),
     'fx-losscut': (lambda pg: (pg.click('.tile[data-qty="10000"]'), pg.fill('#money', '100000'), pg.fill('#rate', '150')), '#r-big'),
     'fx-swap': (lambda pg: pg.click('.tile[data-qty="10000"]'), '#r-big'),
+    'fx-lot': (lambda pg: (pg.fill('#money', '100000'), pg.fill('#rate', '150'), pg.click('.tile[data-pct="2"]'), pg.fill('#width', '0.2')), '#r-big'),
+    'yukyu-fuyo': (lambda pg: pg.fill('#hire', '2024-04-01'), '.doc-sum'),
     'furusato/seido': (lambda pg: pg.click('.tile[data-y="2027"]'), '#r-num'),
     # 返礼品（HENREIHIN=fixture か api でビルドしたときだけページがある。ないときはとばす）。答えは一覧の1件目の1万円あたり
     'furusato/henreihin': (lambda pg: None, '.hr-row .hr-per'),

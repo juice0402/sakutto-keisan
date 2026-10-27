@@ -433,7 +433,7 @@ export const TOOLS = [
     short: '時給や月給から、残業代はいくらか',
     published: true,
     updated: '2026-10-20',
-    related: ['zangyo-gekkyu', 'rieki-ritsu', 'seisou-jikan'],
+    related: ['zangyo-gekkyu', 'yukyu-fuyo', 'rieki-ritsu', 'seisou-jikan'],
   },
   {
     slug: 'zangyo-gekkyu',
@@ -443,7 +443,17 @@ export const TOOLS = [
     short: '月給と年間休日から、残業代はいくらか',
     published: true,
     updated: '2026-10-20',
-    related: ['zangyo-dai', 'rieki-ritsu', 'seisou-jikan'],
+    related: ['zangyo-dai', 'yukyu-fuyo', 'rieki-ritsu', 'seisou-jikan'],
+  },
+  // 有給休暇の付与日数（10/27 夜の作業 #61）
+  {
+    slug: 'yukyu-fuyo',
+    name: '有給休暇の付与日数の計算',
+    category: 'shigoto',
+    short: '入社日から、有給休暇は何日もらえるか',
+    published: true,
+    updated: '2026-10-27',
+    related: ['zangyo-dai', 'zangyo-gekkyu', 'nissu', 'loan'],
   },
   {
     slug: 'yukyu',
@@ -515,7 +525,7 @@ export const TOOLS = [
     short: 'レバレッジ何倍で、維持率は何％か',
     published: true,
     updated: '2026-10-19',
-    related: ['fx-losscut', 'fx-swap'],
+    related: ['fx-losscut', 'fx-lot', 'fx-swap'],
   },
   {
     slug: 'fx-losscut',
@@ -524,7 +534,7 @@ export const TOOLS = [
     short: 'ロスカットまで、あと何円の損か',
     published: true,
     updated: '2026-10-19',
-    related: ['fx-iji-ritsu', 'fx-swap'],
+    related: ['fx-iji-ritsu', 'fx-lot', 'fx-swap'],
   },
   {
     slug: 'fx-swap',
@@ -533,7 +543,17 @@ export const TOOLS = [
     short: '1日にいくらもらえるか（目安）',
     published: true,
     updated: '2026-10-19',
-    related: ['fx-iji-ritsu', 'fx-losscut'],
+    related: ['fx-iji-ritsu', 'fx-losscut', 'fx-lot'],
+  },
+  // ロット＝通貨の量（10/27 夜の作業 #61）
+  {
+    slug: 'fx-lot',
+    name: 'FXのロット計算',
+    category: 'fx',
+    short: '許せる損から、何通貨まで取引できるか',
+    published: true,
+    updated: '2026-10-27',
+    related: ['fx-losscut', 'fx-iji-ritsu', 'fx-swap'],
   },
   // ふるさと納税のコーナー（10/22 統合。claude/sakutto-tougou-plan.md）。入口は /furusato/、ページは /furusato/ の下
   {

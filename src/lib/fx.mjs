@@ -159,3 +159,40 @@ export function swapBars(days, day) {
     return { day: d, value: fix(day * d) };
   });
 }
+
+/** 許せる損のマス（口座のお金の何％か） */
+export const FX_LOT_PCTS = [1, 2, 3, 5];
+export const FX_LOT_UNIT = 1000; // 通貨の量は1,000通貨単位（多くの会社の最小単位）
+
+/** 口座のお金の pct ％（1円未満は切り捨て） */
+export const fxLotLoss = (money, pct) => Math.floor(fix((money * pct) / 100));
+
+/**
+ * 通貨の量（ロット）：許せる損 ÷ 損切りの幅 を1,000通貨単位で切り捨て
+ * @param {{money:number|null, loss:number|null, width:number|null, rate:number|null}} p
+ *   money：口座のお金　loss：許せる損（円）　width：損切りの幅（円。150.00円で買って149.50円で損切りなら0.50）　rate：いまのレート
+ * 取引に必要なお金（レート × 量 × 4％）が口座のお金より多いときは short に足りない分
+ */
+export function fxLot({ money, loss, width, rate }) {
+  if ([money, loss, width, rate].some((v) => v === null)) return { ok: false, empty: true };
+  if (Number.isNaN(money) || money <= 0) return { ok: false, error: '口座のお金は、0より大きい数字で入れてください。', field: 'money' };
+  if (Number.isNaN(loss) || loss <= 0) return { ok: false, error: '許せる損は、0より大きい数字で入れてください。', field: 'loss' };
+  if (loss > money) return { ok: false, error: '許せる損は、口座のお金より少なくしてください。', field: 'loss' };
+  if (Number.isNaN(width) || width <= 0) return { ok: false, error: '損切りの幅は、0より大きい数字で入れてください。', field: 'width' };
+  if (Number.isNaN(rate) || rate <= 0) return { ok: false, error: 'レートは、0より大きい数字で入れてください。', field: 'rate' };
+  if (width >= rate) return { ok: false, error: '損切りの幅は、いまのレートより小さくしてください。', field: 'width' };
+  const raw = fix(loss / width);
+  const qty = Math.floor(fix(raw / FX_LOT_UNIT)) * FX_LOT_UNIT;
+  const need = fxNeed(rate, qty);
+  return {
+    ok: true,
+    raw,
+    qty,
+    lossAt: fix(qty * width), // その量で損切りになったときの損
+    need,
+    ratio: qty ? fix((money / need) * 100) : null,
+    short: Math.max(0, fix(need - money)),
+    stop: fix(rate - width), // 買いの損切りのレート
+    under: qty < FX_LOT_UNIT, // 1,000通貨に届かない
+  };
+}
