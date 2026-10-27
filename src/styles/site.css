@@ -1059,7 +1059,7 @@ h1 {
 .tag-save { font-size: 14px; color: #6b6450; margin-top: 4px !important; }
 .tag-save.is-strong {
   display: inline-block; background: #fff; color: var(--sale); font-weight: 800; font-size: 15px;
-  padding: 2px 10px; border-radius: 3px;
+  padding: 2px 10px; border-radius: 3px; align-self: center; /* 値札の写真の穴にかからないように、字の幅だけ */
 }
 .tag-badge { /* 赤い丸の「◯%OFF」のシール */
   position: absolute; right: -4px; top: -24px; width: 70px; height: 70px; margin: 0;
