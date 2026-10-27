@@ -1,6 +1,10 @@
 /og/*
   Cache-Control: public, max-age=604800
 
+# 紙・付箋・テープ・値札の写真（Canva で作って public/img に置いたもの）
+/img/*
+  Cache-Control: public, max-age=604800
+
 # 印刷用の早見表（年の入ったPDFは中身が変わらない。消毒液は変わることがある）
 /print/*
   Cache-Control: public, max-age=86400

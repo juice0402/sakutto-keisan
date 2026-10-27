@@ -1146,6 +1146,50 @@ def denki_slip(img, cx, top, name, mode, watt, hours):
 
 
 
+def gy_cal(date_ym, day, wd, head=None):
+    """家族の行事：日めくり（四十九日は紺の帯）"""
+    def cal(d, x, y):
+        x += 14 * S
+        w, h = 160 * S, 190 * S
+        d.rectangle([x, y, x + w, y + h], fill='#FFFFFF', outline=INK, width=3 * S)
+        d.rectangle([x, y, x + w, y + 36 * S], fill=head or RED)
+        for t, f, yy, col in ((date_ym, font('black', 22), 4, '#FFFFFF'), (day, font('black', 92), 34, INK), (wd, font('black', 24), 150, PENCIL)):
+            d.text((x + w / 2 - d.textlength(t, font=f) / 2, y + yy * S), t, font=f, fill=col)
+    return cal
+
+
+def gy_sheet(title, cap, big, say, heads, rows, mark):
+    """家族の行事：年の表（七五三・厄年・長寿祝い）。いちばん上に大きな答え、表の mark 行にマーカー"""
+    def draw(img, cx, top):
+        d = ImageDraw.Draw(img)
+        x0, x1 = cx - 220 * S, cx + 240 * S
+        y0 = top - 70 * S
+        rh = 40 * S
+        y1 = y0 + 190 * S + rh * len(rows) + 20 * S
+        d.rectangle([x0, y0, x1, y1], fill=SHEET, outline='#B4C1D2', width=2 * S)
+        d.rectangle([x0, y0, x1, y0 + 10 * S], fill=INK)
+        d.text((x0 + 22 * S, y0 + 24 * S), title, font=font('black', 26), fill=INK)
+        d.text((x0 + 22 * S, y0 + 92 * S), cap, font=font('black', 24), fill=INK)
+        f_v = font('black', 60)
+        d.text((x1 - 22 * S - d.textlength(big, font=f_v), y0 + 62 * S), big, font=f_v, fill=RED)
+        d.text((x0 + 22 * S, y0 + 138 * S), say, font=font('black', 21), fill=INK)
+        hy = y0 + 176 * S
+        cw = (x1 - x0 - 36 * S) / len(heads)
+        for i, h in enumerate(heads):
+            d.text((x0 + 18 * S + cw * (i + 0.5) - d.textlength(h, font=font('bold', 17)) / 2, hy - 4 * S), h, font=font('bold', 17), fill=PENCIL)
+        d.line([(x0 + 14 * S, hy + 22 * S), (x1 - 14 * S, hy + 22 * S)], fill=INK, width=2 * S)
+        for r, row in enumerate(rows):
+            ry = hy + 24 * S + rh * r
+            if r == mark:
+                d.rectangle([x0 + 14 * S, ry, x1 - 14 * S, ry + rh], fill='#FFF09A')
+            for i, v in enumerate(row):
+                f = font('black', 22)
+                col = RED if i == 0 else INK
+                d.text((x0 + 18 * S + cw * (i + 0.5) - d.textlength(v, font=f) / 2, ry + 7 * S), v, font=f, fill=col)
+            d.line([(x0 + 14 * S, ry + rh), (x1 - 14 * S, ry + rh)], fill='#D3DCE8', width=2 * S)
+    return draw
+
+
 def nissu_cal_only(d, x, y, ym, day, wd):
     """日めくり（第何曜日の共有画像）"""
     x += 14 * S
@@ -1207,11 +1251,26 @@ VISUALS = {
     'ceramic-heater': lambda img, cx, top: denki_slip(img, cx, top, 'ヒーター', '強', 1170, 4),
     'oil-heater': lambda img, cx, top: denki_slip(img, cx, top, 'オイルヒーター', '弱', 600, 8),
     'waribiki-ritsu': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '15', '%オフ', '300円 おトク！', None),
+    # 率ごとの割引（10/27）
+    'waribiki-10': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,800', '円', '200円 おトク！', '10%'),
+    'waribiki-15': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,700', '円', '300円 おトク！', '15%'),
+    'waribiki-20': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,600', '円', '400円 おトク！', '20%'),
+    'waribiki-30': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,400', '円', '600円 おトク！', '30%'),
+    'waribiki-40': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,200', '円', '800円 おトク！', '40%'),
+    'waribiki-50': lambda img, cx, top: price_tag(img, cx, top, '元の値段 2,000円', '1,000', '円', '1,000円 おトク！', '50%'),
     'matomegai': lambda img, cx, top: compare_tags(img, cx, top, (('A', '56.2', '6本 1,180円', True), ('B', '59.4', '1本 208円', False)), '100mlあたり'),
     # 希釈率の使いみち別
     'mentsuyu': lambda img, cx, top: dilute_bottle(img, cx, top, '1：2', (('つゆ', '100ml'), ('水', '200ml')), '#9A6232', '#8A5426', 1 / 3),
     'hyohakuzai': lambda img, cx, top: dilute_bottle(img, cx, top, '0.05%', (('漂白剤', '8.4ml'), ('水', '1L')), share=0.02),
     'ekihi': lambda img, cx, top: dilute_bottle(img, cx, top, '1000倍', (('原液', '1ml'), ('水', '1L')), share=0.02),
+    # 家族の行事（10/27）
+    'shichigosan': gy_sheet('七五三の年', '次の七五三', '2026年', '令和8年・満3歳（女の子）', ('年', '年齢'), (('2025', '数え3歳'), ('2026', '満3歳'), ('2029', '数え7歳'), ('2030', '満7歳')), 1),
+    'yakudoshi': gy_sheet('厄年', '2026年は', '本厄', '数え42歳・大厄（昭和60年生まれ）', ('厄年', '前厄', '本厄', '後厄'), (('数え25', '2008', '2009', '2010'), ('数え42', '2025', '2026', '2027'), ('数え61', '2044', '2045', '2046')), 1),
+    'choju': gy_sheet('長寿祝い', '次のお祝い', '還暦', '2026年・満60歳（数え61歳）', ('お祝い', '数え年で', '満年齢で'), (('還暦', '2026年', '2026年'), ('緑寿', '2031年', '2032年'), ('古希', '2035年', '2036年'), ('喜寿', '2042年', '2043年')), 0),
+    'okuizome': lambda img, cx, top: pic_slip(img, cx, top, 'お食い初め', gy_cal('2027年2月', '3', '水曜日'), '生まれた日から', '100', '日目',
+                                              lambda d, x, y: d.text((x, y + 6 * S), '10月27日生まれ', font=font('black', 22), fill=INK), ('前の土曜', 'あとの土曜', '120日目'), ('1月30日', '2月6日', '2月23日'), tag=''),
+    'shijukunichi': lambda img, cx, top: pic_slip(img, cx, top, '四十九日', gy_cal('2026年11月', '18', '水曜日', INK), '亡くなった日から', '49', '日目',
+                                                  lambda d, x, y: d.text((x, y + 6 * S), '10月1日に亡くなったとき', font=font('black', 20), fill=INK), ('初七日', '一周忌', '三回忌'), ('10月7日', '2027年', '2028年'), tag=''),
 }
 
 

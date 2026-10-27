@@ -73,3 +73,18 @@ export function compareDiscounts(a, b, rounding = 'floor') {
   const bigOff = ra.off === rb.off ? null : ra.off > rb.off ? 'a' : 'b';
   return { ok: true, a: ra, b: rb, cheaper, diff, tricky: cheaper !== 'same' && bigOff !== null && bigOff !== cheaper };
 }
+
+/**
+ * 率ごとの割引のページ（/waribiki/30/ など）：割引後の値段から元の値段
+ * 元の値段 ＝ 割引後 × 100 ÷（100 − 割引率）。割り切れないときは、切り捨ての割引でその値段になるいちばん安い1円単位の値段（exact: false）
+ */
+export function originalFrom(sale, rate) {
+  if (sale === null) return { ok: false, empty: true };
+  if (Number.isNaN(sale) || sale < 0) return { ok: false, error: '値段は0以上の数字で入れてください。' };
+  const raw = fix((sale * 100) / (100 - rate));
+  if (Number.isInteger(raw)) return { ok: true, price: raw, exact: true };
+  let p = Math.ceil(raw);
+  while (Math.floor(fix((p * (100 - rate)) / 100)) > sale) p--;
+  while (Math.floor(fix((p * (100 - rate)) / 100)) < sale) p++;
+  return { ok: true, price: p, exact: false };
+}
