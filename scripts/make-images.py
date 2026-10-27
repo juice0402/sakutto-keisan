@@ -797,6 +797,23 @@ def salt_slip(img, cx, top):
     pic_slip(img, cx, top, '塩の量', bowl, '塩', '15', 'g', spoons, ('塩', '濃度', '全体に対して'), ('15g', '3%', '2.91%'))
 
 
+def senzai_slip(img, cx, top):
+    """洗濯洗剤の量：計量キャップの写真（中の洗剤の高さが量）と、大きな1回の量（ページの例：アタックZEROを65Lで25mL・キャップ約0.8杯）"""
+    def cap(d, x, y):
+        w = 176 * S  # 計量キャップの写真（サイトと同じ）。洗剤の色をぬってから、写真を紙にかけ合わせて重ねる
+        c = photo('cap.webp').convert('RGB')
+        c = c.resize((w, round(w * c.height / c.width)), Image.LANCZOS)
+        cy = y + 10 * S
+        l, r, t, b = x + w * 0.14, x + w * 0.86, cy + c.height * 0.04, cy + c.height * 0.96
+        d.rectangle([l, b - (b - t) * 25 / 30, r, b], fill='#9CC9EC')
+        multiply(d._image, c, x, cy)
+
+    def caps(d, x, y):
+        d.text((x, y + 6 * S), 'キャップ約0.8杯', font=font('black', 24), fill=INK)
+
+    pic_slip(img, cx, top, '洗剤の量', cap, '1回', '25', 'mL', caps, ('水の量', 'キャップ', '洗剤'), ('65L', '0.8杯', '25mL'))
+
+
 def percent_slip(img, cx, top):
     """パーセント：方眼の100マス（15マスを赤ペンでぬる）と、大きな答え（ページの計算例：200の15％は30）"""
     def grid(d, x, y):
@@ -1313,6 +1330,7 @@ VISUALS = {
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],
                                                     [1, 0.5, 0.5, 0.5, 0.5, 0.26, 0.26], [('合計', '30,000円'), ('おつり', '200円')]),
     'enbun-noudo': salt_slip,
+    'sentaku-senzai': senzai_slip,
     'percent': percent_slip,
     # 10/27
     'dai-nan-youbi': lambda img, cx, top: pic_slip(img, cx, top, 'カレンダー', lambda d, x, y: nissu_cal_only(d, x, y, '2026年10月', '27', '火曜日'), '10月27日は', '第4', '火曜日',

@@ -311,6 +311,16 @@ export const TOOLS = [
     updated: '2026-10-21',
     related: ['denki-dai', 'oil-heater', 'ceramic-heater', 'warikan'],
   },
+  {
+    slug: 'sentaku-senzai',
+    more: true,
+    name: '洗濯洗剤の量の計算',
+    category: 'seikatsu',
+    short: '水の量から、1回の洗剤の量とキャップ何杯か',
+    published: true,
+    updated: '2026-10-28',
+    related: ['kishaku', 'tanka', 'enbun-noudo', 'denki-dai'],
+  },
   // 電気代の計算の下のページ（家電別。トップの目次には出さない）
   {
     slug: 'kotatsu',
@@ -381,7 +391,7 @@ export const TOOLS = [
     short: '原液と水を何mlずつ入れるか',
     published: true,
     updated: '2026-10-26',
-    related: ['enbun-noudo', 'recipe', 'tanka', 'seisou-jikan'],
+    related: ['enbun-noudo', 'sentaku-senzai', 'recipe', 'seisou-jikan'],
   },
   {
     slug: 'enbun-noudo',
