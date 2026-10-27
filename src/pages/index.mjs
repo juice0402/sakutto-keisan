@@ -1,11 +1,12 @@
 import { SITE, CATEGORIES } from '../site.mjs';
 import { TOOLS, toolUrl, CALC_COUNT, LAST_UPDATED } from '../tools.mjs';
 import { page, esc, absUrl } from '../layout.mjs';
+import { doodle } from '../doodles.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 
 // トップ（10/21 しょーくん「トップは王道で、マイナーな計算はたたんでまとめる」）
-// いちばん上に「よく使う計算」（tools.mjs の pick の順。名前だけを2列で。名前は pickName か、name から「の計算」を取ったもの）。その下にカテゴリごとの目次。
+// いちばん上に「よく使う計算」（tools.mjs の pick の順。ペンで線を引いた表に、答えの小さな絵と名前を2列で。10/27 しょーくんが3案から B。名前は pickName か、name から「の計算」を取ったもの）。その下にカテゴリごとの目次。
 // カテゴリは pick でも more でもないツールをそのまま出し、more のツールは「ほかの計算」にたたむ（中のリンクも検索エンジンには見える）。
 // 下のページ（parent があるもの）は検索から直接来てもらうページなので、親のページの中からだけリンクする
 const card = (t) =>
@@ -41,7 +42,7 @@ export default function render() {
 </div>
 <section class="cat" aria-labelledby="cat-pick">
   <h2 id="cat-pick">よく使う計算</h2>
-  <ul class="pick-list">${picks.map((t) => `<li><a class="pick-card" href="${toolUrl(t)}">${esc(t.pickName || t.name.replace(/の計算$/, ''))}</a></li>`).join('')}</ul>
+  <ul class="pick-grid">${picks.map((t) => `<li><a class="pick-cell" href="${toolUrl(t)}">${doodle(t.slug)}<span>${esc(t.pickName || t.name.replace(/の計算$/, ''))}</span></a></li>`).join('')}</ul>
 </section>
 ${cats}
 <div class="tip"><strong>ホーム画面に追加できます</strong>共有ボタンかメニューの「ホーム画面に追加」から。</div>
