@@ -7,7 +7,7 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
 import { boxField } from '../fields.mjs';
-import { FX_PAIRS, FX_MAX_LEV, fxSwapEstimate, fxRatio, fxPosition, swapText, rateDigits, qtyText } from '../lib/fx.mjs';
+import { FX_PAIRS, FX_MAX_LEV, FX_LOT_PCTS, fxSwapEstimate, fxRatio, fxPosition, fxLot, swapText, rateDigits, qtyText } from '../lib/fx.mjs';
 import { fmt } from '../lib/number.mjs';
 import { POLICY_RATES, FX_RATES_CHECKED, FX_SPOT_DATE, FX_SPOT_URL } from '../data/fx-swap.mjs';
 
@@ -17,6 +17,8 @@ const CAUTION = '<p class="note">FXの会社ごとにルールが違うので、
 // 説明文（meta description）の例。本文の計算例と同じ（tests/fx.test.mjs）
 const DESC_IJI = fxRatio({ money: 100000, rate: 150, lev: 10 });
 const DESC_CUT = fxPosition({ money: 100000, qty: 10000, rate: 150 });
+const DESC_LOT = fxLot({ money: 100000, loss: 2000, width: 0.2, rate: 150 });
+const DESC_LOT2 = fxLot({ money: 100000, loss: 2000, width: 0.5, rate: 150 });
 const DESC_SWAP = fxSwapEstimate({ pair: FX_PAIRS[0].id, side: 'buy', qty: 10000 });
 const jpDate = (iso) => { const [, m, d] = iso.split('-').map(Number); return `${m}月${d}日`; };
 // スワップの目安の表：通貨ペアごとに、その通貨の政策金利（中央銀行へのリンク＝出典）と、1万通貨を買ったときの1日の額（src/data/fx-swap.mjs から作る）
@@ -63,6 +65,26 @@ const SWAP_CHART = `<div class="chart" aria-live="polite">
     </div>
     <p class="chart-foot"><span id="r-per">通貨の量をえらんでください</span><span id="r-base"></span></p>
   </div>`;
+
+// ロット：許せる損のマス（口座のお金の何％か。口座のお金を入れると、下の小さな字が円になる）
+const LOT_TILES = `<div class="tiles tiles-4" role="group" aria-label="口座のお金の何％を許せる損にするか">${FX_LOT_PCTS.map(
+  (p) => `<button type="button" class="tile" data-pct="${p}" aria-pressed="false"><b>${p}%</b><small>口座の</small></button>`,
+).join('')}</div>`;
+const LOT_CHART = `<div class="chart" aria-live="polite">
+    <p class="chart-bar"><span id="c-pair">ドル円</span><span class="cb-r"><span id="c-ratio"></span><button type="button" class="clear-btn" id="clear">クリア</button></span></p>
+    <div class="chart-ans is-static"><p class="fx-cap" id="r-cap">取引できる通貨の量</p><p class="fx-big" id="r-big"><span id="r-num">？</span><small id="r-unit">通貨</small></p></div>
+    <div class="chart-plot is-short">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${GRID}<rect class="chart-band" id="c-band" x="0" y="0" width="100" height="0"/><path class="chart-cut" id="c-cut" d=""/><path class="chart-now" id="c-now" d=""/><path class="chart-line" id="c-line" d=""/></svg>
+      <span class="chart-dot" id="c-dot" hidden></span><span class="chart-tag is-now" id="t-now" hidden></span><span class="chart-tag is-cut" id="t-cut" hidden></span><span class="chart-label lot-loss" id="t-loss" hidden></span>
+    </div>
+    <p class="chart-foot"><span id="r-price"></span><span id="r-need">口座のお金を入れてください</span></p>
+  </div>`;
+// ロットの計算例の表：損切りの幅 × 許せる損（1,000通貨に届かないときは —）
+const LOT_LOSSES = [1000, 2000, 5000];
+const LOT_ROWS = [0.1, 0.2, 0.3, 0.5, 1, 2].map((w) => `<tr><td>${w.toFixed(2)}円</td>${LOT_LOSSES.map((l) => {
+  const r = fxLot({ money: 1000000, loss: l, width: w, rate: 150 });
+  return `<td class="num">${r.under ? '—' : `${qtyText(r.qty)}通貨`}</td>`;
+}).join('')}</tr>`).join('\n');
 
 const PAGES = [
   {
@@ -260,9 +282,77 @@ ${SWAP_ROWS}
       },
     ],
   },
+  {
+    slug: 'fx-lot',
+    title: 'FXのロット計算｜許せる損と損切りの幅から通貨の量を出す',
+    description:
+      `FXのロット（通貨の量）を、許せる損と損切りの幅から計算します。口座のお金10万円の2％、2,000円までの損で、損切りの幅が0.20円なら${qtyText(DESC_LOT.qty)}通貨、0.50円なら${qtyText(DESC_LOT2.qty)}通貨です。取引に必要なお金が足りるかも出します。`,
+    lead: '損切りの幅から、取引できる量を計算します。',
+    ld: '口座のお金・許せる損・損切りの幅・レートから、取引できる通貨の量（ロット）を出す計算ツール。',
+    calc: `<div class="calc" id="calc" data-tool="lot">
+  ${fxTopPair()}
+  <div class="fx-inputs">
+    <div class="pair">${boxField('money', '口座のお金', '円', '100,000', '', 'アプリの有効証拠金。まだなら入金した額')}${boxField('rate', 'いまのレート', '円', RATE_EX)}</div>
+    <div class="field" id="f-tiles">${LOT_TILES}</div>
+    <div class="pair">${boxField('loss', '許せる損', '円', '2,000', '', '損切りになったら失ってよい額')}${boxField('width', '損切りの幅', '円', '0.20', '', '150円で買い149.5円で切るなら0.5')}</div>
+  </div>
+  ${LOT_CHART}
+  ${noteAndNoscript}
+</div>`,
+    body: `${section(
+      'formula',
+      '計算式',
+      `<div class="formula">
+<span>許せる損 ＝ 口座のお金 × ％</span>
+<span>通貨の量 ＝ 許せる損 ÷ 損切りの幅</span>
+<span>取引に必要なお金 ＝ レート × 通貨の量 × 4％</span>
+</div>
+<p>例：口座のお金10万円の2％は2,000円です。損切りの幅が0.20円なら、2,000 ÷ 0.20 ＝ ${qtyText(DESC_LOT.qty)}通貨で、取引に必要なお金は${qtyText(DESC_LOT.need)}円です。</p>
+<p>通貨の量は、1,000通貨未満を切り捨てています。</p>
+${CAUTION}
+${SRC_FSA}`,
+    )}
+${section(
+  'examples',
+  '計算例',
+  `<div class="tbl-wrap"><table>
+<thead><tr><th>損切りの幅</th>${LOT_LOSSES.map((l) => `<th class="num">${fmt(l)}円</th>`).join('')}</tr></thead>
+<tbody>
+${LOT_ROWS}
+</tbody>
+</table></div>
+<p>上の段は許せる損です。—は1,000通貨に届かないときです。</p>`,
+)}`,
+    faqs: [
+      {
+        q: 'ロットとは何ですか？',
+        a: '<p>取引する量の単位です。1ロットが1,000通貨の会社も1万通貨の会社もあるので、このツールは通貨の数で出します。</p>',
+      },
+      {
+        q: '損切りの幅には何を入れますか？',
+        a: '<p>買ったレートと、損切りするレートの差です。150.00円で買って149.50円で損切りするなら0.50円です。</p>',
+      },
+      {
+        q: '許せる損は、口座の何％にしますか？',
+        a: '<p>決まりはありません。損切りが何回か続いても、口座のお金が大きく減らない額にします。マスは1〜5％です。</p>',
+      },
+      {
+        q: '売りのときも同じですか？',
+        a: '<p>同じ量になります。売りは、いまのレートより上に損切りのラインを置きます。</p>',
+      },
+      {
+        q: '1,000通貨未満を切り捨てるのはなぜですか？',
+        a: '<p>取引の単位に合わせるためです。1通貨から取引できる会社なら、もう少し多く取引できます。</p>',
+      },
+      {
+        q: '損切りのレートを飛びこえて動いたときは？',
+        a: '<p>相場が急に動くと、決めたレートより悪いところで決済されることがあります。そのときの損は、許せる損より大きくなります。</p>',
+      },
+    ],
+  },
 ];
 
-const SCRIPTS = { 'fx-iji-ritsu': 'fx-iji.js', 'fx-losscut': 'fx-losscut.js', 'fx-swap': 'fx-swap.js' };
+const SCRIPTS = { 'fx-iji-ritsu': 'fx-iji.js', 'fx-losscut': 'fx-losscut.js', 'fx-swap': 'fx-swap.js', 'fx-lot': 'fx-lot.js' };
 
 export default function render() {
   return PAGES.map((p) => {

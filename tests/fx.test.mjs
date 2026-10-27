@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fxNeed, fxRatio, fxPosition, swapPerDay, fxSwapEstimate, swapText, swapBars, yenText, qtyText, levText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../src/lib/fx.mjs';
+import { fxNeed, fxRatio, fxPosition, swapPerDay, fxSwapEstimate, swapText, swapBars, yenText, qtyText, levText, cutPriceText, ratioText, rateDigits, FX_PAIRS, fxLot, fxLotLoss } from '../src/lib/fx.mjs';
 import { POLICY_RATES, FX_SPOT, FX_RATES_CHECKED, FX_SPOT_DATE } from '../src/data/fx-swap.mjs';
 
 test('取引に必要なお金：レート × 量 × 4％', () => {
@@ -171,4 +171,27 @@ test('スワップのグラフの棒', () => {
   assert.equal(swapBars(30, 100).length, 5); // 週ごと
   assert.equal(swapBars(10, 100).length, 10); // 日ごと
   assert.equal(swapBars(1, 100).length, 1);
+});
+
+test('通貨の量（ロット）：ページの計算例', () => {
+  assert.equal(fxLotLoss(100000, 2), 2000);
+  const r = fxLot({ money: 100000, loss: 2000, width: 0.2, rate: 150 });
+  assert.equal(r.qty, 10000);
+  assert.equal(r.need, 60000);
+  assert.equal(r.lossAt, 2000);
+  assert.equal(r.short, 0);
+  assert.equal(r.stop, 149.8);
+  assert.equal(fxLot({ money: 100000, loss: 2000, width: 0.5, rate: 150 }).qty, 4000);
+  assert.equal(fxLot({ money: 100000, loss: 2000, width: 0.3, rate: 150 }).qty, 6000); // 6,666 → 6,000（1,000通貨単位で切り捨て）
+  assert.equal(fxLot({ money: 100000, loss: 1000, width: 2, rate: 150 }).under, true);
+  const big = fxLot({ money: 100000, loss: 5000, width: 0.2, rate: 150 });
+  assert.equal(big.qty, 25000);
+  assert.equal(big.short, 50000); // 25,000通貨は15万円いる
+});
+
+test('通貨の量（ロット）：まちがい', () => {
+  assert.equal(fxLot({ money: null, loss: 2000, width: 0.2, rate: 150 }).empty, true);
+  assert.equal(fxLot({ money: 1000, loss: 2000, width: 0.2, rate: 150 }).field, 'loss');
+  assert.equal(fxLot({ money: 100000, loss: 2000, width: 0, rate: 150 }).field, 'width');
+  assert.equal(fxLot({ money: 100000, loss: 2000, width: 150, rate: 150 }).field, 'width');
 });

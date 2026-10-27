@@ -354,6 +354,8 @@ def doc_sheet(img, cx, top, title, sum_k, sum_v, unit, head, rows, stamp=None, e
     if extra:
         extra(d, x0 + 18 * S, x1 - 18 * S, ty)
         ty += 44 * S
+    if not head:
+        return d, ty - 14 * S  # 表のない書類（有給休暇の付与日数は勤続の階段だけ）
     tx0, tx1 = x0 + 18 * S, x1 - 18 * S
     n = len(head)
     widths = [0.34] + [(1 - 0.34) / (n - 1)] * (n - 1)
@@ -452,6 +454,35 @@ def mitsumori_doc(img, cx, top):
               (('1回', '1回', '2,400'), ('1か月', '約21.7回', ('52,000',)), ('1年', '260回', '624,000')))
 
 
+def yukyu_doc(img, cx, top):
+    """有給休暇の付与日数：書類と勤続の階段（ページの計算例：2026年4月1日入社・週5日で10月1日に10日）"""
+    t = THEMES['shigoto']
+    d, bottom = doc_sheet(img, cx, top, '有給休暇', 'いまの日数', '10', '日', (), ())
+    x0, x1 = cx - 218 * S, cx + 248 * S
+    base = top + 296 * S
+    hmax = base - (bottom + 30 * S)
+    n = 7
+    gap = 8 * S
+    w = ((x1 - x0) - gap * (n - 1)) / n
+    f_n, f_l = font('black', 20), font('bold', 15)
+    for i, (days, lab) in enumerate(zip((10, 11, 12, 14, 16, 18, 20), ('半年', '1年半', '2年半', '3年半', '4年半', '5年半', '6年半〜'))):
+        bx = x0 + i * (w + gap)
+        h = hmax * days / 20
+        now = i == 0
+        d.rectangle([bx, base - h, bx + w, base], fill=t['red'] if now else '#D5DAE2', outline=t['red'] if now else t['text'], width=2 * S)
+        num = str(days)
+        nw = d.textlength(num, font=f_n)
+        ny = base - h - 32 * S
+        d.text((bx + w / 2 - nw / 2, ny), num, font=f_n, fill=t['red'] if now else t['text'])
+        if now:
+            l, tt, rr, b = d.textbbox((bx + w / 2 - nw / 2, ny), num, font=f_n)
+            my, r = (tt + b) / 2, 17 * S
+            d.ellipse([bx + w / 2 - r - 3 * S, my - r, bx + w / 2 + r + 3 * S, my + r], outline=t['red'], width=3 * S)
+        lw = d.textlength(lab, font=f_l)
+        d.text((bx + w / 2 - lw / 2, base + 5 * S), lab, font=f_l, fill=t['muted'])
+    d.line([(x0, base), (x1, base)], fill=t['text'], width=3 * S)
+
+
 def fx_panel(img, cx, top, bar_l, bar_r, h=330):
     """FX：トレードアプリの画面のわく（上の段に通貨ペアなど）"""
     d = ImageDraw.Draw(img)
@@ -512,6 +543,32 @@ def fx_cut(img, cx, top):
     d.ellipse([end_x - 8 * S, now_y - 8 * S, end_x + 8 * S, now_y + 8 * S], fill=FX_INK)
     fx_label(d, x1 - 2 * S, now_y, 'いま 150.00', FX_GOLD, '#16181C')
     fx_label(d, x1 - 2 * S, cut_y, 'ロスカット 146.00', FX_DOWN, '#FFFFFF')
+
+
+def fx_lot(img, cx, top):
+    """ロット：チャートの画面。いまのレートと損切りのライン、あいだに損の額、上の段に「取引できる通貨の量 10,000通貨」"""
+    d, x0, x1, py0, py1 = fx_panel(img, cx, top, 'ドル円', '維持率 166.6%')
+    d.text((x0 + 18 * S, py0 + 12 * S), '取引できる通貨の量', font=font('bold', 24), fill=FX_MUTED)
+    f_big = font('black', 62)
+    d.text((x0 + 18 * S, py0 + 40 * S), '10,000', font=f_big, fill=FX_GOLD)
+    d.text((x0 + 26 * S + d.textlength('10,000', font=f_big), py0 + 70 * S), '通貨', font=font('black', 28), fill=FX_INK)
+    cy0, cy1 = py0 + 128 * S, py1 - 6 * S
+    fx_grid(d, x0, x1, cy0, cy1)
+    ch = cy1 - cy0
+    now_y, cut_y = cy0 + ch * 0.34, cy0 + ch * 0.66
+    layer = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    ImageDraw.Draw(layer).rectangle([x0 + 2 * S, now_y, x1 - 2 * S, cut_y], fill=(248, 81, 73, 34))
+    img.alpha_composite(layer)
+    d = ImageDraw.Draw(img)
+    fx_dashed(d, x0, x1, now_y, FX_GOLD, 8 * S, 2 * S)
+    fx_dashed(d, x0, x1, cut_y, FX_DOWN, 14 * S, 3 * S)
+    end_x = x0 + (x1 - x0) * 0.66
+    pts = [(x0 + 6 * S + (end_x - x0 - 6 * S) * i / (len(WALK) - 1), now_y - w * 0.4 * ch * (1 if w >= 0 else 0.3)) for i, w in enumerate(WALK)]
+    d.line(pts, fill='#D9D5CB', width=3 * S, joint='curve')
+    d.ellipse([end_x - 8 * S, now_y - 8 * S, end_x + 8 * S, now_y + 8 * S], fill=FX_INK)
+    fx_label(d, x1 - 2 * S, now_y, 'いま 150.00', FX_GOLD, '#16181C')
+    fx_label(d, x1 - 2 * S, cut_y, '損切り 149.80', FX_DOWN, '#FFFFFF')
+    d.text((x0 + 14 * S, (now_y + cut_y) / 2 - 12 * S), '損 2,000円', font=font('black', 21), fill=FX_DOWN)
 
 
 def fx_gauge(img, cx, top):
@@ -1243,7 +1300,7 @@ def hensachi_mount(d, x, y):
 
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
-    'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart,
+    'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart, 'fx-lot': fx_lot, 'yukyu-fuyo': yukyu_doc,
     'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'seisou-mitsumori': mitsumori_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
     # 割引計算・実質単価の比較の下のページ（10/21）
     'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),

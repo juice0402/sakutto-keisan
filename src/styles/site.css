@@ -717,6 +717,9 @@ h1 {
 .chart-ans .fx-big { font-size: 28px; }
 .chart-ans.is-static { position: static; max-width: none; padding: 8px 10px 2px; background: none; } /* ロスカット：チャートの上の段 */
 .chart-plot.is-short { height: 140px; }
+.chart-label.lot-loss { left: 8px; color: var(--down); } /* ロット：いまのレートと損切りのラインのあいだに、損切りになったときの損の額 */
+.chart-label.lot-loss.is-below { transform: translateY(4px); } /* あいだがせまいときは、損切りのラインのすぐ下 */
+.chart-foot .is-short { color: var(--down); } /* ロット：取引に必要なお金が足りない */
 .chart-ans .fx-big small { white-space: nowrap; } /* 「円 足りません」を途中で切らない */
 .chart-axis { position: absolute; left: 0; right: 0; bottom: 2px; display: flex; justify-content: space-between; margin: 0; padding: 0 6px; font-size: 11px; font-weight: 700; color: var(--muted); }
 /* 証拠金維持率：口座の画面の、大きな半円のメーター（赤いところは100％より下）。真ん中に維持率 */
@@ -792,6 +795,18 @@ h1 {
 .stamp { display: grid; place-content: center; flex: none; width: 66px; height: 66px; margin: 0 0 4px 2px; border: 2.5px solid #c8323c; border-radius: 50%; color: #c8323c; text-align: center; line-height: 1.1; font-size: 11px; font-weight: 800; transform: rotate(-12deg); }
 .stamp b { display: block; margin: 0; font-size: 16px; line-height: 1.15; color: inherit; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .doc .rieki-bar, .doc .floor-plan { margin: 10px 0 0; }
+/* 有給休暇の付与日数：勤続の階段（段の高さは付与日数。もらった段はこい色、いまの段は赤で数字に赤ペンの丸、これからは斜線）と、次にもらう日などの表 */
+.doc-sum-k small { margin-left: 6px; font-size: 12px; color: var(--muted); }
+.yk-steps { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-items: end; height: 92px; margin: 12px 0 0; padding: 0 2px; border-bottom: 1.5px solid var(--text); }
+.yk-step { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.yk-num { position: relative; margin: 0 0 3px; font-size: 13px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.yk-bar { width: 100%; height: calc(var(--h) * .78); border: 1.5px solid var(--text); border-bottom: 0; background: repeating-linear-gradient(-45deg, var(--border) 0 2px, transparent 2px 6px); }
+.yk-step.is-past .yk-bar { background: #b9c0cc; }
+.yk-step.is-now .yk-bar { background: var(--red); border-color: var(--red); }
+.yk-step.is-now .yk-num { color: var(--red); }
+.yk-step.is-now .yk-num::after { content: ""; position: absolute; inset: -6px -8px; border: 2px solid var(--red); border-radius: 50%; transform: rotate(-8deg); }
+.yk-labels { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 3px 0 0; padding: 0 2px; font-size: 10.5px; font-weight: 700; color: var(--muted); text-align: center; white-space: nowrap; letter-spacing: -.03em; }
+.yk-table th { width: 46%; text-align: left; }
 /* ふるさと納税：お金の流れ（寄付する → 住民税が減る → 自己負担）。3つの点を線でつなぐ */
 .fz-flow { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 10px 0 2px; padding: 0; list-style: none; }
 .fz-flow::before { content: ""; position: absolute; left: 16.6%; right: 16.6%; top: 22px; border-top: 1.5px solid var(--text); }
