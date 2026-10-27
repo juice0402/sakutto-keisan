@@ -454,6 +454,12 @@ def mitsumori_doc(img, cx, top):
               (('1回', '1回', '2,400'), ('1か月', '約21.7回', ('52,000',)), ('1年', '260回', '624,000')))
 
 
+def gensen_doc(img, cx, top):
+    """源泉徴収の計算：請求書（ページの計算例：報酬10万円・消費税を分けて書く）"""
+    doc_sheet(img, cx, top, '請求書', '源泉徴収税額', '10,210', '円', ('報酬', '消費税', '源泉', '差引'),
+              (('100,000', '10,000', ('−10,210',), '99,790'),))
+
+
 def yukyu_doc(img, cx, top):
     """有給休暇の付与日数：書類と勤続の階段（ページの計算例：2026年4月1日入社・週5日で10月1日に10日）"""
     t = THEMES['shigoto']
@@ -1300,7 +1306,7 @@ def hensachi_mount(d, x, y):
 
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
-    'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart, 'fx-lot': fx_lot, 'yukyu-fuyo': yukyu_doc,
+    'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart, 'fx-lot': fx_lot, 'yukyu-fuyo': yukyu_doc, 'gensen-choshu': gensen_doc,
     'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'seisou-mitsumori': mitsumori_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
     # 割引計算・実質単価の比較の下のページ（10/21）
     'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),

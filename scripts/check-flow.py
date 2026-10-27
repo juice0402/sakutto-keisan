@@ -282,6 +282,10 @@ CASES = {
         (('fill', '#jodai', '3000'), '#r-foot', '掛け率か下代を入れてください'),
         (('click', '.tile[data-rate="60"]'), None, None),
     ],
+    'gensen-choshu': [
+        (None, '#r-foot', '報酬か振り込まれる額を入れてください'),
+        (('fill', '#fee', '100000'), None, None),
+    ],
     'seisou-jikan': [
         (None, '#r-foot', '作業をえらんでください'),
         (('click', '.tile[data-speed="370"]'), '#r-foot', '面積を入れてください'),

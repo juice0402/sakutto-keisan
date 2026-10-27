@@ -787,6 +787,11 @@ h1 {
 .doc-table .is-zero { color: var(--muted); font-weight: 400; }
 .doc-table tr:last-child td { border-bottom: 1px solid var(--text); }
 .doc-table .is-out { color: var(--red); } /* 計算で出した値 */
+/* 源泉徴収：請求書のいちばん下の差引ご請求額（二重線の上に大きく）と、内わけの率 */
+.gs-table th { width: 46%; text-align: left; }
+.gs-total th, .gs-total td { border-top: 3px double var(--text); }
+.gs-total td { font-size: 20px; }
+#r-parts { justify-content: flex-start; gap: 0 8px; }
 .doc-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; margin: 6px 0 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .doc-foot span:empty { display: none; }
 .doc-foot span:last-child { margin-left: auto; }
