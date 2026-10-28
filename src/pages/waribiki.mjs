@@ -5,12 +5,11 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { calcDiscount, calcRate } from '../lib/waribiki.mjs';
+import { calcDiscount, calcRate, QUICK_PRICES, QUICK_RATES } from '../lib/waribiki.mjs';
+import { printLink } from '../prints.mjs';
 import { fmt } from '../lib/number.mjs';
 
-// よくある値段の割引の早見表（「1980円の3割引」のような検索で来る人が、表を見ればわかるように。数字は tests/waribiki.test.mjs で確かめる）
-export const QUICK_PRICES = [500, 600, 880, 980, 1000, 1280, 1500, 1980, 2000, 2980, 3000, 3980, 5000, 10000];
-export const QUICK_RATES = [10, 20, 30, 50];
+// よくある値段の割引の早見表（値段と率は src/lib/waribiki.mjs。印刷用のPDFも同じ表）
 const DESC_EX = { price: 1980, final: calcDiscount({ price: 1980, rate: 30 }).final }; // 説明文（meta description）の例
 const QUICK_ROWS = QUICK_PRICES.map(
   (p) => `<tr><td class="num">${fmt(p)}円</td>${QUICK_RATES.map((r) => `<td class="num">${fmt(calcDiscount({ price: p, rate: r }).final)}</td>`).join('')}</tr>`,
@@ -145,7 +144,7 @@ ${section(
 ${section(
   'quick',
   '値段ごとの割引の早見表',
-  `<div class="tbl-wrap"><table>
+  `${printLink('waribiki')}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">元の値段</th><th class="num">1割引</th><th class="num">2割引</th><th class="num">3割引</th><th class="num">半額</th></tr></thead>
 <tbody>
 ${QUICK_ROWS}

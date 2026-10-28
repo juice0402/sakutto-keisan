@@ -1,5 +1,6 @@
 // 印刷用の早見表（A4・1枚のPDF）。表の数字はサイトの計算（src/lib）とデータ（src/data）から作り、手で打ちこまない
 // 見た目は「手帳のおまけのページ」（10/26 しょーくんが3案からえらんだ B）：明朝の題、細い罫線、元号が変わる所に黒い線、色は年の赤だけ。絵は入れない
+// どのPDFも右下のすみにサイト名と、そのページのURLのQRコード（QRは make-prints.py が segno で作って、HTML の印 <span class="qr" data-url> に入れる）
 // PDF は scripts/make-prints.py がこの HTML から作って public/print/ にコミットする。年が入るもの（年齢・学歴）は今年と来年のぶんを置き、
 // ページは今年のPDFにリンクする（1月1日の毎日のビルドで自動で次の年に切りかわる）。毎年11月の予約タスクが次の年のPDFを足す
 import { existsSync, readdirSync } from 'node:fs';
@@ -7,7 +8,9 @@ import { SITE } from './site.mjs';
 import { ERA_TABLE } from './lib/wareki.mjs';
 import { warekiOf, warekiOfYear, etoOf } from './lib/hizuke.mjs';
 import { gakureki } from './lib/gakureki.mjs';
-import { volumeText } from './lib/kishaku.mjs';
+import { volumeText, dilute, QUICK_RATIOS, QUICK_TOTALS } from './lib/kishaku.mjs';
+import { calcDiscount, wariLabel, QUICK_PRICES, QUICK_RATES } from './lib/waribiki.mjs';
+import { fmt } from './lib/number.mjs';
 import { HYOHAKU_SRC, HYOHAKU_CAP, HYOHAKU_TARGETS, HYOHAKU_CAUTIONS, HYOHAKU_AMOUNT_SOURCES, HYOHAKU_CAUTION_SOURCES, hyohakuAmount } from './data/hyohakuzai.mjs';
 
 export const THIS_YEAR = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', year: 'numeric' }).format(new Date()));
@@ -17,6 +20,8 @@ export const PRINTS = {
   nenrei: { name: '年齢・和暦の早見表', path: '/nenrei/', yearly: true },
   gakureki: { name: '学歴早見表', path: '/gakureki/', yearly: true },
   hyohakuzai: { name: '消毒液の作り方', path: '/hyohakuzai/', yearly: false },
+  waribiki: { name: '割引の早見表', path: '/waribiki/', yearly: false },
+  kishaku: { name: '薄め方の早見表', path: '/kishaku/', yearly: false },
 };
 export const HYOHAKU_PRINT_WATERS = [500, 1000, 2000];
 
@@ -63,10 +68,17 @@ tr.era td{border-top:.35mm solid #222}
 .num{font-variant-numeric:tabular-nums}
 .sans{font-family:'Noto Sans CJK JP','Noto Sans JP',sans-serif}
 .note{font-size:3mm;color:#444;margin:0}
-footer{position:absolute;left:14mm;right:14mm;bottom:9mm;font-size:2.8mm;color:#666;text-align:right}`;
+footer{position:absolute;right:12mm;bottom:8mm;display:flex;align-items:flex-end;gap:3mm;text-align:right;line-height:1.5}
+footer b{display:block;font-size:3.6mm;font-weight:600;color:#222}
+footer small{display:block;font-size:2.6mm;color:#666}
+.qr{display:block;width:20mm;height:20mm}
+.qr svg{display:block;width:100%;height:100%}`;
+
+/** そのページのURL（QRコードの中身） */
+export const printUrl = (kind) => `${SITE.url}${PRINTS[kind].path}`;
 
 const doc = (title, css, body, path) =>
-  `<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>${title}｜${SITE.name}</title><style>${CSS}\n${css}</style></head><body><div class="page">${body}<footer>${SITE.name}　${host}${path}</footer></div></body></html>`;
+  `<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>${title}｜${SITE.name}</title><style>${CSS}\n${css}</style></head><body><div class="page">${body}<footer><div><b>${SITE.name}</b><small>${host}${path}</small></div><span class="qr" data-url="${SITE.url}${path}"></span></footer></div></body></html>`;
 
 // 年齢・和暦：今年の0歳から100歳まで（101行を3列）。年齢は今年の誕生日のあと
 function nenreiHtml(year) {
@@ -128,8 +140,8 @@ function gakurekiHtml(year) {
   const css = `.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 6mm}
 th{height:8.6mm;font-size:2.3mm;line-height:1.25;vertical-align:bottom;padding-bottom:1mm}
 .page{padding-top:11.5mm}
-td{height:6.9mm;font-size:3.2mm}
-td div{display:flex;flex-direction:column;justify-content:center;height:6.9mm;line-height:1.05}
+td{height:6.3mm;font-size:3.2mm}
+td div{display:flex;flex-direction:column;justify-content:center;height:6.3mm;line-height:1.05}
 td small{font-size:2.1mm;color:#555;margin-top:.45mm}
 td.by .num{font-weight:700}
 .note{margin-top:3mm}`;
@@ -168,10 +180,49 @@ li::before{content:"・"}
   return doc('消毒液の作り方（塩素系漂白剤）', css, body, PRINTS.hyohakuzai.path);
 }
 
+// 割引：割引計算のページの早見表と同じ（よくある値段 × 1割引〜半額。割引後の値段、1円未満は切り捨て）
+function waribikiHtml() {
+  const trs = QUICK_PRICES.map(
+    (p) => `<tr><td class="price num sans r">${fmt(p)}円</td>${QUICK_RATES.map((r) => `<td class="num sans r">${fmt(calcDiscount({ price: p, rate: r }).final)}</td>`).join('')}</tr>`,
+  ).join('');
+  const label = (r) => (r === 50 ? '半額' : wariLabel(r));
+  const css = `table{margin-top:2mm}
+th{height:9mm;font-size:3.6mm;vertical-align:bottom;padding-bottom:1.6mm;padding-right:4mm}
+th small{display:block;font-size:2.6mm;color:#666;margin-top:.8mm}
+td{height:13.6mm;font-size:6mm;padding-right:4mm}
+td.price{font-weight:700}
+.note{margin-top:4mm}`;
+  const body = `<header><h1>割引の早見表</h1><div class="ed">割引後の値段（円）</div></header><div class="rule2"></div>
+<table><colgroup><col style="width:24%">${'<col style="width:19%">'.repeat(QUICK_RATES.length)}</colgroup>
+<thead><tr><th class="r">元の値段</th>${QUICK_RATES.map((r) => `<th class="r">${label(r)}<small>${r}％オフ</small></th>`).join('')}</tr></thead><tbody>${trs}</tbody></table>
+<p class="note">1円未満は切り捨てです。</p>`;
+  return doc('割引の早見表', css, body, PRINTS.waribiki.path);
+}
+
+// 希釈：希釈率の計算のページの早見表と同じ（倍率 × できあがり500ml・1L・2L の原液の量）
+function kishakuHtml() {
+  const trs = QUICK_RATIOS.map(
+    (r) => `<tr><td class="ratio num sans">${r.toLocaleString('ja-JP')}倍</td>${QUICK_TOTALS.map((t) => `<td class="num sans r">${volumeText(dilute({ ratio: r, amount: t }).concentrate)}</td>`).join('')}</tr>`,
+  ).join('');
+  const ex = dilute({ ratio: 100, amount: 1000 });
+  const css = `table{margin-top:2mm}
+th{height:9mm;font-size:3.6mm;vertical-align:bottom;padding-bottom:1.6mm;padding-right:5mm}
+td{height:20.5mm;font-size:7mm;padding-right:5mm}
+td.ratio{font-weight:700}
+.note{margin-top:4mm;line-height:1.7}`;
+  const body = `<header><h1>薄め方の早見表</h1><div class="ed">できあがりの量ごとの<b>原液</b>の量</div></header><div class="rule2"></div>
+<table><colgroup><col style="width:25%">${'<col style="width:25%">'.repeat(QUICK_TOTALS.length)}</colgroup>
+<thead><tr><th>倍率</th>${QUICK_TOTALS.map((t) => `<th class="r">できあがり${volumeText(t)}</th>`).join('')}</tr></thead><tbody>${trs}</tbody></table>
+<p class="note">水は、できあがりの量から原液を引いた量です。<br>1Lを100倍なら、原液${volumeText(ex.concentrate)}に水${volumeText(ex.water)}です。</p>`;
+  return doc('薄め方の早見表', css, body, PRINTS.kishaku.path);
+}
+
 /** 印刷用のHTML（scripts/make-prints.py がPDFにする。tests/prints.test.mjs が作り直し忘れを見張る） */
 export function printHtml(kind, year) {
   if (kind === 'nenrei') return nenreiHtml(year);
   if (kind === 'gakureki') return gakurekiHtml(year);
   if (kind === 'hyohakuzai') return hyohakuzaiHtml();
+  if (kind === 'waribiki') return waribikiHtml();
+  if (kind === 'kishaku') return kishakuHtml();
   throw new Error(`知らない早見表：${kind}`);
 }

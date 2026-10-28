@@ -3,7 +3,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { PRINTS, printFile, printHtml, THIS_YEAR } from '../src/prints.mjs';
+import { PRINTS, printFile, printHtml, printUrl, THIS_YEAR } from '../src/prints.mjs';
+import { calcDiscount, QUICK_PRICES, QUICK_RATES } from '../src/lib/waribiki.mjs';
+import { dilute, QUICK_RATIOS, QUICK_TOTALS } from '../src/lib/kishaku.mjs';
+import { fmt } from '../src/lib/number.mjs';
 import { gakureki } from '../src/lib/gakureki.mjs';
 import { volumeText } from '../src/lib/kishaku.mjs';
 import { hyohakuAmount } from '../src/data/hyohakuzai.mjs';
@@ -59,4 +62,32 @@ test('消毒液：ページの表と同じ量（水500ml・1L）と、水2L', ()
   const ml = [...html.matchAll(/class="ml num sans r">([^<]*)/g)].map((m) => m[1]);
   assert.deepEqual(ml, ['1.7ml', '3.3ml', '6.7ml', '4.2ml', '8.4ml', '17ml', '8.5ml', '17ml', '34ml']);
   assert.equal(volumeText(hyohakuAmount('0.05', 1000)), '8.4ml');
+});
+
+test('どのPDFも右下にサイト名と、そのページのURLのQRコードの印が1つ', () => {
+  for (const kind of Object.keys(PRINTS)) {
+    const html = printHtml(kind, THIS_YEAR);
+    const urls = [...html.matchAll(/<span class="qr" data-url="([^"]+)"><\/span>/g)].map((m) => m[1]);
+    assert.deepEqual(urls, [printUrl(kind)], kind);
+    assert.match(printUrl(kind), /^https:\/\/sakutto-keisan\.com\/[a-z-]+\/$/);
+    assert.match(html, /<footer><div><b>サクッと計算<\/b>/);
+  }
+});
+
+test('割引：ページの早見表と同じ値段と率（割引後の値段）', () => {
+  const html = printHtml('waribiki');
+  const cells = [...html.matchAll(/<td class="num sans r">([^<]*)/g)].map((m) => m[1]);
+  assert.equal(cells.length, QUICK_PRICES.length * QUICK_RATES.length);
+  assert.deepEqual(cells, QUICK_PRICES.flatMap((p) => QUICK_RATES.map((r) => fmt(calcDiscount({ price: p, rate: r }).final))));
+  assert.match(html, /1,980円<\/td><td class="num sans r">1,782<\/td><td class="num sans r">1,584<\/td><td class="num sans r">1,386<\/td><td class="num sans r">990</);
+});
+
+test('希釈：ページの早見表と同じ倍率とできあがりの量（原液の量）', () => {
+  const html = printHtml('kishaku');
+  const cells = [...html.matchAll(/<td class="num sans r">([^<]*)/g)].map((m) => m[1]);
+  assert.equal(cells.length, QUICK_RATIOS.length * QUICK_TOTALS.length);
+  assert.match(html, />100倍<\/td><td class="num sans r">5ml<\/td><td class="num sans r">10ml<\/td><td class="num sans r">20ml</);
+  assert.match(html, />2倍<\/td><td class="num sans r">250ml<\/td><td class="num sans r">500ml<\/td><td class="num sans r">1L</);
+  assert.equal(dilute({ ratio: 100, amount: 1000 }).water, 990);
+  assert.match(html, /原液10mlに水990ml/);
 });
