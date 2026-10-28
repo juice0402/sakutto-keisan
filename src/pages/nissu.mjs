@@ -7,6 +7,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField, dateField } from '../fields.mjs';
 import { nissu } from '../lib/nissu.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
+import { stair, zCal } from '../zukai.mjs';
 
 const tool = toolBySlug('nissu');
 const path = '/nissu/';
@@ -21,6 +22,9 @@ const QUICK_ROWS = QUICK_DAYS.map((n) => {
 }).join('\n');
 const A = ex('2026-10-21', 100);
 const B = nissu({ start: '2026-10-21', days: null, end: '2026-12-25', out: 'days' });
+
+// 図解（#70）：日めくり2枚（はじめの日 ＋100日 → おわりの日）
+const ZUKAI = stair(zCal('2026年10月', 21, `${weekdayOf({ y: 2026, m: 10, d: 21 })}曜日`), { b: '＋100日', small: 'はじめの日は数えない' }, zCal(`${A.y}年${A.m}月`, A.d, `${weekdayOf(A)}曜日`, true), ['おわりの日 ＝ はじめの日 ＋ 日数', '日数 ＝ おわりの日 − はじめの日', `例：2026年10月21日の100日後は、${A.y}年${md(A)}です。`]);
 
 const FAQS = [
   {
@@ -76,11 +80,7 @@ export default function render() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>おわりの日 ＝ はじめの日 ＋ 日数</span>
-<span>日数 ＝ おわりの日 − はじめの日</span>
-</div>
-<p>例：2026年10月21日の100日後は、${A.y}年${md(A)}です。</p>`,
+  ZUKAI,
 )}
 
 ${section(

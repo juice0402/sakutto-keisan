@@ -8,6 +8,7 @@ import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE, memoHtml } from '../parts.m
 import { boxField } from '../fields.mjs';
 import { shohizei, TAX_RATES } from '../lib/shohizei.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zReceipt } from '../zukai.mjs';
 
 const tool = toolBySlug('shohizei');
 const path = '/shohizei/';
@@ -28,6 +29,12 @@ const QUICK_ROWS = QUICK.map(
   (p) => `<tr><td class="num">${fmt(p)}円</td>${TAX_RATES.map((r) => `<td class="num">${fmt(shohizei({ amount: p, from: 'net', rate: r }).gross)}</td>`).join('')}</tr>`,
 ).join('\n');
 const EX = shohizei({ amount: 1000, from: 'gross', rate: 10 });
+
+// 図解（#70）：レシートの式と、税込の帯（税抜1,980円・10％）
+const ZX = shohizei({ amount: 1980, from: 'net', rate: 10 });
+const ZX8 = shohizei({ amount: 1980, from: 'net', rate: 8 });
+const ZUKAI = stair(zReceipt('税抜', `${fmt(ZX.net)}円`), { b: '×1.1', small: '消費税10％' }, zReceipt('税込', `${fmt(ZX.gross)}円`, true), ['消費税 ＝ 税抜 × 10％（8％）', '税込 ＝ 税抜 ＋ 消費税', '税込からの消費税 ＝ 税込 × 10 ÷ 110']);
+const BAND = band({ head: `税込 ${fmt(ZX.gross)}円`, parts: [{ w: 91, text: `税抜 ${fmt(ZX.net)}円` }, { w: 9, kind: 'off', text: '' }], ruler: [[0, '0'], [100, '＋消費税10％', true]], ans: `消費税${fmt(ZX.tax)}円を足して → <b>${fmt(ZX.gross)}円</b>`, label: `税込${fmt(ZX.gross)}円の帯を、税抜${fmt(ZX.net)}円と消費税${fmt(ZX.tax)}円に分けた図` });
 
 const FAQS = [
   {
@@ -88,12 +95,7 @@ export default function render() {
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>消費税 ＝ 税抜 × 10％（8％）</span>
-<span>税込 ＝ 税抜 ＋ 消費税</span>
-<span>税込からの消費税 ＝ 税込 × 10 ÷ 110</span>
-</div>
-<p>例：税抜1,980円なら、消費税198円で税込2,178円です。8％なら消費税158円で2,138円です。</p>`,
+  `${ZUKAI}${BAND}<p>8％なら、税抜1,980円の消費税は${fmt(ZX8.tax)}円で税込${fmt(ZX8.gross)}円です。</p>`,
 )}
 
 ${section(

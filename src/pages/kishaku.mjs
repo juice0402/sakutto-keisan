@@ -9,6 +9,7 @@ const QUICK_ROWS = QUICK_RATIOS.map(
   (r) => `<tr><td>${r.toLocaleString('ja-JP')}倍</td>${QUICK_TOTALS.map((t) => `<td class="num">${volumeText(dilute({ ratio: r, amount: t }).concentrate)}</td>`).join('')}</tr>`,
 ).join('\n');
 import { numInput, mixTiles, mixStage } from '../mix.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('kishaku');
 const path = '/kishaku/';
@@ -59,6 +60,11 @@ const FAQS = [
   },
 ];
 
+// 図解（#70）：できあがりの量を倍率で割る式と、できあがりの帯（500mlを100倍）
+const ZX = dilute({ ratio: 100, amount: 500 });
+const ZUKAI = stair(zBox('できあがり', `${ZX.total}ml`), { b: '÷100', small: '100倍' }, zBox('原液', `${ZX.concentrate}ml`, true), ['原液の量 ＝ できあがりの量 ÷ 倍率', '水の量 ＝ できあがりの量 − 原液の量', '何対何から：倍率 ＝（原液 ＋ 水）÷ 原液', '濃度から：倍率 ＝ 原液の濃度 ÷ 作りたい濃度'], `水は ${ZX.total} − ${ZX.concentrate} ＝ <b class="fz-red">${ZX.water}ml</b>`);
+const BAND = band({ head: `できあがり ${ZX.total}ml`, parts: [{ w: 2, kind: 'off', text: '' }, { w: 98, text: `水 ${ZX.water}ml` }], ruler: [[0, `原液 ${ZX.concentrate}ml`, true], [100, `${ZX.total}ml`]], ans: `原液1：水99 → <b>100倍</b>`, label: `できあがり${ZX.total}mlの帯を、原液${ZX.concentrate}mlと水${ZX.water}mlに分けた図` });
+
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
@@ -90,20 +96,14 @@ ${USES.length ? section('uses', '使いみち別の薄め方', toolListHtml(USES
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>原液の量 ＝ できあがりの量 ÷ 倍率</span>
-<span>水の量 ＝ できあがりの量 − 原液の量</span>
-<span>何対何から：倍率 ＝（原液 ＋ 水）÷ 原液</span>
-<span>濃度から：倍率 ＝ 原液の濃度 ÷ 作りたい濃度</span>
-</div>
-<p>例：500mlを100倍なら、原液5ml・水495ml。</p>
+  `${ZUKAI}
 <p class="note">「まぜるな危険」の製品はまぜないでください。</p>`,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>作り方</th><th class="num">原液</th><th class="num">水</th><th class="num">できる量</th></tr></thead>
 <tbody>
 <tr><td class="wrap">500mlを<wbr>100倍</td><td class="num">5ml</td><td class="num">495ml</td><td class="num">500ml</td></tr>

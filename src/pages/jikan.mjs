@@ -6,6 +6,7 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { jikan, JIKAN_MAX_ROWS } from '../lib/jikan.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('jikan');
 const path = '/jikan/';
@@ -20,6 +21,10 @@ const ROWS = Array.from({ length: JIKAN_MAX_ROWS }, (_, i) => `<div class="item 
 // 分を小数の時間にする表（15分・30分・45分など）
 const MIN_TABLE = [5, 10, 15, 20, 30, 40, 45, 50].map((m) => `<tr><td class="num">${m}分</td><td class="num">${Number((m / 60).toFixed(4))}時間</td></tr>`).join('\n');
 const R = jikan(EX.map(([h, m]) => ({ h, m })));
+
+// 図解（#70）：分にして足す式と、3つの時間をつないだ帯（3時間45分＋2時間30分＋7時間15分）
+const ZUKAI = stair(zBox('3つの時間を分にして足す', `${R.minutes}分`), { b: '÷60', small: '分を時間に' }, zBox('合計', R.text, true), ['1行の分 ＝ 時間 × 60 ＋ 分', '合計の時間 ＝ 合計の分 ÷ 60', `例：3時間45分 ＋ 2時間30分 ＋ 7時間15分 ＝ ${R.text}（${R.hours}時間）です。`]);
+const BAND = band({ parts: EX.map(([h, m], i) => ({ w: Number((((h * 60 + m) / R.minutes) * 100).toFixed(2)), kind: i % 2 ? 'alt' : 'pay', text: `${h}:${String(m).padStart(2, '0')}` })), ruler: [[0, '0'], [100, `${R.minutes}分`]], ans: `つないで → <b>${R.text}</b>`, label: `3つの時間の帯をつないで${R.text}になる図` });
 
 const FAQS = [
   {
@@ -68,11 +73,7 @@ export default function render() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>1行の分 ＝ 時間 × 60 ＋ 分</span>
-<span>合計の時間 ＝ 合計の分 ÷ 60</span>
-</div>
-<p>例：3時間45分 ＋ 2時間30分 ＋ 7時間15分 ＝ ${R.text}（${R.hours}時間）です。</p>`,
+  `${ZUKAI}${BAND}`,
 )}
 
 ${section(

@@ -8,6 +8,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { percent, wariOf, decimalOf } from '../lib/percent.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, zBox, hyakuMasu } from '../zukai.mjs';
 
 const tool = toolBySlug('percent');
 const path = '/percent/';
@@ -26,6 +27,10 @@ const QUICK_PCT = [1, 5, 10, 20, 50];
 const QUICK_ROWS = QUICK_BASE.map(
   (b) => `<tr><td class="num">${fmt(b)}</td>${QUICK_PCT.map((p) => `<td class="num">${fmt(percent({ base: b, pct: p, part: null, out: 'part' }).part)}</td>`).join('')}</tr>`,
 ).join('\n');
+
+// 図解（#70）：箱の式と100マス（200の15％）
+const ZX = percent({ base: 200, pct: 15, out: 'part' });
+const ZUKAI = stair(zBox('もとの数', '200'), { b: '×15÷100', small: '15％' }, zBox('その数', `${fmt(ZX.part)}`, true), ['その数 ＝ もとの数 × 割合 ÷ 100', '割合 ＝ その数 ÷ もとの数 × 100', 'もとの数 ＝ その数 ÷ 割合 × 100'], `${hyakuMasu(15, '100マスのうち15マスをぬった図。15％は100のうち15')}200の15％は <b class="fz-red">${fmt(ZX.part)}</b>`);
 
 const FAQS = [
   {
@@ -85,12 +90,7 @@ export default function render() {
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>その数 ＝ もとの数 × 割合 ÷ 100</span>
-<span>割合 ＝ その数 ÷ もとの数 × 100</span>
-<span>もとの数 ＝ その数 ÷ 割合 × 100</span>
-</div>
-<p>例：200の15％は、200 × 15 ÷ 100 ＝ 30です。</p>`,
+  ZUKAI,
 )}
 
 ${section(

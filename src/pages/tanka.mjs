@@ -6,6 +6,7 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { calcUnitPrice } from '../lib/tanka.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zTag } from '../zukai.mjs';
 
 const KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']; // 実質単価の比較は最初 A〜D の4つ、「＋1つ追加」で H（8つ）まで
 const MATOME_KEYS = KEYS.slice(0, 4); // まとめ買いは最初 A・B の2つ、D（4つ）まで
@@ -43,6 +44,13 @@ const item = (k, i, first, extra) => `<div class="item${extra ? ' is-set' : ''}"
 
 // 押すだけのボタン（＋1つ追加）。オン・オフではないので aria-pressed は付けない（付けると site.css がチェック欄の形にする）
 const toolBtn = (id, label) => `<button type="button" class="tool-btn" id="${id}"><span>${label}</span></button>`;
+
+// 図解（#70）：値札の式（500gで198円）と、100gあたりの棒（お肉の計算例）
+const ZA = calcUnitPrice({ price: 198, qty: 500, unit: 'g' });
+const ZB = calcUnitPrice({ price: 298, qty: 1, unit: 'kg' });
+const ZUKAI = stair(zTag('500g', `${fmt(ZA.pay)}円`), { b: '÷500×100', small: '量で割る' }, zTag('100gあたり', `${fmt(ZA.per, 1)}円`, true), ['100gあたりの値段 ＝ 値段 ÷ 量（g）× 100', '1個あたりの値段 ＝ 値段 ÷ 個数', `例：500gで198円なら、198 ÷ 500 × 100 ＝ ${fmt(ZA.per, 1)}円。`]);
+const zMax = Math.max(ZA.per, ZB.per);
+const BARS = `${band({ head: `A 500g 198円`, parts: [{ w: Number(((ZA.per / zMax) * 100).toFixed(1)), text: `${fmt(ZA.per, 1)}円` }], label: `Aの100gあたり${fmt(ZA.per, 1)}円の棒` })}${band({ head: `B 1kg 298円`, parts: [{ w: Number(((ZB.per / zMax) * 100).toFixed(1)), text: `${fmt(ZB.per, 1)}円` }], ans: `100gあたり安いのは → <b>B ${fmt(ZB.per, 1)}円</b>`, label: `Bの100gあたり${fmt(ZB.per, 1)}円の棒。Bのほうが安い` })}`;
 
 const FAQS = [
   {
@@ -124,17 +132,13 @@ function renderMain() {
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>100gあたりの値段 ＝ 値段 ÷ 量（g）× 100</span>
-<span>1個あたりの値段 ＝ 値段 ÷ 個数</span>
-</div>
-<p>例：500gで198円なら、198 ÷ 500 × 100 ＝ 39.6円。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BARS}<div class="tbl-wrap"><table>
 <thead><tr><th>くらべるもの</th><th class="num">A</th><th class="num">B</th><th>安い</th></tr></thead>
 <tbody>
 <tr><td class="wrap">お肉 500g 198円 / 1kg 298円</td><td class="num">39.6円</td><td class="num">29.8円</td><td>B</td></tr>

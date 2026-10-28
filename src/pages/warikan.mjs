@@ -7,6 +7,7 @@ import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { WARIKAN_UNITS, WARIKAN_GROUPS, warikan } from '../lib/warikan.mjs';
+import { stair, band, zReceipt, zTickets } from '../zukai.mjs';
 
 // 合計と人数の早見表（100円単位で集める1人の額。「1万円 3人 割り勘」のような検索で来る人が、表を見ればわかるように）
 export const QUICK_TOTALS = [5000, 10000, 15000, 20000, 25000, 30000, 50000];
@@ -39,6 +40,12 @@ const STEPPER = `<div class="stepper box-stepper">
     <div class="field box-field" id="f-people"><label for="people">人数</label><div class="input"><input id="people" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="4"><span class="unit">人</span></div></div>
     <button type="button" class="step-btn" id="people-plus" aria-label="人数を1人ふやす">${icon('<path d="M5 12h14M12 5v14"/>')}</button>
   </div>`;
+
+// 図解（#70）：レシートから人数分の券へ（10,000円を3人・100円単位）と、合計の帯
+const ZX = warikan({ total: 10000, people: 3, unit: 100 });
+const ZUKAI = stair(zReceipt('合計', `${ZX.total.toLocaleString('ja-JP')}円`), { b: '÷3', small: '100円単位に切り上げ' }, zTickets(`${ZX.each.toLocaleString('ja-JP')}円`, 3), ['1人の額 ＝ 合計 ÷ 人数（切り上げ）', 'おつり ＝ 1人の額 × 人数 − 合計', `例：10,000円を3人で、100円単位なら3,333.3…円が${ZX.each.toLocaleString('ja-JP')}円。集めると${ZX.collect.toLocaleString('ja-JP')}円で、おつりは${ZX.change}円です。`]);
+const third = `${Math.floor(ZX.exact).toLocaleString('ja-JP')}円`;
+const BAND = band({ head: `合計 ${ZX.total.toLocaleString('ja-JP')}円`, parts: [{ w: 33.34, text: third }, { w: 33.33, text: third }, { w: 33.33, text: third }], ans: `100円単位に切り上げ → <b>${ZX.each.toLocaleString('ja-JP')}円</b>`, label: `合計${ZX.total.toLocaleString('ja-JP')}円の帯を3人で3つに分けた図` });
 
 const FAQS = [
   {
@@ -97,17 +104,13 @@ function renderMain() {
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>1人の額 ＝ 合計 ÷ 人数（切り上げ）</span>
-<span>おつり ＝ 1人の額 × 人数 − 合計</span>
-</div>
-<p>例：10,000円を3人で、100円単位なら3,333.3…円が3,400円。集めると10,200円で、おつりは200円です。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">合計</th><th class="num">人数</th><th class="num">1人</th><th class="num">おつり</th></tr></thead>
 <tbody>
 <tr><td class="num">12,800円</td><td class="num">4人</td><td class="num">3,200円</td><td class="num">0円</td></tr>
