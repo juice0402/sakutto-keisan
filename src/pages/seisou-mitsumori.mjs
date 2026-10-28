@@ -4,7 +4,7 @@
 // 結果は見積書（大きな答え、面積×㎡単価×回数の1行、1回・1か月・1年の表、清掃する月に赤ペンの丸をつけた1年の帯）。ページに載せる例は tests/mitsumori.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { SEISOU_WORKS, SEISOU_SRC } from '../lib/seisou.mjs';
 import { mitsumori, mitsuKeihi, mitsuMeyasu, MITSU_KAISU } from '../lib/mitsumori.mjs';
@@ -110,6 +110,7 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">回数をえらんでください</span><span id="r-tax"></span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

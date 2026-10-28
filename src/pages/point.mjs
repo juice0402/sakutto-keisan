@@ -5,7 +5,7 @@
 // 決まり：楽天のロゴ・赤い帯・公式に似た表を使わない。「目安」「付与は楽天の計算」「楽天グループとは関係のない個人のサイト」を書く
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc, icon } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { POINT_EVENTS, POINT_SOURCES, POINT_CAPS, POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { marathonPoints, pointReach } from '../lib/point.mjs';
@@ -132,6 +132,7 @@ export default function render() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <p class="note">目安です。付与は楽天の計算によります。</p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

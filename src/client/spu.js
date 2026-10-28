@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { spuPoints } from '../lib/spu.mjs';
 import { SPU_ITEMS, SPU_BASE, SPU_MAX } from '../data/spu.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // SPU のポイント計算：今月の買い物（税込）と、使っているサービスのチェック欄から、倍率とポイントの目安
 // 結果のカードの帯は、全部そろったときの倍率の長さに、楽天会員の1倍と、えらんだサービスの分をぬる
@@ -38,10 +41,12 @@ function update() {
     setNote(res.error || '', !!res.error);
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? '今月の買い物を入れてください' : '';
+    memo(null);
     return;
   }
   setNote(res.noCap.length ? `${res.noCap.map((r) => r.name).join('・')}の上限は、公式のページで確かめてください。` : '');
   $('r-num').textContent = fmt(res.points);
+  memo({ q: `今月${$('total').value}円・${picked.size}サービス`, a: `${fmt(res.points)}ポイント（${res.rate}倍）` });
   if (!picked.size) $('r-foot').textContent = '使っているサービスをえらんでください';
   else if (res.full.length) $('r-foot').textContent = `上限に届いた：${res.full.map((r) => r.name).join('・')}`;
   else if (res.next) $('r-foot').textContent = `${res.next.name}は${fmt(res.next.reach)}円で上限`;

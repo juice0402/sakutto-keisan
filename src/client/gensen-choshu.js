@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { gensen, gensenParts, GENSEN_BORDER } from '../lib/gensen.mjs';
 import { ymdValue } from '../lib/hizuke.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 源泉徴収の計算：報酬（税抜）か振り込まれる額のあとから入れたほう（もう片方は点線の答えの欄）と、請求書の消費税の書き方・支払う日
 // 結果は請求書（大きな源泉徴収税額、報酬・消費税・源泉・差引ご請求額、内わけの率）
@@ -40,9 +43,11 @@ function update() {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? '報酬か振り込まれる額を入れてください' : '';
     ['d-fee', 'd-tax', 'd-gensen', 'd-net'].forEach((id) => { $(id).textContent = '—'; });
+    memo(null);
     return;
   }
   $('r-num').textContent = fmt(res.gensen);
+  memo({ q: `報酬${fmt(res.fee)}円`, a: `源泉徴収${fmt(res.gensen)}円・振り込み${fmt(res.net)}円` });
   $('d-fee').textContent = yen(res.fee);
   $('d-tax').textContent = mode === 'none' ? '—' : yen(res.tax);
   $('d-gensen').textContent = `−${yen(res.gensen)}`;

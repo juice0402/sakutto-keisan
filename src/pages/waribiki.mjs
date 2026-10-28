@@ -242,6 +242,7 @@ function renderRate() {
   </div>
 
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/waribiki/">割引後の値段を出す</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

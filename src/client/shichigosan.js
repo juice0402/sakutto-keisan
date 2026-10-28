@@ -1,6 +1,9 @@
 import { shichigosan } from '../lib/gyoji.mjs';
 import { $ } from './ui.mjs';
 import { GY_YEAR, gyWa, gyNote, gySexPress } from './gyoji-ui.mjs';
+import { memoOnly, cmYmd } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 七五三：子どもごとの生年月日と男の子・女の子から、数え年と満年齢の七五三の年を年ごとの表に
 // きょうだいは「＋きょうだいを追加」で3人まで。全員がそろって祝える年に色をつけて、いちばん近い年を大きく
@@ -27,6 +30,7 @@ function update() {
     const m = res.missing;
     const who = count > 1 && m ? `${NAMES[m.kid]}の` : '';
     $('r-foot').textContent = !m ? '' : m.what === 'birth' ? `${who}生年月日を入れてください` : who ? `${who}性別をえらんでください` : '男の子か女の子をえらんでください';
+    memo(null);
     return;
   }
   $('r-rows').innerHTML = res.rows
@@ -41,12 +45,14 @@ function update() {
     .join('');
   if (res.next) {
     $('r-num').textContent = String(res.next.year);
+    memo({ q: kids.map((k) => `${cmYmd(k.birth)}生まれ`).join('・'), a: `七五三 ${res.next.year}年（${res.next.items.map(label).join('・')}）` });
     $('r-say').textContent = count > 1
       ? res.next.items.map((p) => `${NAMES[p.kid]} ${label(p)}`).join('・')
       : `${gyWa(res.next.year)}・${res.next.items.map(label).join('・')}`;
     $('r-foot').textContent = '';
   } else {
     $('r-num').textContent = '—';
+    memo(null);
     $('r-say').textContent = '';
     $('r-foot').textContent = count > 1 && !res.done ? '全員がいっしょにできる年はありません' : '七五三の年は過ぎています';
   }

@@ -6,7 +6,7 @@
 // 使わない言葉（総務省のQ&A）：お得・還元・購入・ポイント など。scripts/verify-dist.mjs が見張る
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc, icon } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { FURUSATO_TETSUZUKI_SOURCES } from '../data/furusato.mjs';
 import { kakuteiEnd, ONESTOP_MAX } from '../lib/furusato-tetsuzuki.mjs';
@@ -108,6 +108,7 @@ function renderOnestop() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link" href="/furusato/memo/">寄付メモ</a><a class="tool-btn tool-link span-2" href="/furusato/shimekiri/">締め切りまでの日数</a></div>
+  ${memoHtml(tool, false)}
   ${NOSCRIPT}
 </div>
 
@@ -215,6 +216,7 @@ function renderShimekiri() {
     <p class="doc-foot"><span id="r-foot"></span></p>
   </div>
   <div class="calc-tools"><a class="tool-btn tool-link span-2" href="/furusato/onestop/">申請書の出し方</a><a class="tool-btn tool-link" href="/furusato/memo/">寄付メモ</a></div>
+  ${memoHtml(tool, false)}
   ${NOSCRIPT}
 </div>
 

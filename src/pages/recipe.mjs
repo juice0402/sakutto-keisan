@@ -1,6 +1,6 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { RECIPE_UNITS } from '../lib/recipe.mjs';
 
 const tool = toolBySlug('recipe');
@@ -120,6 +120,7 @@ export default function render() {
     ${toolBtn('to-match', '手元の量から')}
     ${toolBtn('to-copy', '結果をコピー', false)}
   </div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

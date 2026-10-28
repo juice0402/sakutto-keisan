@@ -1,6 +1,9 @@
 import { parseNum } from '../lib/number.mjs';
 import { fxRatio, yenText, ratioText, qtyText, levText, rateDigits, FX_PAIRS } from '../lib/fx.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 証拠金維持率：口座のお金といまのレート（ロスカットの計算と同じ順）に、レバレッジか通貨の量のどちらかを入れる。入れた欄から、もう片方の欄と維持率を出す
 let from = 'lev'; // いま入れている欄 lev：レバレッジ / qty：通貨の量（もう片方に答えを出す）
@@ -45,9 +48,11 @@ function update() {
   if (!res.ok) {
     $('r-amount').textContent = '';
     $('r-need').textContent = res.empty ? emptyText() : '';
+    memo(null);
     return;
   }
   $('r-amount').textContent = `取引額 ${yenText(res.amount)}`;
+  memo({ q: `口座${yenText(val('money'))}・${qtyText(res.qty)}通貨（${levText(res.lev)}倍）`, a: `維持率${ratioText(res.ratio)}` });
   $('r-need').textContent = `取引に必要なお金 ${yenText(res.need)}`;
 }
 

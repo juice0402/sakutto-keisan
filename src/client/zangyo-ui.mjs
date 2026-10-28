@@ -59,3 +59,7 @@ export function zangyoSetup(inputs, update) {
   focusHints(document.querySelector('.box-rows'));
   update();
 }
+
+/** ちょいメモの1行の時間（「残業10時間・深夜2時間」。#71） */
+export const zgMemoHours = () =>
+  [['over', '残業'], ['night', '深夜'], ['holiday', '休日']].filter(([id]) => numVal(id) > 0).map(([id, n]) => `${n}${zangyoHoursText(numVal(id))}`).join('・');

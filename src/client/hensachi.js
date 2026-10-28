@@ -1,6 +1,9 @@
 import { parseNum } from '../lib/number.mjs';
 import { hensachi, hsArea, hsX } from '../lib/hensachi.mjs';
 import { $, enterToNext, numericOnly, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 偏差値の計算：偏差値の欄か、得点・平均点・標準偏差（あとから入れたほう）から、上位何％と100人中何番くらいか
 let from = null; // 'dev' か 'score'
@@ -29,6 +32,7 @@ function update() {
     $('hs-me').setAttribute('visibility', 'hidden');
     ['d-dev', 'd-up', 'd-low'].forEach((id) => { $(id).textContent = '—'; });
     $('r-foot').textContent = res.empty ? (res.missing === 'dev' ? '偏差値か得点を入れてください' : `${NAME[res.missing]}を入れてください`) : '';
+    memo(null);
     return;
   }
   $('r-num').textContent = res.up.num;
@@ -43,6 +47,7 @@ function update() {
   $('d-up').textContent = `${res.up.num}${res.up.unit}`;
   $('d-low').textContent = `${res.low.num}${res.low.unit}`;
   $('r-foot').textContent = '';
+  memo({ q: from === 'dev' ? `偏差値${res.dev.toFixed(1)}` : `得点${$('score').value}点・平均点${$('mean').value}点・標準偏差${$('sd').value}`, a: `上位${res.up.num}${res.up.unit}（偏差値${res.dev.toFixed(1)}）` });
 }
 
 numericOnly(ALL);

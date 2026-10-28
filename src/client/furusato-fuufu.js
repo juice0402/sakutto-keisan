@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { furusatoCouple } from '../lib/furusato.mjs';
 import { FURUSATO_YEARS } from '../data/furusato.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 共働き・夫婦の上限：2人の年収・扶養している16歳以上の子・子を扶養する人から、それぞれの上限と合計
 // 子を扶養する人のマスは、子をえらんだときだけ出す（はじめは「あなた」）
@@ -38,10 +41,12 @@ function update() {
     $('b-b').style.width = '0%';
     $('r-foot').textContent = res.empty ? (res.missing === 'income1' ? 'あなたの年収を入れてください' : '配偶者の年収を入れてください') : '';
     $('r-how').textContent = '';
+    memo(null);
     return;
   }
   const lim = (r) => (r.none ? '—' : yen(r.limit));
   $('r-num').textContent = res.total ? fmt(res.total) : '—';
+  memo(res.total ? { q: `年収${$('income1').value}万円と${$('income2').value}万円`, a: `2人の上限${yen(res.total)}` } : null);
   $('d-a').textContent = lim(res.a);
   $('d-b').textContent = lim(res.b);
   $('b-a').style.width = res.total ? `${((res.a.limit / res.total) * 100).toFixed(1)}%` : '0%';

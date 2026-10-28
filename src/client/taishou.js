@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { countJudge } from '../lib/taishou.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 買いまわりの1店舗の判定：店の種類・商品の値段・クーポンの値引きから、1店舗に数えるか。棒は数える額（2,000円で右はし）と1,000円の線
 const MIN = Number($('calc').dataset.min);
@@ -31,9 +34,11 @@ function update() {
     $('d-judge').textContent = '—';
     fill.style.width = '0%';
     $('r-foot').textContent = res.empty ? '商品の値段を入れてください' : '';
+    memo(null);
     return;
   }
   $('r-num').textContent = ANSWER[res.status];
+  memo({ q: `${$('price').value}円${$('coupon').value ? `・クーポン${$('coupon').value}円` : ''}`, a: ANSWER[res.status] });
   $('r-v').classList.toggle('is-no', res.status === 'no');
   $('d-judge').textContent = res.judge === null ? '—' : `${fmt(res.judge)}円`;
   fill.style.width = res.judge === null ? '0%' : `${Math.min(100, (res.judge / (MIN * 2)) * 100).toFixed(1)}%`;

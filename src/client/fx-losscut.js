@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { fxPosition, yenText, cutPriceText, ratioText, rateDigits, FX_PAIRS } from '../lib/fx.mjs';
 import { cutChartShape } from '../lib/fx-chart.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // ロスカットの計算：ロスカットまで、あと何円の損か。基準より下のときは、足りないお金（追証の目安）
 let side = 'buy'; // 買いか売りか
@@ -75,6 +78,8 @@ function drawChart(res) {
 /** 取引に必要なお金（通貨ペアと量は上のマスで見えているので、金額だけ） */
 const needText = (res) => `取引に必要なお金 ${yenText(res.need)}`;
 
+const fxCutQ = () => `${$('pair').selectedOptions[0].textContent}・${side === 'sell' ? '売り' : '買い'}・${fmt(currentQty(), 0)}通貨・口座${fmt(val('money'), 0)}円`;
+
 function show(res) {
   drawChart(res.ok ? res : null);
   $('r-price').textContent = '';
@@ -82,6 +87,7 @@ function show(res) {
     $('r-cap').textContent = 'ロスカットまで、あと';
     setBig('？', '円の損');
     $('r-need').textContent = emptyText(res);
+    memo(null);
     return;
   }
   $('r-need').textContent = needText(res);
@@ -89,10 +95,12 @@ function show(res) {
     $('r-cap').textContent = 'ロスカットの基準まで';
     if (res.edge) setBig('ちょうど', '基準です', true);
     else setBig(fmt(Math.ceil(-res.room), 0), '円 足りません', true);
+    memo({ q: fxCutQ(), a: res.edge ? 'ロスカットの基準ちょうど' : `基準まで${fmt(Math.ceil(-res.room), 0)}円足りない` });
     return;
   }
   $('r-cap').textContent = 'ロスカットまで、あと';
   setBig(fmt(Math.floor(res.room), 0), '円の損');
+  memo({ q: fxCutQ(), a: `ロスカットまであと${fmt(Math.floor(res.room), 0)}円の損` });
   const digits = rateDigits(val('rate'));
   if (res.never) $('r-price').textContent = '0円まで下がってもロスカットになりません';
   else if (side === 'sell') $('r-price').textContent = `${cutPriceText(res.price, 'sell', digits)}まで上がるとロスカット`;

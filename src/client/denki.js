@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { denki } from '../lib/denki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 電気代の計算：家電のマスをえらぶと消費電力の欄に目安が入る（自分で入れてもよい）。1日に使う時間と単価から、1時間・1日・1か月・1年
 // 結果は電気代のお知らせ（検針票のような紙）：1か月の使用量のメーターの数字と、大きな1か月の電気代
@@ -49,6 +52,7 @@ function update() {
     $('m-what').textContent = '';
     ['d-hour', 'd-day', 'd-year'].forEach((id) => { $(id).textContent = '—'; });
     drawMeter(null);
+    memo(null);
     return;
   }
   $('m-what').textContent = `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W${res.hours !== null ? `・1日${fmt(res.hours, 2)}時間` : ''}`;
@@ -59,9 +63,11 @@ function update() {
   if (res.hours === null) {
     setBig('1時間', fmt(res.hour, 1));
     $('r-foot').textContent = '1日に使う時間を入れてください';
+    memo({ q: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W`, a: `1時間 約${fmt(res.hour, 1)}円` });
     return;
   }
   setBig('1か月', yen(res.month));
+  memo({ q: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W・1日${fmt(res.hours, 2)}時間`, a: `1か月 約${yen(res.month)}円` });
   $('r-foot').textContent = '';
 }
 

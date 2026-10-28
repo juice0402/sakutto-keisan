@@ -3,7 +3,7 @@
 // マスの数字と値段のはじめの値は src/data/touyu.mjs（出典つき）。ページに載せる計算例は tests/touyu.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { TOUYU_PRICE, TOUYU_HEATERS } from '../data/touyu.mjs';
 import { touyu, literPrice } from '../lib/touyu.mjs';
@@ -93,6 +93,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">ヒーターの大きさをえらんでください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

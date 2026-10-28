@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { seisou, minText, hoursValue, SEISOU_FIELDS } from '../lib/seisou.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 清掃の作業時間：作業の速さ（1人1時間に掃除できる面積）は、作業のマスをえらぶと目安が入る。自分で入れてもよい。面積・人数・時間のうち2つから残りの1つを出す
 // 面積は現場で決まっていることが多いので、面積が入っていれば人数か時間のどちらかを答えにする（あとからさわったほうを残す）。
@@ -77,10 +80,12 @@ function update() {
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? emptyText() : '';
+    memo(null);
     $('r-total').textContent = '';
     return;
   }
   $('r-total').textContent = `のべ ${minText(Math.ceil(res.personHours * 60))}`;
+  memo({ q: out === 'area' ? `${fmt(res.people, 0)}人で${minText(res.minutes)}` : `${fmt(res.area, 0)}㎡${out === 'people' ? `を${minText(res.minutes)}で` : `を${fmt(res.people, 0)}人で`}`, a: out === 'people' ? `${fmt(res.people, 0)}人` : out === 'area' ? `${fmt(res.area, 0)}㎡` : minText(res.minutes) });
   if (out === 'people') {
     $('r-num').textContent = `${fmt(res.people, 0)}人`;
     $('r-foot').textContent = `${fmt(res.people, 0)}人なら ${minText(res.minutes)}`;

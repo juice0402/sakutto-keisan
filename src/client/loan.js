@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { loan } from '../lib/loan.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // ローンの計算：借りる額（万円）・金利（年）・返済の年数。結果は返済予定表
 const INPUTS = ['man', 'rate', 'years'].map((id) => $(id));
@@ -42,6 +45,7 @@ function update() {
     $('b-left').textContent = '元金';
     $('b-right').textContent = '利息';
     $('r-foot').textContent = res.empty ? EMPTY[res.missing] : '';
+    memo(null);
     return;
   }
   $('r-num').textContent = fmt(res.monthly, 0);
@@ -53,6 +57,7 @@ function update() {
   $('b-left').textContent = `元金 ${man(res.principal)}`;
   $('b-right').textContent = `利息 ${man(res.interest)}`;
   $('r-foot').textContent = '';
+  memo({ q: `${$('man').value}万円・金利${$('rate').value}％・${$('years').value}年`, a: `毎月${fmt(res.monthly, 0)}円` });
 }
 
 numericOnly(INPUTS);

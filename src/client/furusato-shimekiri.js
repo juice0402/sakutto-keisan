@@ -1,6 +1,9 @@
 import { furusatoDeadlines } from '../lib/furusato-tetsuzuki.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { $ } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // ふるさと納税の締め切り：今日（見た人のブラウザの日付）から、年内の寄付と、申請書か確定申告の期限まであと何日か
 // 2つの日めくりのうち、近いほうの日数をいちばん大きく
@@ -29,6 +32,7 @@ function update() {
   const near = shown.reduce((a, b) => (b.days < a.days ? b : a));
   $('r-cap').textContent = CAP[near.key];
   $('r-num').textContent = String(near.days);
+  memo({ q: how === 'onestop' ? 'ワンストップ特例' : '確定申告', a: `${CAP[near.key]}あと${near.days}日（${jd(near.date)}）` });
   $('r-today').textContent = `今日 ${jd(TODAY)}`;
   $('d-k-0').textContent = `${DL.kifu.forYear}年の寄付`;
   $('d-v-0').textContent = `${DL.kifu.date.m}月${DL.kifu.date.d}日（${weekdayOf(DL.kifu.date)}）までに入金`;

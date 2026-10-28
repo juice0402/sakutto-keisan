@@ -3,7 +3,7 @@
 // 結果は納品書（大きな答え、何掛けのはんこ、上代・掛率・下代・粗利の表、上代の帯を下代と粗利に分けた絵）。ページに載せる計算例は tests/kakeritsu.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { kakeritsu, kakeText, KAKE_TILES } from '../lib/kakeritsu.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -71,6 +71,7 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">上代を入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

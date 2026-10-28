@@ -3,7 +3,7 @@
 // 結果はテストの山（正規分布。自分より上の分を赤でぬる）。計算は src/lib/hensachi.mjs（ページの数は tests/hensachi.test.mjs）
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { hsFromDev, hsCurve, hsX, HS_LO, HS_HI } from '../lib/hensachi.mjs';
 
@@ -49,6 +49,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">偏差値か得点を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

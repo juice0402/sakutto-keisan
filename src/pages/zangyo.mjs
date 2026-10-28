@@ -5,7 +5,7 @@
 // ページに載せる計算例は tests/zangyo.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 
 // 割増の率・時給の出し方・のぞく手当・端数の出典（厚生労働省）
@@ -25,7 +25,8 @@ const doc = (info) => `<div class="doc" aria-live="polite">
     <table class="doc-table"><thead><tr><th>項目</th><th>時間</th><th>単価</th><th>金額</th></tr></thead><tbody id="slip"></tbody></table>
     <p class="doc-foot"><span id="r-foot"></span><span id="r-extra"></span></p>
   </div>`;
-const TAIL = `<p class="tag-note" id="r-note" hidden></p>
+const tail = (tool) => `<p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>`;
 const ROUND_TEXT = '<p>1時間あたりの残業代と、それぞれの金額は、1円未満を四捨五入しています。厚生労働省が認めている端数の処理です。</p>';
 
@@ -53,7 +54,7 @@ const PAGES = [
     ${TRIO}
   </div>
   ${doc('<p class="doc-info"><span id="r-wage"></span><span id="r-unit"></span></p>')}
-  ${TAIL}
+  ${tail(toolBySlug('zangyo-dai'))}
 </div>`,
     body: `${section(
       'formula',
@@ -153,7 +154,7 @@ ${section(
   ${doc(`<p class="doc-info"><span id="y-left">出勤</span><span id="y-right">休日</span></p>
     <div class="year-track" aria-hidden="true"><div class="year-work" id="y-work"></div><div class="year-off"></div></div>
     <p class="doc-info"><span id="r-hours"></span><span id="r-unit"></span></p>`)}
-  ${TAIL}
+  ${tail(toolBySlug('zangyo-gekkyu'))}
 </div>`,
     body: `${section(
       'formula',

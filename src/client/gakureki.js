@@ -1,5 +1,8 @@
 import { gakureki } from '../lib/gakureki.mjs';
 import { $ } from './ui.mjs';
+import { memoOnly, cmYmd } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 入学・卒業年の計算：生年月日から、小学校の入学から大学の卒業まで。結果は履歴書の学歴の欄（年は赤ペン、和暦とその時の年齢を小さく）
 // 結果の下の「浪人1年」「留年1年」「短大・専門」は、もう一度押すと元にもどる
@@ -28,8 +31,10 @@ function update() {
   }
   if (!res.ok) {
     $('r-foot').textContent = res.empty ? '生年月日を入れてください' : '';
+    memo(null);
     return;
   }
+  memo({ q: `${cmYmd($('birth').value)}生まれ`, a: `小学校入学 ${res.rows[0].y}年${res.rows[0].m}月・${opt.tandai ? "短大・専門" : "大学"}卒業 ${res.rows[7].y}年${res.rows[7].m}月` });
   $('r-foot').textContent = res.early ? '早生まれ（前の年の生まれと同じ学年）' : '';
 }
 

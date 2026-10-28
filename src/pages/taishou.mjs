@@ -4,7 +4,7 @@
 // 公式の文を写さず、自分の言葉で短く書く。予約商品は「数えるのは4つ」と書き、ほかを言い切らない
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { POINT_COUNT_SOURCES, POINT_MIN_YEN } from '../data/point.mjs';
 import { countJudge } from '../lib/taishou.mjs';
@@ -97,6 +97,7 @@ export default function render() {
   <p class="tag-note" id="r-note" hidden></p>
   <p class="note">マラソンもスーパーSALEも同じ決まりです。</p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/point/">お買い物マラソンのポイント計算</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

@@ -3,7 +3,7 @@
 // 判定の基準と標準体重の式は e-ヘルスネット（厚生労働省）。ページに載せる計算例は tests/loan-bmi.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { bmi, BMI_LEVELS } from '../lib/bmi.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -79,6 +79,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">身長を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

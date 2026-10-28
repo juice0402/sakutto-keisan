@@ -4,7 +4,7 @@
 // ポイントの付与の決まりは、コーナーの決まり（ポイントの話は書かない）なので載せない
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { FURUSATO_SOURCES, FURUSATO_SEIDO_SOURCES } from '../data/furusato.mjs';
 
 const YEAR = 2026; // はじめにえらんでおく寄付の年（見た人のブラウザの年にあわせて、スクリプトがえらび直す）
@@ -81,7 +81,8 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">所得税は令和${reiwa(YEAR)}年分・住民税は令和${reiwa(YEAR) + 1}年度</span></p>
   </div>
   <div class="calc-tools"><a class="tool-btn tool-link span-2" href="/furusato/">上限の目安</a><a class="tool-btn tool-link" href="/furusato/shimekiri/">締め切り</a></div>
-</div>
+${memoHtml(tool, false)}
+  </div>
 
 ${section(
   'changes',

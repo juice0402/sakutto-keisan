@@ -2,7 +2,7 @@
 // 結果は利益計算書（大きな利益、粗利率のはんこ、売値・原価・利益の表、売値の帯を原価と利益に分けた絵）。ページに載せる計算例は tests/rieki.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 
 const tool = toolBySlug('rieki-ritsu');
@@ -53,6 +53,7 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">3つのうち2つを入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

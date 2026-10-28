@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { furusatoFromNotice } from '../lib/furusato.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 控除上限額の計算：住民税の決定通知書の所得割と、所得税率のマスから
 let rate = null;
@@ -22,9 +25,11 @@ function update() {
     $('r-num').textContent = res.none ? '—' : '？';
     ['d-cap', 'd-ratio', 'd-back'].forEach((id) => { $(id).textContent = '—'; });
     $('r-foot').textContent = res.none ? '所得割がないので、控除はありません' : res.empty ? (res.missing === 'rate' ? '所得税の税率をえらんでください' : '住民税の所得割を入れてください') : '';
+    memo(null);
     return;
   }
   $('r-num').textContent = fmt(res.limit);
+  memo({ q: `所得割${$('shotokuwari').value}円・所得税率${fmt(rate * 100)}%`, a: `上限${fmt(res.limit)}円` });
   $('d-cap').textContent = `${fmt(res.cap)}円`;
   $('d-ratio').textContent = pct(res.ratio);
   $('d-back').textContent = `${fmt(res.jumin)}円`;

@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { fxLot, fxLotLoss, yenText, cutPriceText, ratioText, rateDigits, qtyText, FX_PAIRS } from '../lib/fx.mjs';
 import { cutChartShape } from '../lib/fx-chart.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // ロットの計算：許せる損 ÷ 損切りの幅 で、取引できる通貨の量（1,000通貨単位で切り捨て）
 // 許せる損は、口座の何％かのマスでも入る（マスをえらぶと欄に円で入る。自分で入れたらマスは外す）
@@ -77,11 +80,13 @@ function update() {
     $('r-num').textContent = '？';
     $('r-price').textContent = '';
     $('r-need').textContent = res.empty ? emptyText() : '';
+    memo(null);
     return;
   }
   const digits = rateDigits(val('rate'));
   const stop = cutPriceText(res.stop, 'buy', digits);
   $('r-num').textContent = qtyText(res.qty);
+  memo({ q: `口座${yenText(val('money'))}・許せる損${yenText(val('loss'))}・値幅${val('width')}円`, a: `${qtyText(res.qty)}通貨まで` });
   if (res.under) {
     $('r-price').textContent = `1,000通貨だと${yenText(1000 * val('width'))}の損`;
     $('r-need').textContent = '許せる損では1,000通貨に届きません';

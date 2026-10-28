@@ -83,16 +83,9 @@ function cmFlash(btn, text, back) {
   btn.cmTimer = setTimeout(() => { btn.textContent = back; }, 2000);
 }
 
-/**
- * 計算のページのちょいメモと画像で送る。返す関数に、いまの結果を渡す（答えが出ていないときは null）
- * entry：{ q：入れた数字の1行, a：答え, img：画像の canvas を作る関数 }
- */
-export function choiMemo(file) {
-  const bar = document.getElementById('cm-bar');
-  const box = document.getElementById('cm');
-  if (!bar || !box || !cmUsable()) return () => {};
+/** 「メモする」の段とちょいメモを動かす（choiMemo と memoOnly で共通）。返すのは { tool, set(entry), cur() } */
+function cmBar(bar, box) {
   const add = document.getElementById('cm-add');
-  const send = document.getElementById('cm-share');
   const tool = bar.dataset.tool;
   let cur = null;
   bar.hidden = false;
@@ -108,13 +101,43 @@ export function choiMemo(file) {
     }
     cmFlash(add, 'メモしました', 'メモする');
   });
+  return {
+    set: (entry) => {
+      cur = entry || null;
+      add.disabled = !cur;
+    },
+    cur: () => cur,
+  };
+}
+
+/** 「メモする」だけのページ（画像で送るなし）。返す関数に { q, a } か null を渡す */
+export function memoOnly() {
+  const bar = document.getElementById('cm-bar');
+  const box = document.getElementById('cm-list');
+  if (!bar || !box || !cmUsable()) return () => {};
+  return cmBar(bar, box).set;
+}
+
+/**
+ * 計算のページのちょいメモと画像で送る。返す関数に、いまの結果を渡す（答えが出ていないときは null）
+ * entry：{ q：入れた数字の1行, a：答え, img：画像の canvas を作る関数 }
+ */
+export function choiMemo(file) {
+  const bar = document.getElementById('cm-bar');
+  const box = document.getElementById('cm-list');
+  if (!bar || !box || !cmUsable()) return () => {};
+  const send = document.getElementById('cm-share');
+  const m = cmBar(bar, box);
   send.addEventListener('click', () => {
+    const cur = m.cur();
     if (!cur) return;
     if (imgShare(cur.img(), file) === 'save') cmFlash(send, '保存しました', '画像で送る');
   });
   return (entry) => {
-    cur = entry || null;
-    add.disabled = !cur;
-    send.disabled = !cur;
+    m.set(entry);
+    send.disabled = !entry;
   };
 }
+
+/** 日付の欄の値（2026-10-29）を「2026年10月29日」に */
+export const cmYmd = (v) => String(v).replace(/^(\d+)-0?(\d+)-0?(\d+)$/, '$1年$2月$3日');

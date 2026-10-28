@@ -91,7 +91,7 @@ function render(u) {
 <h1>${tool.name}</h1>
 <p class="lead">${t.lead}</p>
 
-${denkiCard({ tiles: u.modes.map((m) => ({ b: m.b, small: hourYen(m.watt), watt: m.watt })), label: '強さをえらぶ', name: u.name, empty: '強さをえらんでください', wattEx: String(u.modes[0].watt), hoursEx: String(u.hours) })}
+${denkiCard({ tool, tiles: u.modes.map((m) => ({ b: m.b, small: hourYen(m.watt), watt: m.watt })), label: '強さをえらぶ', name: u.name, empty: '強さをえらんでください', wattEx: String(u.modes[0].watt), hoursEx: String(u.hours) })}
 
 ${section(
   'table',

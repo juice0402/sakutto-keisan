@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { touyu } from '../lib/touyu.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 灯油代の計算：ファンヒーターの大きさのマスをえらぶと、1時間に使う灯油（メーカーの燃料消費量）が入る（自分で入れてもよい）。1日に使う時間と灯油の値段から、1か月の灯油代と18Lが何日もつか
 // 結果はポリタンクの絵：タンクのラベルに「18Lで何日」、横にいちばん大きな1か月の灯油代と、1か月に使うポリタンクの数
@@ -52,6 +55,7 @@ function update() {
     $('r-foot').textContent = res.empty ? EMPTY[res.missing] : '';
     ['d-hour', 'd-day', 'd-liter'].forEach((id) => { $(id).textContent = '—'; });
     drawCans(null);
+    memo(null);
     return;
   }
   $('d-hour').textContent = `${fmt(res.hour, 1)}円`;
@@ -61,11 +65,13 @@ function update() {
     setBig('1時間', fmt(res.hour, 1), fmt(res.canHours, 0), '時間');
     $('r-foot').textContent = '1日に使う時間を入れてください';
     drawCans(null);
+    memo({ q: `1時間${fmt(val('lph'), 3)}L・1L${fmt(val('price'), 1)}円`, a: `1時間 約${fmt(res.hour, 1)}円` });
     return;
   }
   if (res.canDays === null) setBig('1か月', '0', '—', '日');
   else setBig('1か月', yenText(res.month), fmt(res.canDays, res.canDays < 10 ? 1 : 0), '日');
   drawCans(res.cans);
+  memo({ q: `1時間${fmt(val('lph'), 3)}L・1日${fmt(res.hours, 2)}時間`, a: res.canDays === null ? '1か月 0円' : `1か月 約${yenText(res.month)}円` });
   $('t-liters').textContent = `${fmt(res.litersMonth, 1)}L（${fmt(res.cans, 1)}缶）`;
   $('r-foot').textContent = '';
 }
