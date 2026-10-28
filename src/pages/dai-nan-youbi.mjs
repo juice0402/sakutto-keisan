@@ -3,7 +3,7 @@
 // 下の表は、これから12か月の同じ「第n◯曜日」の日（ゴミの日・定休日を調べる人向け）。計算は src/lib/dai-nan-youbi.mjs
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { dateField } from '../fields.mjs';
 import { WEEKDAYS } from '../lib/hizuke.mjs';
 import { daiNanYoubi, ybHolidays } from '../lib/dai-nan-youbi.mjs';
@@ -41,6 +41,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">日付を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

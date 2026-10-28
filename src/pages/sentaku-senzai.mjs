@@ -3,7 +3,7 @@
 // 洗剤の数字は src/data/senzai.mjs（出典つき）。ページに載せる計算例と早見表は tests/senzai.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { SENZAI, SENZAI_WATER } from '../data/senzai.mjs';
 import { senzai } from '../lib/senzai.mjs';
@@ -93,6 +93,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">洗剤をえらんでください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

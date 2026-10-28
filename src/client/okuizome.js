@@ -1,6 +1,9 @@
 import { okuizome } from '../lib/gyoji.mjs';
 import { $ } from './ui.mjs';
 import { gyMd, gyNote, gyCal, gyWeekend, gyDaysFromToday } from './gyoji-ui.mjs';
+import { memoOnly, cmYmd } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // お食い初め：生年月日から、生まれた日を1日目に数えた100日目（日めくり）と、前後の土日・120日目・生後100日
 function update() {
@@ -12,6 +15,7 @@ function update() {
     $('r-say').textContent = '';
     ['d-before', 'd-after', 'd-120', 'd-100b'].forEach((id) => { $(id).textContent = '—'; });
     $('r-foot').textContent = res.empty ? '生年月日を入れてください' : '';
+    memo(null);
     return;
   }
   gyCal(res.d100);
@@ -22,6 +26,7 @@ function update() {
   $('d-120').textContent = gyMd(res.d120);
   $('d-100b').textContent = gyMd(res.d100b);
   $('r-foot').textContent = '';
+  memo({ q: `${cmYmd($('birth').value)}生まれ`, a: `お食い初め ${res.d100.y}年${gyMd(res.d100)}` });
 }
 
 $('birth').addEventListener('input', update);

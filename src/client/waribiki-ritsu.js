@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { calcRate, rateFromOff, wariLabel } from '../lib/waribiki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 割引率の計算：元の値段と、割引後の値段か値引きの額（あとから入れたほう）から何％オフか。もう片方の欄に答え（点線の枠に赤い数字）
 let from = 'sale';
@@ -59,9 +62,11 @@ function update() {
     $('t-save').textContent = res.empty ? (price === null ? '元の値段を入れてください' : '割引後の値段を入れてください') : '';
     setNote(res.error || '', !!res.error);
     lastKey = '';
+    memo(null);
     return;
   }
   $('t-was').innerHTML = `元の値段 <s>${yen(price)}</s>`;
+  memo({ q: `${yen(price)} → ${yen(res.sale)}`, a: res.increase ? `${fmt(-res.rate, 1)}％高い` : `${fmt(res.rate, 1)}％オフ` });
   if (res.increase) {
     $('t-price').textContent = fmt(-res.rate, 1);
     $('t-unit').textContent = '％高い';

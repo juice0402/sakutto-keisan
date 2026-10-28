@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { marathonPoints } from '../lib/point.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // お買い物マラソンのポイント計算：合計（税込）・店舗の数・上限から、買いまわりの特典の目安。結果は10マスのスタンプカード
 // 回の期間と上限は #calc の data-events（src/data/point.mjs。公式で確かめたものだけ）。見た人のブラウザの時刻で、開催中・これから・終わったを分ける
@@ -67,11 +70,13 @@ function update() {
     ['d-base', 'd-left', 'd-reach', 'd-next'].forEach((id) => { $(id).textContent = '—'; });
     $('d-reach-k').textContent = '上限に届く合計';
     $('r-foot').textContent = res.empty ? { total: '合計を入れてください', shops: '店舗の数を入れてください', cap: '上限をえらんでください' }[res.missing] : '';
+    memo(null);
     return;
   }
   $('r-rate').textContent = res.shops > MAX ? `${res.shops}店舗でも${res.rate}倍` : `${res.rate}倍`;
   $('r-cap').textContent = res.capped ? '特典（上限）' : '特典';
   $('r-num').textContent = fmt(res.bonus);
+  memo({ q: `合計${$('total').value}円・${res.shops}店舗`, a: `特典${fmt(res.bonus)}ポイント（${res.rate}倍）` });
   $('d-base').textContent = `${fmt(res.base)}ポイント`;
   $('d-left').textContent = res.capped ? '届いています' : `あと${fmt(res.left)}ポイント`;
   $('d-reach-k').textContent = `${res.counted}店舗で上限に届く`;

@@ -4,7 +4,7 @@
 // 本文の早見表は、ビルドした年（日本時間）で作る。年が変わったら一度ビルドする（毎日の返礼品の取り直しで本番は作り直される）
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField, dateField } from '../fields.mjs';
 import { weekdayOf, warekiOfYear } from '../lib/hizuke.mjs';
 import { shichigosan, yakuOfYear, chojuOfYear, okuizome, shijuku } from '../lib/gyoji.mjs';
@@ -30,6 +30,7 @@ function out(slug, { title, description, lead, calc, rest, faqs, sources, ld, sc
 <div class="calc" id="calc">
 ${calc}
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   ${NOSCRIPT}
 </div>
 ${rest}

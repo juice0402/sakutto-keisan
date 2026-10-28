@@ -4,7 +4,7 @@
 // 表は厚生労働省（千葉労働局のリーフレット）と同じ。ページに載せる計算例は tests/yukyu.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { dateField } from '../fields.mjs';
 import { YUKYU_TABLE, YUKYU_WEEKS, YUKYU_STEPS, YUKYU_STEP_LONG, YUKYU_SRC, yukyuFuyo, yukyuDateText } from '../lib/yukyu.mjs';
 
@@ -80,6 +80,7 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">入社日を入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

@@ -3,6 +3,9 @@ import { shikumiPoints } from '../lib/shikumi.mjs';
 import { SPU_ITEMS, SPU_BASE, POINT_DAY } from '../data/spu.mjs';
 import { POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 楽天のポイントのしくみ：今月の買い物と、使っているもののチェック欄から、ポイントを「いつもの1倍・SPU・キャンペーン」の3段に分ける
 // 5と0のつく日は楽天カードで払った分だけなので、5と0のつく日をえらぶと楽天カードもえらび、楽天カードを外すと5と0のつく日も外す
@@ -28,6 +31,7 @@ function update() {
     });
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? '今月の買い物を入れてください' : '';
+    memo(null);
     return;
   }
   setNote(res.mShort ? `お買い物マラソンは1店舗1,000円以上なので、5店舗なら5,000円からです。` : '');
@@ -36,6 +40,7 @@ function update() {
     $(`b-${k}`).style.width = res.points ? `${((res[k] / res.points) * 100).toFixed(1)}%` : '0%';
   });
   $('r-num').textContent = fmt(res.points);
+  memo({ q: `今月${$('total').value}円`, a: `${fmt(res.points)}ポイント（${res.rate}倍）` });
   const none = !on.card && !on.mobile && !on.day && !on.marathon;
   $('r-foot').textContent = none ? '使っているものをえらんでください' : res.capped ? '上限で止まった分があります' : '';
 }

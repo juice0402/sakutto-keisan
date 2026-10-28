@@ -2,6 +2,9 @@ import { parseNum } from '../lib/number.mjs';
 import { yakudoshi, readYear } from '../lib/gyoji.mjs';
 import { $, numericOnly, focusHints } from './ui.mjs';
 import { GY_YEAR, gyWa, gyNote, gySexPress } from './gyoji-ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 厄年：生まれた年と男性・女性から、今年の数え年と、前厄・本厄・後厄の年
 // 結果は、数え年の帯（厄年の3年をうすい赤、本厄を赤、今年に紺の線）と、厄年ごとの年の表
@@ -35,11 +38,13 @@ function update() {
     $('r-line').innerHTML = '';
     $('r-rows').innerHTML = '';
     $('r-foot').textContent = !r.year ? '生まれた年を入れてください' : '男性か女性をえらんでください';
+    memo(null);
     return;
   }
   const res = yakudoshi(r.year, sex, GY_YEAR);
   const kind = res.now ? res.now.kind : '厄年ではありません';
   $('r-num').textContent = kind;
+  memo({ q: `${r.year}年生まれ・${sex === 'male' ? '男性' : '女性'}`, a: res.now ? `${GY_YEAR}年は${kind}` : `${GY_YEAR}年は${kind}${res.next ? `（次の本厄は${res.next.hon}年）` : ''}` });
   $('r-num').parentElement.classList.toggle('is-long', !res.now);
   const extra = res.now && res.now.y.big ? '・大厄' : res.now && res.now.y.some ? '・一部の神社' : '';
   const next = !res.now && res.next ? `\n次の本厄は${res.next.hon}年・数え${res.next.age}歳` : '';

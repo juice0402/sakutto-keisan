@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { peopleRatio, haveRatio, scaleRecipe, rawAmount, parseRecipeText, cleanOcrText } from '../lib/recipe.mjs';
 import { $, enterToNext, numericOnly, copyText } from './ui.mjs';
 import { readImageText } from './ocr.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 const MAX = 20;
 const MAX_PLATES = 12; // お皿の絵はここまで（それより多いときは「＋◯」）
@@ -92,6 +95,7 @@ function showEmpty(title, msg, plates) {
   if (plates) drawPlates(plates[0], plates[1]);
   lastText = '';
   refreshCopy();
+  memo(null);
 }
 
 function update() {
@@ -158,6 +162,7 @@ function update() {
   else if (ok.some((x) => x.approx)) lines.push('「約」は近い量に丸めた目安です。');
   setNote(lines.join(''), bad.length > 0);
 
+  memo(ok.length ? { q: `${persons(from)}のレシピを${toText}に`, a: `${ok.slice(0, 3).map((x) => `${x.name} ${x.approx ? '約' : ''}${x.to}`).join('・')}${ok.length > 3 ? ' ほか' : ''}` } : null);
   lastText = [`【${title}】（${persons(from)}のレシピの${ratioText}倍）`, ...ok.map((x) => `・${x.name}　${x.approx ? '約' : ''}${x.to}${x.sub ? `（${x.sub}）` : ''}`)].join('\n');
   refreshCopy();
 }

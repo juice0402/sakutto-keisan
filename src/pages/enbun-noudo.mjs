@@ -3,7 +3,7 @@
 // 用途のマス（浅漬け・パスタ・砂抜き・梅干し）と塩のスプーンの重さは src/data/enbun.mjs（出典つき）。ページに載せる計算例は tests/enbun.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { ENBUN_SPOON, ENBUN_USES, ENBUN_MORE } from '../data/enbun.mjs';
 import { enbun, spoonText } from '../lib/enbun.mjs';
@@ -92,6 +92,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">水や食材の重さを入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

@@ -2,6 +2,9 @@ import { parseNum } from '../lib/number.mjs';
 import { onestopPlan, furusatoDeadlines, ONESTOP_MAX, ONESTOP_CITIES_MAX } from '../lib/furusato-tetsuzuki.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { $, enterToNext, numericOnly, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // ワンストップ特例の申請：寄付先の数・確定申告・マイナンバーカードから、寄付先に出す封筒の数と中身と期限
 // 期限は見た人のブラウザの今日から（1月1日〜10日は前の年の寄付の申請）
@@ -57,6 +60,7 @@ function update() {
     row('封筒の中', '—', 0);
     row('出す先', '—', 1);
     $('r-foot').textContent = res.empty ? '寄付先の数を入れてください' : '';
+    memo(null);
     return;
   }
   if (res.usable) {
@@ -68,6 +72,7 @@ function update() {
     row('封筒の中', `申請書（寄付ごとに1枚）、${res.copies.join('と')}`, 0);
     row('出す先', '寄付した自治体（1つに1通）', 1);
     $('r-foot').textContent = 'オンラインで出せる自治体もあります';
+    memo({ q: `寄付先${cities}つ`, a: `申請書${res.envelopes}通・${jd(DL.onestop.date)}必着` });
   } else {
     $('r-cap').textContent = '特例は';
     $('r-num').textContent = '使えません';
@@ -77,6 +82,7 @@ function update() {
     row('かわりに', '確定申告に、その年の寄付をぜんぶ書く', 0);
     row('申告の期間', `${DL.kakutei.from.y}年${kakuteiSpan}`, 1);
     $('r-foot').textContent = res.reason === 'over' ? `${ONESTOP_MAX}つまでの分も使えなくなります` : '申請した分もふくめて申告します';
+    memo({ q: `寄付先${cities}つ${kakutei ? '・確定申告する' : ''}`, a: '特例は使えません（確定申告）' });
   }
   drawEnvs(res.cities, res);
 }

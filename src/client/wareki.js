@@ -1,6 +1,9 @@
 import { parseNum } from '../lib/number.mjs';
 import { wareki, ERA_TABLE, nenpyoLayout, nenpyoY } from '../lib/wareki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 和暦・西暦の変換：元号のマスと、西暦か和暦のあとから入れたほう（もう片方は点線の答えの欄）
 // はじめは西暦の欄に今年（ブラウザの日付）を入れておく。結果は元号の年表に赤い線と、大きな答え
@@ -64,12 +67,14 @@ function update() {
       digits: '西暦は4けたで入れてください',
     };
     $('r-foot').textContent = res.empty ? FOOT[res.missing] || '西暦か和暦を入れてください' : '';
+    memo(null);
     return;
   }
   const isSei = from === 'seireki';
   $('r-cap').textContent = isSei ? `${res.y}年は` : `${res.text}は`;
   $('r-num').textContent = isSei ? res.text.slice(0, -1) : String(res.y);
   $('r-unit').textContent = '年';
+  memo(isSei ? { q: `西暦${res.y}年`, a: res.text } : { q: res.text, a: `西暦${res.y}年` });
   $('r-num').parentElement.classList.toggle('is-long', isSei && res.text.length > 5);
   $('r-say').textContent = `${res.kanshi.kanji}（${res.kanshi.yomi}）`;
   $('d-ago').textContent = res.ago > 0 ? `${res.ago}年前` : res.ago === 0 ? '今年' : `${-res.ago}年後`;

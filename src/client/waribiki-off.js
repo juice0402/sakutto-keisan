@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { calcDiscount, originalFrom } from '../lib/waribiki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 率ごとの割引（/waribiki/30/ など）：元の値段か割引後の値段のあとから入れたほうから、もう片方を点線の答えの欄に
 // 結果は値札（割引率のシールは決まっている）
@@ -40,9 +43,11 @@ function update() {
     $('t-price').textContent = '？';
     $('t-was').hidden = true;
     $('t-save').textContent = res.empty ? '元の値段を入れてください' : '';
+    memo(null);
     return;
   }
   $('t-price').textContent = fmt(sale);
+  memo(from === 'sale' ? { q: `${RATE}％オフで${yen(sale)}`, a: `元の値段${from === 'sale' && !res.exact ? '約' : ''}${yen(price)}` } : { q: `${yen(price)}の${RATE}％オフ`, a: yen(sale) });
   $('t-was').hidden = false;
   $('t-was').innerHTML = `元の値段 <s>${from === 'sale' && !res.exact ? '約' : ''}${yen(price)}</s>`;
   $('t-save').textContent = price - sale > 0 ? `${yen(price - sale)} おトク！` : '';

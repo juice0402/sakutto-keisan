@@ -221,6 +221,7 @@ function renderGakureki() {
     <button type="button" class="tool-btn" id="t-ryunen" aria-pressed="false">留年1年</button>
     <button type="button" class="tool-btn" id="t-tandai" aria-pressed="false">短大・専門</button>
   </div>
+  ${memoHtml(toolBySlug('gakureki'), false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

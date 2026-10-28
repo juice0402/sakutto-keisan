@@ -1,6 +1,9 @@
 import { parseNum } from '../lib/number.mjs';
 import { rieki, pctText, moneyText, RIEKI_FIELDS } from '../lib/rieki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 利益率の計算：売値・原価・利益率のうち、あとから入れた2つから残りの1つを出す（答えの欄は点線の枠に赤い数字）
 let order = []; // 入れた欄（新しいものが後ろ。2つまで）
@@ -69,9 +72,11 @@ function update() {
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? riekiEmpty() : '';
+    memo(null);
     return;
   }
   $('r-num').textContent = moneyText(res.profit, res.step);
+  memo({ q: `売値${moneyText(res.price, res.step)}円・原価${moneyText(res.cost, res.step)}円`, a: `${res.profit < 0 ? '赤字' : '利益'}${moneyText(res.profit, res.step)}円・利益率${pctText(res.rate)}%` });
   $('r-rate').textContent = `${pctText(res.rate)}%`;
   $('r-foot').textContent = res.times === null ? '' : `売値は原価の${res.times.toLocaleString('ja-JP', { maximumFractionDigits: 2 })}倍`;
 }

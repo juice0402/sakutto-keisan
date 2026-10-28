@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { senzai } from '../lib/senzai.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 洗濯洗剤の量の計算：洗剤のマスをえらぶと、表示の欄（水◯Lに◯mL）にメーカーの表示が入る（自分で書きかえてもよい。書きかえたらマスの印を外す）
 // 水の量はマス（30・45・65L）か、最後のマスに自分で入れる。値段と内容量は入れたときだけ、1回いくらと1本で何回
@@ -45,10 +48,12 @@ function show() {
     $('c-liq').style.height = '0%';
     ['d-water', 'd-yen', 'd-times'].forEach((id) => { $(id).textContent = '—'; });
     $('r-foot').textContent = res.empty ? EMPTY[res.missing] : '';
+    memo(null);
     return;
   }
   const amt = fmt(res.amount, 1);
   $('r-num').textContent = amt;
+  memo({ q: `水${fmt(res.water, 1)}L${brand ? `・${brand.querySelector('b').textContent}` : ''}`, a: `洗剤${amt}mL` });
   $('r-num').parentElement.classList.toggle('is-long', amt.length > 5);
   $('r-caps').textContent = res.caps === null ? '' : `キャップ約${fmt(res.caps, 1)}杯`;
   const full = brand && brand.dataset.cap ? Number(brand.dataset.cap) : CAP_SCALE;

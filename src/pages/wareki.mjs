@@ -4,7 +4,7 @@
 // ページに載せる計算例と早見表は tests/gakureki-wareki.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { warekiOfYear } from '../lib/hizuke.mjs';
 import { ERA_TABLE, kanshiOf, wareki, nenpyoLayout, nenIfContinued } from '../lib/wareki.mjs';
@@ -96,6 +96,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">西暦か和暦を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

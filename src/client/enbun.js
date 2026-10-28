@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { enbun, spoonText, spoonParts, ENBUN_FIELDS } from '../lib/enbun.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 塩分濃度の計算：水や食材の重さ・濃度・塩のうち2つから残りの1つ（答えの欄は点線の枠に赤い数字）
 // 水や食材の重さはわかっていることが多いので、入っていれば塩か濃度のどちらかを答えにする（あとからさわったほうを残す）。
@@ -89,6 +92,7 @@ function update() {
     $('r-foot').textContent = res.empty ? enbunEmpty() : '';
     ['d-salt', 'd-pct', 'd-whole'].forEach((id) => { $(id).textContent = '—'; });
     drawSpoons(null);
+    memo(null);
     return;
   }
   $('r-num').textContent = out === 'pct' ? fmt(res.pct, 2) : gText(res[out]);
@@ -98,6 +102,7 @@ function update() {
   $('d-whole').textContent = `${fmt(res.whole, 2)}%`;
   drawSpoons(res.salt);
   $('r-foot').textContent = '';
+  memo({ q: `${gText(res.base)}gで${fmt(res.pct, 2)}%`, a: `塩${gText(res.salt)}g` });
 }
 
 /* ---- 用途のマス：えらぶと、濃度の欄に入れたのと同じ ---- */

@@ -3,7 +3,7 @@
 // 本文は、その率だけの早見表（元の値段→割引後・値引き）と、割引後の値段→元の値段の表。数字は tests/waribiki-off.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { calcDiscount, originalFrom, wariLabel } from '../lib/waribiki.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -65,6 +65,7 @@ function renderOne(r) {
   </div>
 
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/waribiki/">ほかの割引で計算</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

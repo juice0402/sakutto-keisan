@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { kakeritsu, kakePct, kakeText, kakePctText, KAKE_FIELDS } from '../lib/kakeritsu.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 掛け率の計算：上代・掛け率・下代のうち2つから残りの1つを出す（答えの欄は点線の枠に赤い数字）
 // 上代（定価）はわかっていることが多いので、上代が入っていれば掛け率か下代のどちらかを答えにする（あとからさわったほうを残す）。
@@ -88,9 +91,11 @@ function update() {
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? kakeEmpty() : '';
+    memo(null);
     return;
   }
   $('r-num').textContent = out === 'rate' ? kakePctText(res.pct) : yen(res[out]);
+  memo({ q: `上代${yen(res.jodai)}円・${kakePctText(res.pct)}%`, a: `下代${yen(res.gedai)}円` });
   $('r-kake').textContent = kakeText(Math.round(res.pct * 100) / 100);
   $('r-foot').textContent = res.profit < 0 ? '下代が上代より高くなっています' : '';
 }

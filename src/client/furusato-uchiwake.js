@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { furusatoBreakdown } from '../lib/furusato.mjs';
 import { FURUSATO_YEARS } from '../data/furusato.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 控除の内わけ：寄付の合計・年収・配偶者・16歳以上の子から、所得税・住民税の基本分・特例分・自己負担の帯と表
 // 家族ははじめから「ひとり」「子なし」をえらんでおく
@@ -33,11 +36,13 @@ function update() {
     SEGS.forEach((k) => { $(`s-${k}`).style.width = '0%'; });
     $('r-foot').textContent = res.empty ? (res.missing === 'donation' ? '寄付の合計を入れてください' : '年収を入れてください') : '';
     $('r-how').textContent = '';
+    memo(null);
     return;
   }
   const part = { it: res.it, kihon: res.kihon, tokurei: res.tokurei, self: res.self - res.over, over: res.over };
   SEGS.forEach((k) => { $(`s-${k}`).style.width = `${((part[k] / res.donation) * 100).toFixed(2)}%`; });
   $('r-num').textContent = fmt(res.self);
+  memo({ q: `寄付${yen(res.donation)}・年収${fmt(man)}万円`, a: `自己負担${yen(res.self)}` });
   $('d-it').textContent = yen(res.it);
   $('d-kihon').textContent = yen(res.kihon);
   $('d-tokurei').textContent = yen(res.tokurei);

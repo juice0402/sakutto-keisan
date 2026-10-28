@@ -1,6 +1,9 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { mitsumori, mitsuMonths, mitsuYearCheck, MITSU_FIELDS } from '../lib/mitsumori.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 清掃の見積もり計算：回数（マスか1年の回数）と、面積・㎡単価・1か月の料金のうち2つから、残りの1つを出す（答えの欄は点線の枠に赤い数字）
 // 面積は現場で決まっていることが多いので、面積が入っていれば㎡単価か1か月の料金のどちらかを答えにする（あとからさわったほうを残す）。
@@ -110,9 +113,11 @@ function update() {
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = shown.error ? '' : mitsuEmpty(year);
+    memo(null);
     return;
   }
   $('r-num').textContent = out === 'price' ? priceText(res.price) : out === 'area' ? areaText(res.area) : fmt(res.month, 0);
+  memo({ q: `${areaText(res.area)}㎡・㎡単価${priceText(res.price)}円・年${res.year}回`, a: `1か月${yen(res.month)}` });
   $('r-foot').textContent = '';
 }
 

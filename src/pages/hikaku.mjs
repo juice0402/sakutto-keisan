@@ -4,7 +4,7 @@
 // 決まり：「お得」などの言葉は使わない（/point/ の点検）。楽天や Amazon のロゴ・色を使わない。どちらとも関係のない個人のサイトと書く
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { SPU_ITEMS, SPU_SOURCES, SPU_BASE, POINT_DAY } from '../data/spu.mjs';
 import { POINT_EVENTS, POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
@@ -91,6 +91,7 @@ export default function render() {
   </div>
   <p class="note">目安です。付与はそれぞれの計算によります。</p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/point/shikumi/">楽天のポイントのしくみ</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

@@ -2,6 +2,7 @@
 // むずかしい言葉は使わない：証拠金 → 口座のお金、必要証拠金 → 取引に必要なお金、ロット → 通貨の量
 
 import { FX_QTY_TILES, FX_PAIRS } from './lib/fx.mjs';
+import { memoHtml } from './parts.mjs';
 
 /** いちばん上の1段の通貨ペア（円がつくもの）。ほかの欄と同じく、名前を欄の中に書く */
 const pairSelect = () =>
@@ -21,5 +22,6 @@ export const qtyTiles = (labelId) =>
       `<button type="button" class="tile" data-qty="${v}" aria-pressed="false"><b>${v >= 10000 ? `${v / 10000}万` : v.toLocaleString('ja-JP')}</b><small>通貨</small></button>`,
   ).join('')}<div class="tile tile-input" id="f-qty"><div class="tile-box"><input id="qty" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="?" aria-describedby="${labelId}"><span>万</span></div><label for="qty">その他</label></div></div>`;
 
-export const noteAndNoscript = `<p class="tag-note" id="r-note" hidden></p>
+export const noteAndNoscript = (tool) => `<p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>`;

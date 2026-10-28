@@ -5,7 +5,7 @@
 // 使わない言葉（総務省のQ&A）：お得・コスパ・還元・購入・買う・セール・節税 など。scripts/verify-dist.mjs が見張る
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, furusatoBreakdown, spouseIncomeEdges, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
 import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../data/furusato.mjs';
@@ -135,6 +135,7 @@ function renderMain() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link" id="to-memo" href="/furusato/memo/">寄付メモ</a><a class="tool-btn tool-link span-2" href="/furusato/jougen/">決定通知書から計算</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
@@ -249,6 +250,7 @@ function renderNenshu() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/">年収から上限を計算</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
@@ -382,6 +384,7 @@ function renderFuufu() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/">1人の上限の目安</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
@@ -488,6 +491,7 @@ function renderUchiwake() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/">上限の目安</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
@@ -597,6 +601,7 @@ function renderJougen() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/furusato/">年収と家族から計算</a></div>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

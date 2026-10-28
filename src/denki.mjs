@@ -3,6 +3,7 @@
 import { boxField } from './fields.mjs';
 import { DENKI_PRICE } from './data/denki.mjs';
 import { fmt } from './lib/number.mjs';
+import { memoHtml } from './parts.mjs';
 
 /** マスの下の小さな字：1時間の電気代の目安（単価は目安単価） */
 export const hourYen = (watt) => `約${fmt((watt * DENKI_PRICE.value) / 1000, 1)}円/時`;
@@ -12,7 +13,7 @@ export const hourYen = (watt) => `約${fmt((watt * DENKI_PRICE.value) / 1000, 1)
  * @param {{tiles:Array<{b:string, small:string, watt:number}>, label:string, name?:string, empty:string, wattEx?:string, hoursEx?:string}} p
  *   tiles：マス（えらぶと消費電力の欄に watt が入る）　label：マスの組の読み上げの名前　name：家電の名前（結果の紙に出す）　empty：はじめの案内
  */
-export function denkiCard({ tiles, label, name = '', empty, wattEx = '600', hoursEx = '8' }) {
+export function denkiCard({ tool, tiles, label, name = '', empty, wattEx = '600', hoursEx = '8' }) {
   const P = String(DENKI_PRICE.value);
   return `<div class="calc" id="calc"${name ? ` data-name="${name}"` : ''} data-empty="${empty}">
   <div class="field" id="f-tiles"><div class="tiles${tiles.length === 2 ? ' tiles-2' : tiles.length === 4 ? ' tiles-4' : ''}" role="group" aria-label="${label}">${tiles
@@ -31,6 +32,7 @@ export function denkiCard({ tiles, label, name = '', empty, wattEx = '600', hour
     <p class="slip-foot" id="r-foot">${empty}</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>`;
 }

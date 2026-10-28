@@ -2,6 +2,9 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { furusatoIncomeFor } from '../lib/furusato.mjs';
 import { FURUSATO_YEARS } from '../data/furusato.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 寄付額から年収の目安：寄付したい額・配偶者・16歳以上の子から、上限がその額に届く年収（上限の目安の逆）
 // 家族ははじめから「ひとり」「子なし」をえらんでおくので、額を入れればすぐ答えが出る
@@ -34,9 +37,11 @@ function update() {
     $('f-back').textContent = '—';
     $('r-foot').textContent = res.empty ? '寄付したい額を入れてください' : '';
     $('r-how').textContent = '';
+    memo(null);
     return;
   }
   $('r-num').textContent = fmt(res.man);
+  memo({ q: `寄付${yen(res.target)}・${spouse ? '夫婦' : 'ひとり'}${KID_NAME[kids]}`, a: `年収${fmt(res.man)}万円から` });
   $('r-who').textContent = `${spouse ? '夫婦' : 'ひとり'}${KID_NAME[kids]}`;
   $('f-give').textContent = yen(res.target);
   $('f-back').textContent = yen(res.target - 2000);

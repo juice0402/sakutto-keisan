@@ -4,7 +4,7 @@
 // 計算は src/lib/spu.mjs、ページの例は tests/spu.test.mjs。決まりは /point/ と同じ（目安・楽天とは関係のない個人のサイト・公式の文を写さない）
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { SPU_ITEMS, SPU_SOURCES, SPU_BASE, SPU_MAX } from '../data/spu.mjs';
 import { spuPoints, spuCapOf, spuReach } from '../lib/spu.mjs';
@@ -108,6 +108,7 @@ export default function render() {
     ${CHECKS}
   </div>
   <p class="note">目安です。付与は楽天の計算によります。</p>
+  ${memoHtml(tool, false)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

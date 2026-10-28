@@ -71,7 +71,7 @@ export default function render() {
 <h1>${tool.name}</h1>
 <p class="lead">家電のW数と時間から、電気代を計算します。</p>
 
-${denkiCard({ tiles: DENKI_APPLIANCES.filter((a) => a.tile).map((a) => ({ b: a.short, small: `${fmt(a.watt)}W`, watt: a.watt })), label: '家電をえらぶ', empty: '家電をえらんでください' })}
+${denkiCard({ tool, tiles: DENKI_APPLIANCES.filter((a) => a.tile).map((a) => ({ b: a.short, small: `${fmt(a.watt)}W`, watt: a.watt })), label: '家電をえらぶ', empty: '家電をえらんでください' })}
 
 ${USES.length ? section('uses', '家電別の電気代', toolListHtml(USES)) : ''}
 

@@ -1,4 +1,7 @@
 import { $ } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // ふるさと納税の制度の変更点：えらんだ寄付の年に、変更ごとに「前から・この年・まだ」を出す
 // はじめは見た人のブラウザの年（マスにない年なら、近いほうのマス）
@@ -19,6 +22,7 @@ function showYear(y) {
   }
   $('r-cap').textContent = `${y}年の寄付で`;
   $('r-num').textContent = String(n);
+  memo({ q: `${y}年の寄付`, a: `制度の変更 ${n}つ` });
   $('r-foot').textContent = `所得税は令和${y - 2018}年分・住民税は令和${y - 2017}年度`;
 }
 

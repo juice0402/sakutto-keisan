@@ -102,7 +102,7 @@ const PAGES = [
     <div class="pair pair-lev">${boxField('lev', 'レバレッジ', '倍', '10')}${boxField('qty', '通貨の量', '通貨', '10,000')}</div>
   </div>
   ${ACCOUNT}
-  ${noteAndNoscript}
+  ${noteAndNoscript(toolBySlug('fx-iji-ritsu'))}
 </div>`,
     body: `${section(
       'formula',
@@ -170,7 +170,7 @@ ${section(
     <div class="pair">${boxField('rate', 'いまのレート', '円', RATE_EX)}${boxField('cut', 'ロスカットの基準', '％', '100', '100', '会社で違います。50％や100％が多いです')}</div>
   </div>
   ${CUT_CHART}
-  ${noteAndNoscript}
+  ${noteAndNoscript(toolBySlug('fx-losscut'))}
 </div>`,
     body: `${section(
       'formula',
@@ -236,7 +236,7 @@ ${section(
   ${fxTop()}
   <div class="field" id="f-tiles"><p class="sr-only" id="l-qty">通貨の量</p>${qtyTiles('l-qty')}</div>
   ${SWAP_CHART}
-  ${noteAndNoscript}
+  ${noteAndNoscript(toolBySlug('fx-swap'))}
 </div>`,
     body: `${section(
       'formula',
@@ -297,7 +297,7 @@ ${SWAP_ROWS}
     <div class="pair">${boxField('loss', '許せる損', '円', '2,000', '', '損切りになったら失ってよい額')}${boxField('width', '損切りの幅', '円', '0.20', '', '150円で買い149.5円で切るなら0.5')}</div>
   </div>
   ${LOT_CHART}
-  ${noteAndNoscript}
+  ${noteAndNoscript(toolBySlug('fx-lot'))}
 </div>`,
     body: `${section(
       'formula',

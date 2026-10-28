@@ -5,6 +5,9 @@ import { SPU_ITEMS, SPU_BASE, POINT_DAY } from '../data/spu.mjs';
 import { POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { AMAZON_CARD } from '../data/amazon.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { memoOnly } from './choimemo.mjs';
+
+const memo = memoOnly();
 
 // 楽天とAmazonのポイント比較：買い物の額・Amazon の商品のポイントの%・使っているもののチェック欄から、両方のポイントの目安と、ちがい
 // 5と0のつく日は楽天カード、プライム会員の2%は Amazon Mastercard で払った分なので、えらぶとカードもえらぶ（カードを外すといっしょに外す）
@@ -37,6 +40,7 @@ function update() {
     $('r-num').textContent = '？';
     $('r-foot').textContent = r.empty ? '買い物の額を入れてください' : '';
     if (!r.error && !badPct) setNote('');
+    memo(null);
     return;
   }
   const a = amazonPoints({ total: r.total, pct: badPct ? null : pct, card: on.acard, prime: on.prime }, AMAZON_CARD);
@@ -49,6 +53,7 @@ function update() {
   const diff = r.points - a.points;
   $('r-k').textContent = diff > 0 ? '楽天が多い' : diff < 0 ? 'Amazonが多い' : '同じ';
   $('r-num').textContent = fmt(Math.abs(diff));
+  memo({ q: `${$('total').value}円の買い物`, a: `楽天${fmt(r.points)}・Amazon${fmt(a.points)}ポイント` });
   const none = !Object.values(on).some(Boolean) && !pct;
   $('r-foot').textContent = none ? '使っているものをえらんでください' : '';
 }
