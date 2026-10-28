@@ -2,6 +2,8 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { nissu } from '../lib/nissu.mjs';
 import { weekdayOf, warekiOf, ymdValue } from '../lib/hizuke.mjs';
 import { $, enterToNext, numericOnly, focusHints } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCal } from './share-img.mjs';
 
 // 日数の計算：はじめの日（はじめは今日）と、何日後かおわりの日のあとから入れたほう。もう片方は点線の答えの欄
 // 結果は日めくりカレンダー（おわりの日）と、大きな「◯日後」「◯日前」
@@ -9,6 +11,7 @@ const now = new Date();
 const TODAY = ymdValue({ y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() });
 let last = null; // 'days' か 'end'（あとから入れたほう）
 const md = (d) => `${d.m}月${d.d}日`;
+const memo = choiMemo('nissu.png');
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -35,6 +38,7 @@ function update() {
   if (out === 'end') $('end').value = res.ok ? ymdValue(res.end) : '';
   if (out === 'days') $('days').value = res.ok && res.days >= 0 ? String(res.days) : '';
   setNote(res.error || '', !!res.error);
+  memo(null);
   $('r-start').textContent = res.ok ? `${md(res.start)}（${weekdayOf(res.start)}）から` : '';
   if (!res.ok) {
     drawCal(null);
@@ -55,6 +59,15 @@ function update() {
   const w = warekiOf(res.end);
   $('d-wareki').textContent = w ? w.text : '—';
   $('r-foot').textContent = '';
+  const wd = weekdayOf(res.end);
+  const endText = `${res.end.y === res.start.y ? '' : `${res.end.y}年`}${md(res.end)}（${wd}）`;
+  const unit = $('r-unit').textContent;
+  const big = $('r-num').textContent;
+  memo({
+    q: out === 'end' ? `${md(res.start)}から${big}${unit}` : `${md(res.start)}から${endText}まで`,
+    a: out === 'end' ? endText : `${big}${unit}`,
+    img: () => imgCal({ start: `${res.start.y}年${md(res.start)}（${weekdayOf(res.start)}）から`, ym: `${res.end.y}年${res.end.m}月`, d: String(res.end.d), w: `${wd}曜日`, wColor: wd === '日' ? 'sun' : wd === '土' ? 'sat' : '', num: big, unit }),
+  });
 }
 
 /* ---- 入力：何日後とおわりの日は、あとから入れたほうから、もう片方を出す ---- */

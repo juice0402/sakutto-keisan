@@ -1,6 +1,8 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { percent, wariOf, decimalOf, PERCENT_FIELDS } from '../lib/percent.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgGrid } from './share-img.mjs';
 
 // パーセントの計算：もとの数・割合・その数のうち2つから残りの1つ（答えの欄は点線の枠に赤い数字）
 // もとの数が入っていれば、割合かその数のどちらかを答えにする（あとからさわったほうを残す）。もとの数を入れずに割合とその数を入れたときだけ、もとの数を答えにする
@@ -11,6 +13,7 @@ const INPUTS = PERCENT_FIELDS.map((id) => $(id));
 const val = (id) => parseNum($(id).value);
 const NAME = { base: 'もとの数', pct: '割合', part: 'その数' };
 const num = (x) => fmt(x, 4);
+const memo = choiMemo('percent.png');
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -69,6 +72,7 @@ function update() {
   $('r-unit').textContent = out === 'pct' ? '％' : '';
   const pct = res.ok ? res.pct : val('pct');
   drawGrid(pct === null || Number.isNaN(pct) ? null : pct);
+  memo(null);
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-num').parentElement.classList.remove('is-long');
@@ -85,6 +89,13 @@ function update() {
   $('d-wari').textContent = `${fmt(wariOf(res.pct), 3)}割`;
   $('d-dec').textContent = fmt(decimalOf(res.pct), 6);
   $('r-foot').textContent = '';
+  const say = $('r-say').textContent;
+  const unit = out === 'pct' ? '％' : '';
+  memo({
+    q: { part: `${num(res.base)}の${num(res.pct)}％`, pct: `${num(res.base)}のうち${num(res.part)}`, base: `${num(res.pct)}％が${num(res.part)}になる数` }[out],
+    a: `${big}${unit}`,
+    img: () => imgGrid({ cap: NAME[out], num: big, unit, pct: res.pct, say }),
+  });
 }
 
 /* ---- 入力：入れた欄を覚えて、残りの欄に答えを出す。答えの欄をさわったら、まるごと書きかえられるように選んでおく ---- */

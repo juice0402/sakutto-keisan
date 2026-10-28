@@ -3,7 +3,7 @@
 // 割引計算の「何％オフ？」のボタンと、割引率の計算の「割引後の値段を出す」のボタンで行き来する
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { calcDiscount, calcRate } from '../lib/waribiki.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -112,6 +112,7 @@ function renderMain() {
     ${toolBtn('to-cmp', '2つくらべる')}
     <a class="tool-btn tool-link" href="/waribiki-ritsu/">何％オフ？</a>
   </div>
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

@@ -1,11 +1,14 @@
 import { fmt } from '../lib/number.mjs';
 import { nenrei } from '../lib/nenrei.mjs';
-import { ymdValue, parseYmd } from '../lib/hizuke.mjs';
+import { ymdValue, parseYmd, ETO } from '../lib/hizuke.mjs';
 import { $, focusHints } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgEto } from './share-img.mjs';
 
 // 年齢の計算：生年月日と、計算する日（はじめは今日）。結果は干支の輪（生まれ年の干支に赤ペンの丸）と大きな満年齢
 const now = new Date();
 const TODAY = ymdValue({ y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() });
+const memo = choiMemo('nenrei.png');
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -29,6 +32,7 @@ function update() {
   setNote(res.error || '', !!res.error);
   const on = parseYmd($('on').value);
   $('r-on').textContent = on ? `${on.y}年${on.m}月${on.d}日` : '';
+  memo(null);
   if (!res.ok) {
     drawRing(null);
     $('r-num').textContent = '？';
@@ -44,6 +48,13 @@ function update() {
   $('d-grade').textContent = res.grade || '—';
   $('d-next').textContent = res.isBirthday ? '今日' : `あと${fmt(res.untilNext, 0)}日`;
   $('r-foot').textContent = '';
+  const b = parseYmd($('birth').value);
+  const bText = `${b.y}年${b.m}月${b.d}日生まれ`;
+  memo({
+    q: $('on').value === TODAY ? bText : `${bText}・${on.y}年${on.m}月${on.d}日`,
+    a: `満${res.age}歳`,
+    img: () => imgEto({ names: ETO, index: res.eto.index, kanji: res.eto.kanji, age: String(res.age), say: `${res.wareki ? `${res.wareki.text}生まれ・` : ''}${res.eto.kanji}（${res.eto.yomi}）年` }),
+  });
 }
 
 ['birth', 'on'].forEach((id) => {

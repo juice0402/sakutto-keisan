@@ -1,6 +1,6 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf, toolListHtml } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, toolListHtml, memoHtml } from '../parts.mjs';
 import { DILUTE_TILES, dilute, volumeText } from '../lib/kishaku.mjs';
 
 // 薄め方の早見表：できあがりの量ごとの原液の量（「100倍 1L 何ml」のような検索で来る人が、表を見ればわかるように）
@@ -83,6 +83,7 @@ export default function render() {
   </div>
 
 ${mixStage({ hint: '何倍に薄めるかをえらんでください' })}
+  ${memoHtml(tool)}
 </div>
 
 ${USES.length ? section('uses', '使いみち別の薄め方', toolListHtml(USES)) : ''}

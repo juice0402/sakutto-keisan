@@ -4,7 +4,7 @@
 // ページに載せる計算例は tests/warikan.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { WARIKAN_UNITS, WARIKAN_GROUPS, warikan } from '../lib/warikan.mjs';
 
@@ -32,7 +32,6 @@ const UNIT_ROW = `<div class="field unit-row" id="f-unit"><p class="label" id="l
   (u) => `<button type="button" class="seg-btn" data-unit="${u}" aria-pressed="${u === 100}">${u}円</button>`,
 ).join('')}</div></div>`;
 
-const shareBtn = '<button type="button" class="tool-btn span-2" id="share" disabled>画像で送る</button>';
 
 // 人数：大きな −／＋ と、名前を中に書いたまん中の欄（ほかの欄と左右のはしをそろえる）
 const STEPPER = `<div class="stepper box-stepper">
@@ -89,9 +88,9 @@ function renderMain() {
   ${UNIT_ROW}
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools">
-    ${shareBtn}
-    <a class="tool-btn tool-link" href="/warikan-keisha/">多め・少なめ</a>
+    <a class="tool-btn tool-link span-3" href="/warikan-keisha/">多め・少なめ</a>
   </div>
+  ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
 
@@ -209,9 +208,9 @@ function renderKeisha() {
   ${UNIT_ROW}
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools">
-    ${shareBtn}
-    <a class="tool-btn tool-link" href="/warikan/">みんな同じ</a>
+    <a class="tool-btn tool-link span-3" href="/warikan/">みんな同じ</a>
   </div>
+  ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
 

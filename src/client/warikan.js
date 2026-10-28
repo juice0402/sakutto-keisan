@@ -1,14 +1,16 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { warikan, WARIKAN_MAX_PEOPLE } from '../lib/warikan.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
-import { wkYen, setWkNote, drawTickets, drawRows, unitSeg, shareReceipt } from './warikan-ui.mjs';
+import { wkYen, setWkNote, drawTickets, drawRows, unitSeg } from './warikan-ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgReceipt } from './share-img.mjs';
 
 // 割り勘の計算：合計と人数から1人いくらか。結果はお会計のレシート（大きな1人の額・人数分の券・合計と集める額とおつり・端数を幹事が払うとき）
 const val = (id) => parseNum($(id).value);
 const EMPTY = { total: '合計を入れてください', people: '人数を入れてください' };
 const INPUTS = ['total', 'people'].map((id) => $(id));
+const memo = choiMemo('warikan.png');
 const unit = unitSeg(update);
-let last = null; // いまの結果（画像で送る）
 
 const hostText = (res) => (res.low > 0 && res.host !== res.low ? `ほかの人 ${wkYen(res.low)}・幹事 ${wkYen(res.host)}` : '');
 
@@ -17,9 +19,8 @@ function update() {
   INPUTS.forEach((el) => $(`f-${el.id}`).classList.toggle('has-error', res.field === el.id));
   setWkNote(res.error || '', !!res.error);
   $('people-minus').disabled = !(val('people') > 2);
-  $('share').disabled = !res.ok;
-  last = res.ok ? res : null;
-  drawRows(last);
+  drawRows(res.ok ? res : null);
+  memo(null);
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? EMPTY[res.missing] : '';
@@ -33,6 +34,16 @@ function update() {
   const host = hostText(res);
   $('rc-host').hidden = !host;
   $('rc-host-v').textContent = host;
+  memo({
+    q: `${wkYen(res.total)}を${res.people}人で`,
+    a: `1人${wkYen(res.each)}`,
+    img: () => imgReceipt({
+      lines: [{ k: '1人', v: fmt(res.each, 0) }],
+      tickets: Array.from({ length: res.people }, () => ({ amount: res.each })),
+      rows: [['合計', wkYen(res.total)], [`集める（${res.people}人分）`, wkYen(res.collect)], ['おつり', wkYen(res.change)]],
+      notes: host ? ['幹事が端数を払うなら', host] : [],
+    }),
+  });
 }
 
 /* ---- 人数の －／＋（2人から） ---- */
@@ -44,22 +55,6 @@ function step(d) {
 }
 $('people-minus').addEventListener('click', () => step(-1));
 $('people-plus').addEventListener('click', () => step(1));
-
-/* ---- 画像で送る ---- */
-$('share').addEventListener('click', () => {
-  if (!last) return;
-  const host = hostText(last);
-  const how = shareReceipt(
-    {
-      lines: [{ k: '1人', v: fmt(last.each, 0) }],
-      tickets: Array.from({ length: last.people }, () => ({ amount: last.each })),
-      rows: [['合計', wkYen(last.total)], [`集める（${last.people}人分）`, wkYen(last.collect)], ['おつり', wkYen(last.change)]],
-      notes: host ? ['幹事が端数を払うなら', host] : [],
-    },
-    'warikan.png',
-  );
-  if (how === 'save') setWkNote('画像を保存しました');
-});
 
 /* ---- 入力 ---- */
 numericOnly(INPUTS);

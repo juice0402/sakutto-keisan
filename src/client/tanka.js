@@ -1,6 +1,8 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { compareUnitPrices, rankUnitPrices, UNITS, DIM_JA, baseLabel } from '../lib/tanka.mjs';
 import { $, enterToNext, tidyOnBlur, numericOnly } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgRank } from './share-img.mjs';
 
 // 実質単価の比較と、まとめ買いの単価比較（入り数・割引シールの段があるページ）で共通
 const KEYS = [...document.querySelectorAll('.item')].map((el) => el.id.slice(5)); // 'item-a' → 'a'
@@ -9,6 +11,7 @@ const EXTRA = !!document.querySelector('.pair.extra'); // まとめ買いの単�
 const FIELDS = EXTRA ? ['price', 'qty', 'packs', 'disc'] : ['price', 'qty'];
 let shown = Number($('calc').dataset.start); // 表示している商品の数
 let lastWin = '';
+const memo = choiMemo('tanka.png');
 
 const yen = (x) => `${fmt(x)}円`;
 const perText = (x) => fmt(x, x < 10 ? 2 : 1);
@@ -81,6 +84,7 @@ function update() {
     FIELDS.forEach((f) => $(`f-${f}-${k}`).classList.toggle('has-error', Number.isNaN(items[i][f])));
   });
   const errIndex = r.results.findIndex((x) => x.error);
+  memo(null);
 
   if (!r.ok) {
     if (r.mismatch) {
@@ -114,6 +118,18 @@ function update() {
   $('t-price').textContent = perText(win.per);
   $('t-sub').textContent = `${yen(win.pay)} ／ ${amountText(win.amount, win.unit)}`;
   $('t-badge').hidden = !!r.same;
+  const okList = keys.map((k, i) => [k, r.results[i]]).filter(([, x]) => x.ok).map(([k, x]) => `${K(k)} ${yen(x.pay)}/${amountText(x.amount, x.unit)}`);
+  const bestKeys = winKeys.join('と');
+  memo({
+    q: okList.length > 3 ? `${okList.slice(0, 3).join('・')}ほか` : okList.join('・'),
+    a: r.same ? 'どれも同じ単価' : `${bestKeys}が${base}あたり${perText(win.per)}円`,
+    img: () => imgRank({
+      head: r.same ? `どれも同じ ${base}あたり` : `いちばんおトク ${bestKeys}`,
+      price: perText(win.per),
+      sub: `${base}あたり　${yen(win.pay)} ／ ${amountText(win.amount, win.unit)}`,
+      rows: rank.map((x) => ({ no: x.rank, k: K(keys[x.index]), per: x.per, v: `${perText(x.per)}円`, best: x.rank === 1 })),
+    }),
+  });
   const v = $('verdict');
   v.hidden = false;
 

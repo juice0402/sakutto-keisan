@@ -1,10 +1,13 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { jikan, jikanDays, JIKAN_MAX_ROWS } from '../lib/jikan.mjs';
+import { jikan, jikanDays, jikanText, JIKAN_MAX_ROWS } from '../lib/jikan.mjs';
 import { $, enterToNext, numericOnly } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgBar } from './share-img.mjs';
 
 // 時間の計算：行ごとの時間と分を足して、合計を大きく。結果は時間の帯（行ごとの時間を1本の帯に並べ、1時間ごとの目もり）
 const IDX = Array.from({ length: JIKAN_MAX_ROWS }, (_, i) => i);
 const INPUTS = IDX.flatMap((i) => [$(`h-${i}`), $(`m-${i}`)]);
+const memo = choiMemo('jikan.png');
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -45,6 +48,7 @@ function update() {
   INPUTS.forEach((el) => $(`f-${el.id}`).classList.toggle('has-error', res.field === el.id));
   setNote(res.error || '', !!res.error);
   drawBar(res.ok ? res : null);
+  memo(null);
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-num').parentElement.classList.remove('is-long');
@@ -58,6 +62,15 @@ function update() {
   $('d-min').textContent = `${fmt(res.minutes, 0)}分`;
   $('d-days').textContent = jikanDays(res.minutes) || '—';
   $('r-foot').textContent = res.used.length === 1 ? 'もう1つ入れると足せます' : '';
+  const parts = res.used.map((u) => jikanText(Math.round(u.minutes)));
+  const hours = Math.max(1, Math.ceil(res.minutes / 60));
+  const step = hours > 24 ? 6 : 1;
+  const span = Math.ceil(hours / step) * step * 60;
+  memo({
+    q: parts.length > 3 ? `${parts.slice(0, 3).join('＋')}ほか${parts.length - 3}つ` : parts.join('＋'),
+    a: res.text,
+    img: () => imgBar({ text: res.text, segs: res.used.filter((u) => u.minutes > 0).map((u) => ({ m: u.minutes, n: u.index + 1 })), span, step, max: `${(span / 60).toLocaleString('ja-JP')}時間` }),
+  });
 }
 
 /* ---- 行を足す（10行まで） ---- */

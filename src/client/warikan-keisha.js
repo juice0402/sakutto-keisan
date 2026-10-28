@@ -1,13 +1,15 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { warikanKeisha, WARIKAN_GROUPS } from '../lib/warikan.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { wkYen, setWkNote, drawTickets, drawRows, unitSeg, shareReceipt } from './warikan-ui.mjs';
+import { wkYen, setWkNote, drawTickets, drawRows, unitSeg } from './warikan-ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgReceipt } from './share-img.mjs';
 
 // 傾斜割り勘の計算：多め・ふつう・少なめの人数と、ふつうの人の何倍を払うか。結果はお会計のレシート（グループごとの1人の額・人数分の券は払う額の高さ）
 const val = (id) => parseNum($(id).value);
 const INPUTS = [...document.querySelectorAll('#calc input')]; // 上から順（合計・人数と何倍）
+const memo = choiMemo('warikan.png');
 const unit = unitSeg(update);
-let last = null;
 
 function emptyText(res) {
   if (res.missing === 'total') return '合計を入れてください';
@@ -25,9 +27,8 @@ function update() {
   const res = warikanKeisha({ total: val('total'), groups, unit: unit() });
   INPUTS.forEach((el) => $(`f-${el.id}`).classList.toggle('has-error', res.field === el.id));
   setWkNote(res.error || '', !!res.error);
-  $('share').disabled = !res.ok;
-  last = res.ok ? res : null;
-  drawRows(last);
+  drawRows(res.ok ? res : null);
+  memo(null);
   WARIKAN_GROUPS.forEach((g, i) => {
     const row = res.ok ? res.rows.find((r) => r.index === i) : null;
     $(`rc-v-${i}`).textContent = row ? fmt(row.each, 0) : res.ok ? '—' : '？';
@@ -41,24 +42,19 @@ function update() {
   }
   $('r-foot').textContent = '';
   const max = Math.max(...res.rows.map((r) => r.each));
-  drawTickets(res.rows.flatMap((r) => Array.from({ length: r.people }, () => ({ amount: r.each, h: r.each / max }))));
-}
-
-/* ---- 画像で送る ---- */
-$('share').addEventListener('click', () => {
-  if (!last) return;
-  const max = Math.max(...last.rows.map((r) => r.each));
-  const how = shareReceipt(
-    {
-      lines: last.rows.map((r) => ({ k: WARIKAN_GROUPS[r.index].name, v: fmt(r.each, 0), n: `× ${r.people}人` })),
-      tickets: last.rows.flatMap((r) => Array.from({ length: r.people }, () => ({ amount: r.each, h: r.each / max }))),
-      rows: [['合計', wkYen(last.total)], [`集める（${last.people}人分）`, wkYen(last.collect)], ['おつり', wkYen(last.change)]],
+  const tickets = res.rows.flatMap((r) => Array.from({ length: r.people }, () => ({ amount: r.each, h: r.each / max })));
+  drawTickets(tickets);
+  memo({
+    q: `${wkYen(res.total)}を${res.people}人で`,
+    a: res.rows.map((r) => `${WARIKAN_GROUPS[r.index].name}${wkYen(r.each)}`).join(' '),
+    img: () => imgReceipt({
+      lines: res.rows.map((r) => ({ k: WARIKAN_GROUPS[r.index].name, v: fmt(r.each, 0), n: `× ${r.people}人` })),
+      tickets,
+      rows: [['合計', wkYen(res.total)], [`集める（${res.people}人分）`, wkYen(res.collect)], ['おつり', wkYen(res.change)]],
       notes: [],
-    },
-    'warikan.png',
-  );
-  if (how === 'save') setWkNote('画像を保存しました');
-});
+    }),
+  });
+}
 
 /* ---- 入力 ---- */
 numericOnly(INPUTS);

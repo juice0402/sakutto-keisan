@@ -1,6 +1,8 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { shohizei } from '../lib/shohizei.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgReceipt } from './share-img.mjs';
 
 // 消費税の計算：税率のマス（はじめは10％）と、税抜か税込のあとから入れたほう。もう片方は点線の答えの欄
 // 結果はお店のレシート。消費税に1円未満の端数があるときだけ、レシートの下に「切り捨て・四捨五入・切り上げ」を出す
@@ -12,6 +14,7 @@ const TILES = [...document.querySelectorAll('.tile[data-rate]')];
 const MODES = [...document.querySelectorAll('.seg-btn[data-mode]')];
 const NAME = { net: '税抜', gross: '税込' };
 const yen = (x) => fmt(x, 2);
+const memo = choiMemo('shohizei.png');
 
 function setNote(text = '', error = false) {
   $('r-note').hidden = !text;
@@ -34,6 +37,7 @@ function update() {
   $('d-tax-k').textContent = `消費税（${rate}%）`;
   setNote(res.error || '', !!res.error);
   $('r-cap').textContent = NAME[out] || NAME.gross;
+  memo(null);
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? '税抜か税込の値段を入れてください' : '';
@@ -45,6 +49,15 @@ function update() {
   $('d-tax').textContent = `${yen(res.tax)}円`;
   $('d-gross').textContent = `${yen(res.gross)}円`;
   $('r-foot').textContent = '';
+  memo({
+    q: `${NAME[from]}${yen(res[from])}円・${rate}％`,
+    a: `${NAME[out]}${yen(res[out])}円`,
+    img: () => imgReceipt({
+      lines: [{ k: NAME[out], v: yen(res[out]) }],
+      rows: [['税抜', `${yen(res.net)}円`], [`消費税（${rate}%）`, `${yen(res.tax)}円`], ['税込', `${yen(res.gross)}円`]],
+      notes: rate === 8 ? ['軽減税率の対象'] : [],
+    }),
+  });
 }
 
 /* ---- 税率のマスと、1円未満のえらび方 ---- */

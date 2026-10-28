@@ -3,7 +3,7 @@
 // 結果は日めくりカレンダー（おわりの日）と、大きな「◯日後」。ページに載せる計算例は tests/hizuke.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField, dateField } from '../fields.mjs';
 import { nissu } from '../lib/nissu.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
@@ -69,6 +69,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">何日後かおわりの日を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
