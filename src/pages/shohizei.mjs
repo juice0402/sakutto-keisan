@@ -4,7 +4,7 @@
 // ページに載せる計算例は tests/shohizei.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { shohizei, TAX_RATES } from '../lib/shohizei.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -81,6 +81,7 @@ export default function render() {
   </div>
   ${MODE_ROW}
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

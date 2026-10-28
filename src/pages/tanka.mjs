@@ -3,7 +3,7 @@
 // 10/21 しょーくんの「窮屈なものはメインとサブに」で別のページにした。動きは src/client/tanka.js 1つで、#calc の data-start と、入り数の段があるかで分ける
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { calcUnitPrice } from '../lib/tanka.mjs';
 import { fmt } from '../lib/number.mjs';
 
@@ -117,6 +117,7 @@ function renderMain() {
     ${toolBtn('to-add', '＋1つ追加')}
     <a class="tool-btn tool-link span-2" href="/matomegai/">入り数・割引シール</a>
   </div>
+  ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
 
@@ -185,6 +186,7 @@ function renderMatome() {
     ${toolBtn('to-add', '＋1つ追加')}
     <a class="tool-btn tool-link span-2" href="/tanka/">値段と量だけ</a>
   </div>
+  ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
 

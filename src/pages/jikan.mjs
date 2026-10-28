@@ -3,7 +3,7 @@
 // 小数の時間・分・日の表。ページに載せる計算例は tests/hizuke.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { jikan, JIKAN_MAX_ROWS } from '../lib/jikan.mjs';
 
@@ -61,6 +61,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">1つめの時間を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

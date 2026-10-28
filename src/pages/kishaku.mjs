@@ -1,6 +1,6 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf, toolListHtml } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, toolListHtml, memoHtml } from '../parts.mjs';
 import { DILUTE_TILES, dilute, volumeText, QUICK_RATIOS, QUICK_TOTALS } from '../lib/kishaku.mjs';
 import { printLink } from '../prints.mjs';
 
@@ -82,6 +82,7 @@ export default function render() {
   </div>
 
 ${mixStage({ hint: '何倍に薄めるかをえらんでください' })}
+  ${memoHtml(tool)}
 </div>
 
 ${USES.length ? section('uses', '使いみち別の薄め方', toolListHtml(USES)) : ''}

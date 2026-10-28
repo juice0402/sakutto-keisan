@@ -1,6 +1,8 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { calcDiscount, compareDiscounts, wariLabel } from '../lib/waribiki.mjs';
 import { $, enterToNext, tidyOnBlur, numericOnly } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgTag } from './share-img.mjs';
 
 const inPrice = $('price');
 const inRate = $('rate');
@@ -15,6 +17,7 @@ const S = {
   more: false,
 };
 let lastKey = '';
+const memo = choiMemo('waribiki.png');
 
 const yen = (x) => `${fmt(x)}円`;
 const show = (id, on) => { $(id).hidden = !on; };
@@ -108,8 +111,12 @@ function syncInputs() {
   });
 }
 
+/** ちょいメモの1行の割引（10％きざみは「3割引」、ほかは「15％オフ」） */
+const offWord = (p) => (p > 0 && p % 10 === 0 ? `${p / 10}割引` : `${fmt(p, 1)}％オフ`);
+
 function update() {
   syncInputs();
+  memo(null);
   if (S.mode === 'compare') return updateCompare();
   const it = S.items.a;
   const price = num(it.price);
@@ -131,6 +138,11 @@ function update() {
       ? `${fmt(r.steps[0].rate)}％オフで${yen(r.steps[0].after)} → さらに${fmt(r.steps[1].rate)}％オフ。合計${fmt(r.totalRate, 1)}％オフです。`
       : '',
     round: r.steps.some((s) => s.rounded),
+  });
+  memo({
+    q: `${yen(price)}の${r.steps.map((s) => offWord(s.rate)).join('＋')}`,
+    a: yen(r.final),
+    img: () => imgTag({ was: yen(price), price: fmt(r.final), rate: r.off > 0 ? `${fmt(r.totalRate, 1)}%` : '', save: r.off > 0 ? `${yen(r.off)} おトク` : '割引なし', conv: r.off > 0 ? convText(r.totalRate) : '' }),
   });
 }
 

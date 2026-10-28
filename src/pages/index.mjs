@@ -40,6 +40,7 @@ export default function render() {
   <h1>${esc(SITE.name)}</h1>
   <p class="lead">買い物や家事、仕事で使う計算ツールです。</p>
 </div>
+<section class="cm cm2 tm" id="tm" aria-labelledby="tm-h" hidden><h2 class="cm-h" id="tm-h">ちょいメモ</h2><ul></ul></section>
 <section class="cat" aria-labelledby="cat-pick">
   <h2 id="cat-pick">よく使う計算</h2>
   <ul class="pick-grid">${picks.map((t) => `<li><a class="pick-cell" href="${toolUrl(t)}">${doodle(t.slug)}<span>${esc(t.pickName || t.name.replace(/の計算$/, ''))}</span></a></li>`).join('')}</ul>
@@ -53,6 +54,7 @@ ${cats}
     title: `${SITE.name}｜割引・消費税・パーセント・割り勘などの計算ツール`,
     description: `割引・消費税・パーセント・割り勘・ふるさと納税の上限・家電の電気代・FXのロスカットなど、${CALC_COUNT}の計算ツールをまとめたサイトです。スマホのブラウザで使えて、入力した数字は送信しません。${jaDate(LAST_UPDATED)}更新。`,
     body,
+    scripts: ['home-memo.js'],
     jsonLd: [
       { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, alternateName: SITE.alternateName, url: absUrl('/'), inLanguage: 'ja' },
     ],
