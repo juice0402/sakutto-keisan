@@ -12,6 +12,7 @@ import { ETO, warekiOfYear, etoOf } from '../lib/hizuke.mjs';
 import { gakureki } from '../lib/gakureki.mjs';
 import { printLink } from '../prints.mjs';
 import { nenrei } from '../lib/nenrei.mjs';
+import { stair, zCal, zBox } from '../zukai.mjs';
 
 // 年のとり方・早生まれの説明の出典（国立天文台 暦Wiki。年齢計算ニ関スル法律と民法143条による）
 const SRC_AGE = 'https://eco.mtk.nao.ac.jp/koyomi/wiki/CDD7C1C72F1C7AFA4C8A4CFA1A92FC7AFCEF0.html';
@@ -35,6 +36,13 @@ const TABLE_ROWS = YEARS.map((y) => {
   const e = etoOf(y);
   return `<tr><td class="num">${y}年</td><td class="wrap">${w.before ? `${w.before}<br>` : ''}${w.text}</td><td>${e.kanji}（${e.yomi}）</td><td class="num">${THIS_YEAR - y}歳</td></tr>`;
 }).join('\n');
+
+// 図解（#70）：日めくりの式（1987年6月15日生まれの、2026年10月21日の満年齢）と、生まれた日から今日までの帯
+const ZUKAI = stair(zCal('1987年6月', 15, '生まれた日'), { b: '2026 − 1987', small: '今年の誕生日のあと' }, zBox('2026年10月21日', `満${AGE_EX.age}歳`, true), ['満年齢 ＝ 今年 − 生まれた年', '今年の誕生日の前なら、さらに − 1', `例：1987年6月15日生まれなら、2026年10月21日には${AGE_EX.age}歳です。数え年は${AGE_EX.kazoe}歳です。`]);
+// 帯：1年ごとに目もり（10歳ごとに長く）。いちばん新しい誕生日に赤ペンの丸、そのすこし先が今日
+const zx = (age) => 8 + (age / 40) * 300;
+const zToday = zx(AGE_EX.age + (365 - AGE_EX.untilNext) / 365);
+const LINE = `<figure class="fz2"><svg class="fz-line" viewBox="0 0 330 70" role="img" aria-label="生まれた日から今日までの帯に、1年ごとの誕生日の目もり。いちばん新しい誕生日が満${AGE_EX.age}歳"><rect x="8" y="14" width="${(zToday - 8).toFixed(1)}" height="18" fill="#dce9f7" stroke="#1c2f4a" stroke-width="1.5"/>${Array.from({ length: AGE_EX.age + 1 }, (_, a) => `<line x1="${zx(a).toFixed(1)}" y1="${a % 10 ? 32 : 30}" x2="${zx(a).toFixed(1)}" y2="${a % 10 ? 37 : 42}" stroke="#1c2f4a" stroke-width="${a % 10 ? 1 : 1.5}"/>${a % 10 ? '' : `<text x="${zx(a).toFixed(1)}" y="56" text-anchor="${a ? 'middle' : 'start'}">${a}歳</text>`}`).join('')}<ellipse cx="${zx(AGE_EX.age).toFixed(1)}" cy="23" rx="11" ry="13" fill="none" stroke="#c8323c" stroke-width="2.4"/><text x="${zToday.toFixed(1)}" y="9" text-anchor="end">今日</text></svg><p class="fz2-ans">いちばん新しい誕生日で → <b>満${AGE_EX.age}歳</b></p></figure>`;
 
 const FAQS = [
   {
@@ -101,11 +109,7 @@ function renderMain() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>満年齢 ＝ 今年 − 生まれた年</span>
-<span>（今年の誕生日の前なら、さらに − 1）</span>
-</div>
-<p>例：1987年6月15日生まれなら、2026年10月21日には39歳です。数え年は40歳です。</p>
+  `${ZUKAI}${LINE}
 <p>年のとり方と早生まれの決まりは、<a href="${SRC_AGE}">国立天文台の暦Wiki</a>にくわしい説明があります。</p>`,
 )}
 

@@ -8,8 +8,13 @@ import { boxField } from '../fields.mjs';
 import { calcDiscount, calcRate, QUICK_PRICES, QUICK_RATES } from '../lib/waribiki.mjs';
 import { printLink } from '../prints.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zTag } from '../zukai.mjs';
 
 // よくある値段の割引の早見表（値段と率は src/lib/waribiki.mjs。印刷用のPDFも同じ表）
+// 図解（#70）：値札の式と、元の値段の帯（5,000円の30％オフ）
+const ZX = calcDiscount({ price: 5000, rate: 30 });
+const ZUKAI = stair(zTag('元の値段', `${fmt(5000)}円`), { b: '×0.7', small: '30％オフ' }, zTag('割引後', `${fmt(ZX.final)}円`, true), ['割引後の値段 ＝ 元の値段 ×（100 − 割引率）÷ 100', `例：5,000円の30％オフは、5,000 × 70 ÷ 100 ＝ ${fmt(ZX.final)}円`]);
+const BAND = band({ head: `元の値段 ${fmt(5000)}円`, parts: [{ w: 70, text: `払う ${fmt(ZX.final)}円` }, { w: 30, kind: 'off', text: `−${fmt(ZX.off)}円` }], ruler: [[0, '0'], [70, '70％', true], [100, '100％']], ans: `30％オフは7割を払う → <b>${fmt(ZX.final)}円</b>`, label: `元の値段5,000円の帯を、払う${fmt(ZX.final)}円と値引き${fmt(ZX.off)}円に分けた図` });
 const DESC_EX = { price: 1980, final: calcDiscount({ price: 1980, rate: 30 }).final }; // 説明文（meta description）の例
 const QUICK_ROWS = QUICK_PRICES.map(
   (p) => `<tr><td class="num">${fmt(p)}円</td>${QUICK_RATES.map((r) => `<td class="num">${fmt(calcDiscount({ price: p, rate: r }).final)}</td>`).join('')}</tr>`,
@@ -118,16 +123,13 @@ function renderMain() {
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>割引後の値段 ＝ 元の値段 ×（100 − 割引率）÷ 100</span>
-</div>
-<p>例：5,000円の30％オフは、5,000 × 70 ÷ 100 ＝ 3,500円。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">元の値段</th><th>割引</th><th class="num">割引後</th><th class="num">値引き</th></tr></thead>
 <tbody>
 <tr><td class="num">3,980円</td><td>20％オフ</td><td class="num">3,184円</td><td class="num">796円</td></tr>
