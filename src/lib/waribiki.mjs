@@ -3,6 +3,10 @@ import { fix, roundBy } from './number.mjs';
 // 割引計算（ブラウザとテストの両方で使う）
 
 /** 割引率（%）を「◯割◯分引き」に。小数第2位以下があるときは null */
+/** よくある値段の割引の早見表（割引計算のページと印刷用のPDF。「1980円の3割引」のような検索で来る人が、表を見ればわかるように。数字は tests/waribiki.test.mjs で確かめる） */
+export const QUICK_PRICES = [500, 600, 880, 980, 1000, 1280, 1500, 1980, 2000, 2980, 3000, 3980, 5000, 10000];
+export const QUICK_RATES = [10, 20, 30, 50];
+
 export function wariLabel(rate) {
   if (!(rate > 0) || rate > 100) return null;
   const t = Math.round(rate * 10); // 0.1% 単位
