@@ -43,3 +43,11 @@ export const toolLd = (tool, description) => ({
   isAccessibleForFree: true,
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
 });
+
+/**
+ * ちょいメモと「画像で送る」の段（計算カードの中、チェック欄の下）。動きは src/client/choimemo.mjs
+ * はじめは隠しておき、保存できる端末でだけスクリプトが出す。メモがないときは見出しも出さない
+ */
+export const memoHtml = (tool) =>
+  `<div class="cm-add" id="cm-bar" data-tool="${esc(tool.slug)}" data-name="${esc(tool.pickName || tool.name.replace(/の計算$/, ''))}" hidden><button type="button" class="tool-btn" id="cm-add" disabled>メモする</button><button type="button" class="tool-btn" id="cm-share" disabled>画像で送る</button></div>
+  <section class="cm cm2" id="cm" aria-labelledby="cm-h" hidden><h2 class="cm-h" id="cm-h">ちょいメモ</h2><ul></ul></section>`;

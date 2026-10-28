@@ -1,6 +1,8 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonText, capText, mlValue, literText } from '../lib/kishaku.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgBottle } from './share-img.mjs';
 
 // 希釈率の計算と、使いみち別のページ（めんつゆ・漂白剤・液体肥料）で共通。ページごとのちがいは #calc の data-*
 //   data-how：薄め方を決めておく（times：何倍 / pct：濃度）。ないときは上の3つのタブでえらぶ
@@ -19,6 +21,7 @@ const AMOUNT_NAME = { total: 'できあがり', conc: CONC, water: '水' };
 const FROM = { total: 'total', conc: 'concentrate', water: 'water' };
 const BOTTLE_FULL = 82; // ボトルの何％まで液を入れて見せるか
 const val = (id) => parseNum($(id).value);
+const memo = choiMemo('kishaku.png');
 // 薄め方の欄（ページの上から順。Enter で次の欄へ進む順番になる）
 const RATIO_IDS = [...document.querySelectorAll('#calc input')].map((el) => el.id).filter((id) => ['ratio', 'pc', 'pw', 'src', 'target'].includes(id));
 
@@ -101,6 +104,7 @@ function update() {
   const rr = currentRatio();
   const amt = val(`v-${basis}`);
   // 入力まちがいの印・えらんでいるマス
+  memo(null);
   RATIO_IDS.forEach((id) => $(`f-${id}`).classList.toggle('has-error', rr.field === id));
   AMOUNTS.forEach((k) => $(`f-${k}`).classList.toggle('has-error', k === basis && (Number.isNaN(amt) || amt === 0)));
   const custom = $(CUSTOM).value !== '';
@@ -125,6 +129,23 @@ function update() {
   }
   drawBottle(res);
   showAmounts(res);
+  const way = how === 'parts' || C.label === 'parts' ? `${partsText(rr.ratio)}で` : `${bottleLabel(rr.ratio)}に`;
+  const v = { total: volumeText(res.total), conc: volumeText(res.concentrate), water: volumeText(res.water) };
+  const ask = { total: `できあがり${v.total}を`, conc: `${CONC}${v.conc}を`, water: `水${v.water}で` }[basis];
+  memo({
+    q: `${ask}${way}`,
+    a: AMOUNTS.filter((k) => k !== basis).map((k) => `${AMOUNT_NAME[k]}${v[k]}`).join('・'),
+    img: () => imgBottle({
+      label: bottleLabel(rr.ratio),
+      share: res.total > 0 ? res.concentrate / res.total : 0,
+      conc: v.conc,
+      water: v.water,
+      total: v.total,
+      concName: CONC,
+      ratio: $('r-ratio').textContent,
+      concColor: document.querySelector('.is-tsuyu') ? '#a8692f' : '#f5bb55',
+    }),
+  });
   setNote(res.concentrate < 1.25 ? `${CONC}が少ないので、多めに作ると量りやすいです。` : '');
 }
 

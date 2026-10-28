@@ -2,7 +2,7 @@
 // 数字は出典のページでたしかめたもの（2026-10-17）。表の数字は tests/kishaku.test.mjs でも確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { mixTiles, mixStage } from '../mix.mjs';
 import { boxField } from '../fields.mjs';
 import { volumeText } from '../lib/kishaku.mjs';
@@ -219,7 +219,7 @@ export default function render() {
 <h1${tool.name.length > 12 ? ' class="is-long"' : ''}>${tool.name}</h1>
 <p class="lead">${p.lead}</p>
 
-${p.calc}
+${p.calc.replace(/<\/div>$/, `  ${memoHtml(tool)}\n</div>`)}
 
 ${p.body}
 

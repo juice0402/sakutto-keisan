@@ -6,7 +6,7 @@
 // ページに載せる計算例は tests/hizuke.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { dateField } from '../fields.mjs';
 import { ETO, warekiOfYear, etoOf } from '../lib/hizuke.mjs';
 import { gakureki } from '../lib/gakureki.mjs';
@@ -94,6 +94,7 @@ function renderMain() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link span-2" href="/gakureki/">入学・卒業の年</a><a class="tool-btn tool-link" href="/wareki/">和暦・西暦</a></div>
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

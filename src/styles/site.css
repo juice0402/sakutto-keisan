@@ -274,6 +274,21 @@ h1 {
 .tool-link { text-decoration: none; }
 .calc-tools .span-2 { grid-column: span 2; }
 .calc-tools .span-3 { grid-column: 1 / -1; }
+
+/* ちょいメモと「画像で送る」（10/28 しょーくんが3案から「付箋」。1つのメモが1枚の付箋で2列。src/client/choimemo.mjs） */
+.cm-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 0; }
+.cm-add .tool-btn { width: 100%; }
+.cm { margin: 22px 0 0; font-size: 15px; color: var(--text); }
+.cm ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cm-h { margin: 0 0 6px; font-weight: 800; font-size: 15px; }
+.cm li { position: relative; min-height: 92px; padding: 12px 10px 26px; background: url(/img/fusen-y.webp) center / 100% 100% no-repeat; font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.cm li:nth-child(3n+2) { background-image: url(/img/fusen-b.webp); }
+.cm li:nth-child(3n) { background-image: url(/img/fusen-p.webp); }
+.cm small { display: block; font-size: 12px; opacity: .7; font-weight: 600; }
+.cm b { display: block; margin-top: 2px; color: var(--red); font-size: 22px; line-height: 1.25; }
+.cm i { font-style: normal; font-size: 12px; font-weight: 700; opacity: .7; margin-right: 6px; }
+.cm .x { position: absolute; right: 4px; bottom: 2px; border: 0; background: none; color: var(--text); opacity: .55; font-size: 13px; text-decoration: underline; padding: 4px; }
+.tm { margin: 0 0 22px; }
 .tag-stage .rieki-bar { margin: 22px 0 0; } /* 割引率の計算：値札の下の帯 */
 
 /* 商品ごとの入力（実質単価など）：A・B・C を縦に並べ、値段と量は横並び */

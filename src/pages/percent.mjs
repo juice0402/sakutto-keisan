@@ -4,7 +4,7 @@
 // ページに載せる計算例は tests/percent.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
-import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
+import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { percent, wariOf, decimalOf } from '../lib/percent.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -78,6 +78,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">もとの数を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

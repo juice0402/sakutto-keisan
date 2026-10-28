@@ -366,7 +366,7 @@ ${relatedHtml(tool)}
     theme: themeOf(tool),
     ogImage: `/og/${tool.slug}.png`,
     scripts: ['furusato-memo.js'],
-    footNote: '寄付メモの記録は、この端末のブラウザの中だけに保存します。送信はしません。',
+    footNote: '入力した数字は送信しません。寄付メモの記録は、この端末のブラウザの中に保存します。',
     body,
   });
   return { path, html, sitemap: true, updated: tool.updated };
