@@ -56,4 +56,4 @@ export const SPU_SOURCES = [
 
 // 5と0のつく日（楽天カードのキャンペーン。毎月5・10・15・20・25・30日。開催日ごとにエントリーして楽天カードで払うと、通常1倍＋SPUの楽天カード＋2倍に＋1倍）
 // 楽天のポイントのしくみ /point/shikumi/ で使う。見張りは SPU と同じ（scripts/watch-pages.mjs spu）
-export const POINT_DAY = { name: '楽天カード「5と0のつく日」', url: 'https://event.rakuten.co.jp/card/pointday/', rate: 1, cap: 1000, checked: '2026-10-29', what: '5と0のつく日の倍率・上限・エントリー' };
+export const POINT_DAY = { name: '楽天カード「5と0のつく日」', url: 'https://event.rakuten.co.jp/card/pointday/', rate: 1, cap: 1000, checked: '2026-10-30', what: '5と0のつく日の倍率・上限・エントリー' };
