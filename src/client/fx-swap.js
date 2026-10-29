@@ -2,9 +2,10 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { fxSwapEstimate, swapBars, swapText } from '../lib/fx.mjs';
 import { swapChartShape } from '../lib/fx-chart.mjs';
 import { $, numericOnly } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('fx-swap.png');
 
 // スワップポイントの目安：通貨ペア・買いか売りか・通貨の量から、金利の差で1日の額。1年でたまる（払う）額をチャートの階段の線で
 const DEFAULT_QTY = 10000; // はじめは1万通貨
@@ -76,7 +77,21 @@ function update() {
   $('r-unit').textContent = res.day === 0 ? '円' : pay ? '円 払う' : '円 もらえる';
   $('r-per').textContent = res.day === 0 ? '金利の差がないので、ほとんどつきません' : '';
   $('r-base').textContent = `1${res.pair.unit} ${fmt(res.rate, 3)}円で計算`;
-  memo({ q: `${res.pair.name}・${side === 'sell' ? '売り' : '買い'}・${fmt(currentQty(), 0)}通貨`, a: res.day === 0 ? '1日0円' : `1日 約${swapText(res.day)}円${pay ? '払う' : 'もらえる'}` });
+  const q = `${res.pair.name}・${side === 'sell' ? '売り' : '買い'}・${fmt(currentQty(), 0)}通貨`;
+  const sign = pay ? '払う' : 'もらえる';
+  memo({
+    q,
+    a: res.day === 0 ? '1日0円' : `1日 約${swapText(res.day)}円${sign}`,
+    img: () => imgCard({
+      title: 'スワップの目安',
+      cap: `${q}で1日に`,
+      num: $('r-num').textContent,
+      unit: $('r-unit').textContent,
+      sub: `金利の差 ${fmt(Math.abs(res.diff), 3)}％`,
+      rows: [['1か月', `約${swapText(res.month)}円`], ['1年', `約${swapText(res.year)}円`], ['レート', `1${res.pair.unit} ${fmt(res.rate, 3)}円`]],
+      notes: ['金利の差から出した目安です', '実際の額は会社ごと・日ごとにちがいます'],
+    }),
+  });
 }
 
 /* ---- 通貨ペア・買いか売りか ---- */

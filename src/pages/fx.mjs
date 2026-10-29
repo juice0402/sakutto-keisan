@@ -7,7 +7,8 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { fxTop, fxTopPair, qtyTiles, noteAndNoscript } from '../fx.mjs';
 import { boxField } from '../fields.mjs';
-import { FX_PAIRS, FX_MAX_LEV, FX_LOT_PCTS, fxSwapEstimate, fxRatio, fxPosition, fxLot, swapText, rateDigits, qtyText } from '../lib/fx.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
+import { FX_PAIRS, FX_MAX_LEV, FX_LOT_PCTS, swapPerDay, fxSwapEstimate, fxRatio, fxPosition, fxLot, swapText, rateDigits, qtyText } from '../lib/fx.mjs';
 import { fmt } from '../lib/number.mjs';
 import { POLICY_RATES, FX_RATES_CHECKED, FX_SPOT_DATE, FX_SPOT_URL } from '../data/fx-swap.mjs';
 
@@ -20,6 +21,17 @@ const DESC_CUT = fxPosition({ money: 100000, qty: 10000, rate: 150 });
 const DESC_LOT = fxLot({ money: 100000, loss: 2000, width: 0.2, rate: 150 });
 const DESC_LOT2 = fxLot({ money: 100000, loss: 2000, width: 0.5, rate: 150 });
 const DESC_SWAP = fxSwapEstimate({ pair: FX_PAIRS[0].id, side: 'buy', qty: 10000 });
+// 図解（#83）：4つのページの絵の式と帯の図（口座のお金を、取引に必要なお金と余裕・損に分ける）。数字は tests/zukai-shigoto.test.mjs
+const man = (x) => `${fmt(x / 10000, 1).replace(/\.0$/, '')}万円`;
+const SWAP_EX = swapPerDay(10000, 150, 3);
+export const Z_FX = { ijiNeed: DESC_IJI.need, iji: DESC_IJI.ratio, qty: qtyText(DESC_IJI.qty), cutNeed: DESC_CUT.need, room: DESC_CUT.room, cutPrice: DESC_CUT.buyPrice, swap: Math.round(SWAP_EX), lotQty: DESC_LOT.qty, lotNeed: DESC_LOT.need };
+const IJI_ZUKAI = stair(zBox('口座のお金 10万円', 'レバレッジ10倍'), { b: `÷ ${man(DESC_IJI.need)}`, small: '取引額100万円 × 4％' }, zBox('維持率', `${fmt(DESC_IJI.ratio)}％`, true), ['取引額 ＝ レート × 通貨の量', 'レバレッジ ＝ 取引額 ÷ 口座のお金', '取引に必要なお金 ＝ 取引額 × 4％', '維持率 ＝ 口座のお金 ÷ 取引に必要なお金 × 100', `例：口座のお金10万円で、150円のドルをレバレッジ10倍。取引額は100万円で約${qtyText(DESC_IJI.qty)}通貨、取引に必要なお金は${man(DESC_IJI.need)}、維持率は${fmt(DESC_IJI.ratio)}％です。`], `ドル円150円なら 約${qtyText(DESC_IJI.qty)}通貨`);
+const IJI_BAND = band({ head: '口座のお金 10万円', parts: [{ w: 40, text: `必要 ${man(DESC_IJI.need)}` }, { w: 60, kind: 'alt', text: '余裕 6万円' }], ruler: [[0, '0'], [40, '4万'], [100, '10万']], ans: `10万 ÷ 4万 → 維持率 <b>${fmt(DESC_IJI.ratio)}％</b>`, label: '口座のお金10万円の帯を、取引に必要なお金4万円と余裕6万円に分けた図' });
+const CUT_ZUKAI = stair(zBox('口座のお金 10万円', '150円のドルを1万通貨'), { b: `− ${man(DESC_CUT.cutMoney)}`, small: '必要なお金 × 基準100％' }, zBox('ロスカットまでの損', `約${man(DESC_CUT.room)}`, true), ['取引に必要なお金 ＝ レート × 通貨の量 × 4％', '維持率 ＝ 口座のお金 ÷ 取引に必要なお金 × 100', 'ロスカットまでの損 ＝ 口座のお金 − 取引に必要なお金 × 基準', `例：口座のお金10万円で、150円のドルを1万通貨。取引に必要なお金は${man(DESC_CUT.need)}、維持率は約167％です。`], `買いなら、レート約${fmt(DESC_CUT.buyPrice)}円が目安`);
+const CUT_BAND = band({ head: '口座のお金 10万円', parts: [{ w: 60, text: `基準 ${man(DESC_CUT.cutMoney)}` }, { w: 40, kind: 'off', text: '耐えられる損' }], ruler: [[0, '0'], [60, '6万'], [100, '10万']], ans: `ロスカットまで → あと <b>約${man(DESC_CUT.room)}の損</b>`, label: '口座のお金10万円の帯を、ロスカットの基準6万円と耐えられる損4万円に分けた図' });
+const SWAP_ZUKAI = stair(zBox('150円のドルを1万通貨', '金利の差 3％'), { b: '× 3％ ÷ 365', small: '150万円の1年の金利を日割り' }, zBox('1日のスワップ', `約${Math.round(SWAP_EX)}円`, true), ['1日のスワップ ＝ 通貨の量 × レート × 金利の差 ÷ 365', '金利の差 ＝ 買う通貨の金利 − 売る通貨の金利', `例：金利の差が3％で、1ドル150円のドルを1万通貨買うと、150万円 × 3％ ÷ 365 で1日 約${Math.round(SWAP_EX)}円です。`], `1年で約${fmt(Math.round(SWAP_EX * 365))}円・会社ごとにちがう目安`);
+const LOT_ZUKAI = stair(zBox('口座のお金10万円の2％', '許せる損 2,000円'), { b: '÷ 0.20円', small: '損切りの幅' }, zBox('通貨の量', `${qtyText(DESC_LOT.qty)}通貨`, true), ['許せる損 ＝ 口座のお金 × ％', '通貨の量 ＝ 許せる損 ÷ 損切りの幅', '取引に必要なお金 ＝ レート × 通貨の量 × 4％', `例：口座のお金10万円の2％は2,000円です。損切りの幅が0.20円なら、2,000 ÷ 0.20 ＝ ${qtyText(DESC_LOT.qty)}通貨で、取引に必要なお金は${qtyText(DESC_LOT.need)}円です。`], `取引に必要なお金 ${man(DESC_LOT.need)}`);
+const LOT_BAND = band({ head: '口座のお金 10万円', parts: [{ w: 98, kind: 'alt', text: '損切りしても残る 98,000円' }, { w: 2, kind: 'off' }], ruler: [[0, '0'], [100, '10万']], ans: `損切りで減るのは2％ → <b>2,000円</b>`, label: '口座のお金10万円の帯を、損切りしても残る98,000円と許せる損2,000円に分けた図' });
 const jpDate = (iso) => { const [, m, d] = iso.split('-').map(Number); return `${m}月${d}日`; };
 // スワップの目安の表：通貨ペアごとに、その通貨の政策金利（中央銀行へのリンク＝出典）と、1万通貨を買ったときの1日の額（src/data/fx-swap.mjs から作る）
 const bankLink = (c) => `<a href="${POLICY_RATES[c].url.replace(/&/g, '&amp;')}">${fmt(POLICY_RATES[c].rate, 3)}％</a>`;
@@ -107,13 +119,7 @@ const PAGES = [
     body: `${section(
       'formula',
       '計算式',
-      `<div class="formula">
-<span>取引額 ＝ レート × 通貨の量</span>
-<span>レバレッジ ＝ 取引額 ÷ 口座のお金</span>
-<span>取引に必要なお金 ＝ 取引額 × 4％</span>
-<span>維持率 ＝ 口座のお金 ÷ 取引に必要なお金 × 100</span>
-</div>
-<p>例：口座のお金10万円で、150円のドルをレバレッジ10倍。取引額は100万円で約6,666通貨、取引に必要なお金は4万円、維持率は250％です。</p>
+      `${IJI_ZUKAI}
 <p>取引した直後の維持率は、2,500 ÷ レバレッジ（％）になります。</p>
 ${CAUTION}
 ${SRC_FSA}`,
@@ -121,7 +127,7 @@ ${SRC_FSA}`,
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${IJI_BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>レバレッジ</th><th class="num">通貨の量</th><th class="num">維持率</th></tr></thead>
 <tbody>
 <tr><td>1倍</td><td class="num">666通貨</td><td class="num">2,500％</td></tr>
@@ -175,12 +181,7 @@ ${section(
     body: `${section(
       'formula',
       '計算式',
-      `<div class="formula">
-<span>取引に必要なお金 ＝ レート × 通貨の量 × 4％</span>
-<span>維持率 ＝ 口座のお金 ÷ 取引に必要なお金 × 100</span>
-<span>ロスカットまでの損 ＝ 口座のお金 − 取引に必要なお金 × 基準</span>
-</div>
-<p>例：口座のお金10万円で、150円のドルを1万通貨。取引に必要なお金は6万円、維持率は約167％です。</p>
+      `${CUT_ZUKAI}
 <p>売りは、レートが上がると取引に必要なお金も増えるので、少し早くロスカットになります。その分も入れて計算しています。</p>
 ${CAUTION}
 ${SRC_FSA}`,
@@ -188,7 +189,7 @@ ${SRC_FSA}`,
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${CUT_BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>口座のお金・量</th><th class="num">買い</th><th class="num">売り</th></tr></thead>
 <tbody>
 <tr><td>10万円・1万通貨</td><td class="num">4万円</td><td class="num">約3.8万円</td></tr>
@@ -241,11 +242,7 @@ ${section(
     body: `${section(
       'formula',
       '計算式',
-      `<div class="formula">
-<span>1日のスワップ ＝ 通貨の量 × レート × 金利の差 ÷ 365</span>
-<span>金利の差 ＝ 買う通貨の金利 − 売る通貨の金利</span>
-</div>
-<p>例：金利の差が3％で、1ドル150円のドルを1万通貨買うと、150万円 × 3％ ÷ 365 で1日 約123円です。</p>
+      `${SWAP_ZUKAI}
 ${CAUTION}`,
     )}
 ${section(
@@ -302,12 +299,7 @@ ${SWAP_ROWS}
     body: `${section(
       'formula',
       '計算式',
-      `<div class="formula">
-<span>許せる損 ＝ 口座のお金 × ％</span>
-<span>通貨の量 ＝ 許せる損 ÷ 損切りの幅</span>
-<span>取引に必要なお金 ＝ レート × 通貨の量 × 4％</span>
-</div>
-<p>例：口座のお金10万円の2％は2,000円です。損切りの幅が0.20円なら、2,000 ÷ 0.20 ＝ ${qtyText(DESC_LOT.qty)}通貨で、取引に必要なお金は${qtyText(DESC_LOT.need)}円です。</p>
+      `${LOT_ZUKAI}
 <p>通貨の量は、1,000通貨未満を切り捨てています。</p>
 ${CAUTION}
 ${SRC_FSA}`,
@@ -315,7 +307,7 @@ ${SRC_FSA}`,
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${LOT_BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>損切りの幅</th>${LOT_LOSSES.map((l) => `<th class="num">${fmt(l)}円</th>`).join('')}</tr></thead>
 <tbody>
 ${LOT_ROWS}

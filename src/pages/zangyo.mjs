@@ -7,6 +7,21 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
+import { zangyo, zangyoUnit, zangyoWage } from '../lib/zangyo.mjs';
+import { fmt } from '../lib/number.mjs';
+
+// 図解（#83）：時給の残業代と、月給から時給を出す絵の式・帯の図。数字は tests/zukai-shigoto.test.mjs
+const ZD_UNIT = zangyoUnit(1200, 1.25);
+const ZD_TOTAL = zangyo({ wage: 1200, over: 10, night: null, holiday: null }).total;
+const ZG = zangyoWage({ salary: 300000, holidays: 120, daily: 8 });
+const ZG_TOTAL = zangyo({ wage: ZG.wage, over: 20, night: null, holiday: null }).total;
+const ZG_H = fmt(Math.round(ZG.monthHours * 10) / 10, 1);
+export const Z_ZANGYO = { unit: ZD_UNIT, total: ZD_TOTAL, wage: ZG.wage, hours: ZG_H, gTotal: ZG_TOTAL };
+const ZD_ZUKAI = stair(zBox('時給1,200円', '残業10時間'), { b: '× 1.25 × 10', small: `1時間 ${fmt(ZD_UNIT)}円` }, zBox('残業代', `${fmt(ZD_TOTAL)}円`, true), ['残業代 ＝ 時給 × 1.25 × 残業の時間', '深夜の上乗せ ＝ 時給 × 0.25 × 深夜の時間', '休日の分 ＝ 時給 × 1.35 × 休日の時間', `例：時給1,200円で残業10時間なら、1時間は 1,200 × 1.25 ＝ ${fmt(ZD_UNIT)}円で、10時間で${fmt(ZD_TOTAL)}円です。`]);
+const ZD_BAND = band({ head: `残業1時間 ${fmt(ZD_UNIT)}円`, parts: [{ w: 80, text: '時給 1,200円' }, { w: 20, kind: 'off', text: '25％' }], ruler: [[0, '0'], [80, '1,200'], [100, fmt(ZD_UNIT), true]], ans: `割増は${fmt(ZD_UNIT - 1200)}円 → 1時間 <b>${fmt(ZD_UNIT)}円</b>`, label: `残業1時間${fmt(ZD_UNIT)}円の帯を、時給1,200円と割増25％の${fmt(ZD_UNIT - 1200)}円に分けた図` });
+const ZG_ZUKAI = stair(zBox('月給30万円', `1か月 ${ZG_H}時間`), { b: `÷ ${ZG_H}`, small: '（365 − 120）× 8 ÷ 12' }, zBox('時給', `${fmt(ZG.wage)}円`, true), ['時給 ＝ 月給 ÷ 1か月の所定時間', '1か月の所定時間 ＝（365 − 年間休日）× 1日の所定時間 ÷ 12', '残業代 ＝ 時給 × 1.25 × 残業の時間', `例：月給30万円・年間休日120日・1日8時間なら、1か月は${ZG_H}時間で、時給は${fmt(ZG.wage)}円です。残業1時間は ${fmt(ZG.wage)} × 1.25 ＝ ${fmt(zangyoUnit(ZG.wage, 1.25))}円で、20時間なら${fmt(ZG_TOTAL)}円です。`], `残業20時間なら <b class="fz-red">${fmt(ZG_TOTAL)}円</b>`);
+const ZG_BAND = band({ head: '1年 365日', parts: [{ w: Number(((245 / 365) * 100).toFixed(2)), text: '出勤 245日' }, { w: Number(((120 / 365) * 100).toFixed(2)), kind: 'alt', text: '休日 120日' }], ruler: [[0, '0'], [100, '365日']], ans: `245日 × 8時間 ÷ 12 → 1か月 <b>${ZG_H}時間</b>`, label: `1年365日の帯を、出勤245日と年間休日120日に分けた図` });
 
 // 割増の率・時給の出し方・のぞく手当・端数の出典（厚生労働省）
 const SRC_RATE = 'https://www.check-roudou.mhlw.go.jp/qa/roudousya/chingin/q3.html';
@@ -59,12 +74,7 @@ const PAGES = [
     body: `${section(
       'formula',
       '計算式',
-      `<div class="formula">
-<span>残業代 ＝ 時給 × 1.25 × 残業の時間</span>
-<span>深夜の上乗せ ＝ 時給 × 0.25 × 深夜の時間</span>
-<span>休日の分 ＝ 時給 × 1.35 × 休日の時間</span>
-</div>
-<p>例：時給1,200円で残業10時間なら、1時間は 1,200 × 1.25 ＝ 1,500円で、10時間で15,000円です。</p>
+      `${ZD_ZUKAI}
 ${ROUND_TEXT}`,
     )}
 
@@ -90,7 +100,7 @@ ${section(
 ${section(
   'examples',
   '計算例',
-  `<h3>時給ごとの、1時間あたりの残業代</h3>
+  `${ZD_BAND}<h3>時給ごとの、1時間あたりの残業代</h3>
 <div class="tbl-wrap"><table>
 <thead><tr><th>時給</th><th class="num">残業</th><th class="num">深夜の残業</th><th class="num">休日</th></tr></thead>
 <tbody>
@@ -159,12 +169,7 @@ ${section(
     body: `${section(
       'formula',
       '計算式',
-      `<div class="formula">
-<span>時給 ＝ 月給 ÷ 1か月の所定時間</span>
-<span>1か月の所定時間 ＝（365 − 年間休日）× 1日の所定時間 ÷ 12</span>
-<span>残業代 ＝ 時給 × 1.25 × 残業の時間</span>
-</div>
-<p>例：月給30万円・年間休日120日・1日8時間なら、1か月は163.3時間で、時給は1,837円です。残業1時間は 1,837 × 1.25 ＝ 2,296円で、20時間なら45,920円です。</p>
+      `${ZG_ZUKAI}
 <p>時給も1円未満を四捨五入しています。深夜や休日の割増の率は、<a href="/zangyo-dai/">残業代の計算</a>の表にあります。</p>
 <p>出典：時給の出し方と、月給に入れない手当は<a href="${SRC_RATE}">厚生労働省の労働条件のQ&amp;A</a>、端数は<a href="${SRC_ROUND}">厚生労働省のスタートアップ労働条件</a>です。</p>`,
     )}
@@ -172,7 +177,7 @@ ${section(
 ${section(
   'examples',
   '計算例',
-  `<h3>年間休日ごとの、1か月の所定時間と時給</h3>
+  `${ZG_BAND}<h3>年間休日ごとの、1か月の所定時間と時給</h3>
 <div class="tbl-wrap"><table>
 <thead><tr><th>年間休日</th><th class="num">1か月</th><th class="num">時給</th></tr></thead>
 <tbody>

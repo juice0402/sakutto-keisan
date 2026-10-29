@@ -6,6 +6,8 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { dateField } from '../fields.mjs';
+import { stair, zCal } from '../zukai.mjs';
+import { weekdayOf } from '../lib/hizuke.mjs';
 import { YUKYU_TABLE, YUKYU_WEEKS, YUKYU_STEPS, YUKYU_STEP_LONG, YUKYU_SRC, yukyuFuyo, yukyuDateText } from '../lib/yukyu.mjs';
 
 const tool = toolBySlug('yukyu-fuyo');
@@ -24,6 +26,9 @@ const STEPS = `<div class="yk-steps" aria-hidden="true">${YUKYU_TABLE[5].map(
 // 計算例（説明文・計算のしかた・よくある質問）
 const EX = yukyuFuyo({ hire: '2026-04-01', on: '2026-10-01', week: 5 });
 const md = ({ m, d }) => `${m}月${d}日`;
+// 図解（#83）：入社日 → 6か月後に付与の流れの図。数字は tests/zukai-shigoto.test.mjs
+export const Z_YUKYU = { date: EX.cur.date, days: EX.days, next: EX.next.date, nextDays: EX.next.days };
+const ZUKAI = stair(zCal('2026年4月', 1, '入社日・週5日'), { b: '＋6か月', small: '出勤が8割以上なら' }, zCal(`${EX.cur.date.y}年${EX.cur.date.m}月`, EX.cur.date.d, `${weekdayOf(EX.cur.date)}曜日・${EX.days}日`, true), ['1回目 ＝ 入社日の6か月後', '2回目から ＝ 1回目の日から1年ごと', '期限 ＝ もらった日から2年', `例：2026年4月1日に入社して週5日はたらくと、${md(EX.cur.date)}に${EX.days}日、${EX.next.date.y}年${md(EX.next.date)}に${EX.next.days}日です。${EX.cur.date.y}年にもらった分は${yukyuDateText(EX.cur.until)}まで使えます。`], `次は${EX.next.date.y}年${md(EX.next.date)}に<b class="fz-red">${EX.next.days}日</b>`);
 
 const TABLE_ROWS = YUKYU_STEP_LONG.map(
   (s, i) => `<tr><td>${s}</td>${[5, 4, 3, 2, 1].map((w) => `<td class="num">${YUKYU_TABLE[w][i]}日</td>`).join('')}</tr>`,
@@ -80,19 +85,14 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">入社日を入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>1回目 ＝ 入社日の6か月後</span>
-<span>2回目から ＝ 1回目の日から1年ごと</span>
-<span>期限 ＝ もらった日から2年</span>
-</div>
-<p>例：2026年4月1日に入社して週5日はたらくと、${md(EX.cur.date)}に${EX.days}日、${EX.next.date.y}年${md(EX.next.date)}に${EX.next.days}日です。${EX.cur.date.y}年にもらった分は${yukyuDateText(EX.cur.until)}まで使えます。</p>
+  `${ZUKAI}
 <p>月末の入社で6か月後に同じ日がないときは、次の月の1日にしています。</p>`,
 )}
 

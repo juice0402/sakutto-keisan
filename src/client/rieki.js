@@ -1,9 +1,10 @@
 import { parseNum } from '../lib/number.mjs';
 import { rieki, pctText, moneyText, RIEKI_FIELDS } from '../lib/rieki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figSegs, SEGS_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('rieki-ritsu.png');
 
 // 利益率の計算：売値・原価・利益率のうち、あとから入れた2つから残りの1つを出す（答えの欄は点線の枠に赤い数字）
 let order = []; // 入れた欄（新しいものが後ろ。2つまで）
@@ -76,7 +77,21 @@ function update() {
     return;
   }
   $('r-num').textContent = moneyText(res.profit, res.step);
-  memo({ q: `売値${moneyText(res.price, res.step)}円・原価${moneyText(res.cost, res.step)}円`, a: `${res.profit < 0 ? '赤字' : '利益'}${moneyText(res.profit, res.step)}円・利益率${pctText(res.rate)}%` });
+  const lossNow = res.profit < 0;
+  memo({
+    q: `売値${moneyText(res.price, res.step)}円・原価${moneyText(res.cost, res.step)}円`,
+    a: `${lossNow ? '赤字' : '利益'}${moneyText(res.profit, res.step)}円・利益率${pctText(res.rate)}%`,
+    img: () => imgCard({
+      title: '利益計算書',
+      cap: lossNow ? '赤字' : '利益',
+      num: moneyText(res.profit, res.step),
+      unit: '円',
+      sub: `利益率 ${pctText(res.rate)}%`,
+      fig: lossNow ? null : { draw: figSegs, h: SEGS_H, segs: [{ v: res.cost, tone: 'pale', text: '原価' }, { v: res.profit, tone: 'soft', text: '利益' }], full: res.price, ends: ['0', `売値 ${moneyText(res.price, res.step)}円`] },
+      rows: [['売値', `${moneyText(res.price, res.step)}円`], ['原価', `${moneyText(res.cost, res.step)}円`], ['原価率', `${pctText(res.costRate)}%`]],
+      notes: ['利益率は売値に対する割合です'],
+    }),
+  });
   $('r-rate').textContent = `${pctText(res.rate)}%`;
   $('r-foot').textContent = res.times === null ? '' : `売値は原価の${res.times.toLocaleString('ja-JP', { maximumFractionDigits: 2 })}倍`;
 }

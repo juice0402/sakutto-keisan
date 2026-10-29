@@ -1,9 +1,11 @@
 import { shijuku } from '../lib/gyoji.mjs';
 import { $ } from './ui.mjs';
 import { gyMd, gyNote, gyCal, gyWeekend, gyDaysFromToday } from './gyoji-ui.mjs';
-import { memoOnly, cmYmd } from './choimemo.mjs';
+import { weekdayOf } from '../lib/hizuke.mjs';
+import { choiMemo, cmYmd } from './choimemo.mjs';
+import { imgCal } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('shijukunichi.png');
 
 // 四十九日：亡くなった日から、初七日〜四十九日（7日ごと）と一周忌〜三十三回忌の日
 // 「前の日から数える」（逮夜）を押すと、初七日〜四十九日を1日早く
@@ -27,7 +29,12 @@ function update() {
   $('r-say').textContent = wk.length ? `前の土日\n${wk.map((d, i) => (i && d.m === wk[0].m ? `${d.d}日` : `${d.m}月${d.d}日`)).join('・')}` : '';
   const row = (name, d, mark) =>
     `<tr${mark ? ' class="is-next"' : gyDaysFromToday(d) < 0 ? ' class="is-past"' : ''}><td class="rk-y"><b>${name}</b></td><td>${d.y}年${gyMd(d)}</td></tr>`;
-  memo({ q: `${cmYmd($('death').value)}に亡くなった`, a: `四十九日 ${res.day49.y}年${gyMd(res.day49)}` });
+  const d = res.day49;
+  memo({
+    q: `${cmYmd($('death').value)}に亡くなった`,
+    a: `四十九日 ${d.y}年${gyMd(d)}`,
+    img: () => imgCal({ start: `${cmYmd($('death').value)}から${taiya ? '・前の日から数える' : ''}`, ym: `${d.y}年${d.m}月`, d: String(d.d), w: `${weekdayOf(d)}曜日`, wColor: '', num: '四十九日', unit: '' }),
+  });
   $('r-rows').innerHTML = [...res.chuin.map((c, i) => row(c.name, c.date, i === 6)), ...res.nenki.map((n) => row(n.name, n.date, false))].join('');
   $('r-foot').textContent = '';
 }

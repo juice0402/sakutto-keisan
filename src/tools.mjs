@@ -148,7 +148,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '七五三は何年か。数え年・満年齢・きょうだい',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['nenrei', 'okuizome', 'yakudoshi', 'gakureki'],
   },
   {
@@ -157,7 +157,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '生まれた年から前厄・本厄・後厄の年',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['choju', 'nenrei', 'wareki', 'shichigosan'],
   },
   {
@@ -166,7 +166,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '還暦・古希・喜寿・米寿は何年か',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['yakudoshi', 'nenrei', 'wareki', 'nissu'],
   },
   {
@@ -175,7 +175,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '生まれた日から100日目と前後の土日',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['nissu', 'shichigosan', 'nenrei', 'shijukunichi'],
   },
   {
@@ -184,7 +184,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '初七日から四十九日、一周忌・三回忌の日',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['nissu', 'okuizome', 'wareki', 'choju'],
   },
   // 年齢の計算の下のページ（10/22 しょーくん「何歳のときに卒業したか、いちいち調べてる」）
@@ -442,7 +442,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '時給や月給から、残業代はいくらか',
     published: true,
-    updated: '2026-10-20',
+    updated: '2026-10-29',
     related: ['zangyo-gekkyu', 'yukyu-fuyo', 'rieki-ritsu', 'seisou-jikan'],
   },
   {
@@ -452,7 +452,7 @@ export const TOOLS = [
     parent: 'zangyo-dai',
     short: '月給と年間休日から、残業代はいくらか',
     published: true,
-    updated: '2026-10-20',
+    updated: '2026-10-29',
     related: ['zangyo-dai', 'yukyu-fuyo', 'rieki-ritsu', 'seisou-jikan'],
   },
   // 有給休暇の付与日数（10/27 夜の作業 #61）
@@ -462,7 +462,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '入社日から、有給休暇は何日もらえるか',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['zangyo-dai', 'zangyo-gekkyu', 'nissu', 'loan'],
   },
   {
@@ -478,7 +478,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '売値と原価から利益率、利益率から売値',
     published: true,
-    updated: '2026-10-20',
+    updated: '2026-10-29',
     related: ['kakeritsu', 'gensen-choshu', 'waribiki', 'tanka', 'seisou-jikan'],
   },
   {
@@ -487,7 +487,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '毎月の返済額と、利息はいくらか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['rieki-ritsu', 'percent', 'zangyo-dai', 'shohizei'],
   },
   {
@@ -497,7 +497,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '上代と掛け率から下代、下代から掛け率',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka', 'gensen-choshu'],
   },
   // 源泉徴収（10/27 夜の作業 #62）
@@ -508,7 +508,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '報酬から引かれる源泉徴収はいくらか',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['kakeritsu', 'rieki-ritsu', 'shohizei', 'yukyu-fuyo'],
   },
   {
@@ -518,7 +518,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '面積と人数から、何時間かかるか',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-29',
     related: ['seisou-mitsumori', 'kishaku', 'rieki-ritsu', 'zangyo-dai'],
   },
   {
@@ -528,7 +528,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '㎡単価と回数から、1か月の料金',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-29',
     related: ['seisou-jikan', 'rieki-ritsu', 'kishaku'],
   },
   {
@@ -545,7 +545,7 @@ export const TOOLS = [
     category: 'fx',
     short: 'レバレッジ何倍で、維持率は何％か',
     published: true,
-    updated: '2026-10-19',
+    updated: '2026-10-29',
     related: ['fx-losscut', 'fx-lot', 'fx-swap'],
   },
   {
@@ -554,7 +554,7 @@ export const TOOLS = [
     category: 'fx',
     short: 'ロスカットまで、あと何円の損か',
     published: true,
-    updated: '2026-10-19',
+    updated: '2026-10-29',
     related: ['fx-iji-ritsu', 'fx-lot', 'fx-swap'],
   },
   {
@@ -563,7 +563,7 @@ export const TOOLS = [
     category: 'fx',
     short: '1日にいくらもらえるか（目安）',
     published: true,
-    updated: '2026-10-19',
+    updated: '2026-10-29',
     related: ['fx-iji-ritsu', 'fx-losscut', 'fx-lot'],
   },
   // ロット＝通貨の量（10/27 夜の作業 #61）
@@ -573,7 +573,7 @@ export const TOOLS = [
     category: 'fx',
     short: '許せる損から、何通貨まで取引できるか',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['fx-losscut', 'fx-iji-ritsu', 'fx-swap'],
   },
   // ふるさと納税のコーナー（10/22 統合。claude/sakutto-tougou-plan.md）。入口は /furusato/、ページは /furusato/ の下

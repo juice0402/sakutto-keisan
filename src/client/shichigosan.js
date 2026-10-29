@@ -1,9 +1,10 @@
 import { shichigosan } from '../lib/gyoji.mjs';
 import { $ } from './ui.mjs';
 import { GY_YEAR, gyWa, gyNote, gySexPress } from './gyoji-ui.mjs';
-import { memoOnly, cmYmd } from './choimemo.mjs';
+import { choiMemo, cmYmd } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('shichigosan.png');
 
 // 七五三：子どもごとの生年月日と男の子・女の子から、数え年と満年齢の七五三の年を年ごとの表に
 // きょうだいは「＋きょうだいを追加」で3人まで。全員がそろって祝える年に色をつけて、いちばん近い年を大きく
@@ -45,10 +46,24 @@ function update() {
     .join('');
   if (res.next) {
     $('r-num').textContent = String(res.next.year);
-    memo({ q: kids.map((k) => `${cmYmd(k.birth)}生まれ`).join('・'), a: `七五三 ${res.next.year}年（${res.next.items.map(label).join('・')}）` });
-    $('r-say').textContent = count > 1
+    const say = count > 1
       ? res.next.items.map((p) => `${NAMES[p.kid]} ${label(p)}`).join('・')
       : `${gyWa(res.next.year)}・${res.next.items.map(label).join('・')}`;
+    const next = res.next;
+    memo({
+      q: kids.map((k) => `${cmYmd(k.birth)}生まれ`).join('・'),
+      a: `七五三 ${next.year}年（${next.items.map(label).join('・')}）`,
+      img: () => imgCard({
+        title: '七五三の年',
+        cap: count > 1 ? 'いっしょにできる年' : '次の七五三',
+        num: String(next.year),
+        unit: '年',
+        sub: say,
+        rows: res.rows.filter((r) => !r.past).slice(0, 5).map((r) => [`${r.year}年`, r.items.map((p) => (count > 1 ? `${NAMES[p.kid]} ${label(p)}` : label(p))).join('・')]),
+        notes: ['数え年か満年齢かは、神社でちがいます'],
+      }),
+    });
+    $('r-say').textContent = say;
     $('r-foot').textContent = '';
   } else {
     $('r-num').textContent = '—';

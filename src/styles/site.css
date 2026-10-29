@@ -1174,6 +1174,10 @@ h1 {
 .fz2-ruler span:last-child { transform: translateX(-100%); }
 .fz2-ans { margin: 8px 0 0; font-size: 16px; font-weight: 700; }
 .fz2-ans b { color: var(--red); font-size: 22px; padding: 0 6px; border: 2.5px solid var(--red); border-radius: 50% 45% 50% 48%; white-space: nowrap; }
+/* FX の暗いリフィル（#83）：箱と帯の白を紙の色に、赤ペンを金のペンに */
+[data-theme="fx"] .fz-box, [data-theme="fx"] .fz2-bar, [data-theme="fx"] .fz2-alt, [data-theme="fx"] .fz2-off span { background: var(--surface); }
+[data-theme="fx"] .fz2-pay { background: var(--note2); }
+[data-theme="fx"] .fz-op path, [data-theme="fx"] .fz2-off line { stroke: var(--red); }
 .fz-masu { display: block; width: 100%; max-width: 220px; margin: 4px 0 8px; }
 .fz-masu rect { fill: #fff; stroke: #9db4cf; stroke-width: 1; }
 .fz-masu rect.on { fill: #f6d4d7; stroke: var(--red); stroke-width: 2; }

@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { mitsumori, mitsuMonths, mitsuYearCheck, MITSU_FIELDS } from '../lib/mitsumori.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('seisou-mitsumori.png');
 
 // 清掃の見積もり計算：回数（マスか1年の回数）と、面積・㎡単価・1か月の料金のうち2つから、残りの1つを出す（答えの欄は点線の枠に赤い数字）
 // 面積は現場で決まっていることが多いので、面積が入っていれば㎡単価か1か月の料金のどちらかを答えにする（あとからさわったほうを残す）。
@@ -117,7 +118,19 @@ function update() {
     return;
   }
   $('r-num').textContent = out === 'price' ? priceText(res.price) : out === 'area' ? areaText(res.area) : fmt(res.month, 0);
-  memo({ q: `${areaText(res.area)}㎡・㎡単価${priceText(res.price)}円・年${res.year}回`, a: `1か月${yen(res.month)}` });
+  memo({
+    q: `${areaText(res.area)}㎡・㎡単価${priceText(res.price)}円・年${res.year}回`,
+    a: `1か月${yen(res.month)}`,
+    img: () => imgCard({
+      title: '見積書',
+      cap: SUM_CAP[out] || SUM_CAP.month,
+      num: $('r-num').textContent,
+      unit: out === 'area' ? '㎡' : '円',
+      sub: `年${res.year}回`,
+      rows: [['1回', yen(res.once)], ['1か月', yen(res.month)], ['1年', yen(res.yearly)], ['税込みの1か月', yen(Math.round(res.month * 1.1))]],
+      notes: [`${areaText(res.area)}㎡・㎡単価${priceText(res.price)}円・税抜きの目安`],
+    }),
+  });
   $('r-foot').textContent = '';
 }
 

@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { kakeritsu, kakePct, kakeText, kakePctText, KAKE_FIELDS } from '../lib/kakeritsu.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figSegs, SEGS_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('kakeritsu.png');
 
 // 掛け率の計算：上代・掛け率・下代のうち2つから残りの1つを出す（答えの欄は点線の枠に赤い数字）
 // 上代（定価）はわかっていることが多いので、上代が入っていれば掛け率か下代のどちらかを答えにする（あとからさわったほうを残す）。
@@ -95,7 +96,19 @@ function update() {
     return;
   }
   $('r-num').textContent = out === 'rate' ? kakePctText(res.pct) : yen(res[out]);
-  memo({ q: `上代${yen(res.jodai)}円・${kakePctText(res.pct)}%`, a: `下代${yen(res.gedai)}円` });
+  memo({
+    q: `上代${yen(res.jodai)}円・${kakePctText(res.pct)}%`,
+    a: `下代${yen(res.gedai)}円`,
+    img: () => imgCard({
+      title: '納品書',
+      cap: `${kakeText(Math.round(res.pct * 100) / 100)}掛けの${CAP[out] || CAP.gedai}`,
+      num: out === 'rate' ? kakePctText(res.pct) : yen(res[out || 'gedai']),
+      unit: out === 'rate' ? '%' : '円',
+      fig: res.profit < 0 ? null : { draw: figSegs, h: SEGS_H, segs: [{ v: res.gedai, tone: 'pale', text: '下代' }, { v: res.profit, tone: 'soft', text: '粗利' }], full: res.jodai, ends: ['0', `上代 ${yen(res.jodai)}円`] },
+      rows: [['上代', `${yen(res.jodai)}円`], ['掛率', `${kakePctText(res.pct)}%`], ['下代', `${yen(res.gedai)}円`], ['粗利', `${yen(res.profit)}円`]],
+      notes: ['1円未満は取引先の決まりで変わります'],
+    }),
+  });
   $('r-kake').textContent = kakeText(Math.round(res.pct * 100) / 100);
   $('r-foot').textContent = res.profit < 0 ? '下代が上代より高くなっています' : '';
 }

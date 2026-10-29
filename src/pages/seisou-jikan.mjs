@@ -6,7 +6,14 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { SEISOU_WORKS, SEISOU_SRC } from '../lib/seisou.mjs';
+import { SEISOU_WORKS, SEISOU_SRC, seisou, minText } from '../lib/seisou.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
+
+// 図解（#83）：面積と人数から作業時間の絵の式と、床を人数で分けた帯。数字は tests/zukai-shigoto.test.mjs
+const ZS = seisou({ area: 600, people: 2, hours: null, speed: 100, out: 'hours' });
+export const Z_SEISOU = { minutes: ZS.minutes, perPerson: ZS.perPerson };
+const ZUKAI = stair(zBox('600㎡を2人で', '1人1時間 100㎡'), { b: '600 ÷ 100 ÷ 2', small: '1分未満は切り上げ' }, zBox('作業時間', minText(ZS.minutes), true), ['時間 ＝ 面積 ÷ 速さ ÷ 人数', '人数 ＝ 面積 ÷ 速さ ÷ 時間', `速さは、1人が1時間に掃除できる面積です。例：速さ100㎡で600㎡を2人なら、600 ÷ 100 ÷ 2 ＝ 3時間です。`]);
+const BAND = band({ head: '床 600㎡', parts: [{ w: 50, text: `1人目 ${ZS.perPerson}㎡` }, { w: 50, kind: 'alt', text: `2人目 ${ZS.perPerson}㎡` }], ruler: [[0, '0'], [50, '300㎡'], [100, '600㎡']], ans: `1人${ZS.perPerson}㎡を1時間100㎡で → <b>${minText(ZS.minutes)}</b>`, label: `600㎡の床の帯を、2人で300㎡ずつに分けた図` });
 
 // 歩掛りの出典
 const { daily: SRC_DAILY, regular: SRC_REGULAR, view: SRC_VIEW } = SEISOU_SRC;
@@ -71,24 +78,20 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">作業をえらんでください</span><span id="r-total"></span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>時間 ＝ 面積 ÷ 速さ ÷ 人数</span>
-<span>人数 ＝ 面積 ÷ 速さ ÷ 時間</span>
-</div>
-<p>速さは、1人が1時間に掃除できる面積です。例：速さ100㎡で600㎡を2人なら、600 ÷ 100 ÷ 2 ＝ 3時間です。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>面積・人数</th><th class="num">時間</th></tr></thead>
 <tbody>
 <tr><td>300㎡・1人</td><td class="num">3時間</td></tr>

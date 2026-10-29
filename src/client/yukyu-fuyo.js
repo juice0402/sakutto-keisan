@@ -1,9 +1,10 @@
 import { yukyuFuyo, yukyuDateText, yukyuTenureText, YUKYU_TABLE } from '../lib/yukyu.mjs';
 import { ymdValue } from '../lib/hizuke.mjs';
 import { $, focusHints } from './ui.mjs';
-import { memoOnly, cmYmd } from './choimemo.mjs';
+import { choiMemo, cmYmd } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('yukyu-fuyo.png');
 
 // 有給休暇の付与日数：週の日数のマス・入社日・計算する日（はじめは今日）から、いまの日数・次にもらう日・期限・年5日の義務
 // 結果は書類の中の勤続の階段（段の高さは付与日数、いまの段に赤ペンの丸）
@@ -45,7 +46,19 @@ function update() {
   drawSteps(res.n >= 0 ? res.n : null);
   $('r-num').textContent = String(res.days);
   $('r-ten').textContent = `勤続${yukyuTenureText(res)}`;
-  memo({ q: `${cmYmd($('hire').value)}入社・週${week}日・${cmYmd($('on').value)}`, a: `有給${res.days}日（勤続${yukyuTenureText(res)}）` });
+  memo({
+    q: `${cmYmd($('hire').value)}入社・週${week}日・${cmYmd($('on').value)}`,
+    a: `有給${res.days}日（勤続${yukyuTenureText(res)}）`,
+    img: () => imgCard({
+      title: '有給休暇',
+      cap: `${cmYmd($('on').value)}のいまの日数`,
+      num: String(res.days),
+      unit: '日',
+      sub: `${cmYmd($('hire').value)}入社・勤続${yukyuTenureText(res)}`,
+      rows: [['次にもらう日', `${yukyuDateText(res.next.date)}・${res.next.days}日`], ...(res.cur ? [['いまの分の期限', `${yukyuDateText(res.cur.until)}まで`], ['年5日の取得義務', res.duty ? '対象' : '対象外']] : [])],
+      notes: [week < 5 ? `週${week}日・出勤率8割以上として計算` : '出勤率8割以上として計算'],
+    }),
+  });
   $('d-next').textContent = `${yukyuDateText(res.next.date)}・${res.next.days}日`;
   $('d-until').textContent = res.cur ? `${yukyuDateText(res.cur.until)}まで` : '—';
   $('d-duty').textContent = res.cur ? (res.duty ? '対象（10日以上）' : '対象外') : '—';

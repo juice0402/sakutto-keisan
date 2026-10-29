@@ -2,9 +2,10 @@ import { parseNum } from '../lib/number.mjs';
 import { yakudoshi, readYear } from '../lib/gyoji.mjs';
 import { $, numericOnly, focusHints } from './ui.mjs';
 import { GY_YEAR, gyWa, gyNote, gySexPress } from './gyoji-ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('yakudoshi.png');
 
 // 厄年：生まれた年と男性・女性から、今年の数え年と、前厄・本厄・後厄の年
 // 結果は、数え年の帯（厄年の3年をうすい赤、本厄を赤、今年に紺の線）と、厄年ごとの年の表
@@ -44,11 +45,23 @@ function update() {
   const res = yakudoshi(r.year, sex, GY_YEAR);
   const kind = res.now ? res.now.kind : '厄年ではありません';
   $('r-num').textContent = kind;
-  memo({ q: `${r.year}年生まれ・${sex === 'male' ? '男性' : '女性'}`, a: res.now ? `${GY_YEAR}年は${kind}` : `${GY_YEAR}年は${kind}${res.next ? `（次の本厄は${res.next.hon}年）` : ''}` });
   $('r-num').parentElement.classList.toggle('is-long', !res.now);
   const extra = res.now && res.now.y.big ? '・大厄' : res.now && res.now.y.some ? '・一部の神社' : '';
   const next = !res.now && res.next ? `\n次の本厄は${res.next.hon}年・数え${res.next.age}歳` : '';
   $('r-say').textContent = res.kazoe >= 1 ? `数え${res.kazoe}歳${extra}（${gyWa(r.year)}生まれ）${next}` : `${gyWa(r.year)}生まれ`;
+  const who = `${r.year}年生まれ・${sex === 'male' ? '男性' : '女性'}`;
+  memo({
+    q: who,
+    a: res.now ? `${GY_YEAR}年は${kind}` : `${GY_YEAR}年は${kind}${res.next ? `（次の本厄は${res.next.hon}年）` : ''}`,
+    img: () => imgCard({
+      title: '厄年',
+      cap: `${GY_YEAR}年は`,
+      num: kind,
+      sub: res.kazoe >= 1 ? `${who}・数え${res.kazoe}歳` : who,
+      rows: res.list.map((y) => [`数え${y.age}歳${y.big ? '・大厄' : y.some ? '・一部' : ''}`, `${y.mae}・${y.hon}・${y.ato}年`]),
+      notes: ['前厄・本厄・後厄の年です', '厄年の歳は、神社やお寺でちがいます'],
+    }),
+  });
   $('r-line').innerHTML = line(res);
   const cell = (y) => `<td${y < GY_YEAR ? ' class="is-past-y"' : ''}>${y === GY_YEAR ? `<span class="gy-mark">${y}</span>` : y}</td>`;
   $('r-rows').innerHTML = res.list
