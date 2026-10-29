@@ -180,8 +180,8 @@ export function imgReceipt(spec) {
   }, true);
 }
 
-/** 割引：値札（元の値段に取り消し線・大きな割引後の値段・赤い丸の「○％OFF」シール） */
-export function imgTag({ was, price, rate, save, conv }) {
+/** 割引：値札（元の値段に取り消し線・大きな割引後の値段・赤い丸の「○％OFF」シール）。unit：大きな数字の単位（割引率は「％オフ」）、seal：シールの下の字 */
+export function imgTag({ was, price, rate, save, conv, unit = '円', seal = 'OFF' }) {
   return imgPaper(640, (g, c, top) => {
     const x0 = IMG_X0 + 50;
     const x1 = IMG_X1 - 50;
@@ -222,7 +222,7 @@ export function imgTag({ was, price, rate, save, conv }) {
     g.lineTo(sx0 + lw + pw + 4, y0 + 70);
     g.stroke();
     // 大きな割引後の値段
-    imgBigNum(g, c, price, '円', cx, y0 + 230, { size: 110, unitSize: 40, align: 'center', max: x1 - x0 - 110 });
+    imgBigNum(g, c, price, unit, cx, y0 + 230, { size: 110, unitSize: 40, align: 'center', max: x1 - x0 - 110 });
     g.fillStyle = c.ink;
     imgText(g, save, cx, y0 + 300, { w: 800, size: 30, max: x1 - x0 - 110, align: 'center' });
     if (conv) {
@@ -238,8 +238,8 @@ export function imgTag({ was, price, rate, save, conv }) {
       g.fillStyle = c.red;
       g.fill();
       g.fillStyle = '#fff';
-      imgText(g, rate, sx, sy + 4, { w: 800, size: 38, max: 112, align: 'center' });
-      imgText(g, 'OFF', sx, sy + 38, { w: 800, size: 24, max: 100, align: 'center' });
+      imgText(g, rate, sx, sy + (seal ? 4 : 14), { w: 800, size: 38, max: 112, align: 'center' });
+      if (seal) imgText(g, seal, sx, sy + 38, { w: 800, size: 24, max: 100, align: 'center' });
     }
   });
 }

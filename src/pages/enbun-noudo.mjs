@@ -8,6 +8,7 @@ import { boxField } from '../fields.mjs';
 import { ENBUN_SPOON, ENBUN_USES, ENBUN_MORE } from '../data/enbun.mjs';
 import { enbun, spoonText } from '../lib/enbun.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('enbun-noudo');
 const path = '/enbun-noudo/';
@@ -34,6 +35,13 @@ const QUICK_ROWS = QUICK_BASE.map(
 // 塩の重さとスプーンの目安（tests/enbun.test.mjs と同じ）
 const SPOON_GRAMS = [1, 2, 3, 5, 6, 9, 10, 12, 15, 18, 20, 30];
 const SPOON_ROWS = SPOON_GRAMS.map((g) => `<tr><td class="num">${g}g</td><td>${spoon(g)}</td></tr>`).join('\n');
+
+// 図解（#81）：ボウルの式（水500mlで3％）と、塩水全体515gを水と塩に分けた帯。数字は tests/zukai-seikatsu.test.mjs
+const ZE = enbun({ base: 500, pct: 3, salt: null, out: 'salt' });
+export const Z_ENBUN = { salt: ZE.salt, whole: Number(fmt(ZE.whole, 1)) };
+const ZUKAI = stair(zBox('水', '500ml'), { b: '×0.03', small: '3％' }, zBox('塩', `${fmt(ZE.salt)}g`, true), ['塩 ＝ 水や食材の重さ × 濃度', '濃度 ＝ 塩 ÷ 水や食材の重さ × 100', '全体に対して ＝ 塩 ÷（水 ＋ 塩）× 100', `例：水500mlで3％の塩水なら、塩は500 × 0.03 ＝ ${fmt(ZE.salt)}g（${spoon(ZE.salt)}）です。塩水全体に対しては、${fmt(ZE.salt)} ÷ ${fmt(500 + ZE.salt)} で約${fmt(ZE.whole, 1)}％です。`], `塩${fmt(ZE.salt)}gは <b class="fz-red">${spoon(ZE.salt)}</b>`);
+const saltW = Number(((ZE.salt / (500 + ZE.salt)) * 100).toFixed(1));
+const BAND = band({ head: `塩水 ${fmt(500 + ZE.salt)}g`, parts: [{ w: Number((100 - saltW).toFixed(1)), text: '水 500g' }, { w: saltW, kind: 'off', text: '' }], ruler: [[0, '0'], [100, `塩 ${fmt(ZE.salt)}g`, true]], ans: `水の3％ → <b>${fmt(ZE.salt)}g</b>・全体では約${fmt(ZE.whole, 1)}％`, label: `塩水${fmt(500 + ZE.salt)}gの帯を、水500gと塩${fmt(ZE.salt)}gに分けた図` });
 
 const FAQS = [
   {
@@ -92,25 +100,20 @@ export default function render() {
     <p class="slip-foot" id="r-foot">水や食材の重さを入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>塩 ＝ 水や食材の重さ × 濃度</span>
-<span>濃度 ＝ 塩 ÷ 水や食材の重さ × 100</span>
-<span>全体に対して ＝ 塩 ÷（水 ＋ 塩）× 100</span>
-</div>
-<p>例：水500mlで3％の塩水なら、塩は500 × 0.03 ＝ 15g（${spoon(15)}）です。塩水全体に対しては、15 ÷ 515 で約${fmt(enbun({ base: 500, pct: 3, salt: null, out: 'salt' }).whole, 1)}％です。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'quick',
   '塩の量の早見表',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>水や食材</th>${QUICK_PCT.map((p) => `<th class="num">${p}％</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}

@@ -1,7 +1,8 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
-import { RECIPE_UNITS } from '../lib/recipe.mjs';
+import { RECIPE_UNITS, peopleRatio, scaleRecipe } from '../lib/recipe.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('recipe');
 const path = '/recipe/';
@@ -14,6 +15,14 @@ const RECIPE_EXAMPLES = [
   ['じゃがいも', '2', '個'], ['豚こま肉', '200', 'g'], ['牛乳', '1', 'カップ'], ['お米', '2', '合'], ['卵', '2', '個'],
   ['ベーコン', '50', 'g'], ['ピーマン', '2', '個'], ['白ワイン', '1', '大さじ'], ['バター', '10', 'g'], ['豆腐', '1', '丁'],
 ];
+
+// 図解（#81）：メモの式（2人分の鶏もも肉300gを3人分に）と、3人分の450gを1人分ずつに分けた帯。数字は tests/zukai-seikatsu.test.mjs
+const ZR = peopleRatio(2, 3).ratio;
+const [ZC] = scaleRecipe([{ name: '鶏もも肉', amount: 300, unit: 'g' }], ZR);
+const [ZONE] = scaleRecipe([{ name: '鶏もも肉', amount: 300, unit: 'g' }], peopleRatio(2, 1).ratio);
+export const Z_RECIPE = { ratio: ZR, to: ZC.to, one: ZONE.to };
+const ZUKAI = stair(zBox('2人分の鶏もも肉', '300g'), { b: `×${ZR}`, small: '3人分 ÷ 2人分' }, zBox('3人分', ZC.to, true), ['倍率 ＝ 作る人数 ÷ レシピの人数', '作る分量 ＝ レシピの分量 × 倍率', `例：2人分を3人分にするなら${ZR}倍。鶏もも肉300g → ${ZC.to}。`]);
+const BAND = band({ head: `3人分 ${ZC.to}`, parts: [1, 2, 3].map((n) => ({ w: n === 3 ? 33.34 : 33.33, kind: n === 2 ? 'alt' : 'pay', text: ZONE.to })), ans: `1人分は ${ZONE.to} → 3人分は <b>${ZC.to}</b>`, label: `3人分の鶏もも肉${ZC.to}の帯を、1人分${ZONE.to}ずつ3つに分けた図` });
 
 const numInput = (id, placeholder, extra = '') =>
   `<input id="${id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="${placeholder}"${extra}>`;
@@ -120,18 +129,14 @@ export default function render() {
     ${toolBtn('to-match', '手元の量から')}
     ${toolBtn('to-copy', '結果をコピー', false)}
   </div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>倍率 ＝ 作る人数 ÷ レシピの人数</span>
-<span>作る分量 ＝ レシピの分量 × 倍率</span>
-</div>
-<p>例：2人分を3人分にするなら1.5倍。鶏もも肉300g → 450g。</p>
+  `${ZUKAI}
 <ul>
 <li>大さじ½未満は小さじに、小さじ¼未満は「少々」に直します</li>
 <li>半端な量は¼・½などに丸めて「約」をつけます</li>
@@ -141,7 +146,7 @@ ${section(
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>材料</th><th class="num">2人分</th><th class="num">3人分</th></tr></thead>
 <tbody>
 <tr><td>鶏もも肉</td><td class="num">300g</td><td class="num">450g</td></tr>

@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { calcDiscount, originalFrom } from '../lib/waribiki.mjs';
+import { calcDiscount, originalFrom, wariLabel } from '../lib/waribiki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgTag } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo(`waribiki-${$('calc').dataset.rate}.png`);
 
 // 率ごとの割引（/waribiki/30/ など）：元の値段か割引後の値段のあとから入れたほうから、もう片方を点線の答えの欄に
 // 結果は値札（割引率のシールは決まっている）
@@ -47,7 +48,17 @@ function update() {
     return;
   }
   $('t-price').textContent = fmt(sale);
-  memo(from === 'sale' ? { q: `${RATE}％オフで${yen(sale)}`, a: `元の値段${from === 'sale' && !res.exact ? '約' : ''}${yen(price)}` } : { q: `${yen(price)}の${RATE}％オフ`, a: yen(sale) });
+  const about = from === 'sale' && !res.exact ? '約' : '';
+  const entry = from === 'sale' ? { q: `${RATE}％オフで${yen(sale)}`, a: `元の値段${about}${yen(price)}` } : { q: `${yen(price)}の${RATE}％オフ`, a: yen(sale) };
+  entry.img = () => imgTag({
+    was: `${about}${yen(price)}`,
+    price: fmt(sale),
+    rate: RATE === 50 ? '半額' : `${RATE}%`,
+    seal: RATE === 50 ? '' : 'OFF',
+    save: price - sale > 0 ? `${about}${yen(price - sale)} おトク` : '割引なし',
+    conv: RATE === 50 ? '50％オフ・5割引き' : `${RATE}％オフ＝${wariLabel(RATE)}`,
+  });
+  memo(entry);
   $('t-was').hidden = false;
   $('t-was').innerHTML = `元の値段 <s>${from === 'sale' && !res.exact ? '約' : ''}${yen(price)}</s>`;
   $('t-save').textContent = price - sale > 0 ? `${yen(price - sale)} おトク！` : '';

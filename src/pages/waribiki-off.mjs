@@ -7,6 +7,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { calcDiscount, originalFrom, wariLabel } from '../lib/waribiki.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zTag } from '../zukai.mjs';
 
 export const OFF_RATES = [10, 15, 20, 30, 40, 50];
 export const OFF_PRICES = [100, 300, 500, 800, 980, 1000, 1500, 1980, 2000, 2500, 3000, 4000, 5000, 8000, 10000, 20000, 30000, 50000];
@@ -14,6 +15,20 @@ export const OFF_SALES = [500, 1000, 1500, 2000, 3000, 5000, 10000];
 
 const yen = (x) => `${fmt(x)}円`;
 const pay = (r) => String((100 - r) / 100); // 0.7
+
+// 図解（#81）：値札の式（2,000円 × 0.7）と、元の値段2,000円の帯。数字は tests/zukai-seikatsu.test.mjs
+export const zOff = (r) => {
+  const d = calcDiscount({ price: 2000, rate: r });
+  return { final: d.final, off: d.off };
+};
+function zukaiOff(r, label) {
+  const z = zOff(r);
+  const narrow = r < 20; // 細い値引きの帯には字を入れず、目もりの100％を外す（重ならないように）
+  return {
+    stair: stair(zTag('元の値段', yen(2000)), { b: `×${pay(r)}`, small: label }, zTag(label, yen(z.final), true), [`${label}の値段 ＝ 元の値段 × ${pay(r)}`, `元の値段 ＝ ${label}の値段 ÷ ${pay(r)}`, `例：2,000円の${label}は${yen(z.final)}で、${yen(z.off)}安くなります。`]),
+    band: band({ head: `元の値段 ${yen(2000)}`, parts: [{ w: 100 - r, text: `払う ${yen(z.final)}` }, { w: r, kind: 'off', text: narrow ? '' : `−${yen(z.off)}` }], ruler: narrow ? [[0, '0'], [100 - r, `${100 - r}％`, true]] : [[0, '0'], [100 - r, `${100 - r}％`, true], [100, '100％']], ans: `${100 - r}％を払う → <b>${yen(z.final)}</b>`, label: `元の値段2,000円の帯を、払う${yen(z.final)}と値引き${yen(z.off)}に分けた図` }),
+  };
+}
 
 function renderOne(r) {
   const tool = toolBySlug(`waribiki-${r}`);
@@ -41,6 +56,7 @@ function renderOne(r) {
     { q: '1円未満はどうなりますか？', a: '<p>切り捨てで計算しています。四捨五入や切り上げは、<a href="/waribiki/">割引計算</a>で変えられます。</p>' },
     ...(r === 50 ? [{ q: '半額と50％オフは同じですか？', a: '<p>同じです。5割引きとも言います。</p>' }] : []),
   ];
+  const Z = zukaiOff(r, label);
   const others = OFF_RATES.filter((x) => x !== r).map((x) => `<a href="/waribiki/${x}/">${x === 50 ? '半額' : `${x}％オフ`}</a>`).join('・');
   const body = `
 <h1>${tool.name}</h1>
@@ -65,24 +81,20 @@ function renderOne(r) {
   </div>
 
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/waribiki/">ほかの割引で計算</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>${label}の値段 ＝ 元の値段 × ${pay(r)}</span>
-<span>元の値段 ＝ ${label}の値段 ÷ ${pay(r)}</span>
-</div>
-<p>例：2,000円の${label}は${yen(ex.final)}で、${yen(ex.off)}安くなります。</p>`,
+  Z.stair,
 )}
 
 ${section(
   'quick',
   `${label}の早見表`,
-  `<div class="tbl-wrap"><table>
+  `${Z.band}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">元の値段</th><th class="num">${label}</th><th class="num">値引き</th></tr></thead>
 <tbody>
 ${rows}

@@ -8,6 +8,7 @@ import { boxField } from '../fields.mjs';
 import { SENZAI, SENZAI_WATER } from '../data/senzai.mjs';
 import { senzai } from '../lib/senzai.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('sentaku-senzai');
 const path = '/sentaku-senzai/';
@@ -35,6 +36,12 @@ const ATK = SENZAI.find((s) => s.id === 'attack');
 const NX = SENZAI.find((s) => s.id === 'nanox');
 const EX = one(NX, 45, { price: 500, content: 600 });
 const EX65 = one(ATK, 65);
+
+// 図解（#81）：キャップの式（「水30Lに10g」を45Lで）と、1本600gを1回の量で分けた帯。数字は tests/zukai-seikatsu.test.mjs
+export const Z_SENZAI = { amount: EX.amount, perWash: EX.perWash, washes: EX.washes };
+const ZUKAI = stair(zBox('水の量', '45L'), { b: `÷${NX.water}×${NX.amount}`, small: `水${NX.water}Lに${NX.amount}g` }, zBox('1回の量', `${ml(EX.amount)}mL`, true), ['1回の量 ＝ 水の量 ÷ 表示の水 × 表示の洗剤', '1回いくら ＝ 1本の値段 × 1回の量 ÷ 内容量', `例：「水${NX.water}Lに${NX.amount}g」のナノックス ワンを45Lで使うと、1回は${ml(EX.amount)}mLです。600gで500円なら1回${fmt(EX.perWash, 1)}円で、1本で${EX.washes}回使えます。`]);
+const oneW = Number(((EX.amount / 600) * 100).toFixed(1));
+const BAND = band({ head: '1本 600g・500円', parts: [{ w: oneW, kind: 'off', text: '' }, { w: Number((100 - oneW).toFixed(1)), text: `のこり ${fmt(600 - EX.amount)}g` }], ruler: [[0, `1回 ${ml(EX.amount)}mL`, true], [100, '600g']], ans: `600 ÷ ${ml(EX.amount)} → <b>${EX.washes}回</b>・1回${fmt(EX.perWash, 1)}円`, label: `1本600gの帯から、1回の${ml(EX.amount)}mLを分けた図。1本で${EX.washes}回` });
 
 const FAQS = [
   {
@@ -93,24 +100,20 @@ export default function render() {
     <p class="slip-foot" id="r-foot">洗剤をえらんでください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>1回の量 ＝ 水の量 ÷ 表示の水 × 表示の洗剤</span>
-<span>1回いくら ＝ 1本の値段 × 1回の量 ÷ 内容量</span>
-</div>
-<p>例：「水30Lに10g」のナノックス ワンを45Lで使うと、1回は${ml(EX.amount)}mLです。600gで500円なら1回${fmt(EX.perWash, 1)}円で、1本で${EX.washes}回使えます。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'quick',
   '水の量ごとの洗剤の量',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>洗剤</th>${QUICK_WATER.map((w) => `<th class="num">${w}L</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}

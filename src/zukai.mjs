@@ -13,7 +13,8 @@ export const zTag = (label, value, ans = false) => `<div class="fz-tag"><small>$
 export const zReceipt = (label, value, ans = false) => `<div class="fz-rc"><small>${esc(label)}</small>${val(value, ans)}</div>`;
 export const zBox = (label, value, ans = false) => `<div class="fz-box"><small>${esc(label)}</small>${val(value, ans)}</div>`;
 export const zCal = (ym, d, w, ans = false) => `<div class="fz-cal"><span class="fz-ym">${esc(ym)}</span><b${ans ? ' class="fz-red"' : ''}>${d}</b><span>${esc(w)}</span></div>`;
-export const zTickets = (value, n) => `<div class="fz-tks">${Array.from({ length: n }, () => `<span class="fz-tk"><em>${value}</em></span>`).join('')}</div>`;
+export const zTks = (values) => `<div class="fz-tks">${values.map((v) => `<span class="fz-tk"><em>${v}</em></span>`).join('')}</div>`;
+export const zTickets = (value, n) => zTks(Array.from({ length: n }, () => value));
 
 // 絵の式。cap は figcaption に入れる式の文（いくつでも。1つ1行）
 export const stair = (from, op, to, cap = [], note = '') => `<figure class="fzf"><div class="fz">${from}<div class="fz-op">${ARROW}<b>${op.b}</b>${op.small ? `<small>${esc(op.small)}</small>` : ''}</div>${to}</div>${note ? `<p class="fz-note">${note}</p>` : ''}${cap.length ? `<figcaption class="fz-cap">${cap.map((c) => `<span>${esc(c)}</span>`).join('')}</figcaption>` : ''}</figure>`;

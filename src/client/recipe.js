@@ -2,9 +2,11 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { peopleRatio, haveRatio, scaleRecipe, rawAmount, parseRecipeText, cleanOcrText } from '../lib/recipe.mjs';
 import { $, enterToNext, numericOnly, copyText } from './ui.mjs';
 import { readImageText } from './ocr.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('recipe.png');
+const IMG_ROWS = 10; // 画像に書く材料の行（それより多いときは「ほか◯つ」）
 
 const MAX = 20;
 const MAX_PLATES = 12; // お皿の絵はここまで（それより多いときは「＋◯」）
@@ -162,7 +164,18 @@ function update() {
   else if (ok.some((x) => x.approx)) lines.push('「約」は近い量に丸めた目安です。');
   setNote(lines.join(''), bad.length > 0);
 
-  memo(ok.length ? { q: `${persons(from)}のレシピを${toText}に`, a: `${ok.slice(0, 3).map((x) => `${x.name} ${x.approx ? '約' : ''}${x.to}`).join('・')}${ok.length > 3 ? ' ほか' : ''}` } : null);
+  memo(ok.length ? {
+    q: `${persons(from)}のレシピを${toText}に`,
+    a: `${ok.slice(0, 3).map((x) => `${x.name} ${x.approx ? '約' : ''}${x.to}`).join('・')}${ok.length > 3 ? ' ほか' : ''}`,
+    img: () => imgCard({
+      title,
+      cap: `${persons(from)}のレシピの`,
+      num: ratioText,
+      unit: '倍',
+      rows: ok.slice(0, IMG_ROWS).map((x) => [x.name || '材料', `${x.approx ? '約' : ''}${x.to}`]),
+      notes: [ok.length > IMG_ROWS ? `ほか${ok.length - IMG_ROWS}つ` : '', ok.some((x) => x.approx) ? '「約」は近い量に丸めた目安です' : ''].filter(Boolean),
+    }),
+  } : null);
   lastText = [`【${title}】（${persons(from)}のレシピの${ratioText}倍）`, ...ok.map((x) => `・${x.name}　${x.approx ? '約' : ''}${x.to}${x.sub ? `（${x.sub}）` : ''}`)].join('\n');
   refreshCopy();
 }

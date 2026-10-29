@@ -5,7 +5,8 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { mixTiles, mixStage } from '../mix.mjs';
 import { boxField } from '../fields.mjs';
-import { volumeText } from '../lib/kishaku.mjs';
+import { volumeText, dilute, ratioFromPercent } from '../lib/kishaku.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 import { HYOHAKU_SRC, HYOHAKU_CAP, HYOHAKU_TARGETS, HYOHAKU_CAUTIONS, HYOHAKU_AMOUNT_SOURCES, HYOHAKU_CAUTION_SOURCES, hyohakuAmount } from '../data/hyohakuzai.mjs';
 import { printLink } from '../prints.mjs';
 
@@ -13,6 +14,26 @@ const head = (labelId, label) =>
   `<div class="field-head calc-head"><p class="label" id="${labelId}">${label}</p><button type="button" class="clear-btn" id="clear">クリア</button></div>`;
 
 const src = (items) => `<p class="note">出典：${items.map(([name, url]) => `<a href="${url}">${name}</a>`).join('、')}</p>`;
+
+// 図解（#81）：「計算のしかた」の絵の式と、表の上の帯（できあがりや水の量を、原液と水に分ける）。数字は tests/zukai-seikatsu.test.mjs
+const ZT = dilute({ ratio: 3, amount: 100 }); // めんつゆ3倍濃縮でつけつゆ100ml
+const ZH_RATIO = ratioFromPercent(HYOHAKU_SRC, 0.05).ratio; // 6％を0.05％に
+const ZH = dilute({ ratio: ZH_RATIO, amount: 1000, from: 'water' }); // 水1L
+const ZE = dilute({ ratio: 500, amount: 1000, from: 'water' }); // 液肥500倍を水1L
+export const Z_USES = { tsuyu: volumeText(ZT.concentrate), tsuyuWater: volumeText(ZT.water), hyohakuRatio: ZH_RATIO, hyohaku: volumeText(ZH.concentrate), ekihi: volumeText(ZE.concentrate) };
+const thin = (ml, total) => Math.max(2, Number(((ml / total) * 100).toFixed(1))); // 細い原液の帯も見えるように2％から
+const Z_MENTSUYU = {
+  stair: stair(zBox('つけつゆ', `${volumeText(ZT.total)}`), { b: '÷3', small: '3倍濃縮' }, zBox('つゆ', Z_USES.tsuyu, true), ['つゆの量 ＝ できあがりの量 ÷ 何倍濃縮', '水の量 ＝ できあがりの量 − つゆの量', `例：3倍濃縮でつけつゆを100ml作るなら、つゆ${Z_USES.tsuyu}・水${Z_USES.tsuyuWater}です。`], `水は 100 − 33 ＝ <b class="fz-red">${Z_USES.tsuyuWater}</b>`),
+  band: band({ head: `つけつゆ ${volumeText(ZT.total)}`, parts: [{ w: 33.3, kind: 'off', text: `つゆ ${Z_USES.tsuyu}` }, { w: 66.7, text: `水 ${Z_USES.tsuyuWater}` }], ans: `3倍濃縮はつゆ1：水2 → <b>つゆ ${Z_USES.tsuyu}</b>`, label: `つけつゆ100mlの帯を、つゆ${Z_USES.tsuyu}と水${Z_USES.tsuyuWater}に分けた図` }),
+};
+const Z_HYOHAKU = {
+  stair: stair(zBox('水', '1L'), { b: `÷${ZH_RATIO - 1}`, small: `${HYOHAKU_SRC}％を0.05％に` }, zBox('漂白剤', Z_USES.hyohaku, true), ['倍率 ＝ 漂白剤の濃度 ÷ 作りたい濃度', '漂白剤の量 ＝ 水の量 ÷（倍率 − 1）', `例：${HYOHAKU_SRC}％の漂白剤で0.05％を作るなら${ZH_RATIO}倍。水1Lなら、1,000 ÷ ${ZH_RATIO - 1} で漂白剤${Z_USES.hyohaku}です。`]),
+  band: band({ head: `水1L ＋ 漂白剤${Z_USES.hyohaku}`, parts: [{ w: thin(ZH.concentrate, ZH.total), kind: 'off', text: '' }, { w: 100 - thin(ZH.concentrate, ZH.total), text: '水 1,000ml' }], ruler: [[0, `漂白剤 ${Z_USES.hyohaku}`, true], [100, `約${volumeText(ZH.total)}`]], ans: `${HYOHAKU_SRC}％を0.05％に → <b>${ZH_RATIO}倍</b>`, label: `水1Lと漂白剤${Z_USES.hyohaku}を合わせた帯の図。${ZH_RATIO}倍に薄める` }),
+};
+const Z_EKIHI = {
+  stair: stair(zBox('水', '1L'), { b: '÷499', small: '500倍' }, zBox('原液', Z_USES.ekihi, true), ['原液の量 ＝ 水の量 ÷（倍率 − 1）', '原液の量 ＝ できあがりの量 ÷ 倍率', `例：500倍で水1Lなら、1,000 ÷ 499 で原液約${Z_USES.ekihi}です。`]),
+  band: band({ head: `水1L ＋ 原液${Z_USES.ekihi}`, parts: [{ w: 2, kind: 'off', text: '' }, { w: 98, text: '水 1,000ml' }], ruler: [[0, `原液 ${Z_USES.ekihi}`, true], [100, `約${volumeText(ZE.total)}`]], ans: `原液1：水499 → <b>500倍</b>`, label: `水1Lと原液${Z_USES.ekihi}を合わせた帯の図。500倍に薄める` }),
+};
 
 const PAGES = [
   {
@@ -29,10 +50,11 @@ const PAGES = [
   </div>
   ${mixStage({ conc: 'つゆ', label: '1：？', hint: '何倍濃縮かをえらんでください', cls: 'is-tsuyu' })}
 </div>`,
+    zukai: Z_MENTSUYU.stair,
     body: `${section(
       'table',
       '濃縮ごとの割合',
-      `<div class="tbl-wrap"><table>
+      `${Z_MENTSUYU.band}<div class="tbl-wrap"><table>
 <thead><tr><th>濃縮</th><th>つけつゆ</th><th>かけつゆ</th></tr></thead>
 <tbody>
 <tr><td>2倍</td><td>1：1</td><td>1：3</td></tr>
@@ -83,10 +105,11 @@ ${src([
   ${mixStage({ conc: '漂白剤', label: '？％', hint: '作りたい濃度をえらんでください' })}
   <p class="note calc-note">手や指に使わず、酸性のものとまぜない</p>
 </div>`,
+    zukai: Z_HYOHAKU.stair,
     body: `${section(
       'table',
       '濃度ごとの量',
-      `${printLink('hyohakuzai')}<div class="tbl-wrap"><table>
+      `${printLink('hyohakuzai')}${Z_HYOHAKU.band}<div class="tbl-wrap"><table>
 <thead><tr><th>作る濃度</th><th class="num">水500ml</th><th class="num">水1L</th></tr></thead>
 <tbody>
 ${HYOHAKU_TARGETS.map((t) => `<tr><td>${t.pct}％</td>${[500, 1000].map((w) => `<td class="num">${volumeText(hyohakuAmount(t.pct, w))}</td>`).join('')}</tr>`).join('\n')}
@@ -163,10 +186,11 @@ ${src(HYOHAKU_CAUTION_SOURCES)}`,
   </div>
   ${mixStage({ hint: '何倍に薄めるかをえらんでください' })}
 </div>`,
+    zukai: Z_EKIHI.stair,
     body: `${section(
       'table',
       '倍率ごとの量',
-      `<div class="tbl-wrap"><table>
+      `${Z_EKIHI.band}<div class="tbl-wrap"><table>
 <thead><tr><th>倍率</th><th class="num">水1L</th><th class="num">水2L</th><th class="num">水10L</th></tr></thead>
 <tbody>
 <tr><td>250倍</td><td class="num">4ml</td><td class="num">8ml</td><td class="num">40ml</td></tr>
@@ -220,6 +244,8 @@ export default function render() {
 <p class="lead">${p.lead}</p>
 
 ${p.calc.replace(/<\/div>$/, `  ${memoHtml(tool)}\n</div>`)}
+
+${section('formula', '計算のしかた', p.zukai)}
 
 ${p.body}
 
