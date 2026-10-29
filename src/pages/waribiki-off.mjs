@@ -25,7 +25,7 @@ function zukaiOff(r, label) {
   const z = zOff(r);
   const narrow = r < 20; // 細い値引きの帯には字を入れず、目もりの100％を外す（重ならないように）
   return {
-    stair: stair(zTag('元の値段', yen(2000)), { b: `×${pay(r)}`, small: label }, zTag(label, yen(z.final), true), [`${label}の値段 ＝ 元の値段 × ${pay(r)}`, `元の値段 ＝ ${label}の値段 ÷ ${pay(r)}`, `例：2,000円の${label}は${yen(z.final)}で、${yen(z.off)}安くなります。`]),
+    stair: stair(zTag('元の値段', yen(2000)), { b: `×${pay(r)}`, small: r === 50 ? '5割引き' : wariLabel(r) }, zTag(label, yen(z.final), true), [`${label}の値段 ＝ 元の値段 × ${pay(r)}`, `元の値段 ＝ ${label}の値段 ÷ ${pay(r)}`, `例：2,000円の${label}は${yen(z.final)}で、${yen(z.off)}安くなります。`]),
     band: band({ head: `元の値段 ${yen(2000)}`, parts: [{ w: 100 - r, text: `払う ${yen(z.final)}` }, { w: r, kind: 'off', text: narrow ? '' : `−${yen(z.off)}` }], ruler: narrow ? [[0, '0'], [100 - r, `${100 - r}％`, true]] : [[0, '0'], [100 - r, `${100 - r}％`, true], [100, '100％']], ans: `${100 - r}％を払う → <b>${yen(z.final)}</b>`, label: `元の値段2,000円の帯を、払う${yen(z.final)}と値引き${yen(z.off)}に分けた図` }),
   };
 }

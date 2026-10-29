@@ -19,7 +19,7 @@ const BAND = band({ head: `元の値段 ${fmt(5000)}円`, parts: [{ w: 70, text:
 const ZR = calcRate({ price: 2000, sale: 1700 });
 export const Z_RITSU = { off: ZR.off, rate: ZR.rate };
 const ZUKAI_RATE = stair(zTag('元の値段', `${fmt(2000)}円`), { b: `${fmt(ZR.off)}÷${fmt(2000)}`, small: `値引き ${fmt(ZR.off)}円` }, zTag('割引率', `${fmt(ZR.rate)}％オフ`, true), ['割引率 ＝（元の値段 − 割引後の値段）÷ 元の値段 × 100', '割引率 ＝ 値引きの額 ÷ 元の値段 × 100', `例：2,000円が1,700円なら、${fmt(ZR.off)} ÷ 2,000 × 100 ＝ ${fmt(ZR.rate)}％オフです。`]);
-const BAND_RATE = band({ head: `元の値段 ${fmt(2000)}円`, parts: [{ w: 100 - ZR.rate, text: `払う ${fmt(ZR.sale)}円` }, { w: ZR.rate, kind: 'off', text: `−${fmt(ZR.off)}円` }], ruler: [[0, '0'], [100 - ZR.rate, `${100 - ZR.rate}％`, true], [100, '100％']], ans: `${fmt(ZR.off)}円の値引きは → <b>${fmt(ZR.rate)}％オフ</b>`, label: `元の値段2,000円の帯を、払う${fmt(ZR.sale)}円と値引き${fmt(ZR.off)}円に分けた図。${fmt(ZR.rate)}％オフ` });
+const BAND_RATE = band({ head: `元の値段 ${fmt(2000)}円`, parts: [{ w: 100 - ZR.rate, text: `払う ${fmt(ZR.sale)}円` }, { w: ZR.rate, kind: 'off', text: '' }], ruler: [[0, '0'], [100 - ZR.rate, `${100 - ZR.rate}％`, true]], ans: `${fmt(ZR.off)}円の値引きは → <b>${fmt(ZR.rate)}％オフ</b>`, label: `元の値段2,000円の帯を、払う${fmt(ZR.sale)}円と値引き${fmt(ZR.off)}円に分けた図。${fmt(ZR.rate)}％オフ` });
 const DESC_EX = { price: 1980, final: calcDiscount({ price: 1980, rate: 30 }).final }; // 説明文（meta description）の例
 const QUICK_ROWS = QUICK_PRICES.map(
   (p) => `<tr><td class="num">${fmt(p)}円</td>${QUICK_RATES.map((r) => `<td class="num">${fmt(calcDiscount({ price: p, rate: r }).final)}</td>`).join('')}</tr>`,
