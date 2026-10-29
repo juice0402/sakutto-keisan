@@ -12,7 +12,7 @@ import { ETO, warekiOfYear, etoOf } from '../lib/hizuke.mjs';
 import { gakureki } from '../lib/gakureki.mjs';
 import { printLink } from '../prints.mjs';
 import { nenrei } from '../lib/nenrei.mjs';
-import { stair, zCal, zBox } from '../zukai.mjs';
+import { stair, band, zCal, zBox } from '../zukai.mjs';
 
 // 年のとり方・早生まれの説明の出典（国立天文台 暦Wiki。年齢計算ニ関スル法律と民法143条による）
 const SRC_AGE = 'https://eco.mtk.nao.ac.jp/koyomi/wiki/CDD7C1C72F1C7AFA4C8A4CFA1A92FC7AFCEF0.html';
@@ -163,6 +163,12 @@ const GK_ROWS = GK_YEARS.map((y) => {
 }).join('\n');
 const GK_EX = gakureki({ birth: '2004-06-10' }).rows;
 
+// 図解（#82）：生年月日 → 小学校の入学の流れの図と、入学から大学の卒業までの16年を学校ごとに分けた帯。数字は tests/zukai-kurashi.test.mjs
+export const Z_GAKU = GK_EX.map((r) => r.y);
+const GK_ZUKAI = stair(zCal('2004年6月', 10, '生まれた日'), { b: '＋7年', small: '4月2日〜翌年4月1日が同じ学年' }, zBox('小学校の入学', `${GK_EX[0].y}年4月`, true), ['小学校の入学 ＝ 生まれた年＋7年の4月', '早生まれ（1月1日〜4月1日）は、生まれた年＋6年の4月', `例：2004年6月10日生まれなら、小学校の入学は${GK_EX[0].y}年4月、大学の卒業は${GK_EX[7].y}年3月です。`, '中学校の入学は小学校の入学の6年後、高校はその3年後、大学はさらに3年後です。卒業は、次の学校に入る年の3月です。']);
+const gw = (a, b) => Number((((GK_EX[b].y - GK_EX[a].y) / (GK_EX[7].y - GK_EX[0].y)) * 100).toFixed(2));
+const GK_BAND = band({ head: '2004年6月10日生まれ', parts: [{ w: gw(0, 2), text: '小学校 6年' }, { w: gw(2, 4), kind: 'alt', text: '中学 3年' }, { w: gw(4, 6), text: '高校 3年' }, { w: gw(6, 7), kind: 'alt', text: '大学 4年' }], ruler: [[0, String(GK_EX[0].y)], [gw(0, 2), String(GK_EX[2].y)], [gw(0, 4), String(GK_EX[4].y)], [gw(0, 6), String(GK_EX[6].y)], [100, String(GK_EX[7].y), true]], ans: `入学から16年 → 大学の卒業 <b>${GK_EX[7].y}年3月</b>`, label: `${GK_EX[0].y}年の小学校の入学から${GK_EX[7].y}年の大学の卒業までの帯を、小学校6年・中学3年・高校3年・大学4年に分けた図` });
+
 const GK_FAQS = [
   {
     q: '早生まれの入学の年は？',
@@ -221,25 +227,16 @@ function renderGakureki() {
     <button type="button" class="tool-btn" id="t-ryunen" aria-pressed="false">留年1年</button>
     <button type="button" class="tool-btn" id="t-tandai" aria-pressed="false">短大・専門</button>
   </div>
-  ${memoHtml(toolBySlug('gakureki'), false)}
+  ${memoHtml(toolBySlug('gakureki'))}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
-${section(
-  'formula',
-  '計算のしかた',
-  `<div class="formula">
-<span>小学校の入学 ＝ 生まれた年＋7年の4月</span>
-<span>早生まれは、生まれた年＋6年の4月</span>
-</div>
-<p>例：2004年6月10日生まれなら、小学校の入学は${GK_EX[0].y}年4月、大学の卒業は${GK_EX[7].y}年3月です。</p>
-<p>中学校の入学は小学校の入学の6年後、高校はその3年後、大学はさらに3年後です。卒業は、次の学校に入る年の3月です。</p>`,
-)}
+${section('formula', '計算のしかた', GK_ZUKAI)}
 
 ${section(
   'table',
   '学歴早見表',
-  `${printLink('gakureki')}<p>4月2日から12月31日生まれの人の年です。1月1日から4月1日生まれは、1つ下の行（前の年）を見てください。</p>
+  `${GK_BAND}${printLink('gakureki')}<p>4月2日から12月31日生まれの人の年です。1月1日から4月1日生まれは、1つ下の行（前の年）を見てください。</p>
 <div class="tbl-wrap"><table class="tbl-tight">
 <thead><tr><th class="num">生まれ</th><th class="num">小学校</th><th class="num">中学校</th><th class="num">高校</th><th class="num">大学</th><th class="num">卒業</th></tr></thead>
 <tbody>

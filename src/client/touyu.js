@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { touyu } from '../lib/touyu.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figCans, CANS_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('touyu-dai.png');
 
 // 灯油代の計算：ファンヒーターの大きさのマスをえらぶと、1時間に使う灯油（メーカーの燃料消費量）が入る（自分で入れてもよい）。1日に使う時間と灯油の値段から、1か月の灯油代と18Lが何日もつか
 // 結果はポリタンクの絵：タンクのラベルに「18Lで何日」、横にいちばん大きな1か月の灯油代と、1か月に使うポリタンクの数
@@ -65,13 +66,30 @@ function update() {
     setBig('1時間', fmt(res.hour, 1), fmt(res.canHours, 0), '時間');
     $('r-foot').textContent = '1日に使う時間を入れてください';
     drawCans(null);
-    memo({ q: `1時間${fmt(val('lph'), 3)}L・1L${fmt(val('price'), 1)}円`, a: `1時間 約${fmt(res.hour, 1)}円` });
+    memo({
+      q: `1時間${fmt(val('lph'), 3)}L・1L${fmt(val('price'), 1)}円`,
+      a: `1時間 約${fmt(res.hour, 1)}円`,
+      img: () => imgCard({ title: '灯油代', cap: `1時間${fmt(res.lph, 3)}L`, num: `約${fmt(res.hour, 1)}`, unit: '円', sub: `1時間の灯油代・18Lで${fmt(res.canHours, 0)}時間`, notes: [`1L ${fmt(res.liter, 1)}円で計算`] }),
+    });
     return;
   }
   if (res.canDays === null) setBig('1か月', '0', '—', '日');
   else setBig('1か月', yenText(res.month), fmt(res.canDays, res.canDays < 10 ? 1 : 0), '日');
   drawCans(res.cans);
-  memo({ q: `1時間${fmt(val('lph'), 3)}L・1日${fmt(res.hours, 2)}時間`, a: res.canDays === null ? '1か月 0円' : `1か月 約${yenText(res.month)}円` });
+  memo({
+    q: `1時間${fmt(val('lph'), 3)}L・1日${fmt(res.hours, 2)}時間`,
+    a: res.canDays === null ? '1か月 0円' : `1か月 約${yenText(res.month)}円`,
+    img: () => imgCard({
+      title: '灯油代',
+      cap: `1時間${fmt(res.lph, 3)}L・1日${fmt(res.hours, 2)}時間`,
+      num: res.canDays === null ? '0' : `約${yenText(res.month)}`,
+      unit: '円',
+      sub: res.canDays === null ? '1か月の灯油代' : `1か月の灯油代・18Lで${fmt(res.canDays, res.canDays < 10 ? 1 : 0)}日`,
+      fig: res.cans > 0 ? { draw: figCans, h: CANS_H, cans: res.cans } : null,
+      rows: [['1時間', `${fmt(res.hour, 1)}円`], ['1日', `${yenText(res.day)}円`], ['1か月の灯油', `${fmt(res.litersMonth, 1)}L`]],
+      notes: [`1L ${fmt(res.liter, 1)}円・1か月30日で計算`],
+    }),
+  });
   $('t-liters').textContent = `${fmt(res.litersMonth, 1)}L（${fmt(res.cans, 1)}缶）`;
   $('r-foot').textContent = '';
 }

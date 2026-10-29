@@ -1,9 +1,10 @@
 import { parseNum } from '../lib/number.mjs';
 import { wareki, ERA_TABLE, nenpyoLayout, nenpyoY } from '../lib/wareki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('wareki.png');
 
 // 和暦・西暦の変換：元号のマスと、西暦か和暦のあとから入れたほう（もう片方は点線の答えの欄）
 // はじめは西暦の欄に今年（ブラウザの日付）を入れておく。結果は元号の年表に赤い線と、大きな答え
@@ -74,7 +75,18 @@ function update() {
   $('r-cap').textContent = isSei ? `${res.y}年は` : `${res.text}は`;
   $('r-num').textContent = isSei ? res.text.slice(0, -1) : String(res.y);
   $('r-unit').textContent = '年';
-  memo(isSei ? { q: `西暦${res.y}年`, a: res.text } : { q: res.text, a: `西暦${res.y}年` });
+  memo({
+    ...(isSei ? { q: `西暦${res.y}年`, a: res.text } : { q: res.text, a: `西暦${res.y}年` }),
+    img: () => imgCard({
+      title: '和暦・西暦',
+      cap: isSei ? `${res.y}年は` : `${res.text}は`,
+      num: isSei ? res.text.slice(0, -1) : String(res.y),
+      unit: '年',
+      sub: `${res.kanshi.kanji}（${res.kanshi.yomi}）`,
+      rows: [['西暦', `${res.y}年`], ['和暦', res.text], ['今年から', res.ago > 0 ? `${res.ago}年前` : res.ago === 0 ? '今年' : `${-res.ago}年後`], ...(res.ago >= 0 ? [['その年生まれは', `今年${res.ago}歳`]] : [])],
+      notes: res.note ? [res.note] : [],
+    }),
+  });
   $('r-num').parentElement.classList.toggle('is-long', isSei && res.text.length > 5);
   $('r-say').textContent = `${res.kanshi.kanji}（${res.kanshi.yomi}）`;
   $('d-ago').textContent = res.ago > 0 ? `${res.ago}年前` : res.ago === 0 ? '今年' : `${-res.ago}年後`;

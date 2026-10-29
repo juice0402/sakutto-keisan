@@ -1,9 +1,10 @@
 import { daiNanYoubi, ybGrid, ybAhead } from '../lib/dai-nan-youbi.mjs';
 import { ymdValue, WEEKDAYS } from '../lib/hizuke.mjs';
 import { $ } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCal } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('dai-nan-youbi.png');
 
 // 第何曜日の計算：日付（はじめは今日）→ 第何◯曜日か。その月のカレンダーと、これから12か月の同じ第n◯曜日
 const now = new Date();
@@ -35,7 +36,11 @@ function update() {
   $('r-ym').textContent = `${date.y}年${date.m}月`;
   $('r-cap').textContent = `${date.m}月${date.d}日は`;
   $('r-num').textContent = res.text;
-  memo({ q: `${date.y}年${date.m}月${date.d}日`, a: res.text });
+  memo({
+    q: `${date.y}年${date.m}月${date.d}日`,
+    a: res.text,
+    img: () => imgCal({ start: `${date.y}年${date.m}月${date.d}日は`, ym: `${date.y}年${date.m}月`, d: String(date.d), w: `${res.youbi}曜日`, wColor: w === 0 ? 'sun' : w === 6 ? 'sat' : '', num: `第${n}`, unit: `${res.youbi}曜日` }),
+  });
   $('r-say').textContent = res.last ? `この月の最後の${res.youbi}曜日です` : `最後の${res.youbi}曜日は${res.lastDay}日`;
   const grid = ybGrid(date.y, date.m);
   CELLS.forEach((c, i) => {

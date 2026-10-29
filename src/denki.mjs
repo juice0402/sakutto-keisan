@@ -4,6 +4,32 @@ import { boxField } from './fields.mjs';
 import { DENKI_PRICE } from './data/denki.mjs';
 import { fmt } from './lib/number.mjs';
 import { memoHtml } from './parts.mjs';
+import { denki } from './lib/denki.mjs';
+import { stair, band, zBox, zReceipt } from './zukai.mjs';
+
+/**
+ * 図解（#82）：電気代の絵の式。名前と消費電力 → 1日の時間と30日 → 1か月の電気代（お知らせの紙）。数字は tests/zukai-kurashi.test.mjs
+ * 返すのは { stair, r }（r は計算の答え）
+ */
+export function denkiZukai(name, watt, hours) {
+  const P = DENKI_PRICE.value;
+  const r = denki({ watt, hours, price: P });
+  const h = hours < 1 ? `${hours * 60}分` : `${hours}時間`;
+  return {
+    r,
+    stair: stair(zBox(name, `${fmt(watt)}W`), { b: `×${h}×30日`, small: `1kWh ${P}円` }, zReceipt('1か月', `約${fmt(r.month, 0)}円`, true), ['1時間 ＝ 消費電力（W）÷ 1,000 × 単価', '1か月 ＝ 1時間 × 1日の時間 × 30日', `例：${fmt(watt)}Wの${name}を1日${h}、単価${P}円なら、${fmt(watt / 1000, 3)} × ${P} × ${hours} × 30 ＝ ${fmt(r.month, 0)}円。`], `1時間は約${fmt(r.hour, 1)}円・1日は <b class="fz-red">約${fmt(r.day, r.day < 100 ? 1 : 0)}円</b>`),
+  };
+}
+
+/** 帯の図（#82）：強さごとの1か月の電気代を、いちばん高いものの長さでくらべる棒 */
+export function denkiBars(name, modes, hours) {
+  const P = DENKI_PRICE.value;
+  const rows = modes.map((m) => ({ ...m, month: denki({ watt: m.watt, hours, price: P }).month }));
+  const max = Math.max(...rows.map((m) => m.month));
+  return rows
+    .map((m, i) => band({ head: `${m.b} ${fmt(m.watt)}W・1か月 ${fmt(m.month, 0)}円`, parts: [{ w: Number(((m.month / max) * 100).toFixed(1)), text: '' }], ans: i === rows.length - 1 ? `${rows[0].b}で1日${hours}時間 → <b>1か月 約${fmt(rows[0].month, 0)}円</b>` : '', label: `${name}の${m.b}（${fmt(m.watt)}W）を1日${hours}時間使ったときの、1か月約${fmt(m.month, 0)}円の棒` }))
+    .join('');
+}
 
 /** マスの下の小さな字：1時間の電気代の目安（単価は目安単価） */
 export const hourYen = (watt) => `約${fmt((watt * DENKI_PRICE.value) / 1000, 1)}円/時`;
@@ -32,7 +58,7 @@ export function denkiCard({ tool, tiles, label, name = '', empty, wattEx = '600'
     <p class="slip-foot" id="r-foot">${empty}</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>`;
 }

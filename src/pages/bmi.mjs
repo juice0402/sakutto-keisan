@@ -7,6 +7,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { bmi, BMI_LEVELS } from '../lib/bmi.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('bmi');
 const path = '/bmi/';
@@ -37,6 +38,10 @@ const STD_ROWS = HEIGHTS.map((cm) => {
   return `<tr><td class="num">${cm}cm</td><td class="num">${fmt(r.std, 1)}kg</td><td class="num">${fmt(r.range[0], 1)}〜${fmt(r.range[1], 1)}kg</td></tr>`;
 }).join('\n');
 const EX = bmi({ cm: 170, kg: 65 });
+
+// 図解（#82）：身長と体重 → BMI と判定の絵の式（判定なので帯の図はつけない）。数字は tests/zukai-kurashi.test.mjs
+export const Z_BMI = { value: EX.value, level: EX.level, std: EX.std };
+const ZUKAI = stair(zBox('身長170cm', '65kg'), { b: '÷1.7÷1.7', small: '身長（m）の2乗で割る' }, zBox('BMI', fmt(EX.value, 1), true), ['BMI ＝ 体重（kg）÷ 身長（m）の2乗', '標準体重 ＝ 身長（m）の2乗 × 22', `例：身長170cm・体重65kgなら、BMIは${fmt(EX.value, 1)}で${EX.level}、標準体重は${fmt(EX.std, 1)}kgです。`], `18.5以上25未満なので <b class="fz-red">${EX.level}</b>`);
 
 const FAQS = [
   {
@@ -83,15 +88,7 @@ export default function render() {
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
-${section(
-  'formula',
-  '計算式',
-  `<div class="formula">
-<span>BMI ＝ 体重（kg）÷ 身長（m）<sup>2</sup></span>
-<span>標準体重 ＝ 身長（m）<sup>2</sup> × 22</span>
-</div>
-<p>例：身長170cm・体重65kgなら、BMIは${fmt(EX.value, 1)}で普通体重、標準体重は${fmt(EX.std, 1)}kgです。</p>`,
-)}
+${section('formula', '計算式', ZUKAI)}
 
 ${section(
   'levels',

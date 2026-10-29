@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { denki } from '../lib/denki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figMeter, METER_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo(`${location.pathname.split('/').filter(Boolean).pop() || 'denki-dai'}.png`);
 
 // 電気代の計算：家電のマスをえらぶと消費電力の欄に目安が入る（自分で入れてもよい）。1日に使う時間と単価から、1時間・1日・1か月・1年
 // 結果は電気代のお知らせ（検針票のような紙）：1か月の使用量のメーターの数字と、大きな1か月の電気代
@@ -63,11 +64,28 @@ function update() {
   if (res.hours === null) {
     setBig('1時間', fmt(res.hour, 1));
     $('r-foot').textContent = '1日に使う時間を入れてください';
-    memo({ q: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W`, a: `1時間 約${fmt(res.hour, 1)}円` });
+    memo({
+      q: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W`,
+      a: `1時間 約${fmt(res.hour, 1)}円`,
+      img: () => imgCard({ title: '電気代のお知らせ', cap: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W`, num: `約${fmt(res.hour, 1)}`, unit: '円', sub: '1時間の電気代', notes: [`1kWh ${fmt(res.price, 2)}円で計算`] }),
+    });
     return;
   }
   setBig('1か月', yen(res.month));
-  memo({ q: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W・1日${fmt(res.hours, 2)}時間`, a: `1か月 約${yen(res.month)}円` });
+  memo({
+    q: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W・1日${fmt(res.hours, 2)}時間`,
+    a: `1か月 約${yen(res.month)}円`,
+    img: () => imgCard({
+      title: '電気代のお知らせ',
+      cap: `${name ? `${name} ` : ''}${fmt(res.watt, 1)}W・1日${fmt(res.hours, 2)}時間`,
+      num: `約${yen(res.month)}`,
+      unit: '円',
+      sub: '1か月の電気代',
+      fig: { draw: figMeter, h: METER_H, kwh: res.kwhMonth },
+      rows: [['1時間', `${fmt(res.hour, 1)}円`], ['1日', `${yen(res.day)}円`], ['1年', `${fmt(res.year, 0)}円`]],
+      notes: [`1kWh ${fmt(res.price, 2)}円・1か月30日・1年365日で計算`],
+    }),
+  });
   $('r-foot').textContent = '';
 }
 

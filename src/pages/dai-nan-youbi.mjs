@@ -7,12 +7,17 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { dateField } from '../fields.mjs';
 import { WEEKDAYS } from '../lib/hizuke.mjs';
 import { daiNanYoubi, ybHolidays } from '../lib/dai-nan-youbi.mjs';
+import { stair, zCal, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('dai-nan-youbi');
 const path = '/dai-nan-youbi/';
 const Y = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', year: 'numeric' }).format(new Date()));
 const EX = daiNanYoubi(`${Y}-10-27`);
 const HOL = ybHolidays(Y);
+
+// 図解（#82）：日付 → 第何曜日の流れの図（日付の答えなので帯の図はつけない）。数字は tests/zukai-kurashi.test.mjs
+export const Z_YOUBI = { y: Y, n: EX.n, youbi: EX.youbi };
+const ZUKAI = stair(zCal(`${Y}年10月`, 27, `${EX.youbi}曜日`), { b: '（27−1）÷7＋1', small: '1〜7日が第1' }, zBox('10月27日は', `第${EX.n}${EX.youbi}曜日`, true), ['第n ＝（日 − 1）÷ 7 の整数部分 ＋ 1', `例：${Y}年10月27日は、（27 − 1）÷ 7 ＝ 3あまり5なので、第${EX.n}${EX.youbi}曜日です。`]);
 const SRC = 'https://www8.cao.go.jp/chosei/shukujitsu/gaiyou/kaku.html';
 const CELLS = Array.from({ length: 42 }, (_, i) => `<span class="yb-d" id="yb-${i}"></span>`).join('');
 
@@ -41,7 +46,7 @@ export default function render() {
     <p class="slip-foot" id="r-foot">日付を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
@@ -54,14 +59,7 @@ ${section(
 </table></div>`,
 )}
 
-${section(
-  'formula',
-  '計算のしかた',
-  `<div class="formula">
-<span>第n ＝（日 − 1）÷ 7 の整数部分 ＋ 1</span>
-</div>
-<p>例：${Y}年10月27日は、（27 − 1）÷ 7 ＝ 3あまり5なので、第${EX.n}${EX.youbi}曜日です。</p>`,
-)}
+${section('formula', '計算のしかた', ZUKAI)}
 
 ${section(
   'holiday',
