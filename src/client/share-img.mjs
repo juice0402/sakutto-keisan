@@ -10,6 +10,8 @@ const IMG_MAX_TICKETS = 12;
 
 /** 色（ページの CSS の値。読めないときは方眼ノートの色） */
 function imgColors() {
+  // FX の手帳は暗いリフィルに白いインクなので、紙の画像では黒いインクと金のペンにする（#83）
+  if (document.body.dataset.theme === 'fx') return { ink: '#1b1d21', red: '#8a6a2a', muted: '#5d5a52', rule: '#b5ad9c', sheet: '#f3f1ea' };
   const css = getComputedStyle(document.body);
   const color = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
   return {
@@ -282,8 +284,10 @@ export function imgGrid({ cap, num, unit, pct, say }) {
 }
 
 /** 日数：日めくり（おわりの日）と大きな「◯日後」 */
-export function imgCal({ start, ym, d, w, wColor, num, unit }) {
-  return imgPaper(800, (g, c, top) => {
+export function imgCal({ start, ym, d, w, wColor, num, unit, note = '', calm = false }) {
+  // calm：弔事（四十九日）は赤を使わない（#83）。note：日めくりの下の1行
+  return imgPaper(note ? 840 : 800, (g, c0, top) => {
+    const c = calm ? { ...c0, red: c0.ink } : c0;
     g.fillStyle = c.ink;
     imgText(g, start, IMG_W / 2, top + 60, { w: 700, size: 26, align: 'center' });
     imgBigNum(g, c, num, unit, IMG_W / 2, top + 150, { size: 84, unitSize: 36, align: 'center' });
@@ -309,6 +313,10 @@ export function imgCal({ start, ym, d, w, wColor, num, unit }) {
     g.fillStyle = wColor === 'sun' ? c.red : wColor === 'sat' ? '#2b62b8' : c.ink;
     imgText(g, d, IMG_W / 2, cy0 + 240, { w: 800, size: 160, max: cw - 30, align: 'center' });
     imgText(g, w, IMG_W / 2, cy0 + 318, { w: 800, size: 34, max: cw - 30, align: 'center' });
+    if (note) {
+      g.fillStyle = c.muted;
+      imgText(g, note, IMG_W / 2, cy0 + ch + 44, { w: 700, size: 22, align: 'center' });
+    }
   });
 }
 

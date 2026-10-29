@@ -7,6 +7,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { kakeritsu, kakeText, KAKE_TILES } from '../lib/kakeritsu.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('kakeritsu');
 const path = '/kakeritsu/';
@@ -20,6 +21,12 @@ const QUICK = [1000, 2000, 3000, 5000, 10000, 1980, 2980, 4980];
 const QUICK_ROWS = QUICK.map(
   (j) => `<tr><td class="num">${fmt(j)}円</td>${KAKE_TILES.map((p) => `<td class="num">${fmt(kakeritsu({ jodai: j, rate: p, gedai: null, out: 'gedai' }).gedai)}</td>`).join('')}</tr>`,
 ).join('\n');
+
+// 図解（#83）：上代と掛け率から下代の絵の式と、上代の帯を下代と粗利に分けた図。数字は tests/zukai-shigoto.test.mjs
+const ZK = kakeritsu({ jodai: 1980, rate: 65, gedai: null, out: 'gedai' });
+export const Z_KAKE = { gedai: ZK.gedai, profit: ZK.profit };
+const ZUKAI = stair(zBox('上代', '1,980円'), { b: '× 0.65', small: '6.5掛け' }, zBox('下代', `${fmt(ZK.gedai)}円`, true), ['下代 ＝ 上代 × 掛け率', '掛け率 ＝ 下代 ÷ 上代 × 100', '粗利 ＝ 上代 − 下代', `例：上代1,980円の6.5掛けは、1,980 × 0.65 ＝ ${fmt(ZK.gedai)}円です。上代で売ると、粗利は${fmt(ZK.profit)}円です。`], `上代で売ると粗利 <b class="fz-red">${fmt(ZK.profit)}円</b>`);
+const BAND = band({ head: '上代 1,980円', parts: [{ w: 65, text: `下代 ${fmt(ZK.gedai)}円` }, { w: 35, kind: 'alt', text: `粗利 ${ZK.profit}円` }], ruler: [[0, '0'], [65, fmt(ZK.gedai)], [100, '1,980']], ans: `6.5掛けの粗利率 → <b>35％</b>`, label: `上代1,980円の帯を、6.5掛けの下代${fmt(ZK.gedai)}円と粗利${ZK.profit}円に分けた図` });
 
 const FAQS = [
   {
@@ -71,25 +78,20 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">上代を入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>下代 ＝ 上代 × 掛け率</span>
-<span>掛け率 ＝ 下代 ÷ 上代 × 100</span>
-<span>粗利 ＝ 上代 − 下代</span>
-</div>
-<p>例：上代1,980円の6.5掛けは、1,980 × 0.65 ＝ 1,287円です。上代で売ると、粗利は693円です。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'examples',
   '上代と掛け率の早見表',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">上代</th>${KAKE_TILES.map((p) => `<th class="num">${kakeText(p)}掛け</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}

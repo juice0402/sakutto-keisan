@@ -10,6 +10,7 @@ import { SEISOU_WORKS, SEISOU_SRC } from '../lib/seisou.mjs';
 import { mitsumori, mitsuKeihi, mitsuMeyasu, MITSU_KAISU } from '../lib/mitsumori.mjs';
 import { ROUMU_TANKA, SEISOU_KEIHI } from '../data/seisou-tanka.mjs';
 import { fmt, yenBand } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('seisou-mitsumori');
 const path = '/seisou-mitsumori/';
@@ -34,6 +35,11 @@ const YEAR_TILES = `<div class="tiles tiles-5" role="group" aria-label="回数�
 // 計算例：300㎡を目安の事務室の㎡単価で週5回（説明文・計算式・よくある質問で使う）
 const EX = mitsumori({ area: 300, price: OFFICE.price, month: null, year: 260, out: 'month' });
 const EX_WASH = mitsumori({ area: 100, price: WASH.price, month: null, year: 12, out: 'month' });
+// 図解（#83）：面積・㎡単価・回数から1か月の料金の絵の式と、㎡単価を人件費と経費に分けた帯。数字は tests/zukai-shigoto.test.mjs
+export const Z_MITSU = { once: EX.once, month: EX.month, yearly: EX.yearly, price: OFFICE.price, labor: OFFICE.labor };
+const ZUKAI = stair(zBox(`300㎡ × ㎡単価${fmt(OFFICE.price, 1)}円`, '年260回'), { b: '× 260 ÷ 12', small: `週5回・1回 ${fmt(EX.once)}円` }, zBox('1か月の料金', `${fmt(EX.month)}円`, true), ['1回の料金 ＝ 面積 × ㎡単価', '1か月の料金 ＝ 1回の料金 × 1年の回数 ÷ 12', `例：300㎡を㎡単価${fmt(OFFICE.price, 1)}円で週5回なら、1回は${fmt(EX.once)}円です。1年260回なので、1か月は${fmt(EX.month)}円、1年は${fmt(EX.yearly)}円になります。`], `1年なら <b class="fz-red">${fmt(EX.yearly)}円</b>`);
+const mw = Number(((OFFICE.labor / OFFICE.price) * 100).toFixed(1));
+const BAND = band({ head: `事務室の日常清掃 ㎡単価 ${fmt(OFFICE.price, 1)}円`, parts: [{ w: mw, text: `人件費 ${fmt(OFFICE.labor, 2)}円` }, { w: Number((100 - mw).toFixed(1)), kind: 'alt', text: '経費' }], ruler: [[0, '0'], [100, `${fmt(OFFICE.price, 1)}円`]], ans: `人件費 × ${fmt(KEIHI, 2)} → ㎡単価 <b>${fmt(OFFICE.price, 1)}円</b>`, label: `㎡単価${fmt(OFFICE.price, 1)}円の帯を、人件費${fmt(OFFICE.labor, 2)}円と経費に分けた図` });
 const EX_REV = mitsumori({ area: 200, price: null, month: 20000, year: 52, out: 'price' });
 
 const WORK_ROWS = WORKS.map(
@@ -110,18 +116,14 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">回数をえらんでください</span><span id="r-tax"></span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>1回の料金 ＝ 面積 × ㎡単価</span>
-<span>1か月の料金 ＝ 1回の料金 × 1年の回数 ÷ 12</span>
-</div>
-<p>例：300㎡を㎡単価${fmt(OFFICE.price, 1)}円で週5回なら、1回は${fmt(EX.once)}円です。1年260回なので、1か月は${fmt(EX.month)}円、1年は${fmt(EX.yearly)}円になります。</p>
+  `${ZUKAI}
 <p>床洗浄を月1回なら、100㎡で1回${fmt(EX_WASH.once)}円が、そのまま1か月の料金です。</p>`,
 )}
 
@@ -133,7 +135,7 @@ ${section(
 </div>
 <p>歩掛りは、100㎡を1回掃除するのに何人いるかで、<a href="/seisou-jikan/">清掃の作業時間の計算</a>と同じ数字です。清掃員の単価は、国土交通省の${ROUMU_TANKA.year}建築保全業務労務単価の清掃員の全国平均で、1日8時間あたり${fmt(WAGE)}円です。</p>
 <p>${fmt(KEIHI, 2)}は、人件費に物品費・業務管理費・一般管理費等をのせる割合です。島根県の清掃業務委託料算定要領の率のまん中の値（物品費${SEISOU_KEIHI.goods}％・業務管理費${SEISOU_KEIHI.manage}％・一般管理費等${SEISOU_KEIHI.general}％）を順にかけています。</p>
-<div class="tbl-wrap"><table>
+${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>作業</th><th class="num">歩掛り</th><th class="num">人件費</th><th class="num">㎡単価</th></tr></thead>
 <tbody>
 ${WORK_ROWS}

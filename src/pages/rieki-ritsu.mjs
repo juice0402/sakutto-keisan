@@ -4,6 +4,16 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
+import { rieki, pctText } from '../lib/rieki.mjs';
+import { fmt } from '../lib/number.mjs';
+
+// 図解（#83）：原価と利益率から売値の絵の式と、売値の帯を原価と利益に分けた図。数字は tests/zukai-shigoto.test.mjs
+const ZR = rieki({ price: null, cost: 1000, rate: 30, out: 'price' });
+export const Z_RIEKI = { price: ZR.price, profit: ZR.profit, rate: pctText(ZR.rate) };
+const ZUKAI = stair(zBox('原価', '1,000円'), { b: '÷（1 − 0.3）', small: '利益率30％にしたい' }, zBox('売値', `${fmt(ZR.price)}円`, true), ['利益 ＝ 売値 − 原価', '利益率 ＝ 利益 ÷ 売値 × 100', '売値 ＝ 原価 ÷（1 − 利益率）', `例：原価1,000円で利益率30％にしたいときの売値は、1,000 ÷ 0.7 ＝ 1,428.5… で、1円未満を切り上げて${fmt(ZR.price)}円です。`], `利益 <b class="fz-red">${fmt(ZR.profit)}円</b>`);
+const rw = Number(((1000 / ZR.price) * 100).toFixed(1));
+const BAND = band({ head: `売値 ${fmt(ZR.price)}円`, parts: [{ w: rw, text: '原価 1,000円' }, { w: Number((100 - rw).toFixed(1)), kind: 'alt', text: `利益 ${ZR.profit}円` }], ruler: [[0, '0'], [rw, '1,000'], [100, fmt(ZR.price), true]], ans: `${fmt(ZR.profit)} ÷ ${fmt(ZR.price)} → 利益率 <b>${Z_RIEKI.rate}％</b>`, label: `売値${fmt(ZR.price)}円の帯を、原価1,000円と利益${ZR.profit}円に分けた図` });
 
 const tool = toolBySlug('rieki-ritsu');
 const path = '/rieki-ritsu/';
@@ -53,25 +63,20 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">3つのうち2つを入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>利益 ＝ 売値 − 原価</span>
-<span>利益率 ＝ 利益 ÷ 売値 × 100</span>
-<span>売値 ＝ 原価 ÷（1 − 利益率）</span>
-</div>
-<p>例：原価1,000円で利益率30％にしたいときの売値は、1,000 ÷ 0.7 ＝ 1,428.5… で、1円未満を切り上げて1,429円です。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>原価</th><th class="num">利益率</th><th class="num">売値</th></tr></thead>
 <tbody>
 <tr><td>1,000円</td><td class="num">20％</td><td class="num">1,250円</td></tr>

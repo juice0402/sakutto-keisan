@@ -1,9 +1,11 @@
 import { okuizome } from '../lib/gyoji.mjs';
 import { $ } from './ui.mjs';
 import { gyMd, gyNote, gyCal, gyWeekend, gyDaysFromToday } from './gyoji-ui.mjs';
-import { memoOnly, cmYmd } from './choimemo.mjs';
+import { weekdayOf } from '../lib/hizuke.mjs';
+import { choiMemo, cmYmd } from './choimemo.mjs';
+import { imgCal } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('okuizome.png');
 
 // お食い初め：生年月日から、生まれた日を1日目に数えた100日目（日めくり）と、前後の土日・120日目・生後100日
 function update() {
@@ -26,7 +28,13 @@ function update() {
   $('d-120').textContent = gyMd(res.d120);
   $('d-100b').textContent = gyMd(res.d100b);
   $('r-foot').textContent = '';
-  memo({ q: `${cmYmd($('birth').value)}生まれ`, a: `お食い初め ${res.d100.y}年${gyMd(res.d100)}` });
+  const d = res.d100;
+  const wd = weekdayOf(d);
+  memo({
+    q: `${cmYmd($('birth').value)}生まれ`,
+    a: `お食い初め ${d.y}年${gyMd(d)}`,
+    img: () => imgCal({ start: `${cmYmd($('birth').value)}生まれのお食い初め`, ym: `${d.y}年${d.m}月`, d: String(d.d), w: `${wd}曜日`, wColor: wd === '日' ? 'sun' : wd === '土' ? 'sat' : '', num: '100', unit: '日目', note: '数え方は、地域や家によってちがいます' }),
+  });
 }
 
 $('birth').addEventListener('input', update);

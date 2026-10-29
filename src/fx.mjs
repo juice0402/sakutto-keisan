@@ -22,6 +22,7 @@ export const qtyTiles = (labelId) =>
       `<button type="button" class="tile" data-qty="${v}" aria-pressed="false"><b>${v >= 10000 ? `${v / 10000}万` : v.toLocaleString('ja-JP')}</b><small>通貨</small></button>`,
   ).join('')}<div class="tile tile-input" id="f-qty"><div class="tile-box"><input id="qty" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" placeholder="?" aria-describedby="${labelId}"><span>万</span></div><label for="qty">その他</label></div></div>`;
 
+// 画像で送るは、口座のお金が絵に出ないスワップだけ（#83）
 export const noteAndNoscript = (tool) => `<p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool, tool.slug === 'fx-swap')}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>`;

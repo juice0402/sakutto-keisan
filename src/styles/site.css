@@ -1148,6 +1148,10 @@ h1 {
 .fz-ym { margin-top: 5%; color: #fff; }
 .fz-cal b { margin-top: auto; font-size: 44px; line-height: 1; }
 .fz-cal span:last-child { margin: 4px 0 14%; }
+.fz-calm { background-image: url(/img/himekuri-calm.webp); }
+.fz-calm:last-child b { font-size: 54px; }
+.fz-calm-f .fz-op { color: var(--text); }
+.fz-calm-f .fz-op path { stroke: var(--text); }
 .fz-red { color: var(--red); }
 .fz-tks { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; width: 100%; }
 .fz-tk { padding: 6px 8px; background: var(--sheet); border: 2px dashed var(--text); font-weight: 800; font-size: 18px; }
@@ -1174,6 +1178,10 @@ h1 {
 .fz2-ruler span:last-child { transform: translateX(-100%); }
 .fz2-ans { margin: 8px 0 0; font-size: 16px; font-weight: 700; }
 .fz2-ans b { color: var(--red); font-size: 22px; padding: 0 6px; border: 2.5px solid var(--red); border-radius: 50% 45% 50% 48%; white-space: nowrap; }
+/* FX の暗いリフィル（#83）：箱と帯の白を紙の色に、赤ペンを金のペンに */
+[data-theme="fx"] .fz-box, [data-theme="fx"] .fz2-bar, [data-theme="fx"] .fz2-alt, [data-theme="fx"] .fz2-off span { background: var(--surface); }
+[data-theme="fx"] .fz2-pay { background: var(--note2); }
+[data-theme="fx"] .fz-op path, [data-theme="fx"] .fz2-off line { stroke: var(--red); }
 .fz-masu { display: block; width: 100%; max-width: 220px; margin: 4px 0 8px; }
 .fz-masu rect { fill: #fff; stroke: #9db4cf; stroke-width: 1; }
 .fz-masu rect.on { fill: #f6d4d7; stroke: var(--red); stroke-width: 2; }

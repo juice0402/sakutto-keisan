@@ -8,6 +8,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField, dateField } from '../fields.mjs';
 import { weekdayOf, warekiOfYear } from '../lib/hizuke.mjs';
 import { shichigosan, yakuOfYear, chojuOfYear, okuizome, shijuku } from '../lib/gyoji.mjs';
+import { stair, zBox, zCal } from '../zukai.mjs';
 import { SHICHIGOSAN_SOURCES, YAKU_SOURCES, CHOJU_SOURCES, OKUIZOME_SOURCES, SHIJUKU_SOURCES, CHOJU, NENKI, CHUIN } from '../data/gyoji.mjs';
 
 const Y = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', year: 'numeric' }).format(new Date()));
@@ -16,6 +17,16 @@ const wa = (y) => warekiOfYear(y).text;
 const born = (y) => `${y}年<small>${wa(y)}</small>`;
 const srcList = (list, note) =>
   `<ul class="src-list">${list.map((s) => `<li><a href="${esc(s.url)}" rel="noopener">${esc(s.name)}</a></li>`).join('')}</ul>\n<p>2026年10月27日に確認しました。${note}</p>`;
+// 図解（#83）：行事ごとの流れの図（入れるもの → 決まりの短い言葉 → 答え）。数え方が神社・お寺・地域でちがうことは図の下の文にも書く
+// 図の数字は tests/zukai-shigoto.test.mjs
+const calOf = (d, w, ans = false, calm = false) => zCal(`${d.y}年${d.m}月`, d.d, w, ans, calm);
+export const Z_GYOJI = {
+  shichi: { born: Y - 3, man3: Y, kazoe3: Y - 1 },
+  yaku: { born: Y - 41, hon: Y, mae: Y - 1, ato: Y + 1 },
+  choju: { born: Y - 60, kanreki: Y, kokiKazoe: Y - 60 + 69, kokiMan: Y - 60 + 70 },
+  okui: okuizome(`${Y}-01-01`).d100,
+  shiju: shijuku(`${Y}-10-01`).day49,
+};
 const NOSCRIPT = '<noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>';
 const sexSeg = (id, label, a, b) =>
   `<div class="seg seg-2" role="group" aria-label="${label}" id="${id}"><button type="button" class="seg-btn" data-sex="${a[0]}" aria-pressed="false">${a[1]}</button><button type="button" class="seg-btn" data-sex="${b[0]}" aria-pressed="false">${b[1]}</button></div>`;
@@ -30,7 +41,7 @@ function out(slug, { title, description, lead, calc, rest, faqs, sources, ld, sc
 <div class="calc" id="calc">
 ${calc}
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
 ${rest}
@@ -99,11 +110,7 @@ ${rows.join('\n')}
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>数え年の◯歳の年 ＝ 生まれた年 ＋ ◯ − 1</span>
-<span>満年齢の◯歳の年 ＝ 生まれた年 ＋ ◯</span>
-</div>
-<p>例：${Y - 3}年生まれの女の子の3歳は、数え年なら${Y - 1}年、満年齢なら${Y}年です。7歳は、満年齢なら${ex7}年です。</p>`,
+  stair(zBox('女の子の生まれた年', `${Y - 3}年`), { b: '＋3年', small: '満年齢で。数え年なら＋2年' }, zBox('3歳の七五三', `${Y}年`, true), ['数え年の◯歳の年 ＝ 生まれた年 ＋ ◯ − 1', '満年齢の◯歳の年 ＝ 生まれた年 ＋ ◯', `例：${Y - 3}年生まれの女の子の3歳は、数え年なら${Y - 1}年、満年齢なら${Y}年です。7歳は、満年齢なら${ex7}年です。`, 'どちらで祝うかは、神社によってちがいます。'], `数え年なら${Y - 1}年・7歳は満年齢で<b class="fz-red">${ex7}年</b>`),
 )}
 
 ${section('table', `${Y}年と${Y + 1}年の七五三早見表`, `${yearTable(Y)}${yearTable(Y + 1)}`)}
@@ -156,11 +163,7 @@ ${yakuOfYear(y, sex).map((r) => `<tr><td>${ageLabel(r)}</td><td class="num">${bo
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>数え年 ＝ 今年 − 生まれた年 ＋ 1</span>
-<span>本厄の年 ＝ 生まれた年 ＋ 厄年の歳 − 1</span>
-</div>
-<p>例：${Y - 41}年生まれの男性は、${Y}年に数え42歳で本厄（大厄）です。前厄は${Y - 1}年、後厄は${Y + 1}年です。</p>`,
+  stair(zBox('男性・生まれた年', `${Y - 41}年`), { b: '数え42歳', small: '生まれた年を1歳と数える' }, zBox('本厄（大厄）', `${Y}年`, true), ['数え年 ＝ 今年 − 生まれた年 ＋ 1', '本厄の年 ＝ 生まれた年 ＋ 厄年の歳 − 1', `例：${Y - 41}年生まれの男性は、${Y}年に数え42歳で本厄（大厄）です。前厄は${Y - 1}年、後厄は${Y + 1}年です。`, '厄年の歳は、神社やお寺によってちがうことがあります。'], `前厄 ${Y - 1}年・後厄 ${Y + 1}年`),
 )}
 
 ${section(
@@ -211,11 +214,7 @@ function renderChoju() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>数え年で祝う年 ＝ 生まれた年 ＋ 歳 − 1</span>
-<span>満年齢で祝う年 ＝ 生まれた年 ＋ 歳</span>
-</div>
-<p>例：${Y - 60}年生まれの人は、${Y}年が還暦です。古希は数え年なら${Y - 60 + 69}年、満年齢なら${Y - 60 + 70}年です。</p>`,
+  stair(zBox('生まれた年', `${Y - 60}年`), { b: '＋60年', small: '満60歳・数え61歳は同じ年' }, zBox('還暦', `${Y}年`, true), ['数え年で祝う年 ＝ 生まれた年 ＋ 歳 − 1', '満年齢で祝う年 ＝ 生まれた年 ＋ 歳', `例：${Y - 60}年生まれの人は、${Y}年が還暦です。古希は数え年なら${Y - 60 + 69}年、満年齢なら${Y - 60 + 70}年です。`, '数え年で祝うか満年齢で祝うかは、資料によってちがいます。'], `古希は数え年なら${Y - 60 + 69}年・満年齢なら${Y - 60 + 70}年`),
 )}
 
 ${section(
@@ -291,11 +290,7 @@ function renderOkuizome() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>100日目 ＝ 生まれた日 ＋ 99日</span>
-<span>120日目 ＝ 生まれた日 ＋ 119日</span>
-</div>
-<p>例：${Y}年1月1日生まれなら、100日目は${md(ex.d100)}、120日目は${md(ex.d120)}です。</p>`,
+  stair(zCal(`${Y}年1月`, 1, '生まれた日＝1日目'), { b: '＋99日', small: '生まれた日を1日目に数える' }, calOf(ex.d100, `${weekdayOf(ex.d100)}曜日・100日目`, true), ['100日目 ＝ 生まれた日 ＋ 99日', '120日目 ＝ 生まれた日 ＋ 119日', `例：${Y}年1月1日生まれなら、100日目は${md(ex.d100)}、120日目は${md(ex.d120)}です。`, '日にちの数え方は、地域や家によってちがうことがあります。']),
 )}
 
 ${section(
@@ -355,11 +350,7 @@ function renderShijuku() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>四十九日 ＝ 亡くなった日 ＋ 48日</span>
-<span>◯回忌 ＝ 亡くなった年 ＋（◯ − 1）年</span>
-</div>
-<p>例：${Y}年10月1日に亡くなったときは、初七日が${md(ex.chuin[0].date)}、四十九日が${md(ex.day49)}です。</p>`,
+  `<div class="fz-calm-f">${stair(zCal(`${Y}年10月`, 1, '亡くなった日＝1日目', false, true), { b: '＋48日', small: '亡くなった日を1日目に数える' }, calOf(ex.day49, `${weekdayOf(ex.day49)}曜日・四十九日`, true, true), ['四十九日 ＝ 亡くなった日 ＋ 48日', '◯回忌 ＝ 亡くなった年 ＋（◯ − 1）年', `例：${Y}年10月1日に亡くなったときは、初七日が${md(ex.chuin[0].date)}、四十九日が${md(ex.day49)}です。`, '数え方は、宗派や地域によってちがいます。'])}</div>`,
 )}
 
 ${section(

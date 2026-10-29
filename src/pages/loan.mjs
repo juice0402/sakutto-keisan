@@ -7,6 +7,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { loan } from '../lib/loan.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('loan');
 const path = '/loan/';
@@ -17,6 +18,12 @@ const RATES = [0.5, 1, 1.5, 2];
 const YEARS = [25, 35];
 const QUICK_ROWS = RATES.map((r) => `<tr><td class="num">${r}％</td>${YEARS.map((y) => `<td class="num">${fmt(loan({ man: 3000, rate: r, years: y }).monthly)}</td>`).join('')}</tr>`).join('\n');
 const EX = loan({ man: 3000, rate: 1, years: 35 });
+// 図解（#83）：借りる額と金利から毎月の返済の絵の式と、返済総額の帯を元金と利息に分けた図。数字は tests/zukai-shigoto.test.mjs
+const man = (x) => fmt(Math.round(x / 10000));
+export const Z_LOAN = { monthly: EX.monthly, total: man(EX.total), interest: man(EX.interest) };
+const ZUKAI = stair(zBox('3,000万円・35年（420回）', '金利 年1％'), { b: '元利均等', small: '毎月同じ額を返す' }, zBox('毎月の返済', `約${fmt(EX.monthly)}円`, true), ['毎月の返済 ＝ 借りる額 × 月利 × B', 'B ＝ A ÷（A − 1）', 'A ＝（1 ＋ 月利）を回数だけかけた数', '月利 ＝ 年利 ÷ 12', `例：3,000万円を金利1％・35年（420回）で借りると、毎月の返済は約${fmt(EX.monthly)}円、利息の合計は約${man(EX.interest)}万円です。`], `返済総額 <b class="fz-red">約${man(EX.total)}万円</b>`);
+const lw = Number(((EX.principal / EX.total) * 100).toFixed(1));
+const BAND = band({ head: `返済総額 約${man(EX.total)}万円`, parts: [{ w: lw, text: '元金 3,000万円' }, { w: Number((100 - lw).toFixed(1)), kind: 'off', text: '利息' }], ruler: [[0, '0'], [100, `${man(EX.total)}万`, true]], ans: `金利1％・35年の利息 → <b>約${man(EX.interest)}万円</b>`, label: `返済総額約${man(EX.total)}万円の帯を、元金3,000万円と利息約${man(EX.interest)}万円に分けた図` });
 
 const FAQS = [
   {
@@ -64,26 +71,20 @@ export default function render() {
     <p class="doc-foot"><span id="r-foot">借りる額を入れてください</span></p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>毎月の返済 ＝ 借りる額 × 月利 × B</span>
-<span>B ＝ A ÷（A − 1）</span>
-<span>A ＝（1 ＋ 月利）を回数だけかけた数</span>
-<span>月利 ＝ 年利 ÷ 12</span>
-</div>
-<p>例：3,000万円を金利1％・35年（420回）で借りると、毎月の返済は約${fmt(EX.monthly)}円、利息の合計は約${fmt(Math.round(EX.interest / 10000))}万円です。</p>`,
+  ZUKAI,
 )}
 
 ${section(
   'quick',
   '3,000万円を借りたときの毎月の返済',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">金利</th>${YEARS.map((y) => `<th class="num">${y}年</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}

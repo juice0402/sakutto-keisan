@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { seisou, minText, hoursValue, SEISOU_FIELDS } from '../lib/seisou.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('seisou-jikan.png');
 
 // 清掃の作業時間：作業の速さ（1人1時間に掃除できる面積）は、作業のマスをえらぶと目安が入る。自分で入れてもよい。面積・人数・時間のうち2つから残りの1つを出す
 // 面積は現場で決まっていることが多いので、面積が入っていれば人数か時間のどちらかを答えにする（あとからさわったほうを残す）。
@@ -85,7 +86,19 @@ function update() {
     return;
   }
   $('r-total').textContent = `のべ ${minText(Math.ceil(res.personHours * 60))}`;
-  memo({ q: out === 'area' ? `${fmt(res.people, 0)}人で${minText(res.minutes)}` : `${fmt(res.area, 0)}㎡${out === 'people' ? `を${minText(res.minutes)}で` : `を${fmt(res.people, 0)}人で`}`, a: out === 'people' ? `${fmt(res.people, 0)}人` : out === 'area' ? `${fmt(res.area, 0)}㎡` : minText(res.minutes) });
+  const ans = out === 'people' ? `${fmt(res.people, 0)}人` : out === 'area' ? `${fmt(res.area, 0)}㎡` : minText(res.minutes);
+  memo({
+    q: out === 'area' ? `${fmt(res.people, 0)}人で${minText(res.minutes)}` : `${fmt(res.area, 0)}㎡${out === 'people' ? `を${minText(res.minutes)}で` : `を${fmt(res.people, 0)}人で`}`,
+    a: ans,
+    img: () => imgCard({
+      title: '作業指示書',
+      cap: CAP[out] || CAP.hours,
+      num: ans,
+      sub: out === 'people' ? `${fmt(res.people, 0)}人なら ${minText(res.minutes)}` : '',
+      rows: [['面積', `${fmt(res.area, 0)}㎡`], ['人数', `${fmt(res.people, 0)}人`], ['作業時間', minText(res.minutes)], ['1人あたり', `${fmt(res.perPerson, 0)}㎡`]],
+      notes: [`1人1時間 ${fmt(currentSpeed(), 0)}㎡で計算`],
+    }),
+  });
   if (out === 'people') {
     $('r-num').textContent = `${fmt(res.people, 0)}人`;
     $('r-foot').textContent = `${fmt(res.people, 0)}人なら ${minText(res.minutes)}`;

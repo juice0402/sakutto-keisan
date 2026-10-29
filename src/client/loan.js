@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { loan } from '../lib/loan.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figSegs, SEGS_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('loan.png');
 
 // ローンの計算：借りる額（万円）・金利（年）・返済の年数。結果は返済予定表
 const INPUTS = ['man', 'rate', 'years'].map((id) => $(id));
@@ -57,7 +58,21 @@ function update() {
   $('b-left').textContent = `元金 ${man(res.principal)}`;
   $('b-right').textContent = `利息 ${man(res.interest)}`;
   $('r-foot').textContent = '';
-  memo({ q: `${$('man').value}万円・金利${$('rate').value}％・${$('years').value}年`, a: `毎月${fmt(res.monthly, 0)}円` });
+  const q = `${$('man').value}万円・金利${$('rate').value}％・${$('years').value}年`;
+  memo({
+    q,
+    a: `毎月${fmt(res.monthly, 0)}円`,
+    img: () => imgCard({
+      title: '返済予定表',
+      cap: `${q}の毎月の返済`,
+      num: fmt(res.monthly, 0),
+      unit: '円',
+      sub: `${res.n}回・元利均等返済`,
+      fig: { draw: figSegs, h: SEGS_H, segs: [{ v: res.principal, tone: 'pale', text: '元金' }, { v: res.interest, tone: 'soft', text: '利息' }], full: res.total, ends: ['0', `返済総額 ${man(res.total)}`] },
+      rows: [['返済総額', man(res.total)], ['うち利息', man(res.interest)]],
+      notes: ['手数料・ボーナス払いは入れていない目安です'],
+    }),
+  });
 }
 
 numericOnly(INPUTS);
