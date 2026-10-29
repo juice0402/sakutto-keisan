@@ -11,6 +11,7 @@ import { POINT_EVENTS, POINT_SOURCES, POINT_MIN_YEN, POINT_MAX_SHOPS } from '../
 import { AMAZON_CARD, AMAZON_SOURCES } from '../data/amazon.mjs';
 import { shikumiPoints, SHIKUMI_SHOPS } from '../lib/shikumi.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 // お買い物マラソンの上限は、公式で確かめたいちばん新しい回の上限
@@ -18,6 +19,11 @@ const CAP = [...POINT_EVENTS].reverse().find((e) => e.cap)?.cap ?? 7000;
 const CFG = { items: SPU_ITEMS, base: SPU_BASE, dayRate: POINT_DAY.rate, dayCap: POINT_DAY.cap, cap: CAP, minYen: POINT_MIN_YEN, maxShops: POINT_MAX_SHOPS };
 const EX = shikumiPoints({ total: 30000, card: true, mobile: true, day: true, marathon: true }, CFG);
 const EX0 = shikumiPoints({ total: 30000 }, CFG);
+// 図解（#80）：買い物から3つのしくみを重ねてポイントへ（30,000円・4つ全部）と、ポイントの帯（いつもの1倍・SPU・キャンペーン）
+export const Z_SHIKUMI = { rate: EX.rate, points: EX.points, base: EX.base, spu: EX.spu, camp: EX.camp };
+const ZUKAI = stair(zBox('今月の買い物（税込）', `${fmt(EX.total)}円`), { b: `×${EX.rate}倍`, small: '3つのしくみを重ねる' }, zBox('ポイントの目安', `${fmt(EX.points)}ポイント`, true), ['ポイント ＝ いつもの1倍 ＋ SPU ＋ キャンペーン', 'いつもの1倍 ＝ 税抜の額 × 1%']);
+const kw = (x) => ((x / EX.points) * 100).toFixed(1);
+const BAND = band({ head: `今月${fmt(EX.total)}円・${EX.rate}倍`, parts: [{ w: kw(EX.base), kind: 'alt', text: '' }, { w: kw(EX.spu), text: `SPU ${fmt(EX.spu)}` }, { w: kw(EX.camp), kind: 'alt', text: fmt(EX.camp) }], ruler: [[0, '0'], [100, fmt(EX.points)]], ans: `3つを足して → <b>${fmt(EX.points)}ポイント</b>`, label: `ポイント${fmt(EX.points)}の帯を、いつもの1倍${fmt(EX.base)}・SPU${fmt(EX.spu)}・キャンペーン${fmt(EX.camp)}に分けた図` });
 
 const CHECKS = [
   ['card', '楽天カード', 'SPU +2倍'],
@@ -128,10 +134,7 @@ ${section(
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>ポイント ＝ いつもの1倍 ＋ SPU ＋ キャンペーン</span>
-<span>いつもの1倍 ＝ 税抜の額 × 1%</span>
-</div>
+  `${ZUKAI}${BAND}
 <p>SPUとキャンペーンは、税抜の額に倍率をかけて、それぞれの上限までにします。楽天カードの通常分だけは税込の額にかかります。お買い物マラソンは${SHIKUMI_SHOPS}店舗で＋${SHIKUMI_SHOPS - 1}倍、上限は${fmt(CAP)}ポイントとして計算しています。5と0のつく日の上限は1か月${fmt(POINT_DAY.cap)}ポイントです。</p>
 <p>例：今月の買い物が${fmt(EX.total)}円なら、いつもの1倍だけでは${fmt(EX0.points)}ポイントです。楽天カード・楽天モバイルを使って、5と0のつく日にお買い物マラソンで${SHIKUMI_SHOPS}店舗で買うと${EX.rate}倍で、${fmt(EX.points)}ポイントです。</p>`,
 )}

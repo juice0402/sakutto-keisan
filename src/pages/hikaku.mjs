@@ -12,12 +12,16 @@ import { AMAZON_CARD, AMAZON_SOURCES } from '../data/amazon.mjs';
 import { shikumiPoints, SHIKUMI_SHOPS } from '../lib/shikumi.mjs';
 import { amazonPoints } from '../lib/hikaku.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, zBox } from '../zukai.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 const CAP = [...POINT_EVENTS].reverse().find((e) => e.cap)?.cap ?? 7000;
 const CFG = { items: SPU_ITEMS, base: SPU_BASE, dayRate: POINT_DAY.rate, dayCap: POINT_DAY.cap, cap: CAP, minYen: POINT_MIN_YEN, maxShops: POINT_MAX_SHOPS };
 const EX_R = shikumiPoints({ total: 30000, card: true, day: true }, CFG);
 const EX_A = amazonPoints({ total: 30000, pct: 1, card: true, prime: true }, AMAZON_CARD);
+// 図解（#80）：同じ買い物から、楽天とAmazonの2枚のカードへ（30,000円）
+export const Z_HIKAKU = { r: EX_R.points, rRate: EX_R.rate, a: EX_A.points };
+const ZUKAI = stair(zBox('買い物（税込）', `${fmt(30000)}円`), { b: '×倍率・%', small: `楽天${EX_R.rate}倍・Amazon${1 + AMAZON_CARD.prime}%` }, `<div class="fz-tks">${zBox(`楽天 ${EX_R.rate}倍`, `${fmt(EX_R.points)}ポイント`, true)}${zBox(`Amazon ${1 + AMAZON_CARD.prime}%`, `${fmt(EX_A.points)}ポイント`, true)}</div>`, ['楽天 ＝ いつもの1倍 ＋ SPU ＋ キャンペーン', 'Amazon ＝ 商品のポイント ＋ Amazon Mastercard']);
 
 const CHECKS = [
   ['card', '楽天カード', 'SPU +2倍'],
@@ -98,10 +102,7 @@ export default function render() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>楽天 ＝ いつもの1倍 ＋ SPU ＋ キャンペーン</span>
-<span>Amazon ＝ 商品のポイント ＋ Amazon Mastercard</span>
-</div>
+  `${ZUKAI}
 <p>楽天は税抜の額に倍率をかけ、SPUとキャンペーンはそれぞれの上限までにします。Amazonは税込の額に、商品ページの%と、Amazon Mastercardの${AMAZON_CARD.normal}%か、プライム会員なら${AMAZON_CARD.prime}%をかけます。どちらも1ポイント未満は切り捨てです。</p>
 <p>例：${fmt(30000)}円を、楽天は楽天カードで5と0のつく日に買うと${EX_R.rate}倍で${fmt(EX_R.points)}ポイントです。Amazonはポイント1%の商品をプライム会員がAmazon Mastercardで買うと${fmt(EX_A.points)}ポイントです。</p>`,
 )}

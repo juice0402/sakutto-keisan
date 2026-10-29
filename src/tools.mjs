@@ -586,7 +586,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '年収と家族から、いくらまで寄付できるか',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['furusato-memo', 'furusato-henreihin', 'furusato-nenshu', 'furusato-fuufu', 'furusato-jougen', 'furusato-onestop', 'furusato-shimekiri'],
   },
   // 10/23 検索候補の調べ（claude/sakutto-chishiki-debate-2026-10-23.md）：寄付額から年収の目安
@@ -599,7 +599,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '寄付したい額に、年収がいくら必要か',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['furusato', 'furusato-fuufu', 'furusato-memo', 'furusato-jougen'],
   },
   {
@@ -611,7 +611,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '2人の年収から、それぞれの上限と合計',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['furusato', 'furusato-nenshu', 'furusato-memo', 'furusato-onestop'],
   },
   {
@@ -623,7 +623,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '寄付額が、所得税・住民税・自己負担にどう分かれるか',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['furusato', 'furusato-nenshu', 'furusato-onestop', 'furusato-jougen'],
   },
   {
@@ -633,7 +633,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '住民税の決定通知書の所得割から上限',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     more: true,
     related: ['furusato', 'furusato-seido', 'furusato-memo', 'furusato-onestop'],
   },
@@ -646,7 +646,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '寄付の記録と、残りの枠・自治体の数',
     published: true,
-    updated: '2026-10-22',
+    updated: '2026-10-29',
     related: ['furusato', 'furusato-henreihin', 'furusato-onestop', 'furusato-shimekiri', 'furusato-jougen'],
   },
   {
@@ -657,7 +657,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '出す申請書の数と、添えるコピー・期限',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['furusato-shimekiri', 'furusato-memo', 'furusato', 'furusato-jougen'],
   },
   {
@@ -669,7 +669,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '年内の寄付と申請書の期限まで、あと何日か',
     published: true,
-    updated: '2026-10-22',
+    updated: '2026-10-29',
     related: ['furusato-onestop', 'furusato-memo', 'furusato', 'nissu'],
   },
   {
@@ -723,7 +723,7 @@ export const TOOLS = [
     category: 'point',
     short: 'はじめての人向けに、ポイントがふえる3つのしくみ',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['point-spu', 'point', 'point-amazon', 'waribiki'],
   },
   {
@@ -734,7 +734,7 @@ export const TOOLS = [
     category: 'point',
     short: '同じ買い物で、どちらのポイントが多いか',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['point-shikumi', 'point-spu', 'point', 'waribiki'],
   },
   {
@@ -745,7 +745,7 @@ export const TOOLS = [
     category: 'point',
     short: '合計と店舗の数から、買いまわりの特典の目安',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['point-spu', 'point-taishou', 'point-shikumi', 'waribiki'],
   },
   // 10/23 討論で合意：買いまわりの1店舗の判定（数える店・数えない店）
@@ -757,7 +757,7 @@ export const TOOLS = [
     category: 'point',
     short: 'ふるさと納税・送料・クーポンは1店舗に数えるか',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['point', 'point-spu', 'point-shikumi', 'waribiki'],
   },
   // 10/23 しょーくん「SPU はしくみが複雑なので、最新情報としてすぐにページを」。倍率と上限は src/data/spu.mjs
@@ -769,7 +769,7 @@ export const TOOLS = [
     category: 'point',
     short: '使っているサービスから、倍率と上限',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-29',
     related: ['point', 'point-shikumi', 'waribiki', 'shohizei'],
   },
 ];

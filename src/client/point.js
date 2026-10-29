@@ -2,7 +2,7 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { marathonPoints } from '../lib/point.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
-import { imgCard } from './share-img.mjs';
+import { imgCard, figStamps, STAMPS_H } from './share-img.mjs';
 
 const memo = choiMemo('point.png');
 
@@ -86,7 +86,7 @@ function update() {
       num: fmt(res.bonus),
       unit: 'ポイント',
       sub: `${res.rate}倍`,
-      fig: { kind: 'stamps', n: Math.min(res.shops, MAX), max: MAX },
+      fig: { draw: figStamps, h: STAMPS_H, n: Math.min(res.shops, MAX), max: MAX },
       rows: [['合計（税込）', `${$('total').value}円`], ['店舗の数', `${res.shops}店舗`], ['通常', `${fmt(res.base)}ポイント`]],
       notes: ['目安です。付与は楽天の計算です'],
     }),

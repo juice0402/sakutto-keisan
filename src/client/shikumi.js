@@ -4,7 +4,7 @@ import { SPU_ITEMS, SPU_BASE, POINT_DAY } from '../data/spu.mjs';
 import { POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
-import { imgCard } from './share-img.mjs';
+import { imgCard, figBars } from './share-img.mjs';
 
 const memo = choiMemo('shikumi.png');
 
@@ -50,7 +50,7 @@ function update() {
       num: fmt(res.points),
       unit: 'ポイント',
       sub: `${res.rate}倍`,
-      fig: { kind: 'bars', rows: [['camp', 'キャンペーン'], ['spu', 'SPU'], ['base', 'いつもの1倍']].map(([k, name]) => ({ k: name, v: res[k], text: fmt(res[k]), red: k === 'camp' })) },
+      fig: { draw: figBars, h: 3 * 64 + 20, rows: [['camp', 'キャンペーン'], ['spu', 'SPU'], ['base', 'いつもの1倍']].map(([k, name]) => ({ k: name, v: res[k], text: fmt(res[k]), red: k === 'camp' })) },
       rows: [['今月の買い物（税込）', `${$('total').value}円`]],
       notes: ['目安です。付与は楽天の計算です'],
     }),

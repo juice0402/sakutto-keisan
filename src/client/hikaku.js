@@ -6,7 +6,7 @@ import { POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { AMAZON_CARD } from '../data/amazon.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
-import { imgCard } from './share-img.mjs';
+import { imgCard, figBars } from './share-img.mjs';
 
 const memo = choiMemo('amazon.png');
 
@@ -62,7 +62,7 @@ function update() {
       cap: $('r-k').textContent,
       num: fmt(Math.abs(diff)),
       unit: 'ポイント',
-      fig: { kind: 'bars', rows: [{ k: '楽天', v: r.points, text: fmt(r.points), red: diff > 0 }, { k: 'Amazon', v: a.points, text: fmt(a.points), red: diff < 0 }] },
+      fig: { draw: figBars, h: 2 * 64 + 20, rows: [{ k: '楽天', v: r.points, text: fmt(r.points), red: diff > 0 }, { k: 'Amazon', v: a.points, text: fmt(a.points), red: diff < 0 }] },
       rows: [['買い物の額', `${$('total').value}円`], ['楽天の倍率', `${r.rate}倍`], ['Amazon', `${Math.round(aRate * 100) / 100}%`]],
       notes: ['目安です。キャンペーンは入れていません'],
     }),

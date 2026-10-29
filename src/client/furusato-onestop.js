@@ -3,7 +3,7 @@ import { onestopPlan, furusatoDeadlines, ONESTOP_MAX, ONESTOP_CITIES_MAX } from 
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { $, enterToNext, numericOnly, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
-import { imgCard } from './share-img.mjs';
+import { imgCard, figEnvs, ENVS_H } from './share-img.mjs';
 
 const memo = choiMemo('onestop.png');
 
@@ -82,7 +82,7 @@ function update() {
         num: String(res.envelopes),
         unit: '通',
         sub: `${jd(DL.onestop.date)}必着`,
-        fig: { kind: 'envs', n: res.cities, max: ONESTOP_MAX },
+        fig: { draw: figEnvs, h: ENVS_H, n: res.cities, max: ONESTOP_MAX },
         rows: [['期限まで', $('r-left').textContent], ['出す先', '寄付した自治体']],
         notes: ['封筒の中：申請書（寄付ごとに1枚）', ...res.copies],
       }),
@@ -104,7 +104,7 @@ function update() {
         cap: '特例は',
         num: '使えません',
         sub: $('r-due').textContent,
-        fig: res.reason === 'over' ? { kind: 'envs', n: res.cities, max: ONESTOP_MAX } : null,
+        fig: res.reason === 'over' ? { draw: figEnvs, h: ENVS_H, n: res.cities, max: ONESTOP_MAX } : null,
         rows: [['申告の期間', `${DL.kakutei.from.y}年${kakuteiSpan}`]],
         notes: ['確定申告に、その年の寄付をぜんぶ書きます'],
       }),

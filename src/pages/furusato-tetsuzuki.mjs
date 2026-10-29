@@ -12,6 +12,7 @@ import { FURUSATO_TETSUZUKI_SOURCES } from '../data/furusato.mjs';
 import { kakuteiEnd, ONESTOP_MAX } from '../lib/furusato-tetsuzuki.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { MEMO_MAX_ROWS, MEMO_NAME_MAX } from '../lib/furusato-memo.mjs';
+import { stair, band, zBox, zCal } from '../zukai.mjs';
 
 const YEAR = 2026; // 寄付の年（本文の表。1月1日に次の年へ。src/pages/furusato.mjs と同じ）
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8))}日`;
@@ -22,6 +23,18 @@ const SOURCES = `<ul class="src-list">${FURUSATO_TETSUZUKI_SOURCES.map(
   (s) => `<li><a href="${s.url}" rel="noopener">${esc(s.name)}</a>（${esc(s.what)}、${jaDate(s.checked)}に確認）</li>`,
 ).join('')}</ul>
 <p>個人で作っているツールで、税理士の監修ではありません。最後は寄付先の自治体や、住んでいる市区町村で確かめてください。</p>`;
+
+// 図解（#80）：決まりの流れ（ワンストップ特例・締め切り）と、寄付メモののこり
+const JAN10 = { y: YEAR + 1, m: 1, d: 10 };
+const DEC31 = { y: YEAR, m: 12, d: 31 };
+const OS_ZUKAI = stair(zBox('寄付先', '3つの自治体'), { b: '1つに1通', small: '5つまで・確定申告しない' }, zCal(`${JAN10.y}年1月`, 10, `${weekdayOf(JAN10)}曜日・3通必着`, true), [`申請書の数 ＝ 寄付した自治体の数（${ONESTOP_MAX}つまで）`, '期限 ＝ 寄付した翌年の1月10日必着', `例：${YEAR}年に3つの自治体へ寄付したら、${dw(JAN10)}までに3通が届くように出します。`]);
+const SK_ZUKAI = stair(zCal(`${YEAR}年12月`, 31, `${weekdayOf(DEC31)}曜日・入金`), { b: '翌年', small: '申請書は1月10日必着' }, zCal(`${JAN10.y}年1月`, 10, `${weekdayOf(JAN10)}曜日・必着`, true), ['年内の寄付 ＝ 12月31日までに入金・決済', 'ワンストップ特例の申請書 ＝ 翌年1月10日必着', '確定申告 ＝ 翌年2月16日〜3月15日']);
+export const Z_MEMO = { limit: 57000, gifts: [10000, 20000], left: 57000 - 10000 - 20000 };
+const MZ = Z_MEMO;
+const yen = (x) => `${x.toLocaleString('ja-JP')}円`;
+const MEMO_ZUKAI = stair(zBox('上限の目安', yen(MZ.limit)), { b: `− ${yen(MZ.gifts[0] + MZ.gifts[1])}`, small: `${yen(MZ.gifts[0])} ＋ ${yen(MZ.gifts[1])}` }, zBox('のこり', yen(MZ.left), true), ['のこり ＝ 上限の目安 − 寄付の合計', `例：上限の目安が${yen(MZ.limit)}で、${yen(MZ.gifts[0])}と${yen(MZ.gifts[1])}を寄付したら、のこりは${yen(MZ.left)}です。`]);
+const mw = (x) => ((x / MZ.limit) * 100).toFixed(1);
+const MEMO_BAND = band({ head: `上限の目安 ${yen(MZ.limit)}`, parts: [{ w: mw(MZ.gifts[0]), text: '' }, { w: mw(MZ.gifts[1]), text: '寄付' }, { w: mw(MZ.left), kind: 'alt', text: 'のこり' }], ruler: [[0, '0'], [100, yen(MZ.limit)]], ans: `寄付${yen(MZ.gifts[0] + MZ.gifts[1])}で、のこり → <b>${yen(MZ.left)}</b>`, label: `上限の目安${yen(MZ.limit)}の帯を、寄付${yen(MZ.gifts[0])}と${yen(MZ.gifts[1])}と、のこり${yen(MZ.left)}に分けた図` });
 
 const crumbs = (tool, path) => [
   { name: 'ホーム', path: '/' },
@@ -111,6 +124,8 @@ function renderOnestop() {
   ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
+
+${section('formula', '計算のしかた', OS_ZUKAI)}
 
 ${section(
   'items',
@@ -223,7 +238,7 @@ function renderShimekiri() {
 ${section(
   'table',
   `${YEAR}年の寄付の締め切り`,
-  `<div class="tbl-wrap"><table class="tbl-text">
+  `${SK_ZUKAI}<div class="tbl-wrap"><table class="tbl-text">
 <thead><tr><th>こと</th><th>期限</th></tr></thead>
 <tbody>
 <tr><td class="nw">寄付の入金</td><td>${dw({ y: YEAR, m: 12, d: 31 })}</td></tr>
@@ -331,10 +346,7 @@ function renderMemo() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>のこり ＝ 上限の目安 − 寄付の合計</span>
-</div>
-<p>例：上限の目安が57,000円で、10,000円と20,000円を寄付したら、のこりは27,000円です。</p>
+  `${MEMO_ZUKAI}${MEMO_BAND}
 <p>のこりが2,000円より少ないときは、寄付しても控除が増えないことがあります。上限は目安なので、ぎりぎりまで寄付しないほうが、こえる心配が減ります。</p>`,
 )}
 

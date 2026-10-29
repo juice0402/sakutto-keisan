@@ -2,7 +2,7 @@ import { furusatoDeadlines } from '../lib/furusato-tetsuzuki.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { $ } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
-import { imgCard } from './share-img.mjs';
+import { imgCard, figCals, CALS_H } from './share-img.mjs';
 
 const memo = choiMemo('shimekiri.png');
 
@@ -42,7 +42,7 @@ function update() {
       num: String(near.days),
       unit: '日',
       sub: `今日 ${jd(TODAY)}`,
-      fig: { kind: 'cals', cals: shown.map((x) => ({ what: WHAT[x.key], ym: `${x.date.y}年${x.date.m}月`, d: x.date.d, w: weekdayOf(x.date), left: x.days > 0 ? `あと${x.days}日` : '今日まで', red: x === near })) },
+      fig: { draw: figCals, h: CALS_H, cals: shown.map((x) => ({ what: WHAT[x.key], ym: `${x.date.y}年${x.date.m}月`, d: x.date.d, w: weekdayOf(x.date), left: x.days > 0 ? `あと${x.days}日` : '今日まで', red: x === near })) },
       rows: [[$('d-k-0').textContent, $('d-v-0').textContent.replace(/（.）/, '')], [$('d-k-1').textContent, $('d-v-1').textContent]],
     }),
   });

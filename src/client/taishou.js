@@ -2,7 +2,7 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { countJudge } from '../lib/taishou.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
-import { imgCard } from './share-img.mjs';
+import { imgCard, figSegs, SEGS_H } from './share-img.mjs';
 
 const memo = choiMemo('taishou.png');
 
@@ -46,7 +46,7 @@ function update() {
       title: '買いまわりの1店舗',
       cap: document.querySelector(`.tile[data-kind="${kind}"] b`).textContent,
       num: ANSWER[res.status],
-      fig: res.judge === null ? null : { kind: 'segs', full: MIN * 2, segs: [{ v: Math.min(res.judge, MIN * 2), tone: res.enough ? 'red' : 'pale' }], mark: { v: MIN, text: `${fmt(MIN)}円` }, ends: ['0', `数える額 ${fmt(res.judge)}円`] },
+      fig: res.judge === null ? null : { draw: figSegs, h: SEGS_H, full: MIN * 2, segs: [{ v: Math.min(res.judge, MIN * 2), tone: res.enough ? 'red' : 'pale' }], mark: { v: MIN, text: `${fmt(MIN)}円` }, ends: ['0', `数える額 ${fmt(res.judge)}円`] },
       rows: [['商品の値段', `${$('price').value}円`], ['クーポン', $('coupon').value ? `${$('coupon').value}円` : '—']],
       notes: [WHY[kind] || (res.enough ? '1,000円以上なので1店舗です' : `あと${fmt(res.short)}円で1店舗です`)],
     }),
