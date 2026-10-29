@@ -464,6 +464,186 @@ export function imgBottle({ label, share, conc, water, total, concName, ratio, c
   });
 }
 
+/** カードの絵（下の imgCard の fig）の高さ */
+const FIG_H = { stamps: 170, segs: 120, bars: 0, envs: 100, cals: 330 };
+
+/** 絵の部分：stamps＝10マスに赤い丸、segs＝1本の帯（mark は点線）、bars＝くらべる棒、envs＝封筒、cals＝日めくり2枚 */
+function imgFig(g, c, f, y) {
+  const x0 = IMG_X0 + 40;
+  const x1 = IMG_X1 - 40;
+  g.lineWidth = 2;
+  if (f.kind === 'stamps') {
+    const cols = 5;
+    const step = (x1 - x0) / cols;
+    for (let i = 0; i < f.max; i++) {
+      const cx = x0 + step * (i % cols) + step / 2;
+      const cy = y + 40 + Math.floor(i / cols) * 80;
+      g.strokeStyle = c.rule;
+      g.lineWidth = 2;
+      g.strokeRect(cx - 30, cy - 30, 60, 60);
+      g.fillStyle = i < f.n ? c.ink : c.muted;
+      imgText(g, String(i + 1), cx, cy + 9, { w: 800, size: 24, max: 50, align: 'center' });
+      if (i < f.n) {
+        g.strokeStyle = c.red;
+        g.lineWidth = 4;
+        g.beginPath();
+        g.ellipse(cx, cy, 27, 25, -0.3, 0, Math.PI * 2);
+        g.stroke();
+      }
+    }
+  } else if (f.kind === 'segs') {
+    const h = 56;
+    const top = y + 10;
+    let x = x0;
+    f.segs.forEach((s) => {
+      const w = Math.max(0, ((x1 - x0) * s.v) / f.full);
+      g.fillStyle = { red: c.red, ink: c.ink, pale: '#dce9f7', soft: '#efb9bd' }[s.tone] || '#dce9f7';
+      g.fillRect(x, top, w, h);
+      if (s.text && w > 36) {
+        g.fillStyle = s.tone === 'red' || s.tone === 'ink' ? '#fff' : c.ink;
+        imgText(g, s.text, x + w / 2, top + h / 2 + 9, { w: 800, size: 24, max: w - 8, align: 'center' });
+      }
+      if (x > x0) {
+        g.strokeStyle = '#fff';
+        g.beginPath();
+        g.moveTo(x, top);
+        g.lineTo(x, top + h);
+        g.stroke();
+      }
+      x += w;
+    });
+    g.strokeStyle = c.ink;
+    g.lineWidth = 2;
+    g.strokeRect(x0, top, x1 - x0, h);
+    if (f.mark) {
+      const mx = x0 + ((x1 - x0) * f.mark.v) / f.full;
+      g.save();
+      g.setLineDash([6, 5]);
+      g.strokeStyle = c.red;
+      g.lineWidth = 2.5;
+      g.beginPath();
+      g.moveTo(mx, top - 8);
+      g.lineTo(mx, top + h + 8);
+      g.stroke();
+      g.restore();
+      g.fillStyle = c.red;
+      imgText(g, f.mark.text, mx, top + h + 40, { w: 800, size: 22, max: 200, align: 'center' });
+    }
+    if (f.ends) {
+      g.fillStyle = c.muted;
+      imgText(g, f.ends[0], x0, top + h + 40, { w: 700, size: 22, max: 160 });
+      imgText(g, f.ends[1], x1, top + h + 40, { w: 700, size: 22, max: 200, align: 'right' });
+    }
+  } else if (f.kind === 'bars') {
+    const max = Math.max(1, ...f.rows.map((r) => r.v));
+    const bx0 = IMG_X0 + 200;
+    const bx1 = IMG_X1 - 170;
+    f.rows.forEach((r, i) => {
+      const ry = y + 44 + i * 64;
+      g.fillStyle = r.red ? c.red : c.ink;
+      imgText(g, r.k, IMG_X0 + 30, ry, { w: 800, size: 24, max: 160 });
+      g.fillStyle = r.red ? c.ink : '#9db4cf';
+      g.fillRect(bx0, ry - 24, Math.max(4, ((bx1 - bx0) * r.v) / max), 28);
+      g.fillStyle = r.red ? c.red : c.ink;
+      imgText(g, r.text, IMG_X1 - 30, ry, { w: 800, size: 24, max: 150, align: 'right' });
+    });
+  } else if (f.kind === 'envs') {
+    const shown = Math.min(f.n, 10);
+    const w = 40;
+    const gap = (x1 - x0 - w * 10) / 9;
+    for (let i = 0; i < shown; i++) {
+      const ex = x0 + i * (w + gap);
+      const ey = y + 20;
+      const over = i >= f.max;
+      g.fillStyle = '#fff';
+      g.fillRect(ex, ey, w, 30);
+      g.strokeStyle = over ? c.red : c.ink;
+      g.lineWidth = 2;
+      g.strokeRect(ex, ey, w, 30);
+      g.beginPath();
+      g.moveTo(ex, ey);
+      g.lineTo(ex + w / 2, ey + 17);
+      g.lineTo(ex + w, ey);
+      if (over) {
+        g.moveTo(ex + 4, ey + 28);
+        g.lineTo(ex + w - 4, ey + 2);
+      }
+      g.stroke();
+      g.fillStyle = over ? c.red : c.ink;
+      imgText(g, String(i + 1), ex + w / 2, ey + 60, { w: 800, size: 20, max: w, align: 'center' });
+    }
+  } else if (f.kind === 'cals') {
+    const cw = 230;
+    const gap = 40;
+    f.cals.forEach((k, i) => {
+      const cx0 = IMG_W / 2 - cw - gap / 2 + i * (cw + gap);
+      const cy0 = y + 44;
+      const ch = 260;
+      g.fillStyle = c.ink;
+      imgText(g, k.what, cx0 + cw / 2, y + 26, { w: 800, size: 22, max: cw, align: 'center' });
+      g.fillStyle = '#fff';
+      g.fillRect(cx0, cy0, cw, ch);
+      g.strokeStyle = k.red ? c.red : c.ink;
+      g.lineWidth = 3;
+      g.strokeRect(cx0, cy0, cw, ch);
+      g.fillStyle = c.ink;
+      g.fillRect(cx0, cy0, cw, 50);
+      g.fillStyle = '#fff';
+      imgText(g, k.ym, cx0 + cw / 2, cy0 + 35, { w: 800, size: 22, max: cw - 20, align: 'center' });
+      g.fillStyle = k.w === '日' ? c.red : k.w === '土' ? '#2b62b8' : c.ink;
+      imgText(g, String(k.d), cx0 + cw / 2, cy0 + 165, { w: 800, size: 110, max: cw - 20, align: 'center' });
+      imgText(g, `${k.w}曜日`, cx0 + cw / 2, cy0 + 210, { w: 800, size: 24, max: cw - 20, align: 'center' });
+      g.fillStyle = k.red ? c.red : c.muted;
+      imgText(g, k.left, cx0 + cw / 2, cy0 + 246, { w: 800, size: 22, max: cw - 20, align: 'center' });
+    });
+  }
+}
+
+/**
+ * カード・書類（お買い物マラソン・SPU・1店舗の判定・ポイントのしくみ・楽天とAmazon・ワンストップ特例・締め切り）
+ * spec：{ title, cap：大きな答えの上の1行, num, unit, sub：答えの下の1行, fig：imgFig の絵, rows:[[名前, 値]], notes:[1行ずつ] }
+ */
+export function imgCard({ title, cap, num, unit = '', sub = '', fig = null, rows = [], notes = [] }) {
+  const figH = fig ? (fig.kind === 'bars' ? fig.rows.length * 64 + 20 : FIG_H[fig.kind]) : 0;
+  const H = 40 + 88 + 196 + (sub ? 50 : 0) + (fig ? figH + 20 : 0) + 20 + rows.length * 52 + notes.length * 40 + 136;
+  return imgPaper(H, (g, c, top) => {
+    let y = top + 62;
+    g.fillStyle = c.ink;
+    imgText(g, title, IMG_W / 2, y, { w: 800, size: 30, align: 'center' });
+    y += 26;
+    g.strokeStyle = c.rule;
+    imgDash(g, y);
+    y += 56;
+    g.fillStyle = c.ink;
+    imgText(g, cap, IMG_W / 2, y, { w: 700, size: 26, align: 'center' });
+    y += 100;
+    imgBigNum(g, c, num, unit, IMG_W / 2, y, { size: 84, unitSize: 34, align: 'center' });
+    if (sub) {
+      y += 50;
+      g.fillStyle = c.ink;
+      imgText(g, sub, IMG_W / 2, y, { w: 800, size: 26, align: 'center' });
+    }
+    y += 40;
+    if (fig) {
+      imgFig(g, c, fig, y);
+      y += figH + 20;
+    }
+    g.strokeStyle = c.rule;
+    g.lineWidth = 2;
+    imgDash(g, y);
+    for (const [k, v] of rows) {
+      y += 52;
+      imgRow(g, c, k, v, y);
+    }
+    if (notes.length) y += 6;
+    for (const note of notes) {
+      y += 40;
+      g.fillStyle = c.muted;
+      imgText(g, note, IMG_W / 2, y, { w: 700, size: 22, align: 'center' });
+    }
+  });
+}
+
 /** 画像を作って、共有の画面（LINE など）に出す。共有できない端末では画像を保存する。'share' か 'save' を返す */
 export function imgShare(canvas, name) {
   // ボタンを押したその場で共有の画面を出せるように、画像は同じ流れの中で作る（待たない）

@@ -91,7 +91,7 @@ export default function render() {
   </div>
   <p class="note">目安です。付与はそれぞれの計算によります。</p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/point/shikumi/">楽天のポイントのしくみ</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

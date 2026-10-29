@@ -132,7 +132,7 @@ export default function render() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <p class="note">目安です。付与は楽天の計算によります。</p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

@@ -2,9 +2,10 @@ import { parseNum } from '../lib/number.mjs';
 import { onestopPlan, furusatoDeadlines, ONESTOP_MAX, ONESTOP_CITIES_MAX } from '../lib/furusato-tetsuzuki.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { $, enterToNext, numericOnly, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('onestop.png');
 
 // ワンストップ特例の申請：寄付先の数・確定申告・マイナンバーカードから、寄付先に出す封筒の数と中身と期限
 // 期限は見た人のブラウザの今日から（1月1日〜10日は前の年の寄付の申請）
@@ -72,7 +73,20 @@ function update() {
     row('封筒の中', `申請書（寄付ごとに1枚）、${res.copies.join('と')}`, 0);
     row('出す先', '寄付した自治体（1つに1通）', 1);
     $('r-foot').textContent = 'オンラインで出せる自治体もあります';
-    memo({ q: `寄付先${cities}つ`, a: `申請書${res.envelopes}通・${jd(DL.onestop.date)}必着` });
+    memo({
+      q: `寄付先${cities}つ`,
+      a: `申請書${res.envelopes}通・${jd(DL.onestop.date)}必着`,
+      img: () => imgCard({
+        title: 'ワンストップ特例の申請',
+        cap: '寄付先に出す',
+        num: String(res.envelopes),
+        unit: '通',
+        sub: `${jd(DL.onestop.date)}必着`,
+        fig: { kind: 'envs', n: res.cities, max: ONESTOP_MAX },
+        rows: [['期限まで', $('r-left').textContent], ['出す先', '寄付した自治体']],
+        notes: ['封筒の中：申請書（寄付ごとに1枚）', ...res.copies],
+      }),
+    });
   } else {
     $('r-cap').textContent = '特例は';
     $('r-num').textContent = '使えません';
@@ -82,7 +96,19 @@ function update() {
     row('かわりに', '確定申告に、その年の寄付をぜんぶ書く', 0);
     row('申告の期間', `${DL.kakutei.from.y}年${kakuteiSpan}`, 1);
     $('r-foot').textContent = res.reason === 'over' ? `${ONESTOP_MAX}つまでの分も使えなくなります` : '申請した分もふくめて申告します';
-    memo({ q: `寄付先${cities}つ${kakutei ? '・確定申告する' : ''}`, a: '特例は使えません（確定申告）' });
+    memo({
+      q: `寄付先${cities}つ${kakutei ? '・確定申告する' : ''}`,
+      a: '特例は使えません（確定申告）',
+      img: () => imgCard({
+        title: 'ワンストップ特例の申請',
+        cap: '特例は',
+        num: '使えません',
+        sub: $('r-due').textContent,
+        fig: res.reason === 'over' ? { kind: 'envs', n: res.cities, max: ONESTOP_MAX } : null,
+        rows: [['申告の期間', `${DL.kakutei.from.y}年${kakuteiSpan}`]],
+        notes: ['確定申告に、その年の寄付をぜんぶ書きます'],
+      }),
+    });
   }
   drawEnvs(res.cities, res);
 }

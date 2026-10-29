@@ -97,7 +97,7 @@ export default function render() {
   <p class="tag-note" id="r-note" hidden></p>
   <p class="note">マラソンもスーパーSALEも同じ決まりです。</p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/point/">お買い物マラソンのポイント計算</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 

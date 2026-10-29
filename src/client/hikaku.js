@@ -5,9 +5,10 @@ import { SPU_ITEMS, SPU_BASE, POINT_DAY } from '../data/spu.mjs';
 import { POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { AMAZON_CARD } from '../data/amazon.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('amazon.png');
 
 // 楽天とAmazonのポイント比較：買い物の額・Amazon の商品のポイントの%・使っているもののチェック欄から、両方のポイントの目安と、ちがい
 // 5と0のつく日は楽天カード、プライム会員の2%は Amazon Mastercard で払った分なので、えらぶとカードもえらぶ（カードを外すといっしょに外す）
@@ -53,7 +54,19 @@ function update() {
   const diff = r.points - a.points;
   $('r-k').textContent = diff > 0 ? '楽天が多い' : diff < 0 ? 'Amazonが多い' : '同じ';
   $('r-num').textContent = fmt(Math.abs(diff));
-  memo({ q: `${$('total').value}円の買い物`, a: `楽天${fmt(r.points)}・Amazon${fmt(a.points)}ポイント` });
+  memo({
+    q: `${$('total').value}円の買い物`,
+    a: `楽天${fmt(r.points)}・Amazon${fmt(a.points)}ポイント`,
+    img: () => imgCard({
+      title: '楽天とAmazonのポイント',
+      cap: $('r-k').textContent,
+      num: fmt(Math.abs(diff)),
+      unit: 'ポイント',
+      fig: { kind: 'bars', rows: [{ k: '楽天', v: r.points, text: fmt(r.points), red: diff > 0 }, { k: 'Amazon', v: a.points, text: fmt(a.points), red: diff < 0 }] },
+      rows: [['買い物の額', `${$('total').value}円`], ['楽天の倍率', `${r.rate}倍`], ['Amazon', `${Math.round(aRate * 100) / 100}%`]],
+      notes: ['目安です。キャンペーンは入れていません'],
+    }),
+  });
   const none = !Object.values(on).some(Boolean) && !pct;
   $('r-foot').textContent = none ? '使っているものをえらんでください' : '';
 }

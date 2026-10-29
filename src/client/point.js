@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { marathonPoints } from '../lib/point.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('point.png');
 
 // お買い物マラソンのポイント計算：合計（税込）・店舗の数・上限から、買いまわりの特典の目安。結果は10マスのスタンプカード
 // 回の期間と上限は #calc の data-events（src/data/point.mjs。公式で確かめたものだけ）。見た人のブラウザの時刻で、開催中・これから・終わったを分ける
@@ -76,7 +77,20 @@ function update() {
   $('r-rate').textContent = res.shops > MAX ? `${res.shops}店舗でも${res.rate}倍` : `${res.rate}倍`;
   $('r-cap').textContent = res.capped ? '特典（上限）' : '特典';
   $('r-num').textContent = fmt(res.bonus);
-  memo({ q: `合計${$('total').value}円・${res.shops}店舗`, a: `特典${fmt(res.bonus)}ポイント（${res.rate}倍）` });
+  memo({
+    q: `合計${$('total').value}円・${res.shops}店舗`,
+    a: `特典${fmt(res.bonus)}ポイント（${res.rate}倍）`,
+    img: () => imgCard({
+      title: 'お買い物マラソン',
+      cap: res.capped ? '特典（上限）' : '特典',
+      num: fmt(res.bonus),
+      unit: 'ポイント',
+      sub: `${res.rate}倍`,
+      fig: { kind: 'stamps', n: Math.min(res.shops, MAX), max: MAX },
+      rows: [['合計（税込）', `${$('total').value}円`], ['店舗の数', `${res.shops}店舗`], ['通常', `${fmt(res.base)}ポイント`]],
+      notes: ['目安です。付与は楽天の計算です'],
+    }),
+  });
   $('d-base').textContent = `${fmt(res.base)}ポイント`;
   $('d-left').textContent = res.capped ? '届いています' : `あと${fmt(res.left)}ポイント`;
   $('d-reach-k').textContent = `${res.counted}店舗で上限に届く`;

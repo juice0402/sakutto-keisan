@@ -108,7 +108,7 @@ function renderOnestop() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <div class="calc-tools"><a class="tool-btn tool-link" href="/furusato/memo/">寄付メモ</a><a class="tool-btn tool-link span-2" href="/furusato/shimekiri/">締め切りまでの日数</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
 
@@ -216,7 +216,7 @@ function renderShimekiri() {
     <p class="doc-foot"><span id="r-foot"></span></p>
   </div>
   <div class="calc-tools"><a class="tool-btn tool-link span-2" href="/furusato/onestop/">申請書の出し方</a><a class="tool-btn tool-link" href="/furusato/memo/">寄付メモ</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   ${NOSCRIPT}
 </div>
 

@@ -2,9 +2,10 @@ import { parseNum, fmt } from '../lib/number.mjs';
 import { spuPoints } from '../lib/spu.mjs';
 import { SPU_ITEMS, SPU_BASE, SPU_MAX } from '../data/spu.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('spu.png');
 
 // SPU のポイント計算：今月の買い物（税込）と、使っているサービスのチェック欄から、倍率とポイントの目安
 // 結果のカードの帯は、全部そろったときの倍率の長さに、楽天会員の1倍と、えらんだサービスの分をぬる
@@ -46,7 +47,20 @@ function update() {
   }
   setNote(res.noCap.length ? `${res.noCap.map((r) => r.name).join('・')}の上限は、公式のページで確かめてください。` : '');
   $('r-num').textContent = fmt(res.points);
-  memo({ q: `今月${$('total').value}円・${picked.size}サービス`, a: `${fmt(res.points)}ポイント（${res.rate}倍）` });
+  memo({
+    q: `今月${$('total').value}円・${picked.size}サービス`,
+    a: `${fmt(res.points)}ポイント（${res.rate}倍）`,
+    img: () => imgCard({
+      title: '今月のSPU',
+      cap: 'ポイントの目安',
+      num: fmt(res.points),
+      unit: 'ポイント',
+      sub: `${res.rate}倍`,
+      fig: { kind: 'segs', full: SPU_MAX, segs: [{ v: SPU_BASE, tone: 'ink', text: String(SPU_BASE) }, ...SPU_ITEMS.filter((x) => picked.has(x.id)).map((x, i) => ({ v: x.rate, tone: i % 2 ? 'soft' : 'pale', text: `+${x.rate}` }))], ends: ['0', `全部で${SPU_MAX}倍`] },
+      rows: [['今月の買い物（税込）', `${$('total').value}円`], ['えらんだサービス', `${picked.size}つ`]],
+      notes: ['目安です。付与は楽天の計算です'],
+    }),
+  });
   if (!picked.size) $('r-foot').textContent = '使っているサービスをえらんでください';
   else if (res.full.length) $('r-foot').textContent = `上限に届いた：${res.full.map((r) => r.name).join('・')}`;
   else if (res.next) $('r-foot').textContent = `${res.next.name}は${fmt(res.next.reach)}円で上限`;

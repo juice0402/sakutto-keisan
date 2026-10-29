@@ -107,7 +107,7 @@ export default function render() {
   </div>
   <p class="note">目安です。付与は楽天の計算によります。</p>
   <div class="calc-tools"><a class="tool-btn tool-link" href="/point/spu/">SPUの計算</a><a class="tool-btn tool-link span-2" href="/point/">お買い物マラソンの計算</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
