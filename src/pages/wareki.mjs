@@ -9,6 +9,7 @@ import { boxField } from '../fields.mjs';
 import { warekiOfYear } from '../lib/hizuke.mjs';
 import { ERA_TABLE, kanshiOf, wareki, nenpyoLayout, nenIfContinued } from '../lib/wareki.mjs';
 import { printLink } from '../prints.mjs';
+import { stair, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('wareki');
 const path = '/wareki/';
@@ -40,6 +41,10 @@ const QUICK_ROWS = Array.from({ length: THIS_YEAR + 4 - 1868 + 1 }, (_, i) => TH
 
 const NOW = wareki({ from: 'seireki', seireki: THIS_YEAR, thisYear: THIS_YEAR });
 const EX1 = wareki({ from: 'wareki', era: '平成', nen: 10, thisYear: THIS_YEAR });
+
+// 図解（#82）：和暦 → 西暦の絵の式（年の答えなので帯の図はつけない）。数字は tests/zukai-kurashi.test.mjs
+export const Z_WAREKI = { y: EX1.y, now: NOW.text };
+const ZUKAI = stair(zBox('和暦', '平成10年'), { b: '10 ＋ 1988', small: '平成の足す数' }, zBox('西暦', `${EX1.y}年`, true), ['西暦 ＝ 和暦の年 ＋ 元号ごとの数', '和暦の年 ＝ 西暦 − 元号ごとの数', `例：平成10年は 10 ＋ 1988 ＝ ${EX1.y}年です。${THIS_YEAR}年は ${THIS_YEAR} − 2018 ＝ ${NOW.text}です。`], `${THIS_YEAR}年は ${THIS_YEAR} − 2018 ＝ <b class="fz-red">${NOW.text}</b>`);
 
 const FAQS = [
   {
@@ -96,19 +101,14 @@ export default function render() {
     <p class="slip-foot" id="r-foot">西暦か和暦を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>西暦 ＝ 和暦の年 ＋ 元号ごとの数</span>
-<span>和暦の年 ＝ 西暦 − 元号ごとの数</span>
-</div>
-<p>例：平成10年は 10 ＋ 1988 ＝ ${EX1.y}年です。${THIS_YEAR}年は ${THIS_YEAR} − 2018 ＝ ${NOW.text}です。</p>
-<div class="tbl-wrap"><table>
+  `${ZUKAI}<div class="tbl-wrap"><table>
 <thead><tr><th>元号</th><th>はじまり</th><th class="num">足す数</th><th class="num">年数</th></tr></thead>
 <tbody>
 ${ERA_ROWS}

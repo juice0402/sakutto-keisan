@@ -8,6 +8,7 @@ import { boxField } from '../fields.mjs';
 import { TOUYU_PRICE, TOUYU_HEATERS } from '../data/touyu.mjs';
 import { touyu, literPrice } from '../lib/touyu.mjs';
 import { fmt, yenBand } from '../lib/number.mjs';
+import { stair, band, zBox, zReceipt } from '../zukai.mjs';
 
 const tool = toolBySlug('touyu-dai');
 const path = '/touyu-dai/';
@@ -35,6 +36,13 @@ const QUICK_ROWS = QUICK_LPH.map(
 ).join('\n');
 
 const EX = touyu({ lph: 0.3, hours: 8, price: P18 });
+
+// 図解（#82）：1日の灯油 → 1か月の灯油代の絵の式と、18Lを1日の灯油ずつに分けた帯。数字は tests/zukai-kurashi.test.mjs
+export const Z_TOUYU = { litersDay: EX.litersDay, canDays: EX.canDays, month: Math.round(EX.month) };
+const ZUKAI = stair(zBox('1時間0.3L・1日8時間', `${fmt(EX.litersDay, 1)}L`), { b: `×30日×${fmt(P1, 1)}円`, small: `18L ${fmt(P18)}円の1L` }, zReceipt('1か月', `約${fmt(EX.month, 0)}円`, true), ['1日の灯油 ＝ 1時間の灯油 × 1日の時間', '1か月 ＝ 1日の灯油 × 30日 × 1Lの値段', '18Lで何日 ＝ 18 ÷ 1日の灯油', `例：1時間0.3Lを1日8時間、18L ${fmt(P18)}円（1L ${fmt(P1, 1)}円）なら、1か月は72Lで約${fmt(EX.month, 0)}円です。18Lは${fmt(EX.canDays, 1)}日でなくなります。`], `18Lのポリタンクは <b class="fz-red">${fmt(EX.canDays, 1)}日</b> でなくなる`);
+const dayW = Number(((EX.litersDay / 18) * 100).toFixed(2));
+const fullDays = Math.floor(EX.canDays);
+const BAND = band({ head: '18L（1缶）', parts: [...Array.from({ length: fullDays }, (_, i) => ({ w: dayW, kind: i % 2 ? 'alt' : 'pay', text: '' })), { w: Number((100 - dayW * fullDays).toFixed(2)), kind: 'off', text: '' }], ruler: [[0, '0'], [dayW, `1日 ${fmt(EX.litersDay, 1)}L`], [100, '18L']], ans: `18 ÷ ${fmt(EX.litersDay, 1)} → <b>${fmt(EX.canDays, 1)}日</b>`, label: `18Lの帯を、1日に使う${fmt(EX.litersDay, 1)}Lずつに分けた図。${fmt(EX.canDays, 1)}日分` });
 
 const FAQS = [
   {
@@ -93,25 +101,16 @@ export default function render() {
     <p class="slip-foot" id="r-foot">ヒーターの大きさをえらんでください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
-${section(
-  'formula',
-  '計算式',
-  `<div class="formula">
-<span>1日の灯油 ＝ 1時間の灯油 × 1日の時間</span>
-<span>1か月 ＝ 1日の灯油 × 30日 × 1Lの値段</span>
-<span>18Lで何日 ＝ 18 ÷ 1日の灯油</span>
-</div>
-<p>例：1時間0.3Lを1日8時間、18L ${fmt(P18)}円（1L ${fmt(P1, 1)}円）なら、1か月は72Lで約${fmt(EX.month, 0)}円です。18Lは${fmt(EX.canDays, 1)}日でなくなります。</p>`,
-)}
+${section('formula', '計算式', ZUKAI)}
 
 ${section(
   'days',
   '18Lが何日もつかの早見表',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>1時間の灯油</th>${QUICK_HOURS.map((h) => `<th class="num">${h}時間</th>`).join('')}</tr></thead>
 <tbody>
 ${QUICK_ROWS}

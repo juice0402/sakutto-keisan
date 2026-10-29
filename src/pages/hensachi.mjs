@@ -5,7 +5,8 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { hsFromDev, hsCurve, hsX, HS_LO, HS_HI } from '../lib/hensachi.mjs';
+import { hsFromDev, hsCurve, hsX, HS_LO, HS_HI, hensachi } from '../lib/hensachi.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('hensachi');
 const path = '/hensachi/';
@@ -16,6 +17,13 @@ const ROWS = DEVS.map((d) => {
 }).join('\n');
 const E60 = hsFromDev(60);
 const E70 = hsFromDev(70);
+
+// 図解（#82）：得点 → 偏差値の絵の式と、100人を下位と上位に分けた帯。数字は tests/zukai-kurashi.test.mjs
+const ZH = hensachi({ dev: null, score: 72, mean: 60, sd: 12, from: 'score' });
+export const Z_HENSACHI = { dev: ZH.dev, up: ZH.up.num, rank: ZH.rank };
+const ZUKAI = stair(zBox('平均点60点・標準偏差12', '72点'), { b: '50＋10×12÷12', small: '（72 − 60）÷ 12 ＝ 1' }, zBox('偏差値', String(ZH.dev), true), ['偏差値 ＝ 50 ＋ 10 ×（得点 − 平均点）÷ 標準偏差', `例：平均点60点・標準偏差12のテストで72点なら、偏差値は${ZH.dev}で、上位${ZH.up.num}％です。`], `上位 <b class="fz-red">${ZH.up.num}％</b>・100人中${ZH.rank}番くらい`);
+const upW = Number(ZH.up.num);
+const BAND = band({ head: '100人', parts: [{ w: Number((100 - upW).toFixed(1)), text: `下位 ${ZH.low.num}％` }, { w: upW, kind: 'off', text: '上位' }], ruler: [[0, '0'], [100 - upW, `偏差値${ZH.dev}`, true]], ans: `100人中 → <b>${ZH.rank}番くらい</b>`, label: `100人の帯を、偏差値${ZH.dev}より下の${ZH.low.num}％と上の${ZH.up.num}％に分けた図` });
 const SRC = [
   { name: '東京大学「確率と統計」講義 正規分布と偏差値', url: 'https://www.ms.u-tokyo.ac.jp/tambara/docs/l4h20160723-2miyamoto.pdf' },
   { name: '総務省統計局 なるほど統計学園「データの散らばりを見る」', url: 'https://www.stat.go.jp/naruhodo/10_tokucho/chirabari.html' },
@@ -49,23 +57,16 @@ export default function render() {
     <p class="slip-foot" id="r-foot">偏差値か得点を入れてください</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
-${section(
-  'formula',
-  '計算のしかた',
-  `<div class="formula">
-<span>偏差値 ＝ 50 ＋ 10 ×（得点 − 平均点）÷ 標準偏差</span>
-</div>
-<p>例：平均点60点・標準偏差12のテストで72点なら、偏差値は60で、上位${E60.up.num}％です。</p>`,
-)}
+${section('formula', '計算のしかた', ZUKAI)}
 
 ${section(
   'table',
   '偏差値と上位何％の早見表',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">偏差値</th><th class="num">上位</th><th class="num">100人中</th></tr></thead>
 <tbody>
 ${ROWS}

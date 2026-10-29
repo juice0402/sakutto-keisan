@@ -4,7 +4,7 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
-import { denkiCard, hourYen } from '../denki.mjs';
+import { denkiCard, hourYen, denkiZukai, denkiBars } from '../denki.mjs';
 import { DENKI_PRICE, DENKI_USES, DENKI_MORE } from '../data/denki.mjs';
 import { denki } from '../lib/denki.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -96,7 +96,7 @@ ${denkiCard({ tool, tiles: u.modes.map((m) => ({ b: m.b, small: hourYen(m.watt),
 ${section(
   'table',
   '強さごとの電気代',
-  `<div class="tbl-wrap"><table>
+  `${denkiBars(u.name, u.modes, u.hours)}<div class="tbl-wrap"><table>
 <thead><tr><th>強さ</th><th class="num">消費電力</th><th class="num">1時間</th><th class="num">1か月</th></tr></thead>
 <tbody>
 ${rows}
@@ -107,15 +107,7 @@ ${rows}
 <p>出典：${link(u.product, u.url)}</p>`,
 )}
 
-${section(
-  'formula',
-  '計算式',
-  `<div class="formula">
-<span>1時間 ＝ 消費電力（W）÷ 1,000 × 単価</span>
-<span>1か月 ＝ 1時間 × 1日の時間 × 30日</span>
-</div>
-<p>例：${u.modes[0].watt.toLocaleString('ja-JP')}Wを1日${u.hours}時間なら、${fmt(u.modes[0].watt / 1000, 3)} × ${P} × ${u.hours} × 30 ＝ ${fmt(cost(u.modes[0].watt, u.hours).month, 0)}円。</p>`,
-)}
+${section('formula', '計算式', denkiZukai(`${u.name}の${u.modes[0].b}`, u.modes[0].watt, u.hours).stair)}
 
 ${section('faq', 'よくある質問', faqHtml(faqs))}
 

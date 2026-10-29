@@ -195,7 +195,7 @@ export const TOOLS = [
     parent: 'nenrei',
     short: '生年月日から、学校の入学と卒業の年',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-29',
     related: ['nenrei', 'wareki', 'nissu'],
   },
   // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
@@ -207,7 +207,7 @@ export const TOOLS = [
     more: true,
     short: 'その日が第何◯曜日か、毎月の同じ曜日の日',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['nissu', 'wareki', 'nenrei', 'jikan'],
   },
   {
@@ -217,7 +217,7 @@ export const TOOLS = [
     more: true,
     short: '偏差値から上位何％か、得点から偏差値',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['percent', 'gakureki', 'nenrei', 'bmi'],
   },
   {
@@ -226,7 +226,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '令和・平成・昭和は西暦何年か',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-29',
     related: ['nenrei', 'gakureki', 'yakudoshi', 'choju', 'nissu', 'jikan'],
   },
   {
@@ -298,7 +298,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: 'こたつやヒーターの1時間・1か月の電気代',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['touyu-dai', 'warikan', 'tanka', 'waribiki'],
   },
   {
@@ -308,7 +308,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: 'ストーブの1か月の灯油代と、18Lが何日もつか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['denki-dai', 'oil-heater', 'ceramic-heater', 'warikan'],
   },
   {
@@ -329,7 +329,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '強と弱で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['denki-dai', 'denki-moufu', 'hot-carpet', 'ceramic-heater'],
   },
   {
@@ -339,7 +339,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: 'ひと晩と1か月の電気代',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['denki-dai', 'kotatsu', 'hot-carpet', 'ceramic-heater'],
   },
   {
@@ -350,7 +350,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '高と中で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['denki-dai', 'kotatsu', 'denki-moufu', 'ceramic-heater'],
   },
   {
@@ -361,7 +361,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '強と弱で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['denki-dai', 'touyu-dai', 'oil-heater', 'kotatsu'],
   },
   {
@@ -372,7 +372,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '強・中・弱で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['denki-dai', 'touyu-dai', 'ceramic-heater', 'kotatsu'],
   },
   {
@@ -381,7 +381,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '身長と体重から、BMIと標準体重',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['nenrei', 'percent', 'recipe', 'enbun-noudo'],
   },
   {

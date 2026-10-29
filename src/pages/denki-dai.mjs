@@ -4,7 +4,8 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, toolListHtml } from '../parts.mjs';
-import { denkiCard } from '../denki.mjs';
+import { denkiCard, denkiZukai } from '../denki.mjs';
+import { band } from '../zukai.mjs';
 import { DENKI_PRICE, DENKI_APPLIANCES, DENKI_USES } from '../data/denki.mjs';
 import { denki } from '../lib/denki.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -34,6 +35,12 @@ const EXAMPLE_ROWS = EXAMPLES.map((e) => {
   const r = denki({ watt: e.watt, hours: e.hours, price: DENKI_PRICE.value });
   return `<tr><td class="wrap">${e.name}<br><small>${fmt(e.watt)}W・1日${e.hours < 1 ? `${e.hours * 60}分` : `${e.hours}時間`}</small></td><td class="num">${fmt(r.day, r.day < 100 ? 1 : 0)}円</td><td class="num">${fmt(r.month, 0)}円</td></tr>`;
 }).join('\n');
+
+// 図解（#82）：こたつ600Wを1日8時間の絵の式と、1か月を1日ずつ30日に分けた帯。数字は tests/zukai-kurashi.test.mjs
+const Z = denkiZukai('こたつ', 600, 8);
+export const Z_DENKI = { day: Z.r.day, month: Z.r.month };
+const dayW = Number((100 / 30).toFixed(2));
+const BAND = band({ head: `こたつ 1か月 約${fmt(Z.r.month, 0)}円`, parts: [{ w: dayW, kind: 'off', text: '' }, { w: Number((100 - dayW).toFixed(2)), text: 'のこりの29日' }], ruler: [[0, `1日 ${fmt(Z.r.day, 1)}円`, true], [100, '30日']], ans: `${fmt(Z.r.day, 1)}円 × 30日 → <b>約${fmt(Z.r.month, 0)}円</b>`, label: `こたつの1か月約${fmt(Z.r.month, 0)}円の帯を、1日${fmt(Z.r.day, 1)}円ずつ30日に分けた図` });
 
 const FAQS = [
   {
@@ -75,20 +82,12 @@ ${denkiCard({ tool, tiles: DENKI_APPLIANCES.filter((a) => a.tile).map((a) => ({ 
 
 ${USES.length ? section('uses', '家電別の電気代', toolListHtml(USES)) : ''}
 
-${section(
-  'formula',
-  '計算式',
-  `<div class="formula">
-<span>1時間 ＝ 消費電力（W）÷ 1,000 × 単価</span>
-<span>1か月 ＝ 1時間 × 1日の時間 × 30日</span>
-</div>
-<p>例：600Wのこたつを1日8時間、単価${DENKI_PRICE.value}円なら、0.6 × ${DENKI_PRICE.value} × 8 × 30 ＝ ${fmt(denki({ watt: 600, hours: 8, price: DENKI_PRICE.value }).month, 0)}円。</p>`,
-)}
+${section('formula', '計算式', Z.stair)}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND}<div class="tbl-wrap"><table>
 <thead><tr><th>家電と使い方</th><th class="num">1日</th><th class="num">1か月</th></tr></thead>
 <tbody>
 ${EXAMPLE_ROWS}

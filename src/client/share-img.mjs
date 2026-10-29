@@ -612,6 +612,98 @@ export function figCals(g, c, f, y) {
 }
 export const CALS_H = 330;
 
+/** メーターの数字（電気代。1か月の使用量 kWh：白い窓に整数のけた、赤い小数1けた）。{ kwh } */
+export function figMeter(g, c, f, y) {
+  const t = f.kwh.toFixed(1).replace('.', '');
+  const s = t.padStart(Math.max(5, t.length), '0');
+  const w = 60;
+  const gap = 8;
+  const total = s.length * w + (s.length - 1) * gap + 14;
+  let x = (IMG_W - total) / 2;
+  [...s].forEach((d, i) => {
+    const dec = i === s.length - 1;
+    if (dec) {
+      g.fillStyle = c.ink;
+      g.beginPath();
+      g.arc(x + 3, y + 74, 4, 0, Math.PI * 2);
+      g.fill();
+      x += 14;
+    }
+    g.fillStyle = '#fff';
+    g.fillRect(x, y + 4, w, 80);
+    g.strokeStyle = c.ink;
+    g.lineWidth = 2;
+    g.strokeRect(x, y + 4, w, 80);
+    g.fillStyle = dec ? c.red : c.ink;
+    imgText(g, d, x + w / 2, y + 64, { w: 800, size: 52, max: w - 8, align: 'center' });
+    x += w + gap;
+  });
+  g.fillStyle = c.muted;
+  imgText(g, '1か月の使用量（kWh）', IMG_W / 2, y + 116, { w: 700, size: 22, align: 'center' });
+}
+export const METER_H = 120;
+
+/** ポリタンク（灯油代。1か月に使う18Lの缶の数。最後の缶は使う分だけぬる）。{ cans } */
+export function figCans(g, c, f, y) {
+  const n = Math.min(12, Math.ceil(f.cans - 1e-9));
+  const w = 34;
+  const gap = 10;
+  const x0 = (IMG_W - (n * w + (n - 1) * gap)) / 2;
+  for (let i = 0; i < n; i++) {
+    const x = x0 + i * (w + gap);
+    const part = i === n - 1 && f.cans <= 12 ? f.cans - (n - 1) : 1;
+    g.fillStyle = '#fff';
+    g.fillRect(x, y + 10, w, 60);
+    g.fillStyle = '#2e6fb7';
+    g.fillRect(x, y + 10 + 60 * (1 - part), w, 60 * part);
+    g.fillRect(x + 4, y + 2, 14, 8);
+    g.strokeStyle = c.ink;
+    g.lineWidth = 2;
+    g.strokeRect(x, y + 10, w, 60);
+  }
+  g.fillStyle = c.muted;
+  imgText(g, `18Lで${fmt(f.cans, 1)}缶${f.cans > 12 ? '（12缶まで描いています）' : ''}`, IMG_W / 2, y + 100, { w: 700, size: 22, align: 'center' });
+}
+export const CANS_H = 110;
+
+/** テストの山（偏差値。上位の分を赤い斜線でぬり、自分の位置に赤い線）。{ dev } */
+export function figMount(g, c, f, y) {
+  const x0 = IMG_X0 + 40;
+  const x1 = IMG_X1 - 40;
+  const base = y + 150;
+  const lo = 20;
+  const hi = 80;
+  const px = (d) => x0 + ((Math.min(hi, Math.max(lo, d)) - lo) / (hi - lo)) * (x1 - x0);
+  const py = (d) => base - 130 * Math.exp(-(((d - 50) / 10) ** 2) / 2);
+  const me = Math.min(hi, Math.max(lo, f.dev));
+  g.beginPath();
+  g.moveTo(px(me), base);
+  for (let d = me; d <= hi; d += 0.5) g.lineTo(px(d), py(d));
+  g.lineTo(px(hi), base);
+  g.closePath();
+  g.fillStyle = '#f6d4d7';
+  g.fill();
+  g.beginPath();
+  for (let d = lo; d <= hi; d += 0.5) g[d === lo ? 'moveTo' : 'lineTo'](px(d), py(d));
+  g.strokeStyle = c.ink;
+  g.lineWidth = 3;
+  g.stroke();
+  g.beginPath();
+  g.moveTo(x0, base);
+  g.lineTo(x1, base);
+  g.lineWidth = 2;
+  g.stroke();
+  g.beginPath();
+  g.moveTo(px(me), y + 6);
+  g.lineTo(px(me), base);
+  g.strokeStyle = c.red;
+  g.lineWidth = 4;
+  g.stroke();
+  g.fillStyle = c.ink;
+  [30, 40, 50, 60, 70].forEach((d) => imgText(g, String(d), px(d), base + 28, { w: 700, size: 20, align: 'center' }));
+}
+export const MOUNT_H = 180;
+
 /**
  * カード・書類（お買い物マラソン・SPU・1店舗の判定・ポイントのしくみ・楽天とAmazon・ワンストップ特例・締め切り）
  * spec：{ title, cap：大きな答えの上の1行, num, unit, sub：答えの下の1行, fig：{ draw：fig◯◯, h：高さ, …その絵の値 }, rows:[[名前, 値]], notes:[1行ずつ] }

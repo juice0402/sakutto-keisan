@@ -1,9 +1,10 @@
 import { parseNum } from '../lib/number.mjs';
 import { hensachi, hsArea, hsX } from '../lib/hensachi.mjs';
 import { $, enterToNext, numericOnly, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figMount, MOUNT_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('hensachi.png');
 
 // 偏差値の計算：偏差値の欄か、得点・平均点・標準偏差（あとから入れたほう）から、上位何％と100人中何番くらいか
 let from = null; // 'dev' か 'score'
@@ -47,7 +48,21 @@ function update() {
   $('d-up').textContent = `${res.up.num}${res.up.unit}`;
   $('d-low').textContent = `${res.low.num}${res.low.unit}`;
   $('r-foot').textContent = '';
-  memo({ q: from === 'dev' ? `偏差値${res.dev.toFixed(1)}` : `得点${$('score').value}点・平均点${$('mean').value}点・標準偏差${$('sd').value}`, a: `上位${res.up.num}${res.up.unit}（偏差値${res.dev.toFixed(1)}）` });
+  const q = from === 'dev' ? `偏差値${res.dev.toFixed(1)}` : `得点${$('score').value}点・平均点${$('mean').value}点・標準偏差${$('sd').value}`;
+  memo({
+    q,
+    a: `上位${res.up.num}${res.up.unit}（偏差値${res.dev.toFixed(1)}）`,
+    img: () => imgCard({
+      title: 'テストの山',
+      cap: `偏差値${res.dev.toFixed(1)}は上位`,
+      num: res.up.num,
+      unit: res.up.unit,
+      sub: `100人中 ${res.rank}番くらい`,
+      fig: { draw: figMount, h: MOUNT_H, dev: res.dev },
+      rows: [['偏差値', res.dev.toFixed(1)], ['上位', `${res.up.num}${res.up.unit}`], ['下位', `${res.low.num}${res.low.unit}`]],
+      notes: [from === 'dev' ? '点が山の形に近いときの目安' : q],
+    }),
+  });
 }
 
 numericOnly(ALL);
