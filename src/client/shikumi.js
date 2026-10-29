@@ -3,9 +3,10 @@ import { shikumiPoints } from '../lib/shikumi.mjs';
 import { SPU_ITEMS, SPU_BASE, POINT_DAY } from '../data/spu.mjs';
 import { POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figBars } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('shikumi.png');
 
 // 楽天のポイントのしくみ：今月の買い物と、使っているもののチェック欄から、ポイントを「いつもの1倍・SPU・キャンペーン」の3段に分ける
 // 5と0のつく日は楽天カードで払った分だけなので、5と0のつく日をえらぶと楽天カードもえらび、楽天カードを外すと5と0のつく日も外す
@@ -40,7 +41,20 @@ function update() {
     $(`b-${k}`).style.width = res.points ? `${((res[k] / res.points) * 100).toFixed(1)}%` : '0%';
   });
   $('r-num').textContent = fmt(res.points);
-  memo({ q: `今月${$('total').value}円`, a: `${fmt(res.points)}ポイント（${res.rate}倍）` });
+  memo({
+    q: `今月${$('total').value}円`,
+    a: `${fmt(res.points)}ポイント（${res.rate}倍）`,
+    img: () => imgCard({
+      title: '楽天のポイントのしくみ',
+      cap: '今月のポイントの目安',
+      num: fmt(res.points),
+      unit: 'ポイント',
+      sub: `${res.rate}倍`,
+      fig: { draw: figBars, h: 3 * 64 + 20, rows: [['camp', 'キャンペーン'], ['spu', 'SPU'], ['base', 'いつもの1倍']].map(([k, name]) => ({ k: name, v: res[k], text: fmt(res[k]), red: k === 'camp' })) },
+      rows: [['今月の買い物（税込）', `${$('total').value}円`]],
+      notes: ['目安です。付与は楽天の計算です'],
+    }),
+  });
   const none = !on.card && !on.mobile && !on.day && !on.marathon;
   $('r-foot').textContent = none ? '使っているものをえらんでください' : res.capped ? '上限で止まった分があります' : '';
 }

@@ -1,9 +1,10 @@
 import { furusatoDeadlines } from '../lib/furusato-tetsuzuki.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { $ } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figCals, CALS_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('shimekiri.png');
 
 // ふるさと納税の締め切り：今日（見た人のブラウザの日付）から、年内の寄付と、申請書か確定申告の期限まであと何日か
 // 2つの日めくりのうち、近いほうの日数をいちばん大きく
@@ -32,7 +33,19 @@ function update() {
   const near = shown.reduce((a, b) => (b.days < a.days ? b : a));
   $('r-cap').textContent = CAP[near.key];
   $('r-num').textContent = String(near.days);
-  memo({ q: how === 'onestop' ? 'ワンストップ特例' : '確定申告', a: `${CAP[near.key]}あと${near.days}日（${jd(near.date)}）` });
+  memo({
+    q: how === 'onestop' ? 'ワンストップ特例' : '確定申告',
+    a: `${CAP[near.key]}あと${near.days}日（${jd(near.date)}）`,
+    img: () => imgCard({
+      title: 'ふるさと納税の締め切り',
+      cap: `${CAP[near.key]}あと`,
+      num: String(near.days),
+      unit: '日',
+      sub: `今日 ${jd(TODAY)}`,
+      fig: { draw: figCals, h: CALS_H, cals: shown.map((x) => ({ what: WHAT[x.key], ym: `${x.date.y}年${x.date.m}月`, d: x.date.d, w: weekdayOf(x.date), left: x.days > 0 ? `あと${x.days}日` : '今日まで', red: x === near })) },
+      rows: [[$('d-k-0').textContent, $('d-v-0').textContent.replace(/（.）/, '')], [$('d-k-1').textContent, $('d-v-1').textContent]],
+    }),
+  });
   $('r-today').textContent = `今日 ${jd(TODAY)}`;
   $('d-k-0').textContent = `${DL.kifu.forYear}年の寄付`;
   $('d-v-0').textContent = `${DL.kifu.date.m}月${DL.kifu.date.d}日（${weekdayOf(DL.kifu.date)}）までに入金`;

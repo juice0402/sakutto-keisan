@@ -9,9 +9,13 @@ import { boxField } from '../fields.mjs';
 import { POINT_COUNT_SOURCES, POINT_MIN_YEN } from '../data/point.mjs';
 import { countJudge } from '../lib/taishou.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, zBox } from '../zukai.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 const EX = countJudge({ kind: 'normal', price: 1280, coupon: 300 }, POINT_MIN_YEN);
+// 図解（#80）：値段からクーポンを引いて判定へ（1,280円・クーポン300円）
+export const Z_TAISHOU = { judge: EX.judge, status: EX.status };
+const ZUKAI = stair(zBox('商品の値段（税込）', `${fmt(EX.price)}円`), { b: `− ${fmt(EX.coupon)}円`, small: 'クーポンを引く' }, zBox(`数える額 ${fmt(EX.judge)}円`, EX.enough ? '数える' : '数えない', true), ['数える額 ＝ 商品の値段（税込） − クーポン', `1店舗 ＝ 数える額が${fmt(POINT_MIN_YEN)}円以上`, `例：${fmt(EX.price)}円の商品に${fmt(EX.coupon)}円のクーポンを使うと、数える額は${fmt(EX.judge)}円で、1店舗に数えません。`]);
 
 const KINDS = [
   ['normal', 'ふつうの店', '楽天市場'],
@@ -97,18 +101,15 @@ export default function render() {
   <p class="tag-note" id="r-note" hidden></p>
   <p class="note">マラソンもスーパーSALEも同じ決まりです。</p>
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/point/">お買い物マラソンのポイント計算</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '1,000円の数え方',
-  `<div class="formula">
-<span>数える額 ＝ 商品の値段（税込） − クーポン</span>
-<span>1店舗 ＝ 数える額が${fmt(POINT_MIN_YEN)}円以上</span>
-</div>
-<p>送料とラッピング料は入れず、ポイントで払う分は入れます。同じ店で何回か買ったときは合計します。例：${fmt(EX.price)}円の商品に${fmt(EX.coupon)}円のクーポンを使うと、数える額は${fmt(EX.judge)}円で、1店舗に数えません。</p>`,
+  `${ZUKAI}
+<p>送料とラッピング料は入れず、ポイントで払う分は入れます。同じ店で何回か買ったときは合計します。</p>`,
 )}
 
 ${section(

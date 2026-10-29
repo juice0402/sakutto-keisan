@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { countJudge } from '../lib/taishou.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard, figSegs, SEGS_H } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('taishou.png');
 
 // 買いまわりの1店舗の判定：店の種類・商品の値段・クーポンの値引きから、1店舗に数えるか。棒は数える額（2,000円で右はし）と1,000円の線
 const MIN = Number($('calc').dataset.min);
@@ -38,7 +39,18 @@ function update() {
     return;
   }
   $('r-num').textContent = ANSWER[res.status];
-  memo({ q: `${$('price').value}円${$('coupon').value ? `・クーポン${$('coupon').value}円` : ''}`, a: ANSWER[res.status] });
+  memo({
+    q: `${$('price').value}円${$('coupon').value ? `・クーポン${$('coupon').value}円` : ''}`,
+    a: ANSWER[res.status],
+    img: () => imgCard({
+      title: '買いまわりの1店舗',
+      cap: document.querySelector(`.tile[data-kind="${kind}"] b`).textContent,
+      num: ANSWER[res.status],
+      fig: res.judge === null ? null : { draw: figSegs, h: SEGS_H, full: MIN * 2, segs: [{ v: Math.min(res.judge, MIN * 2), tone: res.enough ? 'red' : 'pale' }], mark: { v: MIN, text: `${fmt(MIN)}円` }, ends: ['0', `数える額 ${fmt(res.judge)}円`] },
+      rows: [['商品の値段', `${$('price').value}円`], ['クーポン', $('coupon').value ? `${$('coupon').value}円` : '—']],
+      notes: [WHY[kind] || (res.enough ? '1,000円以上なので1店舗です' : `あと${fmt(res.short)}円で1店舗です`)],
+    }),
+  });
   $('r-v').classList.toggle('is-no', res.status === 'no');
   $('d-judge').textContent = res.judge === null ? '—' : `${fmt(res.judge)}円`;
   fill.style.width = res.judge === null ? '0%' : `${Math.min(100, (res.judge / (MIN * 2)) * 100).toFixed(1)}%`;

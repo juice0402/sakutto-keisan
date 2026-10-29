@@ -10,12 +10,18 @@ import { boxField } from '../fields.mjs';
 import { POINT_EVENTS, POINT_SOURCES, POINT_CAPS, POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
 import { marathonPoints, pointReach } from '../lib/point.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 const capName = (c) => (c >= 10000 ? `${c / 10000}万` : fmt(c));
 const EX = marathonPoints({ total: 30000, shops: 5, cap: 7000, minYen: POINT_MIN_YEN, maxShops: POINT_MAX_SHOPS });
 
 // 店舗の数：大きな −／＋ と、名前を中に書いたまん中の欄（ほかの欄と左右のはしをそろえる）
+// 図解（#80）：通常のポイントから買いまわりの特典へ（30,000円・5店舗）と、ポイントの帯（通常と特典）
+export const Z_POINT = { base: EX.base, bonus: EX.bonus };
+const ZUKAI = stair(zBox(`合計${fmt(EX.total)}円の通常`, `${fmt(EX.base)}ポイント`), { b: `×（${EX.shops} − 1）`, small: `${EX.shops}店舗なら${EX.shops - 1}倍` }, zBox('買いまわりの特典', `${fmt(EX.bonus)}ポイント`, true), ['特典 ＝ 通常のポイント ×（店舗の数 − 1）', '通常のポイント ＝ 税抜の合計の1%', `例：合計${fmt(EX.total)}円・${EX.shops}店舗なら、税抜${fmt(EX.zeinuki)}円で通常のポイントは${fmt(EX.base)}、特典は${fmt(EX.bonus)}ポイントです。`]);
+const ZW = ((EX.base / (EX.base + EX.bonus)) * 100).toFixed(1);
+const BAND = band({ head: `合計${fmt(EX.total)}円・${EX.shops}店舗`, parts: [{ w: ZW, kind: 'alt', text: fmt(EX.base) }, { w: (100 - ZW).toFixed(1), text: `特典 ${fmt(EX.bonus)}` }], ruler: [[0, '0'], [100, fmt(EX.base + EX.bonus)]], ans: `通常の${EX.shops - 1}つ分 → <b>${fmt(EX.bonus)}ポイント</b>`, label: `ポイントの帯を、通常${fmt(EX.base)}と特典${fmt(EX.bonus)}に分けた図` });
 const STEPPER = `<div class="stepper box-stepper">
       <button type="button" class="step-btn" id="shops-minus" aria-label="店舗を1つへらす">${icon('<path d="M5 12h14"/>')}</button>
       <div class="field box-field" id="f-shops"><label for="shops">店舗</label><div class="input"><input id="shops" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="5" data-hint="1店舗1,000円以上の注文がある店の数"><span class="unit">店</span></div></div>
@@ -132,25 +138,22 @@ export default function render() {
   </div>
   <p class="tag-note" id="r-note" hidden></p>
   <p class="note">目安です。付与は楽天の計算によります。</p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>特典 ＝ 通常のポイント ×（店舗の数 − 1）</span>
-<span>通常のポイント ＝ 税抜の合計の1%</span>
-</div>
-<p>例：合計${fmt(EX.total)}円・${EX.shops}店舗なら、税抜${fmt(EX.zeinuki)}円で通常のポイントは${fmt(EX.base)}、特典は${fmt(EX.bonus)}ポイントです。もう1店舗で1,000円ふやすと、特典は${fmt(EX.next)}ポイント増えます。</p>
+  `${ZUKAI}
+<p>もう1店舗で1,000円ふやすと、特典は${fmt(EX.next)}ポイント増えます。</p>
 <p>税抜は税込を10％で割って出し、1ポイント未満は切り捨てです。実際は注文ごとに計算するので、少しずれることがあります。</p>`,
 )}
 
 ${section(
   'table',
   '上限に届く合計の早見表',
-  `<div class="tbl-wrap"><table class="tbl-tight pt-quick">
+  `${BAND}<div class="tbl-wrap"><table class="tbl-tight pt-quick">
 <thead><tr><th class="num">店舗</th><th class="num">倍率</th>${POINT_CAPS.map((c) => `<th class="num">上限${capName(c)}</th>`).join('')}</tr></thead>
 <tbody>
 ${REACH_ROWS}

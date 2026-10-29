@@ -10,6 +10,7 @@ import { boxField } from '../fields.mjs';
 import { furusatoLimit, furusatoFromNotice, furusatoIncomeFor, furusatoCouple, furusatoBreakdown, spouseIncomeEdges, TOKUREI_BANDS, tokureiRatio } from '../lib/furusato.mjs';
 import { FURUSATO_YEARS, FURUSATO_SOURCES, FURUSATO_FUUFU_SOURCES } from '../data/furusato.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const YEAR = 2026; // 寄付の年（1月1日に次の年へ。src/data/furusato.mjs に足してから）
 const CFG = FURUSATO_YEARS[YEAR];
@@ -51,6 +52,11 @@ const FAMILY_TILES = `<div class="tiles tiles-2" role="group" aria-label="配偶
     </div>`;
 const EX = furusatoLimit({ income: 5000000 }, CFG);
 // 上限が1万円になる年収（よくある質問の「年収いくらから」）
+// 図解（#80）：所得割から上限の書類へ（年収500万円・ひとり）と、上限の帯（税から減る分と自己負担2,000円）
+const pct = (r) => `${Number((r * 100).toFixed(3))}%`;
+export const Z_TOP = { shotokuwari: EX.shotokuwari, ratio: pct(EX.ratio), limit: EX.limit };
+const ZUKAI = stair(zBox('年収500万円・ひとりの所得割', yen(EX.shotokuwari)), { b: `×20% ÷ ${pct(EX.ratio)}`, small: '＋2,000円' }, zBox('上限の目安', `約${yen(EX.limit)}`, true), ['上限 ＝ 所得割 × 20% ÷ 割合 ＋ 2,000円', '割合 ＝ 90% − 所得税率 × 1.021', `例：年収500万円・ひとりなら、所得割${yen(EX.shotokuwari)}・所得税率5%で、上限は約${yen(EX.limit)}です。`]);
+const BAND = band({ head: `上限の目安 ${yen(EX.limit)}`, parts: [{ w: (((EX.limit - 2000) / EX.limit) * 100).toFixed(1), text: `税から減る ${yen(EX.limit - 2000)}` }, { w: ((2000 / EX.limit) * 100).toFixed(1), kind: 'off' }], ruler: [[0, '0'], [100, yen(EX.limit)]], ans: `自己負担は1年の合計で → <b>2,000円</b>`, label: `上限${yen(EX.limit)}の帯を、税から減る${yen(EX.limit - 2000)}と自己負担2,000円に分けた図` });
 const FROM_SINGLE = furusatoIncomeFor({ target: 10000 }, CFG);
 const FROM_COUPLE = furusatoIncomeFor({ target: 10000, spouse: true }, CFG);
 
@@ -142,11 +148,8 @@ function renderMain() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>上限 ＝ 所得割 × 20% ÷ 割合 ＋ 2,000円</span>
-<span>割合 ＝ 90% − 所得税率 × 1.021</span>
-</div>
-<p>所得割は住民税の所得割（調整控除のあと）で、割合は特例控除の割合です。例：年収500万円・ひとりなら、所得割${yen(EX.shotokuwari)}・所得税率5%で、上限は約${yen(EX.limit)}です。</p>
+  `${ZUKAI}
+<p>所得割は住民税の所得割（調整控除のあと）で、割合は特例控除の割合です。</p>
 <p>自己負担の2,000円は、寄付先や寄付の回数がいくつあっても、1年の合計で1回です。</p>
 <p>年収から出すときは、給与だけで、社会保険料は年収の15%、ほかの控除はないものとしています。1,000円未満は切り捨てです。正確な額は、住民税の決定通知書や市区町村で確かめてください。</p>`,
 )}
@@ -154,7 +157,7 @@ ${section(
 ${section(
   'table',
   `上限の早見表（${YEAR}年の寄付）`,
-  `<p>ひとり・共働き（配偶者を扶養していない）</p>
+  `${BAND}<p>ひとり・共働き（配偶者を扶養していない）</p>
 ${quickTable(false)}
 <p>夫婦（配偶者を扶養している）</p>
 ${quickTable(true)}
@@ -197,6 +200,9 @@ ${N_ROWS.map((t) => `<tr><td class="num">${fmt(t / 10000)}万円</td>${KIDS.map(
 </table></div>`;
 const N_EX = furusatoIncomeFor({ target: 50000 }, CFG);
 const N_EX2 = furusatoIncomeFor({ target: 50000, spouse: true }, CFG);
+// 図解（#80）：寄付したい額から年収の目安へ（5万円・ひとり）
+export const Z_NENSHU = { man: N_EX.man, limit: N_EX.limit };
+const N_ZUKAI = stair(zBox('寄付したい額', yen(50000)), { b: '上限が届く年収', small: '1万円ずつ探す' }, zBox('ひとりの年収の目安', `${N_EX.man}万円`, true), ['上限 ＝ 所得割 × 20% ÷ 割合 ＋ 2,000円', '年収の目安 ＝ 上限が寄付額に届く、いちばん低い年収', `例：5万円なら、ひとりで年収${N_EX.man}万円の上限が${yen(N_EX.limit)}です。`]);
 const N_EX30 = furusatoIncomeFor({ target: 300000 }, CFG);
 const N_EX50 = furusatoIncomeFor({ target: 500000 }, CFG);
 
@@ -257,11 +263,8 @@ function renderNenshu() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>上限 ＝ 所得割 × 20% ÷ 割合 ＋ 2,000円</span>
-<span>年収の目安 ＝ 上限が寄付額に届く、いちばん低い年収</span>
-</div>
-<p>年収を1万円ずつ変えて、<a href="/furusato/">上限の目安</a>と同じ計算で上限を出し、寄付したい額に届く年収を探しています。例：5万円なら、ひとりで年収${N_EX.man}万円の上限が${yen(N_EX.limit)}です。</p>
+  `${N_ZUKAI}
+<p>年収を1万円ずつ変えて、<a href="/furusato/">上限の目安</a>と同じ計算で上限を出し、寄付したい額に届く年収を探しています。</p>
 <p>給与だけで、社会保険料は年収の15%、ほかの控除はないものとしています。正確な額は、住民税の決定通知書や市区町村で確かめてください。</p>`,
 )}
 
@@ -324,6 +327,11 @@ ${F_ROWS.map((m) => `<tr><td class="num">${fmt(m)}万</td>${F_COLS.map((c) => {
 const F_EX = furusatoCouple({ income1: 6000000, income2: 3000000 }, CFG);
 const F_EX2 = furusatoCouple({ income1: 5000000, income2: 1500000 }, CFG);
 const man = (y) => `${fmt(y / 10000)}万円`;
+// 図解（#80）：2人の書類を足す（600万円と300万円）と、合計の帯を2人に分けた図
+export const Z_FUUFU = { a: F_EX.a.limit, b: F_EX.b.limit, total: F_EX.total };
+const F_ZUKAI = stair(zBox('あなた 年収600万円', `約${yen(F_EX.a.limit)}`) + zBox('配偶者 年収300万円', `約${yen(F_EX.b.limit)}`), { b: '＋', small: '1人ずつ計算して足す' }, zBox('2人の上限', `約${yen(F_EX.total)}`, true), ['2人の上限 ＝ あなたの上限 ＋ 配偶者の上限', `例：あなたが年収600万円・配偶者が300万円なら、あなたは約${yen(F_EX.a.limit)}、配偶者は約${yen(F_EX.b.limit)}で、合計は約${yen(F_EX.total)}です。`]);
+const F_W = ((F_EX.a.limit / F_EX.total) * 100).toFixed(1);
+const F_BAND = band({ head: `2人の上限 ${yen(F_EX.total)}`, parts: [{ w: F_W, text: `あなた ${yen(F_EX.a.limit)}` }, { w: (100 - F_W).toFixed(1), kind: 'alt', text: yen(F_EX.b.limit) }], ruler: [[0, '0'], [100, yen(F_EX.total)]], ans: `2人を足して → <b>${yen(F_EX.total)}</b>`, label: `2人の上限${yen(F_EX.total)}の帯を、あなた${yen(F_EX.a.limit)}と配偶者${yen(F_EX.b.limit)}に分けた図` });
 
 const F_FAQS = [
   {
@@ -392,14 +400,15 @@ ${section(
   'formula',
   '計算のしかた',
   `<p>1人ずつ<a href="/furusato/">上限の目安</a>と同じ式で計算し、2人を足します。配偶者の年収が${man(EDGE.koujo)}までなら配偶者控除、${man(EDGE.tokubetsu)}までなら配偶者特別控除を、年収の多いほうの計算に入れます。</p>
-<p>例：あなたが年収600万円・配偶者が300万円なら、あなたは約${yen(F_EX.a.limit)}、配偶者は約${yen(F_EX.b.limit)}で、合計は約${yen(F_EX.total)}です。配偶者が150万円なら、あなたの上限は配偶者特別控除で約${yen(F_EX2.a.limit)}になります。</p>
+${F_ZUKAI}
+<p>配偶者が150万円なら、あなたの上限は配偶者特別控除で約${yen(F_EX2.a.limit)}になります。</p>
 <p>給与だけで、社会保険料は年収の15%、ほかの控除はないものとしています。正確な額は、住民税の決定通知書や市区町村で確かめてください。</p>`,
 )}
 
 ${section(
   'table',
   `配偶者の年収で変わる、あなたの上限（${YEAR}年の寄付）`,
-  `${fuufuTable()}
+  `${F_BAND}${fuufuTable()}
 <p class="note">年収は万円、上限は円です。</p>
 <p>子の扶養がないときの、あなたの上限です。配偶者の年収が${man(EDGE.koujo)}までは「なし」と同じです。配偶者の上限は、配偶者の年収で<a href="/furusato/">上限の目安</a>の「ひとり」をえらんだ額になります。</p>`,
 )}
@@ -432,6 +441,11 @@ ${relatedHtml(tool)}
 const U_ROWS = [10000, 30000, 50000, 57000, 70000, 100000];
 const U_EX = furusatoBreakdown({ donation: 50000, income: 5000000 }, CFG);
 const U_EX_OVER = furusatoBreakdown({ donation: 70000, income: 5000000 }, CFG);
+// 図解（#80）：寄付を3つの控除と自己負担に分ける（年収500万円・ひとりで5万円）と、寄付額の帯
+export const Z_UCHIWAKE = { it: U_EX.it, kihon: U_EX.kihon, tokurei: U_EX.tokurei, self: U_EX.self };
+const U_ZUKAI = stair(zBox('寄付（年収500万円・ひとり）', yen(50000)), { b: '− 2,000円', small: '3つの控除に分ける' }, zBox('自己負担', yen(U_EX.self), true), ['所得税 ＝（寄付額 − 2,000円）× 所得税率 × 1.021', '基本分 ＝（寄付額 − 2,000円）× 10%', '特例分 ＝（寄付額 − 2,000円）×（90% − 所得税率 × 1.021）', `例：年収500万円・ひとりで5万円寄付すると、所得税${yen(U_EX.it)}・基本分${yen(U_EX.kihon)}・特例分${yen(U_EX.tokurei)}で、自己負担は${yen(U_EX.self)}です。`]);
+const uw = (x) => ((x / 50000) * 100).toFixed(1);
+const U_BAND = band({ head: `寄付 ${yen(50000)}`, parts: [{ w: uw(U_EX.it), kind: 'alt' }, { w: uw(U_EX.kihon), kind: 'alt' }, { w: uw(U_EX.tokurei), text: `特例分 ${yen(U_EX.tokurei)}` }, { w: uw(U_EX.self), kind: 'off' }], ruler: [[0, '0'], [100, yen(50000)]], ans: `のこりの自己負担 → <b>${yen(U_EX.self)}</b>`, label: `寄付5万円の帯を、所得税${yen(U_EX.it)}・基本分${yen(U_EX.kihon)}・特例分${yen(U_EX.tokurei)}・自己負担${yen(U_EX.self)}に分けた図` });
 const uwTable = () =>
   `<div class="tbl-wrap"><table class="tbl-tight fz-quick">
 <thead><tr><th class="num">寄付</th><th class="num">所得税</th><th class="num">基本分</th><th class="num">特例分</th><th class="num">自己負担</th></tr></thead>
@@ -498,19 +512,15 @@ function renderUchiwake() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>所得税 ＝（寄付額 − 2,000円）× 所得税率 × 1.021</span>
-<span>基本分 ＝（寄付額 − 2,000円）× 10%</span>
-<span>特例分 ＝（寄付額 − 2,000円）×（90% − 所得税率 × 1.021）</span>
-</div>
-<p>特例分は住民税の所得割の20%までで、のこりが自己負担です。上限までの寄付なら、3つを足すと寄付額から2,000円を引いた額になります。例：年収500万円・ひとりで5万円寄付すると、所得税${yen(U_EX.it)}・基本分${yen(U_EX.kihon)}・特例分${yen(U_EX.tokurei)}で、自己負担は${yen(U_EX.self)}です。</p>
+  `${U_ZUKAI}
+<p>特例分は住民税の所得割の20%までで、のこりが自己負担です。上限までの寄付なら、3つを足すと寄付額から2,000円を引いた額になります。</p>
 <p>年収から出すときは、<a href="/furusato/">上限の目安</a>と同じく、給与だけで社会保険料は年収の15%としています。1円未満は四捨五入の目安です。</p>`,
 )}
 
 ${section(
   'table',
   `寄付額ごとの内わけ（年収500万円・ひとり・${YEAR}年の寄付）`,
-  `${uwTable()}
+  `${U_BAND}${uwTable()}
 <p class="note">どれも円です。上限は${yen(U_EX.limit)}です。</p>
 <p>上限をこえると、特例分が${yen(U_EX.cap)}で止まり、自己負担がふえます。</p>`,
 )}
@@ -545,6 +555,10 @@ const RANGE_TEXT = ['195万円まで', '330万円まで', '695万円まで', '90
 const RATE_TILES = TOKUREI_BANDS.map(([, r], i) => `<button type="button" class="tile" data-rate="${r}" aria-pressed="false"><b>${Math.round(r * 100)}%</b><small>${RANGE[i]}</small></button>`).join('\n      ');
 const RATE_ROWS = TOKUREI_BANDS.map(([, r], i) => `<tr><td class="num">${Math.round(r * 100)}%</td><td>${RANGE_TEXT[i]}</td><td class="num">${(tokureiRatio(r) * 100).toFixed(3).replace(/\.?0+$/, '')}%</td></tr>`).join('\n');
 const EX2 = furusatoFromNotice({ shotokuwari: 235500, rate: 0.05 });
+// 図解（#80）：決定通知書の所得割から控除上限額へと、所得割の帯の20%（特例分はここまで）
+export const Z_JOUGEN = { cap: EX2.cap, limit: EX2.limit };
+const J_ZUKAI = stair(zBox('決定通知書の所得割', yen(235500)), { b: '×20% ÷ 84.895%', small: '＋2,000円' }, zBox('控除上限額', `約${yen(EX2.limit)}`, true), ['上限 ＝ 所得割 × 20% ÷ 割合 ＋ 2,000円', '割合 ＝ 90% − 所得税率 × 1.021', `例：所得割235,500円・所得税率5%なら、${yen(EX2.cap)} ÷ 84.895% ＋ 2,000円で、上限は約${yen(EX2.limit)}です。`]);
+const J_BAND = band({ head: `所得割 ${yen(235500)}`, parts: [{ w: 20, text: yen(EX2.cap) }, { w: 80, kind: 'alt', text: '' }], ruler: [[0, '0'], [20, '20%', true], [100, '100%']], ans: `特例分はここまで → <b>${yen(EX2.cap)}</b>`, label: `所得割${yen(235500)}の帯の20%、${yen(EX2.cap)}が特例分の上限という図` });
 
 const FAQS2 = [
   {
@@ -608,12 +622,8 @@ function renderJougen() {
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>上限 ＝ 所得割 × 20% ÷ 割合 ＋ 2,000円</span>
-<span>割合 ＝ 90% − 所得税率 × 1.021</span>
-</div>
+  `${J_ZUKAI}${J_BAND}
 <p>割合は特例控除の割合です。</p>
-<p>例：所得割235,500円・所得税率5%なら、${yen(EX2.cap)} ÷ 84.895% ＋ 2,000円で、上限は約${yen(EX2.limit)}です。</p>
 <div class="tbl-wrap"><table>
 <thead><tr><th class="num">所得税率</th><th>課税される所得</th><th class="num">特例控除の割合</th></tr></thead>
 <tbody>

@@ -9,12 +9,18 @@ import { boxField } from '../fields.mjs';
 import { SPU_ITEMS, SPU_SOURCES, SPU_BASE, SPU_MAX } from '../data/spu.mjs';
 import { spuPoints, spuCapOf, spuReach } from '../lib/spu.mjs';
 import { fmt } from '../lib/number.mjs';
+import { stair, band, zBox } from '../zukai.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 const CHECKED = SPU_SOURCES[0].checked;
 const EX_PICK = ['card', 'mobile', 'bank'];
 const EX = spuPoints({ total: 30000, picked: EX_PICK }, SPU_ITEMS, SPU_BASE);
 const exNames = EX_PICK.map((id) => SPU_ITEMS.find((x) => x.id === id).name).join('・');
+// 図解（#80）：買い物から倍率をかけてポイントへ（30,000円・楽天カードと楽天モバイルと楽天銀行）と、ポイントの帯（サービスごと）
+export const Z_SPU = { rate: EX.rate, points: EX.points, base: EX.base, rows: EX.rows.map((r) => r.pts) };
+const ZUKAI = stair(zBox('今月の買い物（税込）', `${fmt(EX.total)}円`), { b: `×${EX.rate}倍`, small: `税抜${fmt(EX.net)}円にかける` }, zBox('ポイントの目安', `${fmt(EX.points)}ポイント`, true), ['ポイント ＝ 税抜の額 × 倍率 ÷ 100', '税抜の額 ＝ 税込 × 10 ÷ 11', `例：今月の買い物が${fmt(EX.total)}円で、${exNames}を使っているなら${EX.rate}倍で、ポイントは${fmt(EX.points)}です。`]);
+const sw = (x) => ((x / EX.points) * 100).toFixed(1);
+const BAND = band({ head: `今月${fmt(EX.total)}円・${EX.rate}倍`, parts: [{ w: sw(EX.base), kind: 'alt', text: '' }, ...EX.rows.map((r, i) => ({ w: sw(r.pts), kind: i % 2 ? 'alt' : 'pay', text: r.pts >= EX.points * 0.2 ? fmt(r.pts) : '' }))], ruler: [[0, '0'], [100, fmt(EX.points)]], ans: `${EX.rows.length + 1}つを足して → <b>${fmt(EX.points)}ポイント</b>`, label: `ポイント${fmt(EX.points)}の帯を、楽天会員${fmt(EX.base)}と${EX.rows.map((r) => `${r.name}${fmt(r.pts)}`).join('・')}に分けた図` });
 
 // 使っているサービスのチェック欄（□に赤ペンの✓。もう一度押すと外れる）
 const CHECKS = SPU_ITEMS.map(
@@ -108,19 +114,16 @@ export default function render() {
     ${CHECKS}
   </div>
   <p class="note">目安です。付与は楽天の計算によります。</p>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算のしかた',
-  `<div class="formula">
-<span>ポイント ＝ 税抜の額 × 倍率 ÷ 100</span>
-<span>税抜の額 ＝ 税込 × 10 ÷ 11</span>
-</div>
+  `${ZUKAI}${BAND}
 <p>サービスごとに計算して、それぞれ1か月の上限までにします。1ポイント未満は切り捨てで、0.5倍は税抜200円で1ポイントです。楽天カードの通常分だけは、税込の額にかかります。</p>
-<p>例：今月の買い物が${fmt(EX.total)}円で、${exNames}を使っているなら${EX.rate}倍で、ポイントは${fmt(EX.points)}です。実際は注文ごとに計算するので、少しずれることがあります。</p>`,
+<p>実際は注文ごとに計算するので、少しずれることがあります。</p>`,
 )}
 
 ${section(
