@@ -205,10 +205,6 @@ export function imgTag({ was, price, rate, save, conv }) {
     g.arc(x0 + 34, (y0 + y1) / 2, 11, 0, Math.PI * 2);
     g.lineWidth = 2;
     g.stroke();
-    g.beginPath();
-    g.moveTo(x0 + 26, (y0 + y1) / 2 - 6);
-    g.quadraticCurveTo(x0 - 30, y0 - 10, x0 - 20, y0 - 30);
-    g.stroke();
     // 元の値段（取り消し線）
     const cx = (x0 + 60 + x1) / 2;
     g.fillStyle = c.muted;
