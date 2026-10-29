@@ -19,7 +19,7 @@ const srcList = (list, note) =>
   `<ul class="src-list">${list.map((s) => `<li><a href="${esc(s.url)}" rel="noopener">${esc(s.name)}</a></li>`).join('')}</ul>\n<p>2026年10月27日に確認しました。${note}</p>`;
 // 図解（#83）：行事ごとの流れの図（入れるもの → 決まりの短い言葉 → 答え）。数え方が神社・お寺・地域でちがうことは図の下の文にも書く
 // 図の数字は tests/zukai-shigoto.test.mjs
-const calOf = (d, w, ans = false) => zCal(`${d.y}年${d.m}月`, d.d, w, ans);
+const calOf = (d, w, ans = false, calm = false) => zCal(`${d.y}年${d.m}月`, d.d, w, ans, calm);
 export const Z_GYOJI = {
   shichi: { born: Y - 3, man3: Y, kazoe3: Y - 1 },
   yaku: { born: Y - 41, hon: Y, mae: Y - 1, ato: Y + 1 },
@@ -350,7 +350,7 @@ function renderShijuku() {
 ${section(
   'formula',
   '計算のしかた',
-  stair(zCal(`${Y}年10月`, 1, '亡くなった日＝1日目'), { b: '＋48日', small: '亡くなった日を1日目に数える' }, calOf(ex.day49, `${weekdayOf(ex.day49)}曜日・四十九日`, true), ['四十九日 ＝ 亡くなった日 ＋ 48日', '◯回忌 ＝ 亡くなった年 ＋（◯ − 1）年', `例：${Y}年10月1日に亡くなったときは、初七日が${md(ex.chuin[0].date)}、四十九日が${md(ex.day49)}です。`, '数え方は、宗派や地域によってちがいます。']),
+  `<div class="fz-calm-f">${stair(zCal(`${Y}年10月`, 1, '亡くなった日＝1日目', false, true), { b: '＋48日', small: '亡くなった日を1日目に数える' }, calOf(ex.day49, `${weekdayOf(ex.day49)}曜日・四十九日`, true, true), ['四十九日 ＝ 亡くなった日 ＋ 48日', '◯回忌 ＝ 亡くなった年 ＋（◯ − 1）年', `例：${Y}年10月1日に亡くなったときは、初七日が${md(ex.chuin[0].date)}、四十九日が${md(ex.day49)}です。`, '数え方は、宗派や地域によってちがいます。'])}</div>`,
 )}
 
 ${section(

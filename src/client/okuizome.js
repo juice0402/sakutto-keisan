@@ -33,7 +33,7 @@ function update() {
   memo({
     q: `${cmYmd($('birth').value)}生まれ`,
     a: `お食い初め ${d.y}年${gyMd(d)}`,
-    img: () => imgCal({ start: `${cmYmd($('birth').value)}生まれのお食い初め`, ym: `${d.y}年${d.m}月`, d: String(d.d), w: `${wd}曜日`, wColor: wd === '日' ? 'sun' : wd === '土' ? 'sat' : '', num: '100', unit: '日目' }),
+    img: () => imgCal({ start: `${cmYmd($('birth').value)}生まれのお食い初め`, ym: `${d.y}年${d.m}月`, d: String(d.d), w: `${wd}曜日`, wColor: wd === '日' ? 'sun' : wd === '土' ? 'sat' : '', num: '100', unit: '日目', note: '数え方は、地域や家によってちがいます' }),
   });
 }
 

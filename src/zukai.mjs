@@ -12,7 +12,8 @@ const val = (value, ans) => (ans ? `<em>${value}</em>` : value);
 export const zTag = (label, value, ans = false) => `<div class="fz-tag"><small>${esc(label)}</small>${val(value, ans)}</div>`;
 export const zReceipt = (label, value, ans = false) => `<div class="fz-rc"><small>${esc(label)}</small>${val(value, ans)}</div>`;
 export const zBox = (label, value, ans = false) => `<div class="fz-box"><small>${esc(label)}</small>${val(value, ans)}</div>`;
-export const zCal = (ym, d, w, ans = false) => `<div class="fz-cal"><span class="fz-ym">${esc(ym)}</span><b${ans ? ' class="fz-red"' : ''}>${d}</b><span>${esc(w)}</span></div>`;
+// calm：弔事（四十九日）の日めくり。紺の頭で、答えも赤ペンにせず大きな紺の字（#83）
+export const zCal = (ym, d, w, ans = false, calm = false) => `<div class="${calm ? 'fz-cal fz-calm' : 'fz-cal'}"><span class="fz-ym">${esc(ym)}</span><b${ans && !calm ? ' class="fz-red"' : ''}>${d}</b><span>${esc(w)}</span></div>`;
 export const zTks = (values) => `<div class="fz-tks">${values.map((v) => `<span class="fz-tk"><em>${v}</em></span>`).join('')}</div>`;
 export const zTickets = (value, n) => zTks(Array.from({ length: n }, () => value));
 
