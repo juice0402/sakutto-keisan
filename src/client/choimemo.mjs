@@ -44,6 +44,21 @@ function cmWhen(ms) {
   return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
+// 付箋の字は言葉のまん中で改行しない（CSS の keep-all）。改行してよいのは、数字や漢字のあとの「の・を・で・に」などと「・」「、」のあとだけ
+const CM_BREAK = /([^ぁ-ゟ\s])(から|まで|より|には|では|との|への|の|を|で|に|は|と|が|へ|も)|[・、]/g;
+
+/** text を el に入れる。改行してよい所に <wbr>（文字はそのまま入れるので HTML にならない） */
+function cmWrap(el, text) {
+  let at = 0;
+  for (const m of text.matchAll(CM_BREAK)) {
+    const end = m.index + m[0].length;
+    if (end >= text.length) break;
+    el.append(text.slice(at, end), document.createElement('wbr'));
+    at = end;
+  }
+  el.append(text.slice(at));
+}
+
 /** 付箋を並べる。tool があればそのツールのメモだけ、なければ全ツールのメモ（1行の頭にツールの短い名前） */
 export function cmDraw(box, tool, max) {
   const list = cmLoad().filter((m) => !tool || m.t === tool).slice(0, max);
@@ -58,11 +73,11 @@ export function cmDraw(box, tool, max) {
     if (!tool && m.n) {
       const name = document.createElement('i');
       name.textContent = m.n;
-      q.append(name);
+      q.append(name, document.createElement('wbr'));
     }
-    q.append(m.q);
+    cmWrap(q, m.q);
     const a = document.createElement('b');
-    a.textContent = m.a;
+    cmWrap(a, m.a);
     const x = document.createElement('button');
     x.type = 'button';
     x.className = 'x';
