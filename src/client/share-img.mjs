@@ -10,6 +10,8 @@ const IMG_MAX_TICKETS = 12;
 
 /** 色（ページの CSS の値。読めないときは方眼ノートの色） */
 function imgColors() {
+  // FX の手帳は暗いリフィルに白いインクなので、紙の画像では黒いインクと金のペンにする（#83）
+  if (document.body.dataset.theme === 'fx') return { ink: '#1b1d21', red: '#8a6a2a', muted: '#5d5a52', rule: '#b5ad9c', sheet: '#f3f1ea' };
   const css = getComputedStyle(document.body);
   const color = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
   return {

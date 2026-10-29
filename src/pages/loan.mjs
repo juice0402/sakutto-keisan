@@ -23,7 +23,7 @@ const man = (x) => fmt(Math.round(x / 10000));
 export const Z_LOAN = { monthly: EX.monthly, total: man(EX.total), interest: man(EX.interest) };
 const ZUKAI = stair(zBox('3,000万円・35年（420回）', '金利 年1％'), { b: '元利均等', small: '毎月同じ額を返す' }, zBox('毎月の返済', `約${fmt(EX.monthly)}円`, true), ['毎月の返済 ＝ 借りる額 × 月利 × B', 'B ＝ A ÷（A − 1）', 'A ＝（1 ＋ 月利）を回数だけかけた数', '月利 ＝ 年利 ÷ 12', `例：3,000万円を金利1％・35年（420回）で借りると、毎月の返済は約${fmt(EX.monthly)}円、利息の合計は約${man(EX.interest)}万円です。`], `返済総額 <b class="fz-red">約${man(EX.total)}万円</b>`);
 const lw = Number(((EX.principal / EX.total) * 100).toFixed(1));
-const BAND = band({ head: `返済総額 約${man(EX.total)}万円`, parts: [{ w: lw, text: '元金 3,000万円' }, { w: Number((100 - lw).toFixed(1)), kind: 'off', text: '利息' }], ruler: [[0, '0'], [lw, '3,000万'], [100, `${man(EX.total)}万`, true]], ans: `金利1％・35年の利息 → <b>約${man(EX.interest)}万円</b>`, label: `返済総額約${man(EX.total)}万円の帯を、元金3,000万円と利息約${man(EX.interest)}万円に分けた図` });
+const BAND = band({ head: `返済総額 約${man(EX.total)}万円`, parts: [{ w: lw, text: '元金 3,000万円' }, { w: Number((100 - lw).toFixed(1)), kind: 'off', text: '利息' }], ruler: [[0, '0'], [100, `${man(EX.total)}万`, true]], ans: `金利1％・35年の利息 → <b>約${man(EX.interest)}万円</b>`, label: `返済総額約${man(EX.total)}万円の帯を、元金3,000万円と利息約${man(EX.interest)}万円に分けた図` });
 
 const FAQS = [
   {

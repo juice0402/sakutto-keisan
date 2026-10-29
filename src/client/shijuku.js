@@ -33,7 +33,7 @@ function update() {
   memo({
     q: `${cmYmd($('death').value)}に亡くなった`,
     a: `四十九日 ${d.y}年${gyMd(d)}`,
-    img: () => imgCal({ start: `${cmYmd($('death').value)}から${taiya ? '・前の日から数える' : ''}`, ym: `${d.y}年${d.m}月`, d: String(d.d), w: `${weekdayOf(d)}曜日`, wColor: '', num: '四十九日', unit: '' }),
+    img: () => imgCal({ start: `${cmYmd($('death').value)}から数えた四十九日${taiya ? '（前の日から）' : ''}`, ym: `${d.y}年${d.m}月`, d: String(d.d), w: `${weekdayOf(d)}曜日`, wColor: '', num: '49', unit: '日目' }),
   });
   $('r-rows').innerHTML = [...res.chuin.map((c, i) => row(c.name, c.date, i === 6)), ...res.nenki.map((n) => row(n.name, n.date, false))].join('');
   $('r-foot').textContent = '';

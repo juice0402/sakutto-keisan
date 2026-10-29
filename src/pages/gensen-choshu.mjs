@@ -37,7 +37,7 @@ const EX_INCL = gensenFromFee(100000, 'incl');
 export const Z_GENSEN = { gensen: EX.gensen, net: EX.net, billed: EX.billed };
 const ZUKAI = stair(zBox('報酬（消費税は別）', '10万円'), { b: '× 10.21％', small: '1円未満は切り捨て' }, zBox('源泉徴収税額', `${fmt(EX.gensen)}円`, true), ['100万円まで ＝ 報酬 × 10.21％', '100万円をこえるとき ＝（報酬 − 100万円）× 20.42％ ＋ 102,100円', '差引ご請求額 ＝ 報酬 ＋ 消費税 − 源泉徴収税額', `例：報酬10万円で消費税を分けて書くと、源泉は${fmt(EX.gensen)}円、振り込まれる額は${fmt(EX.net)}円です。1円未満は切り捨てます。`], `振り込まれる額 <b class="fz-red">${fmt(EX.net)}円</b>`);
 const gw = Number(((EX.net / EX.billed) * 100).toFixed(1));
-const BAND = band({ head: `報酬＋消費税 ${fmt(EX.billed)}円`, parts: [{ w: gw, text: `振込 ${fmt(EX.net)}円` }, { w: Number((100 - gw).toFixed(1)), kind: 'off', text: '源泉' }], ruler: [[0, '0'], [100, fmt(EX.billed)]], ans: `差し引かれる源泉 → <b>${fmt(EX.gensen)}円</b>`, label: `報酬と消費税${fmt(EX.billed)}円の帯を、振り込まれる${fmt(EX.net)}円と源泉${fmt(EX.gensen)}円に分けた図` });
+const BAND = band({ head: `報酬＋消費税 ${fmt(EX.billed)}円`, parts: [{ w: gw, text: `振込 ${fmt(EX.net)}円` }, { w: Number((100 - gw).toFixed(1)), kind: 'off' }], ruler: [[0, '0'], [100, fmt(EX.billed)]], ans: `差し引かれる源泉 → <b>${fmt(EX.gensen)}円</b>`, label: `報酬と消費税${fmt(EX.billed)}円の帯を、振り込まれる${fmt(EX.net)}円と源泉${fmt(EX.gensen)}円に分けた図` });
 
 const FAQS = [
   {

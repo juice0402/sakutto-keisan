@@ -37,7 +37,7 @@ const EX = mitsumori({ area: 300, price: OFFICE.price, month: null, year: 260, o
 const EX_WASH = mitsumori({ area: 100, price: WASH.price, month: null, year: 12, out: 'month' });
 // 図解（#83）：面積・㎡単価・回数から1か月の料金の絵の式と、㎡単価を人件費と経費に分けた帯。数字は tests/zukai-shigoto.test.mjs
 export const Z_MITSU = { once: EX.once, month: EX.month, yearly: EX.yearly, price: OFFICE.price, labor: OFFICE.labor };
-const ZUKAI = stair(zBox(`300㎡ × ㎡単価${fmt(OFFICE.price, 1)}円`, '週5回（年260回）'), { b: '× 260 ÷ 12', small: `1回 ${fmt(EX.once)}円` }, zBox('1か月の料金', `${fmt(EX.month)}円`, true), ['1回の料金 ＝ 面積 × ㎡単価', '1か月の料金 ＝ 1回の料金 × 1年の回数 ÷ 12', `例：300㎡を㎡単価${fmt(OFFICE.price, 1)}円で週5回なら、1回は${fmt(EX.once)}円です。1年260回なので、1か月は${fmt(EX.month)}円、1年は${fmt(EX.yearly)}円になります。`], `1年なら <b class="fz-red">${fmt(EX.yearly)}円</b>`);
+const ZUKAI = stair(zBox(`300㎡ × ㎡単価${fmt(OFFICE.price, 1)}円`, '年260回'), { b: '× 260 ÷ 12', small: `週5回・1回 ${fmt(EX.once)}円` }, zBox('1か月の料金', `${fmt(EX.month)}円`, true), ['1回の料金 ＝ 面積 × ㎡単価', '1か月の料金 ＝ 1回の料金 × 1年の回数 ÷ 12', `例：300㎡を㎡単価${fmt(OFFICE.price, 1)}円で週5回なら、1回は${fmt(EX.once)}円です。1年260回なので、1か月は${fmt(EX.month)}円、1年は${fmt(EX.yearly)}円になります。`], `1年なら <b class="fz-red">${fmt(EX.yearly)}円</b>`);
 const mw = Number(((OFFICE.labor / OFFICE.price) * 100).toFixed(1));
 const BAND = band({ head: `事務室の日常清掃 ㎡単価 ${fmt(OFFICE.price, 1)}円`, parts: [{ w: mw, text: `人件費 ${fmt(OFFICE.labor, 2)}円` }, { w: Number((100 - mw).toFixed(1)), kind: 'alt', text: '経費' }], ruler: [[0, '0'], [100, `${fmt(OFFICE.price, 1)}円`]], ans: `人件費 × ${fmt(KEIHI, 2)} → ㎡単価 <b>${fmt(OFFICE.price, 1)}円</b>`, label: `㎡単価${fmt(OFFICE.price, 1)}円の帯を、人件費${fmt(OFFICE.labor, 2)}円と経費に分けた図` });
 const EX_REV = mitsumori({ area: 200, price: null, month: 20000, year: 52, out: 'price' });
