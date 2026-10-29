@@ -11,6 +11,8 @@ import { Z_YOUBI } from '../src/pages/dai-nan-youbi.mjs';
 import { Z_WAREKI } from '../src/pages/wareki.mjs';
 import { Z_GAKU } from '../src/pages/nenrei.mjs';
 import { daiNanYoubi } from '../src/lib/dai-nan-youbi.mjs';
+import { TOUYU_PRICE } from '../src/data/touyu.mjs';
+import { literPrice } from '../src/lib/touyu.mjs';
 
 test('電気代の図：こたつ600W・1日8時間・単価31円', () => {
   assert.deepEqual(Z_DENKI, { day: 148.8, month: 4464 });
@@ -29,7 +31,7 @@ test('家電別の図：強さごとの棒と絵の式', () => {
 test('灯油代の図：1時間0.3L・1日8時間', () => {
   assert.equal(Z_TOUYU.litersDay, 2.4);
   assert.equal(Z_TOUYU.canDays, 7.5);
-  assert.ok(Z_TOUYU.month > 0);
+  assert.equal(Z_TOUYU.month, Math.round(Z_TOUYU.litersDay * 30 * literPrice(TOUYU_PRICE.can)));
 });
 
 test('からだの図：BMIと偏差値', () => {

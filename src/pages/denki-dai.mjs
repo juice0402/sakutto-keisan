@@ -39,7 +39,8 @@ const EXAMPLE_ROWS = EXAMPLES.map((e) => {
 // 図解（#82）：こたつ600Wを1日8時間の絵の式と、1か月を1日ずつ30日に分けた帯。数字は tests/zukai-kurashi.test.mjs
 const Z = denkiZukai('こたつ', 600, 8);
 export const Z_DENKI = { day: Z.r.day, month: Z.r.month };
-const BAND = band({ head: `こたつ 1か月 約${fmt(Z.r.month, 0)}円`, parts: [{ w: 3.4, kind: 'off', text: '' }, { w: 96.6, text: 'のこりの29日' }], ruler: [[0, `1日 ${fmt(Z.r.day, 1)}円`, true], [100, '30日']], ans: `${fmt(Z.r.day, 1)}円 × 30日 → <b>約${fmt(Z.r.month, 0)}円</b>`, label: `こたつの1か月約${fmt(Z.r.month, 0)}円の帯を、1日${fmt(Z.r.day, 1)}円ずつ30日に分けた図` });
+const dayW = Number((100 / 30).toFixed(2));
+const BAND = band({ head: `こたつ 1か月 約${fmt(Z.r.month, 0)}円`, parts: [{ w: dayW, kind: 'off', text: '' }, { w: Number((100 - dayW).toFixed(2)), text: 'のこりの29日' }], ruler: [[0, `1日 ${fmt(Z.r.day, 1)}円`, true], [100, '30日']], ans: `${fmt(Z.r.day, 1)}円 × 30日 → <b>約${fmt(Z.r.month, 0)}円</b>`, label: `こたつの1か月約${fmt(Z.r.month, 0)}円の帯を、1日${fmt(Z.r.day, 1)}円ずつ30日に分けた図` });
 
 const FAQS = [
   {
