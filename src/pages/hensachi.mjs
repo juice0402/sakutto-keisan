@@ -23,7 +23,7 @@ const ZH = hensachi({ dev: null, score: 72, mean: 60, sd: 12, from: 'score' });
 export const Z_HENSACHI = { dev: ZH.dev, up: ZH.up.num, rank: ZH.rank };
 const ZUKAI = stair(zBox('平均点60点・標準偏差12', '72点'), { b: '50＋10×12÷12', small: '（72 − 60）÷ 12 ＝ 1' }, zBox('偏差値', String(ZH.dev), true), ['偏差値 ＝ 50 ＋ 10 ×（得点 − 平均点）÷ 標準偏差', `例：平均点60点・標準偏差12のテストで72点なら、偏差値は${ZH.dev}で、上位${ZH.up.num}％です。`], `上位 <b class="fz-red">${ZH.up.num}％</b>・100人中${ZH.rank}番くらい`);
 const upW = Number(ZH.up.num);
-const BAND = band({ head: '100人', parts: [{ w: Number((100 - upW).toFixed(1)), text: `下位 ${ZH.low.num}％` }, { w: upW, kind: 'off', text: '上位' }], ruler: [[0, '0'], [100 - upW, `偏差値${ZH.dev}`, true]], ans: `偏差値${ZH.dev}は上位${ZH.up.num}％ → <b>100人中${ZH.rank}番くらい</b>`, label: `100人の帯を、偏差値${ZH.dev}より下の${ZH.low.num}％と上の${ZH.up.num}％に分けた図` });
+const BAND = band({ head: '100人', parts: [{ w: Number((100 - upW).toFixed(1)), text: `下位 ${ZH.low.num}％` }, { w: upW, kind: 'off', text: '上位' }], ruler: [[0, '0'], [100 - upW, `偏差値${ZH.dev}`, true]], ans: `100人中 → <b>${ZH.rank}番くらい</b>`, label: `100人の帯を、偏差値${ZH.dev}より下の${ZH.low.num}％と上の${ZH.up.num}％に分けた図` });
 const SRC = [
   { name: '東京大学「確率と統計」講義 正規分布と偏差値', url: 'https://www.ms.u-tokyo.ac.jp/tambara/docs/l4h20160723-2miyamoto.pdf' },
   { name: '総務省統計局 なるほど統計学園「データの散らばりを見る」', url: 'https://www.stat.go.jp/naruhodo/10_tokucho/chirabari.html' },
