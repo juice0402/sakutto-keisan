@@ -52,6 +52,14 @@ const ZUKAI = stair(zTag('500g', `${fmt(ZA.pay)}円`), { b: '÷500×100', small:
 const zMax = Math.max(ZA.per, ZB.per);
 const BARS = `${band({ head: `A 500g 198円`, parts: [{ w: Number(((ZA.per / zMax) * 100).toFixed(1)), text: `${fmt(ZA.per, 1)}円` }], label: `Aの100gあたり${fmt(ZA.per, 1)}円の棒` })}${band({ head: `B 1kg 298円`, parts: [{ w: Number(((ZB.per / zMax) * 100).toFixed(1)), text: `${fmt(ZB.per, 1)}円` }], ans: `100gあたり安いのは → <b>B ${fmt(ZB.per, 1)}円</b>`, label: `Bの100gあたり${fmt(ZB.per, 1)}円の棒。Bのほうが安い` })}`;
 
+// 図解（#81）：まとめ買いの値札の式（350mlの6本入りが1,180円）と、6本入りとバラの100mlあたりの棒。数字は tests/zukai-seikatsu.test.mjs
+const ZM = calcUnitPrice({ price: 1180, qty: 350, unit: 'ml', packs: 6 });
+const ZN = calcUnitPrice({ price: 208, qty: 350, unit: 'ml' });
+export const Z_MATOME = { a: Number(fmt(ZM.per, 1)), b: Number(fmt(ZN.per, 1)), amount: ZM.amount };
+const ZUKAI_MATOME = stair(zTag('350ml×6本', `${fmt(ZM.pay)}円`), { b: `÷${fmt(ZM.amount)}×100`, small: '全部の量で割る' }, zTag('100mlあたり', `${fmt(ZM.per, 1)}円`, true), ['払う値段 ＝ 値段 ×（100 − 割引シール）÷ 100', '100mlあたり ＝ 払う値段 ÷（1本の量 × 入り数）× 100', `例：350mlの6本入りが1,180円なら、1,180 ÷ ${fmt(ZM.amount)} × 100 ＝ ${fmt(ZM.per, 1)}円。`]);
+const mMax = Math.max(ZM.per, ZN.per);
+const BARS_MATOME = `${band({ head: 'A 350ml×6本 1,180円', parts: [{ w: Number(((ZM.per / mMax) * 100).toFixed(1)), text: `${fmt(ZM.per, 1)}円` }], label: `Aの100mlあたり${fmt(ZM.per, 1)}円の棒` })}${band({ head: 'B 350ml 208円', parts: [{ w: Number(((ZN.per / mMax) * 100).toFixed(1)), text: `${fmt(ZN.per, 1)}円` }], ans: `100mlあたり安いのは → <b>A ${fmt(ZM.per, 1)}円</b>`, label: `Bの100mlあたり${fmt(ZN.per, 1)}円の棒。Aの6本入りのほうが安い` })}`;
+
 const FAQS = [
   {
     q: '「単価」と「実質単価」はどう違いますか？',
@@ -197,17 +205,13 @@ function renderMatome() {
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>払う値段 ＝ 値段 ×（100 − 割引シール）÷ 100</span>
-<span>100mlあたり ＝ 払う値段 ÷（1本の量 × 入り数）× 100</span>
-</div>
-<p>例：350mlの6本入りが1,180円なら、1,180 ÷ 2,100 × 100 ＝ 56.2円。</p>`,
+  ZUKAI_MATOME,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BARS_MATOME}<div class="tbl-wrap"><table>
 <thead><tr><th>くらべるもの</th><th class="num">A</th><th class="num">B</th><th>安い</th></tr></thead>
 <tbody>
 <tr><td class="wrap">350ml×6本 1,180円 / 350ml 208円</td><td class="num">56.2円</td><td class="num">59.4円</td><td>A</td></tr>

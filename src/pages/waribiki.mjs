@@ -15,6 +15,11 @@ import { stair, band, zTag } from '../zukai.mjs';
 const ZX = calcDiscount({ price: 5000, rate: 30 });
 const ZUKAI = stair(zTag('元の値段', `${fmt(5000)}円`), { b: '×0.7', small: '30％オフ' }, zTag('割引後', `${fmt(ZX.final)}円`, true), ['割引後の値段 ＝ 元の値段 ×（100 − 割引率）÷ 100', `例：5,000円の30％オフは、5,000 × 70 ÷ 100 ＝ ${fmt(ZX.final)}円`]);
 const BAND = band({ head: `元の値段 ${fmt(5000)}円`, parts: [{ w: 70, text: `払う ${fmt(ZX.final)}円` }, { w: 30, kind: 'off', text: `−${fmt(ZX.off)}円` }], ruler: [[0, '0'], [70, '70％', true], [100, '100％']], ans: `30％オフは7割を払う → <b>${fmt(ZX.final)}円</b>`, label: `元の値段5,000円の帯を、払う${fmt(ZX.final)}円と値引き${fmt(ZX.off)}円に分けた図` });
+// 図解（#81）：割引率の計算の値札の式（2,000円が1,700円）と、元の値段の帯
+const ZR = calcRate({ price: 2000, sale: 1700 });
+export const Z_RITSU = { off: ZR.off, rate: ZR.rate };
+const ZUKAI_RATE = stair(zTag('元の値段', `${fmt(2000)}円`), { b: `${fmt(ZR.off)}÷${fmt(2000)}`, small: `値引き ${fmt(ZR.off)}円` }, zTag('割引率', `${fmt(ZR.rate)}％オフ`, true), ['割引率 ＝（元の値段 − 割引後の値段）÷ 元の値段 × 100', '割引率 ＝ 値引きの額 ÷ 元の値段 × 100', `例：2,000円が1,700円なら、${fmt(ZR.off)} ÷ 2,000 × 100 ＝ ${fmt(ZR.rate)}％オフです。`]);
+const BAND_RATE = band({ head: `元の値段 ${fmt(2000)}円`, parts: [{ w: 100 - ZR.rate, text: `払う ${fmt(ZR.sale)}円` }, { w: ZR.rate, kind: 'off', text: '' }], ruler: [[0, '0'], [100 - ZR.rate, `${100 - ZR.rate}％`, true]], ans: `${fmt(ZR.off)}円の値引きは → <b>${fmt(ZR.rate)}％オフ</b>`, label: `元の値段2,000円の帯を、払う${fmt(ZR.sale)}円と値引き${fmt(ZR.off)}円に分けた図。${fmt(ZR.rate)}％オフ` });
 const DESC_EX = { price: 1980, final: calcDiscount({ price: 1980, rate: 30 }).final }; // 説明文（meta description）の例
 const QUICK_ROWS = QUICK_PRICES.map(
   (p) => `<tr><td class="num">${fmt(p)}円</td>${QUICK_RATES.map((r) => `<td class="num">${fmt(calcDiscount({ price: p, rate: r }).final)}</td>`).join('')}</tr>`,
@@ -242,24 +247,20 @@ function renderRate() {
   </div>
 
   <div class="calc-tools"><a class="tool-btn tool-link span-3" href="/waribiki/">割引後の値段を出す</a></div>
-  ${memoHtml(tool, false)}
+  ${memoHtml(tool)}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>割引率 ＝（元の値段 − 割引後の値段）÷ 元の値段 × 100</span>
-<span>割引率 ＝ 値引きの額 ÷ 元の値段 × 100</span>
-</div>
-<p>例：2,000円が1,700円なら、300 ÷ 2,000 × 100 ＝ 15％オフです。</p>`,
+  ZUKAI_RATE,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND_RATE}<div class="tbl-wrap"><table>
 <thead><tr><th>元の値段</th><th class="num">割引後</th><th class="num">割引率</th></tr></thead>
 <tbody>
 <tr><td>2,000円</td><td class="num">1,700円</td><td class="num">15％オフ</td></tr>

@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { calcRate, rateFromOff, wariLabel } from '../lib/waribiki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgTag } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('waribiki-ritsu.png');
 
 // 割引率の計算：元の値段と、割引後の値段か値引きの額（あとから入れたほう）から何％オフか。もう片方の欄に答え（点線の枠に赤い数字）
 let from = 'sale';
@@ -66,7 +67,19 @@ function update() {
     return;
   }
   $('t-was').innerHTML = `元の値段 <s>${yen(price)}</s>`;
-  memo({ q: `${yen(price)} → ${yen(res.sale)}`, a: res.increase ? `${fmt(-res.rate, 1)}％高い` : `${fmt(res.rate, 1)}％オフ` });
+  const exactRate = Math.abs(res.rate * 10 - Math.round(res.rate * 10)) < 1e-9;
+  memo({
+    q: `${yen(price)} → ${yen(res.sale)}`,
+    a: res.increase ? `${fmt(-res.rate, 1)}％高い` : `${fmt(res.rate, 1)}％オフ`,
+    img: () => imgTag({
+      was: yen(price),
+      price: `${exactRate ? '' : '約'}${fmt(res.increase ? -res.rate : res.rate, 1)}`,
+      unit: res.increase ? '％高い' : '％オフ',
+      rate: '',
+      save: res.increase ? `${yen(-res.off)} 高い` : res.off > 0 ? `${yen(res.off)} おトク` : '割引なし',
+      conv: res.increase ? `いまの値段 ${yen(res.sale)}` : res.off > 0 && exactRate ? `${wariLabel(res.rate)}・いまの値段 ${yen(res.sale)}` : `いまの値段 ${yen(res.sale)}`,
+    }),
+  });
   if (res.increase) {
     $('t-price').textContent = fmt(-res.rate, 1);
     $('t-unit').textContent = '％高い';

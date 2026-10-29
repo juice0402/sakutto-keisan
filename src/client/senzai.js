@@ -1,9 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
 import { senzai } from '../lib/senzai.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
-import { memoOnly } from './choimemo.mjs';
+import { choiMemo } from './choimemo.mjs';
+import { imgCard } from './share-img.mjs';
 
-const memo = memoOnly();
+const memo = choiMemo('sentaku-senzai.png');
 
 // 洗濯洗剤の量の計算：洗剤のマスをえらぶと、表示の欄（水◯Lに◯mL）にメーカーの表示が入る（自分で書きかえてもよい。書きかえたらマスの印を外す）
 // 水の量はマス（30・45・65L）か、最後のマスに自分で入れる。値段と内容量は入れたときだけ、1回いくらと1本で何回
@@ -53,7 +54,19 @@ function show() {
   }
   const amt = fmt(res.amount, 1);
   $('r-num').textContent = amt;
-  memo({ q: `水${fmt(res.water, 1)}L${brand ? `・${brand.querySelector('b').textContent}` : ''}`, a: `洗剤${amt}mL` });
+  memo({
+    q: `水${fmt(res.water, 1)}L${brand ? `・${brand.querySelector('b').textContent}` : ''}`,
+    a: `洗剤${amt}mL`,
+    img: () => imgCard({
+      title: '洗剤の量',
+      cap: brand ? `${brand.querySelector('b').textContent}・水${fmt(res.water, 1)}L` : `水${fmt(res.water, 1)}L`,
+      num: amt,
+      unit: 'mL',
+      sub: res.caps === null ? '' : `キャップ約${fmt(res.caps, 1)}杯`,
+      rows: [['表示', `水${$('base-water').value}Lに${$('base-amount').value}mL`], ['1回いくら', res.perWash === null ? '—' : `${fmt(res.perWash, 1)}円`], ['1本で', res.washes === null ? '—' : `${fmt(res.washes, 0)}回`]],
+      notes: ['ドラム式やすすぎ1回はボトルの表示を優先'],
+    }),
+  });
   $('r-num').parentElement.classList.toggle('is-long', amt.length > 5);
   $('r-caps').textContent = res.caps === null ? '' : `キャップ約${fmt(res.caps, 1)}杯`;
   const full = brand && brand.dataset.cap ? Number(brand.dataset.cap) : CAP_SCALE;

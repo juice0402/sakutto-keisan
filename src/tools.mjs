@@ -31,7 +31,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '割引後の値段から、何％オフか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['waribiki', 'tanka', 'rieki-ritsu'],
   },
   // 率ごとの割引（10/27 しょーくん「くらしノートに負けない」。検索候補「10 オフ いくら」「20 オフ 元の値段」。割引計算の下のページ。src/pages/waribiki-off.mjs）
@@ -43,7 +43,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '10％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['waribiki', 'waribiki-15', 'waribiki-20', 'waribiki-30'],
   },
   {
@@ -54,7 +54,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '15％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['waribiki', 'waribiki-10', 'waribiki-20', 'waribiki-30'],
   },
   {
@@ -65,7 +65,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '20％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-30'],
   },
   {
@@ -76,7 +76,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '30％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
   },
   {
@@ -87,7 +87,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '40％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
   },
   {
@@ -98,7 +98,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '半額の値段と元の値段',
     published: true,
-    updated: '2026-10-27',
+    updated: '2026-10-29',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
   },
   {
@@ -259,7 +259,7 @@ export const TOOLS = [
     parent: 'tanka',
     short: '6本入りや割引シールの商品は、どれが安いか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['tanka', 'waribiki', 'recipe'],
   },
   {
@@ -268,7 +268,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '2人分のレシピを3人分にするときの分量',
     published: true,
-    updated: '2026-10-17',
+    updated: '2026-10-29',
     related: ['tanka', 'waribiki', 'kishaku'],
   },
   {
@@ -289,7 +289,7 @@ export const TOOLS = [
     parent: 'warikan',
     short: '多めに払う人がいるときの割り勘',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['warikan', 'waribiki', 'rieki-ritsu'],
   },
   {
@@ -318,7 +318,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '水の量から、1回の洗剤の量とキャップ何杯か',
     published: true,
-    updated: '2026-10-28',
+    updated: '2026-10-29',
     related: ['kishaku', 'tanka', 'enbun-noudo', 'denki-dai'],
   },
   // 電気代の計算の下のページ（家電別。トップの目次には出さない）
@@ -400,7 +400,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '浅漬けやパスタの塩は何gか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-29',
     related: ['kishaku', 'recipe', 'mentsuyu', 'tanka'],
   },
   // 希釈率の使いみち別（parent のページの下に並べる）
@@ -411,7 +411,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '2倍・3倍・4倍濃縮のつゆと水の量',
     published: true,
-    updated: '2026-10-17',
+    updated: '2026-10-29',
     related: ['kishaku', 'recipe', 'hyohakuzai', 'ekihi'],
   },
   {
@@ -422,7 +422,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: 'ハイターで0.02％・0.1％の消毒液を作る量',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-29',
     related: ['kishaku', 'mentsuyu', 'ekihi', 'tanka'],
   },
   {
@@ -432,7 +432,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '500倍・1000倍は水1Lに何mlか',
     published: true,
-    updated: '2026-10-17',
+    updated: '2026-10-29',
     related: ['kishaku', 'hyohakuzai', 'mentsuyu', 'tanka'],
   },
   // 残業代：時給から計算するページがもとで、月給から計算するページはその下（parent のページからだけリンク）

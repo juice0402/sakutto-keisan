@@ -6,8 +6,8 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, RECEIPT_EDGE, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { WARIKAN_UNITS, WARIKAN_GROUPS, warikan } from '../lib/warikan.mjs';
-import { stair, band, zReceipt, zTickets } from '../zukai.mjs';
+import { WARIKAN_UNITS, WARIKAN_GROUPS, warikan, warikanKeisha } from '../lib/warikan.mjs';
+import { stair, band, zReceipt, zTickets, zTks } from '../zukai.mjs';
 
 // 合計と人数の早見表（100円単位で集める1人の額。「1万円 3人 割り勘」のような検索で来る人が、表を見ればわかるように）
 export const QUICK_TOTALS = [5000, 10000, 15000, 20000, 25000, 30000, 50000];
@@ -159,6 +159,12 @@ ${relatedHtml(tool)}
 
 // 傾斜割り勘：多め・ふつう・少なめの人数と、ふつうの人の何倍を払うか
 const PEOPLE_EX = ['1', '4', '2'];
+// 図解（#81）：レシートから多め・ふつう・少なめの券へ（30,000円を2倍1人・1倍4人・0.5倍2人）と、合計の帯を何倍の重みで分けた図
+const ZK = warikanKeisha({ total: 30000, unit: 100, groups: [{ people: 1, rate: 2 }, { people: 4, rate: 1 }, { people: 2, rate: 0.5 }] });
+export const Z_KEISHA = { base: Math.round(ZK.base), each: ZK.rows.map((r) => r.each), collect: ZK.collect };
+const yk = (x) => `${x.toLocaleString('ja-JP')}円`;
+const ZUKAI_KEISHA = stair(zReceipt('合計', yk(ZK.total)), { b: '÷7×何倍', small: '何倍の合計 7' }, zTks(ZK.rows.map((r) => yk(r.each))), ['1倍の額 ＝ 合計 ÷ 人数×何倍の合計', '1人の額 ＝ 1倍の額 × 何倍（切り上げ）', `例：30,000円を、2倍の人1人・1倍の人4人・0.5倍の人2人で。2 ＋ 4 ＋ 1 ＝ 7 なので、1倍の額は約${yk(Z_KEISHA.base)}です。100円単位に切り上げて、多め${yk(ZK.rows[0].each)}・ふつう${yk(ZK.rows[1].each)}・少なめ${yk(ZK.rows[2].each)}です。`], `券は左から 多め・ふつう・少なめ の1人の額`);
+const BAND_KEISHA = band({ head: `合計 ${yk(ZK.total)}`, parts: [{ w: 28.57, text: '多め 1人' }, { w: 57.14, kind: 'alt', text: 'ふつう 4人' }, { w: 14.29, text: '' }], ruler: [[100, '少なめ 2人']], ans: `1倍の額は約${yk(Z_KEISHA.base)} → ふつう <b>${yk(ZK.rows[1].each)}</b>`, label: `合計30,000円の帯を、多め1人の2・ふつう4人の4・少なめ2人の1の重みで7つに分けた図` });
 const KEISHA_FAQS = [
   {
     q: '「何倍」には何を入れますか？',
@@ -220,17 +226,13 @@ function renderKeisha() {
 ${section(
   'formula',
   '計算式',
-  `<div class="formula">
-<span>1倍の額 ＝ 合計 ÷ 人数×何倍の合計</span>
-<span>1人の額 ＝ 1倍の額 × 何倍（切り上げ）</span>
-</div>
-<p>例：30,000円を、2倍の人1人・1倍の人4人・0.5倍の人2人で。2 ＋ 4 ＋ 1 ＝ 7 なので、1倍の額は約4,286円です。</p>`,
+  ZUKAI_KEISHA,
 )}
 
 ${section(
   'examples',
   '計算例',
-  `<div class="tbl-wrap"><table>
+  `${BAND_KEISHA}<div class="tbl-wrap"><table>
 <thead><tr><th class="num">合計</th><th class="num">多め</th><th class="num">ふつう</th><th class="num">少なめ</th></tr></thead>
 <tbody>
 <tr><td class="num">30,000円</td><td class="num">8,600円<br><small>2倍・1人</small></td><td class="num">4,300円<br><small>1倍・4人</small></td><td class="num">2,200円<br><small>0.5倍・2人</small></td></tr>
