@@ -20,7 +20,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-31',
     related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
@@ -390,7 +390,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '原液と水を何mlずつ入れるか',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-31',
     related: ['enbun-noudo', 'sentaku-senzai', 'recipe', 'seisou-jikan'],
   },
   {
