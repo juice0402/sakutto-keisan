@@ -127,3 +127,20 @@ test('まちがった入力・空', () => {
   assert.equal(big.ok, true);
   assert.ok(Number.isFinite(big.total));
 });
+
+test('残業代の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const z = (wage, over, night, holiday) => zangyo({ wage, over, night, holiday });
+  assert.equal(overUnit(1050), 1313); // 計算式の例：1,312.5円を四捨五入
+  assert.equal(z(1050, 15, null, null).total, 19695);
+  const part = z(1100, 12, 3, null); // パートの残業12時間・うち深夜3時間
+  assert.deepEqual([amount(part, 'over'), amount(part, 'night'), part.total], [16500, 825, 17325]);
+  assert.equal(z(1300, null, null, 8).total, 14040); // 法定休日8時間（1時間1,755円）
+  assert.equal(z(1300, null, null, 1).total, 1755);
+  const r70 = z(1000, 70, null, null); // 70時間：60時間まで75,000円・こえた10時間15,000円
+  assert.deepEqual([amount(r70, 'over'), amount(r70, 'over60'), r70.total], [75000, 15000, 90000]);
+  assert.equal(zangyoHoursText(20.3), '20時間18分'); // 30分を0.30と入れる
+  assert.deepEqual([z(1200, 20.5, null, null).total, z(1200, 20.3, null, null).total], [30750, 30450]);
+  assert.deepEqual([z(1200, 2, 2, null).total, z(1200, null, 2, null).total], [3600, 600]); // 深夜の欄だけ
+  assert.deepEqual([z(1200, 8, null, null).total, z(1200, null, null, 8).total], [12000, 12960]); // 土曜の出勤
+  assert.deepEqual([z(1000, 1, null, null).total, z(1000, 1, 1, null).total], [1250, 1500]); // よくある質問
+});
