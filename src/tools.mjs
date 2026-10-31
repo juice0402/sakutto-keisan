@@ -329,7 +329,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '強と弱で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['denki-dai', 'denki-moufu', 'hot-carpet', 'ceramic-heater'],
   },
   {
@@ -339,7 +339,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: 'ひと晩と1か月の電気代',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['denki-dai', 'kotatsu', 'hot-carpet', 'ceramic-heater'],
   },
   {
@@ -350,7 +350,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '高と中で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['denki-dai', 'kotatsu', 'denki-moufu', 'ceramic-heater'],
   },
   {
@@ -361,7 +361,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '強と弱で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['denki-dai', 'touyu-dai', 'oil-heater', 'kotatsu'],
   },
   {
@@ -372,7 +372,7 @@ export const TOOLS = [
     parent: 'denki-dai',
     short: '強・中・弱で、1時間と1か月の電気代',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['denki-dai', 'touyu-dai', 'ceramic-heater', 'kotatsu'],
   },
   {
@@ -442,7 +442,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '時給や月給から、残業代はいくらか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['zangyo-gekkyu', 'yukyu-fuyo', 'rieki-ritsu', 'seisou-jikan'],
   },
   {
@@ -462,7 +462,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '入社日から、有給休暇は何日もらえるか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['zangyo-dai', 'zangyo-gekkyu', 'nissu', 'loan'],
   },
   {
@@ -478,7 +478,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '売値と原価から利益率、利益率から売値',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kakeritsu', 'gensen-choshu', 'waribiki', 'tanka', 'seisou-jikan'],
   },
   {
@@ -545,7 +545,7 @@ export const TOOLS = [
     category: 'fx',
     short: 'レバレッジ何倍で、維持率は何％か',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['fx-losscut', 'fx-lot', 'fx-swap'],
   },
   {
@@ -554,7 +554,7 @@ export const TOOLS = [
     category: 'fx',
     short: 'ロスカットまで、あと何円の損か',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['fx-iji-ritsu', 'fx-lot', 'fx-swap'],
   },
   {
@@ -563,7 +563,7 @@ export const TOOLS = [
     category: 'fx',
     short: '1日にいくらもらえるか（目安）',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['fx-iji-ritsu', 'fx-losscut', 'fx-lot'],
   },
   // ロット＝通貨の量（10/27 夜の作業 #61）
@@ -573,7 +573,7 @@ export const TOOLS = [
     category: 'fx',
     short: '許せる損から、何通貨まで取引できるか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['fx-losscut', 'fx-iji-ritsu', 'fx-swap'],
   },
   // ふるさと納税のコーナー（10/22 統合。claude/sakutto-tougou-plan.md）。入口は /furusato/、ページは /furusato/ の下
@@ -681,7 +681,7 @@ export const TOOLS = [
     category: 'furusato',
     short: '寄付の年ごとに、かかわる制度の変更',
     published: true,
-    updated: '2026-10-23',
+    updated: '2026-10-31',
     related: ['furusato', 'furusato-shimekiri', 'furusato-onestop', 'furusato-memo'],
   },
   // 第3弾（10/22）：返礼品。楽天市場の商品検索APIでビルドのときに取る。キーが入って HENREIHIN_LIVE にするまでは公開しない
