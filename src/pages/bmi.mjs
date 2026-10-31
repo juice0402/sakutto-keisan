@@ -6,7 +6,7 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { bmi, BMI_LEVELS } from '../lib/bmi.mjs';
-import { fmt } from '../lib/number.mjs';
+import { fmt, fix } from '../lib/number.mjs';
 import { stair, zBox } from '../zukai.mjs';
 
 const tool = toolBySlug('bmi');
@@ -64,7 +64,28 @@ const FAQS = [
     q: 'BMIは小数第何位まで出しますか？',
     a: '<p>小数第1位までで、第2位を四捨五入しています。判定も、この数で決めています。</p>',
   },
+  {
+    q: '標準体重より重いと肥満ですか？',
+    a: `<p>いいえ。標準体重はBMIが22になる体重で、BMI 25未満なら普通体重です。身長170cmなら標準体重は${fmt(EX.std, 1)}kgで、普通体重は${fmt(EX.range[1], 1)}kgまでです。</p>`,
+  },
 ];
+
+// 計算式のしくみと、使う場面・まちがえやすいところ（AdSense の再審査 #96。数字は tests/scenes-c.test.mjs）
+const C = {
+  ex: bmi({ cm: 158, kg: 52 }),
+  kenshin: bmi({ cm: 175, kg: 78 }),
+  goal: bmi({ cm: 160, kg: null }),
+  child: bmi({ cm: 140, kg: 33 }),
+  lo: bmi({ cm: 170, kg: 72.1 }),
+  hi: bmi({ cm: 170, kg: 72.2 }),
+};
+const HOW = `<p>体重は、背が高いほど重くなります。そのため体重だけでは、身長のちがう人どうしをくらべられません。身長（m）を2回かけた数で割ると、体の大きさのちがいをならして、同じものさしで見られます。</p>
+<p>例：身長158cm・体重52kgなら、52 ÷ 1.58 ÷ 1.58 でBMIは${C.ex.value.toFixed(1)}です。判定は${C.ex.level}で、標準体重は${fmt(C.ex.std, 1)}kgです。</p>`;
+const SCENES = `<p>健康診断の結果を見るときは、身長と体重をそのまま入れます。身長175cm・体重78kgならBMIは${C.kenshin.value.toFixed(1)}で、判定は${C.kenshin.level}です。普通体重の範囲は${fmt(C.kenshin.range[1], 1)}kgまでなので、あと${fmt(fix(78 - C.kenshin.range[1]), 1)}kgでその範囲に入ります。体重の何％かは<a href="/percent/">パーセントの計算</a>で出せます。</p>
+<p>目標の体重を決めるときは、普通体重の範囲を目安にできます。身長160cmなら、範囲は${fmt(C.goal.range[0], 1)}kgから${fmt(C.goal.range[1], 1)}kgまでで、標準体重は${fmt(C.goal.std, 1)}kgです。</p>`;
+const MISTAKES = `<p>身長をcmのまま割ると、けたが合いません。65 ÷ 170 ÷ 170 は約0.0022で、mにした 65 ÷ 1.7 ÷ 1.7 ＝ 約22.5 の1万分の1になります。</p>
+<p>子どもには、この判定は使えません。身長140cm・体重33kgで計算するとBMIは${C.child.value.toFixed(1)}で、大人の基準では${C.child.level}になります。6〜18歳の子どもは肥満度という別の数で見るので、この判定は当てはまりません。</p>
+<p>BMIは小数第1位に四捨五入して判定するので、境目の近くでは0.1kgで判定が変わります。身長170cmなら、72.1kgはBMI ${C.lo.value.toFixed(1)}で${C.lo.level}、72.2kgは${C.hi.value.toFixed(1)}で${C.hi.level}です。</p>`;
 
 export default function render() {
   const body = `
@@ -88,7 +109,7 @@ export default function render() {
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
-${section('formula', '計算式', ZUKAI)}
+${section('formula', '計算式', `${ZUKAI}${HOW}`)}
 
 ${section(
   'levels',
@@ -112,6 +133,8 @@ ${STD_ROWS}
 </tbody>
 </table></div>`,
 )}
+${section('scenes', '使う場面の例', SCENES)}
+${section('mistakes', 'まちがえやすいところ', MISTAKES)}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}
 
