@@ -423,7 +423,7 @@ export const TOOLS = [
     short: 'ハイターで0.02％・0.1％の消毒液を作る量',
     published: true,
     updated: '2026-10-31',
-    related: ['kishaku', 'mentsuyu', 'ekihi', 'tanka'],
+    related: ['kishaku', 'mentsuyu', 'genba', 'ekihi'],
   },
   {
     slug: 'ekihi',
@@ -519,7 +519,7 @@ export const TOOLS = [
     short: '面積と人数から、何時間かかるか',
     published: true,
     updated: '2026-10-29',
-    related: ['seisou-mitsumori', 'kishaku', 'rieki-ritsu', 'zangyo-dai'],
+    related: ['seisou-mitsumori', 'genba', 'kishaku', 'rieki-ritsu', 'zangyo-dai'],
   },
   {
     slug: 'seisou-mitsumori',
@@ -529,7 +529,17 @@ export const TOOLS = [
     short: '㎡単価と回数から、1か月の料金',
     published: true,
     updated: '2026-10-29',
-    related: ['seisou-jikan', 'rieki-ritsu', 'kishaku'],
+    related: ['seisou-jikan', 'genba', 'rieki-ritsu', 'kishaku'],
+  },
+  // 現場手帳（#106。清掃の現場の時間割と作業計画書。お仕事の目次に出す。よく使う計算には入れない）
+  {
+    slug: 'genba',
+    name: '現場手帳',
+    category: 'shigoto',
+    short: '清掃の現場の時間割と作業計画書',
+    published: true,
+    updated: '2026-10-31',
+    related: ['seisou-jikan', 'seisou-mitsumori', 'hyohakuzai'],
   },
   {
     slug: 'shakai-hoken',
