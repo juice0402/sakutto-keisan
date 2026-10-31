@@ -43,7 +43,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '10％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['waribiki', 'waribiki-15', 'waribiki-20', 'waribiki-30'],
   },
   {
@@ -54,7 +54,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '15％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-20', 'waribiki-30'],
   },
   {
@@ -65,7 +65,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '20％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-30'],
   },
   {
@@ -76,7 +76,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '30％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
   },
   {
@@ -87,7 +87,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '40％オフの値段と元の値段',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
   },
   {
@@ -98,7 +98,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '半額の値段と元の値段',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
   },
   {
