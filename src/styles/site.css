@@ -1469,7 +1469,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .gb-row .input .gb-name { padding: 0; font-size: 17px; font-weight: 800; }
 .gb-nm label { font-size: 12px; font-weight: 600; line-height: 1.2; color: var(--muted); }
 .gb-cell { position: relative; display: flex; flex: 0 0 112px; align-items: flex-end; align-self: stretch; padding: 0 0 0 10px; border-left: 1px dashed var(--rule); }
-.is-own .gb-cell { flex-basis: 96px; }
+.is-own .gb-cell { flex-basis: 88px; }
 .gb-cell label { position: absolute; top: 7px; left: 10px; font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
 .gb-row .input .gb-num { padding: 20px 0 8px; font-size: 21px; }
 .gb-cell .unit { align-self: flex-end; margin: 0 0 13px 3px; font-size: 14px; }
