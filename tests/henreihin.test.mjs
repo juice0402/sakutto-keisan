@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readAmount, perMan, whenOf, hrPrepare, firstPick, hrNormalize } from '../src/lib/henreihin.mjs';
+import { readAmount, perMan, whenOf, hrPrepare, firstPick, hrNormalize, hrStats } from '../src/lib/henreihin.mjs';
 
 // 商品名はどれも作り話（本物の楽天のデータはリポジトリに入れない。楽天ウェブサービスの規約 第10条9号）
 const kg = (name) => readAmount(name, 'kg');
@@ -94,4 +94,29 @@ test('ページに出す形：ふるさと納税の店だけ・同じ商品は1�
   assert.equal(Math.round(list[0].per * 100) / 100, 7.5);
   assert.equal(firstPick(list).code, 'b'); // 2万円まで・定期便でない・レビュー10件以上で、届く時期が書いてあるもの
   assert.equal(firstPick([]), null);
+});
+
+test('一覧の数字のまとめ（件数・1万円あたりの幅とまん中・定期便・2万円まで）', () => {
+  const base = { url: '#', img: '', shop: '見本町', rating: 4.5, reviews: 20 };
+  const items = [
+    { ...base, code: 'a', name: '見本米 無洗米 5kg', price: 12000, shopCode: 'f000001-mihon' },
+    { ...base, code: 'b', name: '見本米 10kg 1月発送', price: 18000, shopCode: 'f000002-mihon' },
+    { ...base, code: 'c', name: '見本米 玄米 20kg', price: 30000, shopCode: 'f000003-mihon' },
+    { ...base, code: 'f', name: '【定期便】見本米 10kg 全3回', price: 40000, shopCode: 'f000005-mihon' },
+  ];
+  const st = hrStats(hrPrepare(items, 'kg'));
+  // 1万円あたり：f 7.5・c 6.67・b 5.56・a 4.17 → まん中は (6.67 + 5.56) ÷ 2
+  assert.equal(st.count, 4);
+  assert.equal(Math.round(st.min * 100) / 100, 4.17);
+  assert.equal(Math.round(st.max * 100) / 100, 7.5);
+  assert.equal(Math.round(st.median * 100) / 100, 6.11);
+  assert.equal(st.teiki, 1);
+  assert.equal(st.when, 1);
+  assert.equal(st.under2, 2);
+  assert.equal(Math.round(st.under2Max * 100) / 100, 5.56);
+  assert.equal(st.minPrice, 12000);
+  assert.equal(st.maxPrice, 40000);
+  assert.equal(st.musen, 1);
+  assert.equal(st.genmai, 1);
+  assert.equal(hrStats([]), null);
 });

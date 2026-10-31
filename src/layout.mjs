@@ -132,7 +132,7 @@ ${breadcrumbHtml(crumbs)}
       <a href="/">ツール一覧</a>
       <a href="/about/">このサイトについて</a>
       <a href="/privacy/">プライバシーポリシー</a>
-      <a href="/disclaimer/">免責事項</a>
+      <a href="/disclaimer/">免責事項</a>${SITE.contact ? '\n      <a href="/contact/">お問い合わせ</a>' : ''}
     </nav>
     <p class="copy">© ${year === SITE.startYear ? year : `${SITE.startYear}–${year}`} ${esc(SITE.name)}</p>
   </div>

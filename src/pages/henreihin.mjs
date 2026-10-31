@@ -11,7 +11,7 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf } from '../parts.mjs';
 import { HENREIHIN_MODE, HENREIHIN_CATS, HENREIHIN_SHOW, HENREIHIN_PRICE_TILES } from '../data/henreihin.mjs';
-import { hrPrepare, firstPick } from '../lib/henreihin.mjs';
+import { hrPrepare, firstPick, hrStats } from '../lib/henreihin.mjs';
 import { fmt, yenBand } from '../lib/number.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -76,6 +76,50 @@ const HOW = section(
 <p>量は商品名に書かれた数字だけで出します。量や回数を選べるものは、寄付額がどの量の額かわからないので並べていません。量が書いていないもの、1.5〜2kgのように幅があるものも同じです。定期便は回数をかけた合計です。</p>`,
 );
 
+// 一覧の上の1行（10/31 AdSense の再審査：その日の一覧から出した自前の数字。5件より少ないときは出さない）
+const SUM_MIN = 5;
+const sumLine = (st, unit, name = '') =>
+  st && st.count >= SUM_MIN
+    ? `${name ? `${name}は${st.count}件で、1万円あたり` : `この一覧は${st.count}件。1万円あたりの量は`}${perText(st.min)}〜${perText(st.max)}${unit}${name ? '、' : 'で、'}まん中は${perText(st.median)}${unit}です。`
+    : '';
+
+// 「選ぶときに見るところ」（カテゴリのページ）。数字はその日の一覧から
+function erabiHtml(cat, lists) {
+  const all = lists.flatMap(({ list }) => list);
+  const st = hrStats(all);
+  if (!st) return '';
+  const one = lists.length === 1 ? lists[0] : null;
+  const unit = one ? unitName(one.g.unit) : '';
+  const ps = [];
+  ps.push(
+    `<p>この一覧の寄付額は${fmt(st.minPrice)}円から${fmt(st.maxPrice)}円までです。寄付額2万円までの返礼品は${st.under2}件${
+      one && st.under2 ? `で、その中で1万円あたりの量がいちばん多いのは${perText(st.under2Max)}${unit}です` : 'です'
+    }。寄付額が大きい返礼品ほど1万円あたりの量が多いとは限らないので、上の寄付額のタイルでしぼってから量を見ると、くらべやすくなります。</p>`,
+  );
+  ps.push(
+    st.teiki
+      ? `<p>定期便は${st.teiki}件あります。定期便の量と寄付額は全部の回の合計で、1回に届く量は、合計を回数でわった量です。同じ1万円あたりでも、定期便は1回に届く量が少なくなります。</p>`
+      : '<p>いまの一覧に定期便はありません。定期便が入ったときは、全部の回を合わせた量で1万円あたりを出します。</p>',
+  );
+  ps.push(
+    `<p>商品名に届く時期が書いてある返礼品は${st.when}件です。書いていない返礼品は、楽天のページで発送の時期を確かめてください。寄付がどの年の分になるかは、返礼品が届く日ではなく、寄付した日で決まります。年末の寄付の期限は<a href="/furusato/shimekiri/">ふるさと納税はいつまで</a>で数えられます。</p>`,
+  );
+  if (cat.slug === 'kome' && (st.musen || st.genmai))
+    ps.push(`<p>この一覧のうち、無洗米は${st.musen}件、玄米は${st.genmai}件です。玄米は精米すると重さが減るので、白米と1万円あたりの量をくらべるときは、その分を引いて見てください。</p>`);
+  if (cat.slug === 'gyokai' && st.shell)
+    ps.push(`<p>殻つきの返礼品は${st.shell}件で、1万円あたりの量は殻や頭もふくめた重さで出しています。むき身や切り身とくらべるときは、食べられる量がその分少ないと考えてください。</p>`);
+  if (cat.slug === 'niku') {
+    const kowake = all.filter((x) => /小分け/.test(x.name)).length;
+    ps.push(`<p>商品名に小分けと書いてある返礼品は${kowake}件です。この一覧は重さだけでくらべていて、部位や切り方、小分けの有無は並び順に入れていません。</p>`);
+  }
+  if (cat.slug === 'nichiyouhin')
+    ps.push('<p>トイレットペーパーは、2倍巻きなどの長巻きも、ふつうの長さの何ロール分かに直してくらべています。ティッシュは箱の数でくらべていて、1箱の枚数のちがいは入れていません。</p>');
+  ps.push(
+    '<p>寄付できる額の目安は、年収と家族の形で決まります。先に<a href="/furusato/">上限の目安</a>を出しておくと、寄付額のタイルでどこまでしぼるかを決めやすくなります。</p>',
+  );
+  return section('erabi', '選ぶときに見るところ', ps.join('\n'));
+}
+
 const common = (mihon) => ({
   noAds: true,
   ext: mihon ? '' : 'rakuten-img',
@@ -129,6 +173,10 @@ function renderCat(cat, data, mihon) {
 <p class="lead">1万円あたりの量が多い順に並べています。</p>
 ${AD}
 ${mihon ? MIHON : ''}
+${(() => {
+  const lines = lists.map(({ g, list }) => sumLine(hrStats(list), unitName(g.unit), many ? g.name : '')).filter(Boolean);
+  return lines.length ? `<p class="hr-sum">${lines.join('')}</p>` : '';
+})()}
 <div class="calc hr-calc" id="calc">
   ${PRICE_TILES}
   ${NOSCRIPT}
@@ -149,6 +197,8 @@ ${mihon ? MIHON : ''}
 </div>
 
 ${HOW}
+
+${erabiHtml(cat, lists)}
 
 ${section('faq', 'よくある質問', faqHtml(faqs))}
 
@@ -172,11 +222,11 @@ ${relatedHtml(tool)}
     body,
     ...common(mihon),
   });
-  return { path, html, sitemap: !mihon, updated: tool.updated, count: lists.reduce((s, x) => s + x.list.length, 0) };
+  return { path, html, sitemap: !mihon, updated: tool.updated, count: lists.reduce((s, x) => s + x.list.length, 0), stats: hrStats(lists[0].list), unit: unitName(lists[0].g.unit) };
 }
 
 /* ---- 入口：はじめての1件（お米・肉・魚介から1つずつ）とカテゴリ ---- */
-function renderTop(data, mihon, counts) {
+function renderTop(data, mihon, counts, catStats) {
   const tool = toolBySlug('furusato-henreihin');
   const path = tool.path;
   const picks = HENREIHIN_CATS.filter((c) => c.slug !== 'nichiyouhin')
@@ -200,11 +250,32 @@ function renderTop(data, mihon, counts) {
       a: '<p><a href="/furusato/">上限の目安</a>で、いくらまで寄付できるかを出しておきます。確定申告をしない人は、寄付先が5つまでなら<a href="/furusato/onestop/">ワンストップ特例</a>が使えます。</p>',
     },
   ];
+  // 一覧の上の1行と「選ぶときに見るところ」（10/31 AdSense の再審査。カテゴリの最初の一覧のまん中の量）
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  const meds = HENREIHIN_CATS.map((c) => ({ c, st: catStats[c.slug]?.stats, unit: catStats[c.slug]?.unit })).filter((x) => x.st && x.st.count >= SUM_MIN);
+  const medText = meds.map(({ c, st, unit }) => `${c.groups.length > 1 ? c.groups[0].name : c.name}が${perText(st.median)}${unit}`).join('、');
+  const topSum = total && meds.length ? `${HENREIHIN_CATS.length}つのカテゴリで${total}件をのせています。1万円あたりの量のまん中は、${medText}です。` : '';
+  const k = meds[0];
+  const spread = k && k.st.min > 0 ? Math.round((k.st.max / k.st.min) * 10) / 10 : 0;
+  const topErabi = [
+    `<p>カテゴリごとの一覧は、商品名に書かれた量を寄付額でわって、1万円あたりの量が多い順に並べています。${
+      spread >= 1.2 ? `同じ${k.c.name}でも、いちばん多い返礼品といちばん少ない返礼品で、1万円あたりの量に${spread}倍の差があります。` : ''
+    }寄付額だけでなく、量を寄付額でわった数字でくらべると、同じ寄付でどれだけ届くかがわかります。</p>`,
+    meds.length
+      ? `<p>いまの一覧の寄付額の幅は、${meds
+          .map(({ c, st }) => `${c.groups.length > 1 ? c.groups[0].name : c.name}が${fmt(st.minPrice)}円から${fmt(st.maxPrice)}円まで`)
+          .join('、')}です。カテゴリの一覧では、寄付額のタイルで「2万円まで」「3万円まで」のようにしぼれます。</p>`
+      : '',
+    '<p>寄付がどの年の分になるかは、返礼品が届く日ではなく、寄付した日で決まります。年末に寄付するときは、<a href="/furusato/shimekiri/">ふるさと納税はいつまで</a>で期限までの日数を見ておくと、申し込みが年をこえるのを防げます。</p>',
+    '<p>寄付できる額の目安は、年収と家族の形で決まります。上限より多く寄付すると、こえた分は税金から引かれず、自分の負担になります。寄付した額は<a href="/furusato/memo/">寄付メモ</a>に残しておくと、のこりの枠を見ながら次の返礼品を選べます。</p>',
+    '<p>楽天の情報は1日1回取り直しています。寄付額や受付の状況は変わることがあるので、申し込む前に楽天のページで確かめてください。</p>',
+  ].join('\n');
   const body = `
 <h1>${tool.name}</h1>
 <p class="lead">1万円あたりの量で返礼品をくらべます。</p>
 ${AD}
 ${mihon ? MIHON : ''}
+${topSum ? `<p class="hr-sum">${topSum}</p>` : ''}
 <div class="hr-sheet">
   <section class="hr-group" aria-labelledby="g-first">
     <p class="hr-head" id="g-first"><span>はじめての1件</span><small>2万円まで・レビュー10件以上</small></p>
@@ -219,6 +290,8 @@ ${mihon ? MIHON : ''}
 </div>
 
 ${HOW}
+
+${section('erabi', '選ぶときに見るところ', topErabi)}
 
 ${section('faq', 'よくある質問', faqHtml(faqs))}
 
@@ -250,5 +323,6 @@ export default function render() {
   const mihon = HENREIHIN_MODE !== 'api' || data.mihon === true;
   const cats = HENREIHIN_CATS.map((c) => renderCat(c, data, mihon));
   const counts = Object.fromEntries(HENREIHIN_CATS.map((c, i) => [c.slug, cats[i].count]));
-  return [renderTop(data, mihon, counts), ...cats.map(({ count, ...p }) => p)];
+  const catStats = Object.fromEntries(HENREIHIN_CATS.map((c, i) => [c.slug, { stats: cats[i].stats, unit: cats[i].unit }]));
+  return [renderTop(data, mihon, counts, catStats), ...cats.map(({ count, stats, unit, ...p }) => p)];
 }
