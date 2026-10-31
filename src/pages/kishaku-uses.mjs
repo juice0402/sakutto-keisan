@@ -5,7 +5,8 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { mixTiles, mixStage } from '../mix.mjs';
 import { boxField } from '../fields.mjs';
-import { volumeText, dilute, ratioFromPercent } from '../lib/kishaku.mjs';
+import { volumeText, dilute, ratioFromPercent, capText, mlValue } from '../lib/kishaku.mjs';
+import { fmt, fix } from '../lib/number.mjs';
 import { stair, band, zBox } from '../zukai.mjs';
 import { HYOHAKU_SRC, HYOHAKU_CAP, HYOHAKU_TARGETS, HYOHAKU_CAUTIONS, HYOHAKU_AMOUNT_SOURCES, HYOHAKU_CAUTION_SOURCES, hyohakuAmount } from '../data/hyohakuzai.mjs';
 import { printLink } from '../prints.mjs';
@@ -30,6 +31,26 @@ const Z_HYOHAKU = {
   stair: stair(zBox('水', '1L'), { b: `÷${ZH_RATIO - 1}`, small: `${HYOHAKU_SRC}％を0.05％に` }, zBox('漂白剤', Z_USES.hyohaku, true), ['倍率 ＝ 漂白剤の濃度 ÷ 作りたい濃度', '漂白剤の量 ＝ 水の量 ÷（倍率 − 1）', `例：${HYOHAKU_SRC}％の漂白剤で0.05％を作るなら${ZH_RATIO}倍。水1Lなら、1,000 ÷ ${ZH_RATIO - 1} で漂白剤${Z_USES.hyohaku}です。`]),
   band: band({ head: `水1L ＋ 漂白剤${Z_USES.hyohaku}`, parts: [{ w: thin(ZH.concentrate, ZH.total), kind: 'off', text: '' }, { w: 100 - thin(ZH.concentrate, ZH.total), text: '水 1,000ml' }], ruler: [[0, `漂白剤 ${Z_USES.hyohaku}`, true], [100, `約${volumeText(ZH.total)}`]], ans: `${HYOHAKU_SRC}％を0.05％に → <b>${ZH_RATIO}倍</b>`, label: `水1Lと漂白剤${Z_USES.hyohaku}を合わせた帯の図。${ZH_RATIO}倍に薄める` }),
 };
+// 次亜塩素酸ナトリウムの薄め方：計算のしくみと、使う場面・まちがえやすいところ（AdSense の再審査 #96。数字は tests/scenes-c.test.mjs）
+const hyMl = (pct, water) => volumeText(hyohakuAmount(pct, water));
+const HY_C = {
+  ex: hyMl('0.02', 2000),
+  vomit: hyohakuAmount('0.1', 500),
+  table2l: hyohakuAmount('0.05', 2000),
+  cap: fix((HYOHAKU_CAP * HYOHAKU_SRC) / (1000 + HYOHAKU_CAP)), // 水1Lにキャップ1杯を入れたときの濃度（％）
+  weak: fix((Number(mlValue(ZH.concentrate)) * 4) / (1000 + Number(mlValue(ZH.concentrate)))), // 4％に下がった漂白剤を8.4ml入れたときの濃度（％）
+  weakNeed: volumeText(dilute({ ratio: ratioFromPercent(4, 0.05).ratio, amount: 1000, from: 'water' }).concentrate),
+  total1l: volumeText(dilute({ ratio: ZH_RATIO, amount: 1000, from: 'total' }).concentrate),
+};
+const HY = {
+  how: `<p>水で薄めても、漂白剤の中の次亜塩素酸ナトリウムの量は変わらず、液の量だけがふえます。${HYOHAKU_SRC}％を0.05％にするには液を${ZH_RATIO}倍にすればよいので、漂白剤1に水${ZH_RATIO - 1}の割合です。水の量を${ZH_RATIO - 1}で割ると、入れる漂白剤の量になります。</p>
+<p>例：0.02％を水2Lで作るなら${ratioFromPercent(HYOHAKU_SRC, 0.02).ratio}倍なので、2,000 ÷ ${ratioFromPercent(HYOHAKU_SRC, 0.02).ratio - 1} で漂白剤は約${HY_C.ex}です。ほかの液の薄め方は<a href="/kishaku/">希釈率の計算</a>で出せます。</p>`,
+  scenes: `<p>家の中で吐いたものを片づけるときは、0.1％を使います。水500mlのペットボトルなら漂白剤は約${volumeText(HY_C.vomit)}で、ハイターのキャップで${capText(HY_C.vomit, HYOHAKU_CAP)}です。</p>
+<p>テーブルやドアノブを拭く0.05％を、2Lのペットボトルで作るなら、漂白剤は約${volumeText(HY_C.table2l)}です。キャップでは${capText(HY_C.table2l, HYOHAKU_CAP)}になります。</p>`,
+  mistakes: `<p>キャップ1杯をそのまま水1Lに入れると、濃すぎます。${HYOHAKU_CAP}mlを入れると約${fmt(HY_C.cap, 2)}％になり、0.05％の約3倍です。</p>
+<p>濃度が下がった漂白剤を${HYOHAKU_SRC}％のつもりで使うと、薄くなります。濃度が4％に下がったものに水1Lで${Z_USES.hyohaku}を入れると、できる液は約${fmt(HY_C.weak, 3)}％です。0.05％にするには、濃度の欄を4にして約${HY_C.weakNeed}です。</p>
+<p>水の量とできあがりの量は、少しちがいます。水1Lに${Z_USES.hyohaku}を入れると約${volumeText(ZH.total)}になるので、できあがり1Lで作るときの漂白剤は約${HY_C.total1l}です。</p>`,
+};
 const Z_EKIHI = {
   stair: stair(zBox('水', '1L'), { b: '÷499', small: '500倍' }, zBox('原液', Z_USES.ekihi, true), ['原液の量 ＝ 水の量 ÷（倍率 − 1）', '原液の量 ＝ できあがりの量 ÷ 倍率', `例：500倍で水1Lなら、1,000 ÷ 499 で原液約${Z_USES.ekihi}です。`]),
   band: band({ head: `水1L ＋ 原液${Z_USES.ekihi}`, parts: [{ w: 2, kind: 'off', text: '' }, { w: 98, text: '水 1,000ml' }], ruler: [[0, `原液 ${Z_USES.ekihi}`, true], [100, `約${volumeText(ZE.total)}`]], ans: `原液1：水499 → <b>500倍</b>`, label: `水1Lと原液${Z_USES.ekihi}を合わせた帯の図。500倍に薄める` }),
@@ -51,6 +72,23 @@ const PAGES = [
   ${mixStage({ conc: 'つゆ', label: '1：？', hint: '何倍濃縮かをえらんでください', cls: 'is-tsuyu' })}
 </div>`,
     zukai: Z_MENTSUYU.stair,
+    how: `<p>表示の割合が「つゆ1：水2」なら、できあがりはつゆの3倍の量です。だから、できあがりの量を3で割るとつゆの量になり、残りが水の量です。4倍濃縮のつけつゆは1：3なので、4で割ります。例：4倍濃縮でつけつゆを240ml作るなら、つゆ60ml・水180mlです。</p>`,
+    more: `${section(
+      'scenes',
+      '使う場面の例',
+      `<p>そうめんのつけつゆを1人100mlとして、4人分の400mlを3倍濃縮で作るとき。つゆは約133ml、水は約267mlです。人数に合わせてほかの材料も変えるときは、<a href="/recipe/">レシピの人数換算</a>で計算できます。</p>
+<p>1人分の60mlだけを2倍濃縮で作るなら、つゆも水も30mlです。45ml以下なのでスプーンの量も出て、つゆは大さじ2です。</p>
+<p>2倍濃縮でかけつゆを500ml作るときは、ボトルの表示の1：3の3を「かけなど」のマスに入れます。つゆ125ml・水375mlです。</p>`,
+    )}
+
+${section(
+  'mistakes',
+  'まちがえやすいところ',
+  `<h3>つけつゆの割合のまま、かけつゆを作る</h3>
+<p>2倍濃縮をつけつゆと同じ1：1で薄めると、表示の1：3で作るかけつゆより2倍濃くなります。かけつゆ400mlなら、つゆ100mlのところが200mlになります。</p>
+<h3>ボトルの濃縮の倍率を見ずに作る</h3>
+<p>3倍濃縮のつゆを2倍濃縮と同じ1：1で薄めると、表示どおりに作ったつけつゆの1.5倍の濃さです。つけつゆ300mlなら、つゆ100mlのところに150ml入ります。</p>`,
+)}`,
     body: `${section(
       'table',
       '濃縮ごとの割合',
@@ -82,6 +120,10 @@ ${src([
       {
         q: '大さじで量れますか？',
         a: '<p>つゆが45ml以下なら、計量スプーンでの量も出します。大さじ1は15mlです。</p>',
+      },
+      {
+        q: '3倍濃縮のめんつゆ大さじ1に、水はどれくらいですか？',
+        a: '<p>つけつゆなら水は大さじ2で、合わせて45mlです。</p>',
       },
     ],
   },
@@ -136,7 +178,10 @@ ${section(
 ${HYOHAKU_CAUTIONS.map((c) => `<li>${c}</li>`).join('\n')}
 </ul>
 ${src(HYOHAKU_CAUTION_SOURCES)}`,
-)}`,
+)}
+${section('scenes', '使う場面の例', HY.scenes)}
+${section('mistakes', 'まちがえやすいところ', HY.mistakes)}`,
+    how: HY.how,
     faqs: [
       {
         q: 'キャップ1杯は何mlですか？',
@@ -157,6 +202,10 @@ ${src(HYOHAKU_CAUTION_SOURCES)}`,
       {
         q: '手の消毒に使えますか？',
         a: '<p>使えません。手や指には使わないでください。</p>',
+      },
+      {
+        q: '0.05％は何ppmですか？',
+        a: '<p>500ppmです。1％が10,000ppmなので、0.02％は200ppm、0.1％は1,000ppmです。</p>',
       },
     ],
   },
@@ -187,6 +236,25 @@ ${src(HYOHAKU_CAUTION_SOURCES)}`,
   ${mixStage({ hint: '何倍に薄めるかをえらんでください' })}
 </div>`,
     zukai: Z_EKIHI.stair,
+    how: `<p>液体肥料の倍率は、原液をできあがりの何分の1にするかを表します。500倍なら原液はできあがりの500分の1で、水は原液の499倍です。倍率が大きいので、水の量を倍率で割っても、原液の量はほとんど変わりません。例：じょうろの水4Lを1000倍にするなら、原液は約4mlです。</p>`,
+    more: `${section(
+      'scenes',
+      '使う場面の例',
+      `<p>観葉植物の鉢にあげる分だけ、水500mlを500倍で作るとき。原液は約1mlで、水1Lに入れる2mlの半分です。</p>
+<p>庭木に250倍であげるときは、バケツの水5Lに原液を約20ml入れます。上の植物ごとの倍率の表では、庭木・果樹・芝生が250倍です。</p>
+<p>原液が残り10mlのとき、1000倍なら水9,990mlで、できあがりは約10Lです。2000倍なら約20Lぶん作れます。</p>`,
+    )}
+
+${section(
+  'mistakes',
+  'まちがえやすいところ',
+  `<h3>倍率の数字が大きいほど、薄くなります</h3>
+<p>2000倍は1000倍の半分の濃さで、水1Lに入れる原液は0.5mlです。逆に覚えて250倍で作ると、2000倍の8倍の濃さになります。</p>
+<h3>どの植物にも同じ倍率で作る</h3>
+<p>草花や野菜の500倍の液を、鉢花や洋ランにもあげると、目安の1000倍より2倍濃くなります。水1Lなら、原液1mlのところに2ml入ります。</p>
+<h3>1000倍は1％ではありません</h3>
+<p>1000倍は原液が1,000分の1なので、0.1％です。1％にあたるのは100倍で、1000倍のつもりで1％の液を作ると、10倍の濃さになります。％と倍の言いかえは<a href="/percent/">パーセントの計算</a>でも確かめられます。</p>`,
+)}`,
     body: `${section(
       'table',
       '倍率ごとの量',
@@ -223,6 +291,10 @@ ${src([
         a: '<p>約1mlです。500倍なら約2ml、2000倍なら約0.5mlです。</p>',
       },
       {
+        q: '500倍は水2Lに何mlですか？',
+        a: '<p>約4mlです。1000倍なら約2mlです。</p>',
+      },
+      {
         q: '「500倍」は原液1に水500ですか？',
         a: '<p>正しくは原液1に水499です。水1Lに原液2mlのように、水の量で考えても、ほぼ同じになります。</p>',
       },
@@ -245,10 +317,10 @@ export default function render() {
 
 ${p.calc.replace(/<\/div>$/, `  ${memoHtml(tool)}\n</div>`)}
 
-${section('formula', '計算のしかた', p.zukai)}
+${section('formula', '計算のしかた', `${p.zukai}${p.how || ''}`)}
 
 ${p.body}
-
+${p.more ? `\n${p.more}\n` : ''}
 ${section('faq', 'よくある質問', faqHtml(p.faqs))}
 
 ${relatedHtml(tool)}

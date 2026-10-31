@@ -3,6 +3,7 @@ import { page, section, faqHtml, faqLd, icon } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { RECIPE_UNITS, peopleRatio, scaleRecipe } from '../lib/recipe.mjs';
 import { stair, band, zBox } from '../zukai.mjs';
+import { ENBUN_SPOON } from '../data/enbun.mjs';
 
 const tool = toolBySlug('recipe');
 const path = '/recipe/';
@@ -53,6 +54,10 @@ const FAQS = [
   {
     q: '調味料も人数分そのままかけ算していいですか？',
     a: '<p>基本はそのままで大丈夫です。煮物は味が濃くなりやすいので、少なめに入れて味をみてください。</p>',
+  },
+  {
+    q: '2人分のレシピを1人分にするには？',
+    a: '<p>分量をすべて半分の0.5倍にします。大さじ1なら大さじ½です。</p>',
   },
   {
     q: '大さじ1・小さじ1・1カップは何mlですか？',
@@ -137,6 +142,7 @@ ${section(
   'formula',
   '計算式',
   `${ZUKAI}
+<p>材料はどれも同じ割合でふやしたりへらしたりするので、作る人数をレシピの人数で割った倍率を、すべての分量にかけます。手元の量に合わせるときは、その材料の手元の量をレシピの量で割った数が倍率です。例：4人分のレシピの水800mlを3人分にするなら、0.75倍で600mlです。</p>
 <ul>
 <li>大さじ½未満は小さじに、小さじ¼未満は「少々」に直します</li>
 <li>半端な量は¼・½などに丸めて「約」をつけます</li>
@@ -178,6 +184,23 @@ ${section(
 <tr><td>お米1合</td><td class="num">180ml</td><td>白米で約150g</td></tr>
 </tbody>
 </table></div>`,
+)}
+
+${section(
+  'scenes',
+  '使う場面の例',
+  `<p>2人分のレシピで5人分作るときは2.5倍です。豚こま肉200gは500g、しょうゆ大さじ1と½は大さじ3と¾になります。</p>
+<p>鶏もも肉300gで2人分のレシピなのに、手元に360gあるとき。「手元の量から」で鶏もも肉に合わせると1.2倍で、水200mlは240ml、玉ねぎ1個は約1と¼個です。</p>
+<p>お米3合のレシピを半分の量で作るときは、1と½合です。重さにすると約225gです。</p>`,
+)}
+
+${section(
+  'mistakes',
+  'まちがえやすいところ',
+  `<h3>大さじ1は15gとはかぎりません</h3>
+<p>大さじ1は15mlで、重さは材料でちがいます。<a href="${ENBUN_SPOON.url}">${ENBUN_SPOON.src}</a>のページでは、食塩は大さじ1が${ENBUN_SPOON.tbsp}gです。レシピの「塩15g」を大さじ1で量ると、${ENBUN_SPOON.tbsp - 15}g多くなります。塩の重さとスプーンの表は、<a href="/enbun-noudo/">塩分濃度の計算</a>にあります。</p>
+<h3>料理の1カップと、お米の1合はちがいます</h3>
+<p>料理の1カップは200ml、お米の1合は180mlです。お米を量る1合のカップで牛乳1カップを量ると、20ml少なくなります。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

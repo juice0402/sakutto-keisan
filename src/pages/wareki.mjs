@@ -46,6 +46,16 @@ const EX1 = wareki({ from: 'wareki', era: '平成', nen: 10, thisYear: THIS_YEAR
 export const Z_WAREKI = { y: EX1.y, now: NOW.text };
 const ZUKAI = stair(zBox('和暦', '平成10年'), { b: '10 ＋ 1988', small: '平成の足す数' }, zBox('西暦', `${EX1.y}年`, true), ['西暦 ＝ 和暦の年 ＋ 元号ごとの数', '和暦の年 ＝ 西暦 − 元号ごとの数', `例：平成10年は 10 ＋ 1988 ＝ ${EX1.y}年です。${THIS_YEAR}年は ${THIS_YEAR} − 2018 ＝ ${NOW.text}です。`], `${THIS_YEAR}年は ${THIS_YEAR} − 2018 ＝ <b class="fz-red">${NOW.text}</b>`);
 
+// 本文の例（使う場面の例・よくある質問）。数字は tests/gakureki-wareki.test.mjs
+const W = (era, nen) => wareki({ from: 'wareki', era, nen, thisYear: THIS_YEAR });
+const agoText = (y) => (y < THIS_YEAR ? `今年から${THIS_YEAR - y}年前` : y > THIS_YEAR ? `今年から${y - THIS_YEAR}年後` : '今年');
+const EX_S50 = W('昭和', 50);
+const EX_1983 = wareki({ from: 'seireki', seireki: 1983, thisYear: THIS_YEAR });
+const EX_R12 = W('令和', 12);
+const EX_S15 = W('昭和', 15);
+const EX_H20 = W('平成', 20);
+const EX_S11 = W('昭和', 11);
+
 const FAQS = [
   {
     q: '今年は令和何年ですか？',
@@ -54,6 +64,14 @@ const FAQS = [
   {
     q: '今年は平成何年ですか？',
     a: `<p>平成は2019年4月30日で終わり、いまの元号は令和です。平成が続いていたとして数えると、${THIS_YEAR}年は平成${nenIfContinued('平成', THIS_YEAR)}年、昭和なら${nenIfContinued('昭和', THIS_YEAR)}年にあたります。</p>`,
+  },
+  {
+    q: '平成20年は西暦何年ですか？',
+    a: `<p>${EX_H20.y}年です。平成の年に1988を足すと西暦になります。</p>`,
+  },
+  {
+    q: '昭和11年は西暦何年ですか？',
+    a: `<p>${EX_S11.y}年です。昭和の年に1925を足します。</p>`,
   },
   {
     q: '元年とは何ですか？',
@@ -114,6 +132,7 @@ ${section(
 ${ERA_ROWS}
 </tbody>
 </table></div>
+<p>元号は改元した年を元年として数えるので、西暦からその元号がはじまる前の年を引くと、和暦の年になります。令和は2019年が元年なので2018を、平成は1989年が元年なので1988を使います。改元の年は、1年の中で2つの元号がまざります。例：昭和50年は 50 ＋ 1925 ＝ ${EX_S50.y}年です。</p>
 <p>改元の日は<a href="${SRC_ERA}">国立天文台の暦Wiki</a>によります。</p>`,
 )}
 
@@ -127,6 +146,23 @@ ${QUICK_ROWS}
 </tbody>
 </table></div>
 <p class="note">${THIS_YEAR + 1}年からは令和が続いたときの年です。</p>`,
+)}
+
+${section(
+  'scenes',
+  '使う場面の例',
+  `<p>書類に生まれた年を和暦で書くとき。1983年生まれなら${EX_1983.text}です。その年生まれの人の今の年齢は、誕生日まで入れると<a href="/nenrei/">年齢の計算</a>で出ます。</p>
+<p>書類に「令和12年3月31日まで」と書かれていたら、令和12年は${EX_R12.y}年で、${agoText(EX_R12.y)}です。</p>
+<p>古い書類に昭和15年とあれば${EX_S15.y}年で、${agoText(EX_S15.y)}です。</p>`,
+)}
+
+${section(
+  'mistakes',
+  'まちがえやすいところ',
+  `<h3>改元の年は、月で元号がかわります</h3>
+<p>昭和64年は1月7日までの7日間だけで、1989年はほとんどが平成元年です。2019年も4月30日までが平成31年、5月1日からが令和元年なので、2019年3月の卒業は平成31年3月と書きます。入学と卒業の年月は、<a href="/gakureki/">入学・卒業年の計算</a>で和暦でも出せます。</p>
+<h3>引く数を、はじまりの年にしてしまう</h3>
+<p>昭和は1926年にはじまりましたが、引くのは1925です。1975年から1926を引くと49で、正しい昭和50年より1年ずれます。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

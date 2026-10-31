@@ -127,3 +127,52 @@ test('薄め方の早見表（ページの表：できあがり500ml・1L・2L�
     assert.deepEqual([500, 1000, 2000].map((amount) => volumeText(dilute({ ratio: Number(ratio), amount }).concentrate)), want, `${ratio}倍`);
   }
 });
+
+test('希釈率の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  assert.deepEqual(r({ ratio: 30, amount: 1500 }), ['50ml', '1.45L', '1.5L']); // 計算式の例：1.5Lを30倍
+  assert.equal(dilute({ ratio: 30, amount: 1500 }).water, 1450);
+  assert.deepEqual(r({ ratio: 20, amount: 500 }), ['25ml', '475ml', '500ml']); // スプレーボトル
+  assert.deepEqual(r({ ratio: 50, amount: 30, from: 'concentrate' }), ['30ml', '1.47L', '1.5L']); // 原液の残り30ml
+  assert.equal(dilute({ ratio: 50, amount: 30, from: 'concentrate' }).water, 1470);
+  assert.equal(mlValue(dilute({ ratio: 100, amount: 3000, from: 'water' }).concentrate), '30'); // バケツの水3L
+  assert.equal(ratioFromParts(1, 4).ratio, 5); // 5倍は原液1：水4（よくある質問も）
+  assert.deepEqual(r({ ratio: 5, amount: 500 }), ['100ml', '400ml', '500ml']);
+  assert.equal(ratioFromParts(100, 500).ratio, 6); // 原液100mlに水500mlは6倍
+  assert.equal(Math.round((ratioFromParts(1, 100).ratio / 100 - 1) * 100), 1); // 1：100は101倍で、差は1％ほど
+  assert.equal(dilute({ ratio: 10, amount: 1000 }).concentrate, 100); // できあがり1L
+  assert.equal(mlValue(dilute({ ratio: 10, amount: 1000, from: 'water' }).concentrate), '111'); // 水1Lに足す
+  assert.equal(volumeText(dilute({ ratio: 10, amount: 1000, from: 'water' }).total), '1.11L');
+  assert.equal(ratioFromPercent(6, 0.6).ratio, 10); // 6％を10倍で0.6％
+});
+
+test('めんつゆの薄め方の本文：計算のしかたの例・使う場面の例・まちがえやすいところ', () => {
+  const row = (ratio, amount, from) => {
+    const x = dilute({ ratio, amount, from });
+    return [ml(x.concentrate), ml(x.water), ml(x.total)];
+  };
+  assert.deepEqual(row(4, 240), ['60ml', '180ml', '240ml']); // 4倍濃縮でつけつゆ240ml
+  assert.deepEqual(row(3, 400), ['133ml', '267ml', '400ml']); // 3倍濃縮で4人分400ml
+  assert.deepEqual(row(2, 60), ['30ml', '30ml', '60ml']); // 2倍濃縮で1人分60ml
+  assert.equal(spoonText(30), '大さじ2');
+  assert.deepEqual(row(ratioFromParts(1, 3).ratio, 500), ['125ml', '375ml', '500ml']); // かけつゆ1：3で500ml
+  assert.equal(dilute({ ratio: 2, amount: 400 }).concentrate / dilute({ ratio: 4, amount: 400 }).concentrate, 2); // 1：1と1：3
+  assert.deepEqual([dilute({ ratio: 4, amount: 400 }).concentrate, dilute({ ratio: 2, amount: 400 }).concentrate], [100, 200]);
+  assert.deepEqual([dilute({ ratio: 3, amount: 300 }).concentrate, dilute({ ratio: 2, amount: 300 }).concentrate], [100, 150]); // 3倍濃縮を1：1で
+  assert.deepEqual(row(3, 15, 'concentrate'), ['15ml', '30ml', '45ml']); // よくある質問：つゆ大さじ1に水大さじ2
+  assert.equal(spoonText(15), '大さじ1');
+});
+
+test('液体肥料の薄め方の本文：計算のしかたの例・使う場面の例・まちがえやすいところ', () => {
+  assert.equal(ml(fromWater(1000, 4000).concentrate), '4ml'); // じょうろの水4Lを1000倍
+  assert.equal(ml(fromWater(500, 500).concentrate), '1ml'); // 水500mlを500倍
+  assert.equal(ml(fromWater(250, 5000).concentrate), '20ml'); // 水5Lを250倍
+  const left = dilute({ ratio: 1000, amount: 10, from: 'concentrate' }); // 原液の残り10ml
+  assert.deepEqual([left.water, left.total], [9990, 10000]);
+  assert.equal(dilute({ ratio: 2000, amount: 10, from: 'concentrate' }).total, 20000);
+  assert.equal(ml(fromWater(2000, 1000).concentrate), '0.5ml');
+  assert.equal(2000 / 250, 8); // 250倍は2000倍の8倍の濃さ
+  assert.deepEqual([ml(fromWater(1000, 1000).concentrate), ml(fromWater(500, 1000).concentrate)], ['1ml', '2ml']); // 鉢花に500倍は1000倍の2倍
+  assert.equal(ratioFromPercent(100, 0.1).ratio, 1000); // 1000倍は0.1％
+  assert.equal(ratioFromPercent(100, 1).ratio, 100); // 1％は100倍
+  assert.deepEqual([ml(fromWater(500, 2000).concentrate), ml(fromWater(1000, 2000).concentrate)], ['4ml', '2ml']); // よくある質問：水2L
+});

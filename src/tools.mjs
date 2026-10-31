@@ -20,7 +20,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-31',
     related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
@@ -31,7 +31,7 @@ export const TOOLS = [
     parent: 'waribiki',
     short: '割引後の値段から、何％オフか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['waribiki', 'tanka', 'rieki-ritsu'],
   },
   // 率ごとの割引（10/27 しょーくん「くらしノートに負けない」。検索候補「10 オフ いくら」「20 オフ 元の値段」。割引計算の下のページ。src/pages/waribiki-off.mjs）
@@ -108,7 +108,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '税込と税抜の値段と、消費税はいくらか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['percent', 'waribiki', 'warikan', 'tanka'],
   },
   {
@@ -118,7 +118,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '何％か、15％はいくつか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['shohizei', 'waribiki', 'waribiki-ritsu', 'rieki-ritsu'],
   },
   {
@@ -128,7 +128,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '何日後は何日か、あと何日か',
     published: true,
-    updated: '2026-10-22',
+    updated: '2026-10-31',
     related: ['nenrei', 'dai-nan-youbi', 'okuizome', 'shijukunichi', 'wareki', 'jikan', 'percent'],
   },
   {
@@ -138,7 +138,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '生年月日から年齢・和暦・干支・学年',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-31',
     related: ['gakureki', 'wareki', 'yakudoshi', 'shichigosan', 'nissu', 'jikan'],
   },
   // 家族の行事（10/27 しょーくん「くらしノートに負けない」。検索候補の調べで「いつ 計算」が多かったもの。ページは src/pages/gyoji.mjs）
@@ -148,7 +148,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '七五三は何年か。数え年・満年齢・きょうだい',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'okuizome', 'yakudoshi', 'gakureki'],
   },
   {
@@ -157,7 +157,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '生まれた年から前厄・本厄・後厄の年',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['choju', 'nenrei', 'wareki', 'shichigosan'],
   },
   {
@@ -166,7 +166,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '還暦・古希・喜寿・米寿は何年か',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['yakudoshi', 'nenrei', 'wareki', 'nissu'],
   },
   {
@@ -175,7 +175,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '生まれた日から100日目と前後の土日',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nissu', 'shichigosan', 'nenrei', 'shijukunichi'],
   },
   {
@@ -184,7 +184,7 @@ export const TOOLS = [
     category: 'gyoji',
     short: '初七日から四十九日、一周忌・三回忌の日',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nissu', 'okuizome', 'wareki', 'choju'],
   },
   // 年齢の計算の下のページ（10/22 しょーくん「何歳のときに卒業したか、いちいち調べてる」）
@@ -195,7 +195,7 @@ export const TOOLS = [
     parent: 'nenrei',
     short: '生年月日から、学校の入学と卒業の年',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'wareki', 'nissu'],
   },
   // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
@@ -207,7 +207,7 @@ export const TOOLS = [
     more: true,
     short: 'その日が第何◯曜日か、毎月の同じ曜日の日',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nissu', 'wareki', 'nenrei', 'jikan'],
   },
   {
@@ -217,7 +217,7 @@ export const TOOLS = [
     more: true,
     short: '偏差値から上位何％か、得点から偏差値',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['percent', 'gakureki', 'nenrei', 'bmi'],
   },
   {
@@ -226,7 +226,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '令和・平成・昭和は西暦何年か',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'gakureki', 'yakudoshi', 'choju', 'nissu', 'jikan'],
   },
   {
@@ -237,7 +237,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '時間と分の足し算と合計',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['nissu', 'zangyo-dai', 'nenrei', 'percent'],
   },
   {
@@ -248,7 +248,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '100gあたりの値段で、どれがいちばん安いか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['matomegai', 'waribiki', 'recipe', 'kishaku'],
   },
   // 実質単価の比較の下のページ（10/21。もとは実質単価の比較の「入り数」「割引シール」のボタン）
@@ -259,7 +259,7 @@ export const TOOLS = [
     parent: 'tanka',
     short: '6本入りや割引シールの商品は、どれが安いか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['tanka', 'waribiki', 'recipe'],
   },
   {
@@ -268,7 +268,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '2人分のレシピを3人分にするときの分量',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['tanka', 'waribiki', 'kishaku'],
   },
   {
@@ -278,7 +278,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '合計と人数から、1人いくらか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['warikan-keisha', 'waribiki', 'tanka', 'denki-dai'],
   },
   // 割り勘の計算の下のページ（多めに払う人がいるとき）
@@ -289,7 +289,7 @@ export const TOOLS = [
     parent: 'warikan',
     short: '多めに払う人がいるときの割り勘',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['warikan', 'waribiki', 'rieki-ritsu'],
   },
   {
@@ -381,7 +381,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '身長と体重から、BMIと標準体重',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'percent', 'recipe', 'enbun-noudo'],
   },
   {
@@ -390,7 +390,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '原液と水を何mlずつ入れるか',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-31',
     related: ['enbun-noudo', 'sentaku-senzai', 'recipe', 'seisou-jikan'],
   },
   {
@@ -400,7 +400,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '浅漬けやパスタの塩は何gか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'mentsuyu', 'tanka'],
   },
   // 希釈率の使いみち別（parent のページの下に並べる）
@@ -411,7 +411,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '2倍・3倍・4倍濃縮のつゆと水の量',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'hyohakuzai', 'ekihi'],
   },
   {
@@ -422,7 +422,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: 'ハイターで0.02％・0.1％の消毒液を作る量',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'mentsuyu', 'ekihi', 'tanka'],
   },
   {
@@ -432,7 +432,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '500倍・1000倍は水1Lに何mlか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'hyohakuzai', 'mentsuyu', 'tanka'],
   },
   // 残業代：時給から計算するページがもとで、月給から計算するページはその下（parent のページからだけリンク）
@@ -487,7 +487,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '毎月の返済額と、利息はいくらか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['rieki-ritsu', 'percent', 'zangyo-dai', 'shohizei'],
   },
   {
@@ -497,7 +497,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '上代と掛け率から下代、下代から掛け率',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka', 'gensen-choshu'],
   },
   // 源泉徴収（10/27 夜の作業 #62）

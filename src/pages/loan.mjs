@@ -25,6 +25,27 @@ const ZUKAI = stair(zBox('3,000万円・35年（420回）', '金利 年1％'), {
 const lw = Number(((EX.principal / EX.total) * 100).toFixed(1));
 const BAND = band({ head: `返済総額 約${man(EX.total)}万円`, parts: [{ w: lw, text: '元金 3,000万円' }, { w: Number((100 - lw).toFixed(1)), kind: 'off', text: '利息' }], ruler: [[0, '0'], [100, `${man(EX.total)}万`, true]], ans: `金利1％・35年の利息 → <b>約${man(EX.interest)}万円</b>`, label: `返済総額約${man(EX.total)}万円の帯を、元金3,000万円と利息約${man(EX.interest)}万円に分けた図` });
 
+// 計算式のしくみと、使う場面・まちがえやすいところ（AdSense の再審査 #96。数字は tests/scenes-c.test.mjs）
+const C = {
+  ex: loan({ man: 300, rate: 2, years: 5 }),
+  car: loan({ man: 250, rate: 3, years: 5 }),
+  r15: loan({ man: 3000, rate: 1.5, years: 35 }),
+  y25: loan({ man: 3000, rate: 1, years: 25 }),
+  typo: loan({ man: 3000, rate: 0.01, years: 35 }),
+  zero: loan({ man: 3000, rate: 0, years: 35 }),
+};
+// 元金均等返済（このツールでは計算しない。まちがえやすいところの比べる数だけ）：はじめの月 ＝ 元金 ÷ 回数 ＋ 元金 × 月利、利息の合計 ＝ 元金 × 月利 ×（回数 ＋ 1）÷ 2
+const GK = { first: Math.round(EX.principal / EX.n + (EX.principal * 0.01) / 12), interest: Math.round(((EX.principal * 0.01) / 12) * (EX.n + 1) / 2) };
+const firstInterest = (EX.principal * 0.01) / 12;
+const HOW = `<p>毎月の利息は、そのときの借りている残りに月利をかけた額です。元利均等返済は毎月の返済額を同じにするので、はじめは利息の分が大きく、返すほど元金の分がふえます。3,000万円を金利1％で借りると、1回目の利息は${fmt(firstInterest)}円で、元金に回るのは${fmt(EX.monthly - firstInterest)}円です。</p>
+<p>例：300万円を金利2％・5年で借りると、毎月の返済は${fmt(C.ex.monthly)}円で、利息の合計は${fmt(C.ex.interest)}円です。</p>`;
+const SCENES = `<p>車のローンで250万円を金利3％・5年で借りると、毎月${fmt(C.car.monthly)}円です。返済総額は${fmt(C.car.total)}円で、そのうち利息が${fmt(C.car.interest)}円です。</p>
+<p>住宅ローンで金利をくらべるときは、額と年数を同じにして金利だけ入れかえます。3,000万円・35年では、金利1％なら毎月${fmt(EX.monthly)}円、1.5％なら${fmt(C.r15.monthly)}円です。0.5％の差で、利息の合計は約${man(C.r15.interest - EX.interest)}万円ちがいます。</p>
+<p>返済の年数を短くすると、毎月の額はふえて利息はへります。3,000万円・金利1％を25年にすると毎月${fmt(C.y25.monthly)}円で、35年より${fmt(C.y25.monthly - EX.monthly)}円多くなりますが、利息は約${man(EX.interest - C.y25.interest)}万円少なくなります。返し終わるときの年齢は、<a href="/nenrei/">年齢の計算</a>で計算する日を変えると出せます。</p>`;
+const MISTAKES = `<p>このツールは元利均等返済だけです。元金均等返済で借りると、3,000万円・金利1％・35年のはじめの月は約${fmt(GK.first)}円で、元利均等の${fmt(EX.monthly)}円より約${fmt(Math.round((GK.first - EX.monthly) / 100) * 100)}円多くなります。そのかわり利息の合計は約${man(GK.interest)}万円で、元利均等より約${man(EX.interest - GK.interest)}万円少なくなります。</p>
+<p>金利の欄に、1％のつもりで0.01と入れると、0.01％として計算されます。3,000万円・35年なら毎月${fmt(C.typo.monthly)}円になり、1％の${fmt(EX.monthly)}円より${fmt(EX.monthly - C.typo.monthly)}円少なく出てしまいます。</p>
+<p>借りる額は万円で入れます。300万円なら300です。3000000と入れると300億円になり、入れられる10億円をこえます。</p>`;
+
 const FAQS = [
   {
     q: '元利均等返済とは何ですか？',
@@ -45,6 +66,10 @@ const FAQS = [
   {
     q: 'ボーナス払いや手数料は入っていますか？',
     a: '<p>入っていません。毎月同じ額だけで返すときの計算です。保証料や手数料は、借りるところの案内で確かめてください。</p>',
+  },
+  {
+    q: '金利が0％のときは？',
+    a: `<p>借りる額を回数で割った額になります。3,000万円・35年なら、毎月${fmt(C.zero.monthly)}円です。</p>`,
   },
 ];
 
@@ -78,7 +103,7 @@ export default function render() {
 ${section(
   'formula',
   '計算式',
-  ZUKAI,
+  `${ZUKAI}${HOW}`,
 )}
 
 ${section(
@@ -93,6 +118,8 @@ ${QUICK_ROWS}
 <p class="note">毎月の返済（円）です。元利均等返済。</p>
 <p>返し方の言葉は<a href="${SRC_WORDS}">全国銀行協会のページ</a>にあります。</p>`,
 )}
+${section('scenes', '使う場面の例', SCENES)}
+${section('mistakes', 'まちがえやすいところ', MISTAKES)}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}
 

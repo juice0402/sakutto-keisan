@@ -158,3 +158,21 @@ test('単価：量が空でも、値段と入り数だけでくらべる（1個�
   // 入り数も空なら、まだくらべない
   assert.equal(calcUnitPrice({ price: 980, qty: null, unit: 'g', packs: null }).empty, true);
 });
+
+test('実質単価の比較の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const per = (o) => calcUnitPrice(o).per;
+  const shown = (x) => fmt(x, x < 10 ? 2 : 1); // 画面の書き方（src/client/tanka.js の perText）
+  assert.equal(per({ price: 168, qty: 1.5, unit: 'L' }), 11.2); // 計算式の例：1.5Lで168円のお茶
+  const sen = compareUnitPrices([{ price: 258, qty: 400, unit: 'g' }, { price: 548, qty: 1, unit: 'kg' }]); // 詰め替えの洗剤
+  assert.deepEqual([sen.results[0].per, sen.results[1].per, sen.best], [64.5, 54.8, [1]]);
+  const tp = compareUnitPrices([{ price: 438, qty: 330, unit: 'm' }, { price: 658, qty: 600, unit: 'm' }]); // トイレットペーパー
+  assert.deepEqual([shown(tp.results[0].per), shown(tp.results[1].per), tp.base.label, tp.best], ['1.33', '1.1', '1m', [1]]);
+  const bag = compareUnitPrices([{ price: 298, qty: 50, unit: '枚' }, { price: 198, qty: 30, unit: '枚' }]); // ゴミ袋
+  assert.deepEqual([bag.results[0].per, bag.results[1].per, bag.best], [5.96, 6.6, [0]]);
+  const milk = compareUnitPrices([{ price: 248, qty: 1, unit: 'L' }, { price: 118, qty: 500, unit: 'ml' }]); // 多いほうが安いとはかぎらない
+  assert.deepEqual([milk.results[0].per, milk.results[1].per, milk.best], [24.8, 23.6, [1]]);
+  assert.equal(shown(per({ price: 1180, qty: 350, unit: 'ml' })), '337.1'); // 6本パックに1本の量だけ
+  assert.equal(shown(per({ price: 1180, qty: 2100, unit: 'ml' })), '56.2');
+  assert.equal(per({ price: 298, qty: 1, unit: 'g' }), 29800); // kgの商品をgのまま
+  assert.equal(per({ price: 258, qty: 300, unit: 'g' }), 86); // よくある質問
+});

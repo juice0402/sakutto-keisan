@@ -153,3 +153,34 @@ test('元号が続いていたとして数えた年（よくある質問「今�
   assert.equal(nenIfContinued('平成', 2019), 31);
   assert.equal(nenIfContinued('昭和', 1989), 64);
 });
+
+test('入学・卒業年の本文：計算のしかたの例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const rows = (birth) => gakureki({ birth }).rows;
+  assert.equal(rows('2010-04-01')[0].y, 2016); // 4月1日生まれは1つ上の学年
+  assert.equal(rows('2009-04-02')[0].y, 2016);
+  const r98 = rows('1998-08-15'); // 履歴書の学歴
+  assert.deepEqual([r98[4].y, r98[4].wareki, r98[7].y, r98[7].wareki], [2014, '平成26', 2021, '令和3']);
+  assert.equal(rows('2005-02-10')[3].y, 2020); // 早生まれの中学校の卒業
+  assert.equal(cohortOf(parseYmd('2005-02-10')), 2004);
+  assert.equal(rows('2023-05-20')[0].y, 2030); // 小学校の入学と卒園の年
+  assert.equal(rows('2005-03-15')[0].y + 1, rows('2005-06-01')[0].y); // 早生まれが生まれた年の行を見ると1年おそい
+  assert.deepEqual(rows('2005-03-15')[0], rows('2004-06-01')[0]);
+  // よくある質問：今年20歳になる人の中学校の卒業（2026年なら2006年生まれ）
+  assert.equal(rows('2006-06-01')[3].y, 2022);
+  assert.equal(rows('2006-02-01')[3].y, 2021);
+});
+
+test('和暦・西暦の変換の本文：計算のしかたの例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const W = (era, nen) => wareki({ from: 'wareki', era, nen, thisYear: 2026 });
+  const S = (y) => wareki({ from: 'seireki', seireki: y, thisYear: 2026 });
+  assert.equal(W('昭和', 50).y, 1975); // 計算のしかたの例
+  assert.equal(S(1983).text, '昭和58年'); // 生まれた年を和暦で
+  assert.deepEqual([W('令和', 12).y, W('令和', 12).ago], [2030, -4]); // 令和12年は2030年で4年後
+  assert.deepEqual([W('昭和', 15).y, W('昭和', 15).ago], [1940, 86]); // 昭和15年は1940年で86年前
+  assert.equal(S(1989).note, '1月7日までは昭和64年'); // 改元の年
+  assert.equal(S(2019).note, '4月30日までは平成31年');
+  assert.equal(1975 - 1926, 49); // はじまりの年を引くと1年ずれる
+  assert.equal(S(1975).text, '昭和50年');
+  assert.equal(W('平成', 20).y, 2008); // よくある質問
+  assert.equal(W('昭和', 11).y, 1936);
+});
