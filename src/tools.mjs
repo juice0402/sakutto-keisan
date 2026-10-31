@@ -411,7 +411,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '2倍・3倍・4倍濃縮のつゆと水の量',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'hyohakuzai', 'ekihi'],
   },
   {
@@ -432,7 +432,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '500倍・1000倍は水1Lに何mlか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'hyohakuzai', 'mentsuyu', 'tanka'],
   },
   // 残業代：時給から計算するページがもとで、月給から計算するページはその下（parent のページからだけリンク）
