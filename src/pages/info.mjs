@@ -4,7 +4,7 @@ import { HENREIHIN_MODE } from '../data/henreihin.mjs';
 import { CALC_COUNT } from '../tools.mjs';
 
 // 固定ページ（このサイトについて・プライバシーポリシー・免責事項・404）
-const UPDATED = '2026-10-22'; // sitemap の更新日（中身を変えたら直す）
+const UPDATED = '2026-10-31'; // sitemap の更新日（中身を変えたら直す）
 const ESTABLISHED_JA = '2026年10月16日'; // プライバシーポリシー・免責事項の制定日
 // ふるさと納税の返礼品のページ（楽天の商品検索で作る）を公開しているときだけ出す文（src/data/henreihin.mjs の HENREIHIN_LIVE）
 const HR = HENREIHIN_MODE === 'api';
@@ -67,7 +67,7 @@ ${HR_ABOUT}<p><a href="/disclaimer/">免責事項</a>・<a href="/privacy/">プ�
 ${section(
   'analytics',
   'アクセス解析について',
-  `<p>当サイトでは、サイトの改善のために、Cookieを使わないアクセス解析サービス（Cloudflare Web Analytics）を利用することがあります。集めるのは、見られたページ・参照元・ブラウザの種類などの統計情報で、個人を特定する情報は含みません。</p>`,
+  `<p>当サイトは、ページの見られ方を知るために、Cloudflare, Inc. の Cloudflare Web Analytics を使っています。Cookieは使わず、見たページ・参照元・ブラウザと端末の種類・国などを、個人がわからない形で集計します。</p>`,
 )}
 ${section(
   'ads',
