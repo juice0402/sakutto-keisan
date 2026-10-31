@@ -233,6 +233,40 @@ for (const file of htmlFiles) {
 }
 rmSync(tmpDir, { recursive: true, force: true });
 
+// 自分の文の字数（10/31 AdSense の再審査「有用性の低いコンテンツ」から。site-principles の「広告の審査」）
+// 数えるのは main の .prose の節のうち、関連ツール（related）をのぞいた見える文字（表・見出し・図・空白はのぞく）。
+// 対象は公開中の計算ページと返礼品（noindex のページはのぞく）。OWN_STRICT が false のあいだは一覧を出すだけで止めない
+const OWN_MIN = 900;
+const OWN_STRICT = false; // 夜 #98 で、全部の計算ページが OWN_MIN をこえてから true にする
+const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", nbsp: ' ' };
+const ownText = (html) => {
+  const main = (html.match(/<main[\s\S]*?<\/main>/) || [''])[0];
+  return [...main.matchAll(/<section class="prose" aria-labelledby="([^"]+)">([\s\S]*?)<\/section>/g)]
+    .filter((m) => m[1] !== 'related')
+    .map((m) =>
+      m[2]
+        .replace(/<(table|script|style|svg|h2)\b[\s\S]*?<\/\1>/g, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&(amp|lt|gt|quot|#39|nbsp);/g, (_, e) => ENT[e]),
+    )
+    .join('')
+    .replace(/\s+/g, '');
+};
+const shortPages = [];
+for (const t of TOOLS.filter((x) => x.published)) {
+  const f = join(DIST, toolUrl(t), 'index.html');
+  if (!existsSync(f)) continue;
+  const html = readFileSync(f, 'utf8');
+  if (/<meta name="robots" content="[^"]*noindex/.test(html)) continue;
+  const n = [...ownText(html)].length;
+  if (n < OWN_MIN) shortPages.push([toolUrl(t), n]);
+}
+if (shortPages.length) {
+  const list = shortPages.sort((a, b) => a[1] - b[1]).map(([u, n]) => `${u} ${n}字`).join('、');
+  if (OWN_STRICT) for (const [u, n] of shortPages) fail(u, `自分の文が${OWN_MIN}字未満（${n}字）。しくみ・使う場面の例・まちがえやすいところを足す`);
+  else console.log(`（自分の文が${OWN_MIN}字未満のページ ${shortPages.length}：${list}）`);
+}
+
 if (errors.length) {
   console.error(`✗ ${errors.length} 件の問題:\n` + errors.map((e) => `  - ${e}`).join('\n'));
   process.exit(1);

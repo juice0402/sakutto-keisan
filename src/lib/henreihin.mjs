@@ -186,3 +186,33 @@ export function firstPick(list) {
   const withWhen = ok.filter((x) => x.when);
   return (withWhen.length ? withWhen : ok)[0];
 }
+
+/**
+ * 一覧の数字のまとめ（10/31 AdSense の再審査：一覧の上の1行と「選ぶときに見るところ」に出す自前の数字）
+ * @param {Array<{per:number, price:number, teiki:number, when:string, shell:boolean, name:string}>} list hrPrepare のあと、表示する分
+ * @returns {{ count:number, min:number, max:number, median:number, teiki:number, when:number, shell:number,
+ *   under2:number, under2Max:number, minPrice:number, maxPrice:number, musen:number, genmai:number } | null}
+ */
+export function hrStats(list) {
+  if (!list.length) return null;
+  const pers = list.map((x) => x.per).sort((a, b) => a - b);
+  const n = pers.length;
+  const median = n % 2 ? pers[(n - 1) / 2] : (pers[n / 2 - 1] + pers[n / 2]) / 2;
+  const prices = list.map((x) => x.price);
+  const under2 = list.filter((x) => x.price <= 20000);
+  return {
+    count: n,
+    min: pers[0],
+    max: pers[n - 1],
+    median,
+    teiki: list.filter((x) => x.teiki > 1).length,
+    when: list.filter((x) => x.when).length,
+    shell: list.filter((x) => x.shell).length,
+    under2: under2.length,
+    under2Max: under2.length ? Math.max(...under2.map((x) => x.per)) : 0,
+    minPrice: Math.min(...prices),
+    maxPrice: Math.max(...prices),
+    musen: list.filter((x) => /無洗米/.test(x.name)).length,
+    genmai: list.filter((x) => /玄米/.test(x.name)).length,
+  };
+}

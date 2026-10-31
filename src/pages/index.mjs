@@ -1,6 +1,6 @@
 import { SITE, CATEGORIES } from '../site.mjs';
 import { TOOLS, toolUrl, CALC_COUNT, LAST_UPDATED } from '../tools.mjs';
-import { page, esc, absUrl } from '../layout.mjs';
+import { page, esc, absUrl, section } from '../layout.mjs';
 import { doodle } from '../doodles.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
@@ -35,6 +35,22 @@ export default function render() {
 </section>`;
   }).join('\n');
 
+  // 目次の下の2つの節（10/31 AdSense の再審査）：このサイトのこと・最近更新した計算（tools.mjs の updated の新しい順に6つ。ビルドのたびに変わる）
+  const recent = top
+    .map((t, i) => ({ t, i }))
+    .sort((a, b) => (a.t.updated === b.t.updated ? a.i - b.i : a.t.updated < b.t.updated ? 1 : -1))
+    .slice(0, 6)
+    .map(({ t }) => `<li><time datetime="${t.updated}">${jaDate(t.updated)}</time>　<a href="${toolUrl(t)}">${esc(t.name)}</a>　${esc(t.short)}</li>`)
+    .join('');
+  const about = section(
+    'site',
+    'このサイトのこと',
+    `<p>${esc(SITE.name)}は、買い物や家事、お仕事、FXでよく使う計算を${CALC_COUNT}集めたサイトです。割引や単価の計算から、七五三や厄年の年、ふるさと納税の上限の目安、FXのロスカットのレートまで、数字を入れるとその場で答えと絵が出ます。</p>
+<p>どのページにも、計算のしくみの説明と計算例の表を置いています。税金や制度、メーカーの数字には出典のリンクと確認した日を書き、ページに載せている計算の例は、自動のテストで答えを確かめてから公開しています。</p>
+<p>計算はお使いの端末のブラウザの中で行い、入力した数字は送信しません。くわしくは<a href="/about/">このサイトについて</a>に書いています。</p>`,
+  );
+  const news = section('recent', '最近更新した計算', `<ul class="recent">${recent}</ul>`);
+
   const body = `
 <div class="hero">
   <h1>${esc(SITE.name)}</h1>
@@ -46,6 +62,8 @@ export default function render() {
   <ul class="pick-grid">${picks.map((t) => `<li><a class="pick-cell" href="${toolUrl(t)}">${doodle(t.slug)}<span>${esc(t.pickName || t.name.replace(/の計算$/, ''))}</span></a></li>`).join('')}</ul>
 </section>
 ${cats}
+${about}
+${news}
 <div class="tip"><strong>ホーム画面に追加できます</strong>共有ボタンかメニューの「ホーム画面に追加」から。</div>
 `;
 
