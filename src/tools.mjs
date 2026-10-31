@@ -118,7 +118,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '何％か、15％はいくつか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['shohizei', 'waribiki', 'waribiki-ritsu', 'rieki-ritsu'],
   },
   {
@@ -195,7 +195,7 @@ export const TOOLS = [
     parent: 'nenrei',
     short: '生年月日から、学校の入学と卒業の年',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'wareki', 'nissu'],
   },
   // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
@@ -226,7 +226,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '令和・平成・昭和は西暦何年か',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'gakureki', 'yakudoshi', 'choju', 'nissu', 'jikan'],
   },
   {

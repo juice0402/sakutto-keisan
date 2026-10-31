@@ -36,3 +36,19 @@ test('まだ入れていない・まちがった入力', () => {
   assert.equal(percent({ base: 1e13, pct: 10, part: null, out: 'part' }).field, 'base');
   assert.equal(percent({ base: 0, pct: 10, part: null, out: 'part' }).part, 0);
 });
+
+test('パーセントの本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const part = (base, pct) => percent({ base, pct, part: null, out: 'part' }).part;
+  const pctOf = (base, p) => percent({ base, pct: null, part: p, out: 'pct' }).pct;
+  assert.equal(part(750, 8), 60); // 計算式の例
+  assert.equal(pctOf(50, 42), 84); // テストの正答率
+  assert.equal(pctOf(800000, 920000), 115); // 売上の前の月とのくらべ
+  assert.equal(part(300, 27), 81); // アンケート
+  assert.equal(pctOf(10, 15), 150); // 10％が15％になると50％ふえる
+  assert.equal(part(9700, 3), 291); // 9,700円の3％を足しても9,991円
+  assert.equal(9700 + part(9700, 3), 9991);
+  assert.equal(percent({ base: null, pct: 97, part: 9700, out: 'base' }).base, 10000); // もとの数は10,000円
+  assert.equal(pctOf(200, 30), 15); // 30は200の15％
+  assert.equal(Math.round(pctOf(30, 200) * 10) / 10, 666.7); // 200は30の約666.7％
+  assert.equal(part(2000, 100 + 15), 2300); // よくある質問：15％増し
+});
