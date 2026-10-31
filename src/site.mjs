@@ -11,7 +11,8 @@ export const SITE = {
   adsense: 'ca-pub-7891863499821813',
   // お問い合わせの Google フォームの URL（10/31 しょーくん。メールアドレスはサイトに出さない）。入れると /contact/ のページと、
   // フッター・このサイトについて・プライバシーポリシーのお問い合わせの文が出る。空のあいだは何も出ない
-  contact: '',
+  // フォームは全サイト共通の1つ（連絡 C-020）。「どのサイトから」にサイト名が入った事前入力の URL をそのまま使う（短縮 URL は名前が入らない）
+  contact: 'https://docs.google.com/forms/d/e/1FAIpQLSdAYN3cjrLkbbFywxHmCS7bqLFtDN0VmlO3NuTVPqKpaFj6Dg/viewform?usp=pp_url&entry.1872798598=%E3%82%B5%E3%82%AF%E3%83%83%E3%81%A8%E8%A8%88%E7%AE%97',
 };
 
 // ツールのカテゴリ（並び順もこの順）

@@ -41,3 +41,13 @@ test('このサイトについて：カテゴリごとの計算の数と中身�
   assert.match(about, /生活・お買い物が\d+、家族の行事が\d+、/);
   assert.ok(about.includes('id="make"'));
 });
+
+test('お問い合わせは全サイト共通のフォームで、「どのサイトから」にサイト名が入った URL（連絡 C-020）', () => {
+  const u = new URL(SITE.contact);
+  assert.equal(u.hostname, 'docs.google.com');
+  assert.equal(u.searchParams.get('usp'), 'pp_url');
+  assert.equal(u.searchParams.get('entry.1872798598'), SITE.name);
+  const pages = byPath();
+  assert.ok(pages['/about/'].includes('<h2 id="owner">運営者</h2>'));
+  assert.ok(pages['/privacy/'].includes('お名前とメールアドレスは書かなくても送れます'));
+});
