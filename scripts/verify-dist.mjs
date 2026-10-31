@@ -267,6 +267,29 @@ if (shortPages.length) {
   else console.log(`（自分の文が${OWN_MIN}字未満のページ ${shortPages.length}：${list}）`);
 }
 
+// 同じ形のページの重なり（10/31 #98）：組の中の2ページで、自分の文の中の同じ文（。？で区切った8字以上）が、
+// 文の少ないほうの3割をこえたら止める。同じ形のページを、ページごとにちがう中身にするため
+const SAME_MAX = 0.3;
+const SAME_GROUPS = [
+  ['10', '15', '20', '30', '40', '50'].map((r) => `/waribiki/${r}/`),
+  ['denki-moufu', 'hot-carpet', 'ceramic-heater', 'oil-heater', 'kotatsu'].map((s) => `/${s}/`),
+];
+const sentencesOf = (url) => {
+  const f = join(DIST, url, 'index.html');
+  return existsSync(f) ? new Set(ownText(readFileSync(f, 'utf8')).split(/[。？]/).filter((x) => [...x].length >= 8)) : null;
+};
+for (const group of SAME_GROUPS) {
+  const sets = group.map((u) => [u, sentencesOf(u)]).filter(([, s]) => s && s.size);
+  for (let i = 0; i < sets.length; i++) {
+    for (let j = i + 1; j < sets.length; j++) {
+      const [ua, a] = sets[i];
+      const [ub, b] = sets[j];
+      const same = [...a].filter((x) => b.has(x)).length;
+      if (same / Math.min(a.size, b.size) > SAME_MAX) fail(`${ua}・${ub}`, `同じ文が多い（${same}文）。ページごとにちがう中身にする`);
+    }
+  }
+}
+
 if (errors.length) {
   console.error(`✗ ${errors.length} 件の問題:\n` + errors.map((e) => `  - ${e}`).join('\n'));
   process.exit(1);
