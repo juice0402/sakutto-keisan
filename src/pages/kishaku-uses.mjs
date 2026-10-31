@@ -5,7 +5,8 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { mixTiles, mixStage } from '../mix.mjs';
 import { boxField } from '../fields.mjs';
-import { volumeText, dilute, ratioFromPercent } from '../lib/kishaku.mjs';
+import { volumeText, dilute, ratioFromPercent, capText, mlValue } from '../lib/kishaku.mjs';
+import { fmt, fix } from '../lib/number.mjs';
 import { stair, band, zBox } from '../zukai.mjs';
 import { HYOHAKU_SRC, HYOHAKU_CAP, HYOHAKU_TARGETS, HYOHAKU_CAUTIONS, HYOHAKU_AMOUNT_SOURCES, HYOHAKU_CAUTION_SOURCES, hyohakuAmount } from '../data/hyohakuzai.mjs';
 import { printLink } from '../prints.mjs';
@@ -29,6 +30,26 @@ const Z_MENTSUYU = {
 const Z_HYOHAKU = {
   stair: stair(zBox('水', '1L'), { b: `÷${ZH_RATIO - 1}`, small: `${HYOHAKU_SRC}％を0.05％に` }, zBox('漂白剤', Z_USES.hyohaku, true), ['倍率 ＝ 漂白剤の濃度 ÷ 作りたい濃度', '漂白剤の量 ＝ 水の量 ÷（倍率 − 1）', `例：${HYOHAKU_SRC}％の漂白剤で0.05％を作るなら${ZH_RATIO}倍。水1Lなら、1,000 ÷ ${ZH_RATIO - 1} で漂白剤${Z_USES.hyohaku}です。`]),
   band: band({ head: `水1L ＋ 漂白剤${Z_USES.hyohaku}`, parts: [{ w: thin(ZH.concentrate, ZH.total), kind: 'off', text: '' }, { w: 100 - thin(ZH.concentrate, ZH.total), text: '水 1,000ml' }], ruler: [[0, `漂白剤 ${Z_USES.hyohaku}`, true], [100, `約${volumeText(ZH.total)}`]], ans: `${HYOHAKU_SRC}％を0.05％に → <b>${ZH_RATIO}倍</b>`, label: `水1Lと漂白剤${Z_USES.hyohaku}を合わせた帯の図。${ZH_RATIO}倍に薄める` }),
+};
+// 次亜塩素酸ナトリウムの薄め方：計算のしくみと、使う場面・まちがえやすいところ（AdSense の再審査 #96。数字は tests/scenes-c.test.mjs）
+const hyMl = (pct, water) => volumeText(hyohakuAmount(pct, water));
+const HY_C = {
+  ex: hyMl('0.02', 2000),
+  vomit: hyohakuAmount('0.1', 500),
+  table2l: hyohakuAmount('0.05', 2000),
+  cap: fix((HYOHAKU_CAP * HYOHAKU_SRC) / (1000 + HYOHAKU_CAP)), // 水1Lにキャップ1杯を入れたときの濃度（％）
+  weak: fix((Number(mlValue(ZH.concentrate)) * 4) / (1000 + Number(mlValue(ZH.concentrate)))), // 4％に下がった漂白剤を8.4ml入れたときの濃度（％）
+  weakNeed: volumeText(dilute({ ratio: ratioFromPercent(4, 0.05).ratio, amount: 1000, from: 'water' }).concentrate),
+  total1l: volumeText(dilute({ ratio: ZH_RATIO, amount: 1000, from: 'total' }).concentrate),
+};
+const HY = {
+  how: `<p>水で薄めても、漂白剤の中の次亜塩素酸ナトリウムの量は変わらず、液の量だけがふえます。${HYOHAKU_SRC}％を0.05％にするには液を${ZH_RATIO}倍にすればよいので、漂白剤1に水${ZH_RATIO - 1}の割合です。水の量を${ZH_RATIO - 1}で割ると、入れる漂白剤の量になります。</p>
+<p>例：0.02％を水2Lで作るなら${ratioFromPercent(HYOHAKU_SRC, 0.02).ratio}倍なので、2,000 ÷ ${ratioFromPercent(HYOHAKU_SRC, 0.02).ratio - 1} で漂白剤は約${HY_C.ex}です。ほかの液の薄め方は<a href="/kishaku/">希釈率の計算</a>で出せます。</p>`,
+  scenes: `<p>家の中で吐いたものを片づけるときは、0.1％を使います。水500mlのペットボトルなら漂白剤は約${volumeText(HY_C.vomit)}で、ハイターのキャップで${capText(HY_C.vomit, HYOHAKU_CAP)}です。</p>
+<p>テーブルやドアノブを拭く0.05％を、2Lのペットボトルで作るなら、漂白剤は約${volumeText(HY_C.table2l)}です。キャップでは${capText(HY_C.table2l, HYOHAKU_CAP)}になります。</p>`,
+  mistakes: `<p>キャップ1杯をそのまま水1Lに入れると、濃すぎます。${HYOHAKU_CAP}mlを入れると約${fmt(HY_C.cap, 2)}％になり、0.05％の約3倍です。</p>
+<p>濃度が下がった漂白剤を${HYOHAKU_SRC}％のつもりで使うと、薄くなります。濃度が4％に下がったものに水1Lで${Z_USES.hyohaku}を入れると、できる液は約${fmt(HY_C.weak, 3)}％です。0.05％にするには、濃度の欄を4にして約${HY_C.weakNeed}です。</p>
+<p>水の量とできあがりの量は、少しちがいます。水1Lに${Z_USES.hyohaku}を入れると約${volumeText(ZH.total)}になるので、できあがり1Lで作るときの漂白剤は約${HY_C.total1l}です。</p>`,
 };
 const Z_EKIHI = {
   stair: stair(zBox('水', '1L'), { b: '÷499', small: '500倍' }, zBox('原液', Z_USES.ekihi, true), ['原液の量 ＝ 水の量 ÷（倍率 − 1）', '原液の量 ＝ できあがりの量 ÷ 倍率', `例：500倍で水1Lなら、1,000 ÷ 499 で原液約${Z_USES.ekihi}です。`]),
@@ -157,7 +178,10 @@ ${section(
 ${HYOHAKU_CAUTIONS.map((c) => `<li>${c}</li>`).join('\n')}
 </ul>
 ${src(HYOHAKU_CAUTION_SOURCES)}`,
-)}`,
+)}
+${section('scenes', '使う場面の例', HY.scenes)}
+${section('mistakes', 'まちがえやすいところ', HY.mistakes)}`,
+    how: HY.how,
     faqs: [
       {
         q: 'キャップ1杯は何mlですか？',
@@ -178,6 +202,10 @@ ${src(HYOHAKU_CAUTION_SOURCES)}`,
       {
         q: '手の消毒に使えますか？',
         a: '<p>使えません。手や指には使わないでください。</p>',
+      },
+      {
+        q: '0.05％は何ppmですか？',
+        a: '<p>500ppmです。1％が10,000ppmなので、0.02％は200ppm、0.1％は1,000ppmです。</p>',
       },
     ],
   },

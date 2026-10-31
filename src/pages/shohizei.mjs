@@ -63,6 +63,29 @@ const FAQS = [
   },
 ];
 
+// 計算式のしくみと、使う場面・まちがえやすいところ（AdSense の再審査 #96。数字は tests/scenes-c.test.mjs）
+const tx = (amount, from, rate) => shohizei({ amount, from, rate });
+const C = {
+  g3300: tx(3300, 'gross', 10),
+  g540: tx(540, 'gross', 8),
+  n4980: tx(4980, 'net', 10),
+  bento8: tx(680, 'net', 8),
+  bento10: tx(680, 'net', 10),
+  bill: tx(55000, 'gross', 10),
+  one: tx(98, 'net', 8),
+  all: tx(294, 'net', 8),
+  twice: tx(1100, 'net', 10),
+  back: tx(1100, 'gross', 10),
+};
+const HOW = `<p>消費税は、税抜の値段に税率をかけた額です。税込は税抜の1.1倍なので、税込を110に分けたうちの10が消費税にあたります。そのため税込からは、税込 × 10 ÷ 110 で消費税を出します。</p>
+<p>例：税込3,300円なら消費税は${fmt(C.g3300.tax)}円で、税抜は${fmt(C.g3300.net)}円です。8％の税込540円なら、消費税は${fmt(C.g540.tax)}円です。</p>`;
+const SCENES = `<p>税抜の値段だけが書かれたお店では、レジで払う額を先に出せます。税抜4,980円の商品なら、10％で税込${fmt(C.n4980.gross)}円です。</p>
+<p>お弁当は、持ち帰るかお店で食べるかで税率が変わります。税抜680円なら、持ち帰りの8％で${fmt(C.bento8.gross)}円、店内の10％で${fmt(C.bento10.gross)}円で、${C.bento10.gross - C.bento8.gross}円ちがいます。</p>
+<p>税込55,000円の請求書から税抜を出すときは、税込の欄に入れます。消費税は${fmt(C.bill.tax)}円で、税抜は${fmt(C.bill.net)}円です。</p>`;
+const MISTAKES = `<p>1つずつ税込にしてから足すと、まとめて計算した額とずれることがあります。税抜98円の食品を3つ買うとき、1つずつなら${C.one.gross}円の3つで${C.one.gross * 3}円、まとめて294円から計算すると${C.all.gross}円です。</p>
+<p>税込の値段にもう一度10％をかけると、消費税を2回払う計算になります。税込1,100円に10％を足すと${fmt(C.twice.gross)}円で、正しい1,100円より${C.twice.tax}円多くなります。</p>
+<p>税込から10％を引いても、税抜にはなりません。1,100円の10％は110円なので990円になりますが、正しい税抜は${fmt(C.back.net)}円です。％の足し引きは<a href="/percent/">パーセントの計算</a>でも確かめられます。</p>`;
+
 export default function render() {
   const body = `
 <h1>${tool.name}</h1>
@@ -95,7 +118,7 @@ export default function render() {
 ${section(
   'formula',
   '計算式',
-  `${ZUKAI}${BAND}<p>8％なら、税抜1,980円の消費税は${fmt(ZX8.tax)}円で税込${fmt(ZX8.gross)}円です。</p>`,
+  `${ZUKAI}${BAND}<p>8％なら、税抜1,980円の消費税は${fmt(ZX8.tax)}円で税込${fmt(ZX8.gross)}円です。</p>${HOW}`,
 )}
 
 ${section(
@@ -110,6 +133,8 @@ ${QUICK_ROWS}
 <p class="note">税込（円）です。1円未満は切り捨て。</p>
 <p>税率と軽減税率の対象は<a href="${SRC_RATE}">国税庁のページ</a>にあります。</p>`,
 )}
+${section('scenes', '使う場面の例', SCENES)}
+${section('mistakes', 'まちがえやすいところ', MISTAKES)}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}
 
