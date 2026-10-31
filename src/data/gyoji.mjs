@@ -43,6 +43,8 @@ export const CHOJU = [
   { name: '茶寿', yomi: 'ちゃじゅ', kazoe: 108 },
   { name: '皇寿', yomi: 'こうじゅ', kazoe: 111 },
 ];
+// 長寿祝いの色：高島屋「長寿祝いのしきたり」（2026-10-31 に確認）。還暦は赤い品物を贈る習慣、ほかは日本百貨店協会が提案するイメージカラー。百寿・茶寿・皇寿は書いていない
+export const CHOJU_COLORS = { 還暦: '赤', 緑寿: '緑', 古希: '藍色', 喜寿: '黄色', 傘寿: 'オレンジ', 米寿: 'ベージュ', 卒寿: '紫', 白寿: '白' };
 export const CHOJU_SOURCES = [
   { name: '国立国会図書館 レファレンス協同データベース（還暦・古稀など）', url: 'https://crd.ndl.go.jp/reference/entry/index.php?id=1000227161&page=ref_view' },
   { name: '国立国会図書館 レファレンス協同データベース（緑寿・茶寿・皇寿など）', url: 'https://crd.ndl.go.jp/reference/entry/index.php?page=ref_view&id=1000258244' },
