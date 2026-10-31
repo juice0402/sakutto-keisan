@@ -5,7 +5,9 @@
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
-import { FURUSATO_SOURCES, FURUSATO_SEIDO_SOURCES } from '../data/furusato.mjs';
+import { FURUSATO_SOURCES, FURUSATO_SEIDO_SOURCES, FURUSATO_YEARS } from '../data/furusato.mjs';
+import { furusatoLimit, furusatoBreakdown } from '../lib/furusato.mjs';
+import { fmt } from '../lib/number.mjs';
 
 const YEAR = 2026; // はじめにえらんでおく寄付の年（見た人のブラウザの年にあわせて、スクリプトがえらび直す）
 const YEARS = [YEAR, YEAR + 1];
@@ -23,6 +25,10 @@ const TAG = { old: '前から', now: 'この年', later: 'まだ' };
 const kindOf = (from, y) => (from < y ? 'old' : from === y ? 'now' : 'later');
 const newCount = (y) => SEIDO_ITEMS.filter((x) => x.from === y).length;
 
+// 使う場面の例：年収1,000万円・ひとりが上限の目安まで寄付したときの特例控除（tests/furusato.test.mjs）
+const EX_LIMIT = furusatoLimit({ income: 10000000 }, FURUSATO_YEARS[2026]).limit;
+export const SEIDO_EX = { limit: EX_LIMIT, tokurei: furusatoBreakdown({ donation: EX_LIMIT, income: 10000000 }, FURUSATO_YEARS[2026]).tokurei };
+
 const FAQS = [
   {
     q: `${YEAR}年は上限が変わりますか？`,
@@ -39,6 +45,10 @@ const FAQS = [
   {
     q: '指定されていない自治体に寄付したら？',
     a: '<p>ふるさと納税の控除の対象になりません。指定を取り消された自治体も同じです。</p>',
+  },
+  {
+    q: '2026年10月から、ふるさと納税の何が変わりますか？',
+    a: '<p>自治体が使えるお金を、寄付の52.5%以上にする基準ができます。返礼品が寄付額の3割以下の地場産品という決まりは、変わりません。</p>',
   },
   {
     q: `${YEAR}年の寄付は、いつの税金から引かれますか？`,
@@ -97,7 +107,27 @@ ${section(
 <tr><td class="nw">2027年の寄付</td><td>住民税の特例控除の額に、193万円の上限がつきます。寄付の額そのものと、住民税の基本分の控除は変わりません。</td></tr>
 </tbody>
 </table></div>
-<p>自治体が使えるお金は、寄付から返礼品や送料などの募集の費用を引いた額です。${YEAR}年の寄付は、令和${reiwa(YEAR)}年分の所得税と令和${reiwa(YEAR) + 1}年度の住民税で計算します。</p>`,
+<p>自治体が使えるお金は、寄付から返礼品や送料などの募集の費用を引いた額です。${YEAR}年の寄付は、令和${reiwa(YEAR)}年分の所得税と令和${reiwa(YEAR) + 1}年度の住民税で計算します。</p>
+<p>所得税は寄付した年の分で計算します。住民税は前の年の所得をもとに、次の年の6月から納めるしくみです。だから、寄付の年からかかわる変更は、住民税では1年あとの年度に出てきます。2027年の寄付からの193万円の上限なら、2028年6月からの令和10年度の住民税です。</p>`,
+)}
+
+${section(
+  'scenes',
+  '使う場面の例',
+  `<p>2026年12月に寄付するとき。2026年の寄付なので、上のマスで2026年をえらぶと、この年からの変更は${newCount(2026)}つです。控除は令和8年分の所得税と、2027年6月からの令和9年度の住民税で受けます。年内の締め切りは<a href="/furusato/shimekiri/">ふるさと納税はいつまで</a>にまとめています。</p>
+<p>193万円の上限が自分にかかるかを見たいとき。2026年の寄付の計算では、年収1,000万円・ひとりの上限の目安は${fmt(SEIDO_EX.limit)}円です。その額を寄付したときの住民税の特例控除は${fmt(SEIDO_EX.tokurei)}円で、193万円にはとどきません。特例控除の額は<a href="/furusato/uchiwake/">控除の内わけ</a>で出せます。</p>
+<p>1万円の寄付で、自治体の基準を数字にしたいとき。返礼品の費用は3,000円以下で、2026年10月からは自治体が使えるお金が5,250円以上です。2029年10月からの指定では、6,000円以上になります。</p>`,
+)}
+
+${section(
+  'mistakes',
+  'まちがえやすいところ',
+  `<h3>193万円を、寄付の上限だと思う</h3>
+<p>上限がつくのは住民税の特例控除の額で、寄付の額ではありません。年収1,000万円・ひとりの特例控除は${fmt(SEIDO_EX.tokurei)}円で、上限の193万円の10分の1にもなりません。</p>
+<h3>52.5%を、返礼品の割合だと思う</h3>
+<p>52.5%は、寄付から返礼品や送料などの募集の費用を引いて、自治体に残る割合です。1万円の寄付なら、募集の費用は合わせて4,750円以下で、そのうち返礼品は3,000円以下のままです。</p>
+<h3>2027年の寄付からの変更を、2027年6月の住民税で探す</h3>
+<p>2027年6月からの住民税は令和9年度で、2026年の寄付の分です。193万円の上限が出てくるのは、2028年6月からの令和10年度の住民税です。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}
