@@ -237,7 +237,7 @@ rmSync(tmpDir, { recursive: true, force: true });
 // 数えるのは main の .prose の節のうち、関連ツール（related）をのぞいた見える文字（表・見出し・図・空白はのぞく）。
 // 対象は公開中の計算ページと返礼品（noindex のページはのぞく）。OWN_STRICT が false のあいだは一覧を出すだけで止めない
 const OWN_MIN = 900;
-const OWN_STRICT = false; // 夜 #98 で、全部の計算ページが OWN_MIN をこえてから true にする
+const OWN_STRICT = true; // 10/31 #98：全部の計算ページが OWN_MIN をこえたので、900字未満で止める
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", nbsp: ' ' };
 const ownText = (html) => {
   const main = (html.match(/<main[\s\S]*?<\/main>/) || [''])[0];
