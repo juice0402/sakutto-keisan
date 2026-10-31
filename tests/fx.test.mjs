@@ -195,3 +195,70 @@ test('通貨の量（ロット）：まちがい', () => {
   assert.equal(fxLot({ money: 100000, loss: 2000, width: 0, rate: 150 }).field, 'width');
   assert.equal(fxLot({ money: 100000, loss: 2000, width: 150, rate: 150 }).field, 'width');
 });
+
+test('証拠金維持率の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const q = (money, rate, qty) => fxRatio({ money, rate, qty, from: 'qty' });
+  const f = q(200000, 150, 20000); // 計算式の例
+  assert.deepEqual([f.amount, f.lev, f.need, ratioText(f.ratio)], [3000000, 15, 120000, '166.6％']);
+  const a = q(500000, 150, 10000); // 50万円・1万通貨
+  assert.deepEqual([a.amount, a.lev, a.need, ratioText(a.ratio)], [1500000, 3, 60000, '833.3％']);
+  const b = fxRatio({ money: 400000, rate: 150, lev: 5 }); // レバレッジ5倍まで
+  assert.deepEqual([b.amount, qtyText(b.qty), ratioText(b.ratio)], [2000000, '13,333', '500％']);
+  const c = q(200000, 170, 10000); // ユーロ円
+  assert.deepEqual([c.need, ratioText(c.ratio)], [68000, '294.1％']);
+  const d = fxRatio({ money: 100000, rate: 150, lev: 25 }); // 25倍いっぱい
+  assert.deepEqual([qtyText(d.qty), ratioText(d.ratio)], ['16,666', '100％']);
+  assert.equal(ratioText(q(100000, 150, 16666).ratio), '100％');
+  assert.equal(Math.round(16666 * 0.01), 167);
+  assert.equal(ratioText(q(100000 - 16666 * 0.01, 149.99, 16666).ratio), '99.8％');
+  assert.deepEqual([ratioText(q(100000, 150, 1000).ratio), ratioText(q(100000, 150, 10000).ratio)], ['1,666.6％', '166.6％']); // ロットの取りちがえ
+  const e = fxRatio({ money: 100000, rate: 150, lev: 5 }); // よくある質問：5倍で500％、8割の損まで
+  assert.equal(ratioText(e.ratio), '500％');
+  assert.equal(Math.round(fxPosition({ money: 100000, qty: e.qty, rate: 150, cut: 100 }).room), 80000);
+});
+
+test('ロスカットの本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const p = (money, qty, rate, cut, side = 'buy') => fxPosition({ money, qty, rate, cut, side });
+  const f = p(200000, 20000, 150, 50); // 計算式の例
+  assert.deepEqual([f.need, f.room, f.price], [120000, 140000, 143]);
+  const a = p(500000, 50000, 150, 100); // 50万円・5万通貨
+  assert.deepEqual([a.room, a.price], [200000, 146]);
+  const b = p(300000, 10000, 150, 50, 'sell'); // 売り
+  assert.deepEqual([Math.floor(b.room), cutPriceText(b.price, 'sell', 2), b.buyRoom], [264705, '176.47円', 270000]);
+  const c = p(50000, 10000, 150, 100); // 足りないお金
+  assert.deepEqual([c.over, Math.ceil(-c.room)], [true, 10000]);
+  const m1 = [p(100000, 10000, 150, 100), p(100000, 10000, 150, 50)]; // 基準100％と50％
+  assert.deepEqual(m1.map((r) => [r.room, r.price]), [[40000, 146], [70000, 143]]);
+  assert.deepEqual([p(200000, 20000, 150, 100).room, p(170000, 20000, 150, 100).room], [80000, 50000]); // 含み損を入れない
+  const g = p(100000, 10000, 150, 100); // よくある質問：基準100％なら必要なお金と同じくらい残る
+  assert.equal(100000 - g.room, g.need);
+});
+
+test('スワップの本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  assert.equal(Math.round(swapPerDay(10000, 100, 4)), 110); // 計算式の例：豪ドル
+  const peso = swapPerDay(100000, 8, 6.5); // メキシコペソ10万通貨
+  assert.deepEqual([Math.round(peso), Math.round(peso * 30)], [142, 4274]);
+  const usd = swapPerDay(10000, 150, 3); // ドル円1万通貨・3％（売りなら払う）
+  assert.deepEqual([Math.round(usd), Math.round(usd * 30), Math.round(usd * 365)], [123, 3699, 45000]);
+  assert.equal(Math.round(swapPerDay(10000, 150, 2)), 82); // 2％に縮む
+  assert.equal(1500000 * 0.03, 45000); // 3％を1日の率とまちがえる
+  assert.equal(10000 * 4.5, 45000); // 4.5円下がると為替の損45,000円
+});
+
+test('ロットの本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const l = (money, loss, width, rate = 150) => fxLot({ money, loss, width, rate });
+  const f = l(500000, fxLotLoss(500000, 1), 0.25); // 計算式の例
+  assert.deepEqual([fxLotLoss(500000, 1), f.qty], [5000, 20000]);
+  const a = l(300000, fxLotLoss(300000, 3), 0.6); // 30万円の3％
+  assert.deepEqual([fxLotLoss(300000, 3), a.qty, a.need, a.stop], [9000, 15000, 90000, 149.4]);
+  const b = l(200000, fxLotLoss(200000, 2), 0.08); // 幅がせまい
+  assert.deepEqual([b.qty, b.need, b.short], [50000, 300000, 100000]);
+  const c = l(1000000, fxLotLoss(1000000, 2), 1, 200); // ポンド円
+  assert.deepEqual([fxLotLoss(1000000, 2), c.qty, c.need], [20000, 20000, 160000]);
+  const m = l(100000, 2000, 20); // 銭の数のまま
+  assert.deepEqual([m.raw, m.under], [100, true]);
+  assert.equal(l(100000, 2000, 0.2).qty, 10000);
+  assert.deepEqual([Math.round(10000 * 0.2), Math.round(10000 * 0.5), l(100000, 2000, 0.5).qty], [2000, 5000, 4000]); // 幅を広げる
+  assert.equal(10 * 10000 * 0.2, 20000); // 10ロットを1万通貨の会社で
+  assert.deepEqual([l(100000, 10000, 1).qty, 10000 * 0.1], [10000, 1000]); // よくある質問：1万通貨で1円
+});
