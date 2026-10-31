@@ -114,10 +114,10 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <link rel="icon" href="/favicon.ico?v=${ICON_V}" sizes="48x48">
 <link rel="icon" href="/favicon.svg?v=${ICON_V}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=${ICON_V}">
-${ads ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsense}" crossorigin="anonymous"></script>\n` : ''}<style>${inlineCss}</style>
+${ads ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsense}" crossorigin="anonymous"></script>\n` : ''}<style>${inlineCss}${p.css || ''}</style>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceAll('<', '\\u003c')}</script>`).join('\n')}
 </head>
-<body data-theme="${theme}">
+<body data-theme="${theme}"${p.wide ? ' class="is-wide"' : ''}>
 <header class="site-header">
   <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>

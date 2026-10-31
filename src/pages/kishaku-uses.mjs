@@ -46,7 +46,8 @@ const HY = {
   how: `<p>水で薄めても、漂白剤の中の次亜塩素酸ナトリウムの量は変わらず、液の量だけがふえます。${HYOHAKU_SRC}％を0.05％にするには液を${ZH_RATIO}倍にすればよいので、漂白剤1に水${ZH_RATIO - 1}の割合です。水の量を${ZH_RATIO - 1}で割ると、入れる漂白剤の量になります。</p>
 <p>例：0.02％を水2Lで作るなら${ratioFromPercent(HYOHAKU_SRC, 0.02).ratio}倍なので、2,000 ÷ ${ratioFromPercent(HYOHAKU_SRC, 0.02).ratio - 1} で漂白剤は約${HY_C.ex}です。ほかの液の薄め方は<a href="/kishaku/">希釈率の計算</a>で出せます。</p>`,
   scenes: `<p>家の中で吐いたものを片づけるときは、0.1％を使います。水500mlのペットボトルなら漂白剤は約${volumeText(HY_C.vomit)}で、ハイターのキャップで${capText(HY_C.vomit, HYOHAKU_CAP)}です。</p>
-<p>テーブルやドアノブを拭く0.05％を、2Lのペットボトルで作るなら、漂白剤は約${volumeText(HY_C.table2l)}です。キャップでは${capText(HY_C.table2l, HYOHAKU_CAP)}になります。</p>`,
+<p>テーブルやドアノブを拭く0.05％を、2Lのペットボトルで作るなら、漂白剤は約${volumeText(HY_C.table2l)}です。キャップでは${capText(HY_C.table2l, HYOHAKU_CAP)}になります。</p>
+<p>清掃の現場でトイレの消毒液を作るときは、<a href="/genba/">現場手帳</a>の作業計画書に、バケツの水の量に合わせた原液の量が出ます。</p>`,
   mistakes: `<p>キャップ1杯をそのまま水1Lに入れると、濃すぎます。${HYOHAKU_CAP}mlを入れると約${fmt(HY_C.cap, 2)}％になり、0.05％の約3倍です。</p>
 <p>濃度が下がった漂白剤を${HYOHAKU_SRC}％のつもりで使うと、薄くなります。濃度が4％に下がったものに水1Lで${Z_USES.hyohaku}を入れると、できる液は約${fmt(HY_C.weak, 3)}％です。0.05％にするには、濃度の欄を4にして約${HY_C.weakNeed}です。</p>
 <p>水の量とできあがりの量は、少しちがいます。水1Lに${Z_USES.hyohaku}を入れると約${volumeText(ZH.total)}になるので、できあがり1Lで作るときの漂白剤は約${HY_C.total1l}です。</p>`,
