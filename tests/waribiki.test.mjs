@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseNum, roundBy, fmt } from '../src/lib/number.mjs';
-import { calcDiscount, calcRate, rateFromOff, wariLabel, compareDiscounts } from '../src/lib/waribiki.mjs';
+import { calcDiscount, calcRate, rateFromOff, wariLabel, compareDiscounts, originalFrom } from '../src/lib/waribiki.mjs';
 
 test('parseNum: 全角・カンマ・単位・空', () => {
   assert.equal(parseNum('１，２００円'), 1200);
@@ -118,4 +118,23 @@ test('値段ごとの割引の早見表（ページの表）', () => {
   for (const [price, want] of Object.entries(table)) {
     assert.deepEqual([10, 20, 30, 50].map((rate) => calcDiscount({ price: Number(price), rate }).final), want, `${price}円`);
   }
+});
+
+test('割引計算の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  assert.equal(calcDiscount({ price: 2480, rate: 15 }).final, 2108); // 計算式の例
+  assert.equal(calcDiscount({ price: 498, rate: 20 }).final, 398); // お総菜の2割引（398.4 → 398）
+  assert.equal(calcDiscount({ price: 498, rate: 20 }).steps[0].rounded, true);
+  const coat = calcDiscount({ price: 5990, rate: 30, rate2: 10 }); // 3割引きのあとクーポン10％オフ
+  assert.deepEqual(coat.steps.map((s) => s.after), [4193, 3773]);
+  assert.equal(Math.round(coat.totalRate), 37);
+  const c = compareDiscounts({ price: 3980, rate: 30 }, { price: 2980, rate: 10 }); // 2つくらべる
+  assert.deepEqual([c.a.final, c.b.final, c.diff, c.cheaper, c.tricky, c.a.off], [2786, 2682, 104, 'b', true, 1194]);
+  assert.equal(calcDiscount({ price: 10000, rate: 30, rate2: 20 }).final, 5600); // 重ねても50％オフではない
+  assert.equal(calcDiscount({ price: 10000, rate: 50 }).final, 5000);
+  assert.equal(calcDiscount({ price: 2000, rate: 3 }).final, 1940); // 3％オフとの取りちがえ
+  assert.equal(calcDiscount({ price: 2000, rate: 30 }).final - calcDiscount({ price: 2000, rate: 3 }).final, -540);
+  assert.equal(Math.round(1400 * 1.3), 1820); // 3割増しでは元にもどらない
+  assert.deepEqual(originalFrom(1400, 30), { ok: true, price: 2000, exact: true });
+  assert.deepEqual([2980, 880, 540].map((p) => calcDiscount({ price: p, rate: 30 }).final), [2086, 616, 378]); // よくある質問
+  assert.equal(calcDiscount({ price: 2980, rate: 30 }).off, 894);
 });

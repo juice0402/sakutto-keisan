@@ -169,6 +169,17 @@ const GK_ZUKAI = stair(zCal('2004年6月', 10, '生まれた日'), { b: '＋7年
 const gw = (a, b) => Number((((GK_EX[b].y - GK_EX[a].y) / (GK_EX[7].y - GK_EX[0].y)) * 100).toFixed(2));
 const GK_BAND = band({ head: '2004年6月10日生まれ', parts: [{ w: gw(0, 2), text: '小学校 6年' }, { w: gw(2, 4), kind: 'alt', text: '中学 3年' }, { w: gw(4, 6), text: '高校 3年' }, { w: gw(6, 7), kind: 'alt', text: '大学 4年' }], ruler: [[0, String(GK_EX[0].y)], [gw(0, 2), String(GK_EX[2].y)], [gw(0, 4), String(GK_EX[4].y)], [gw(0, 6), String(GK_EX[6].y)], [100, String(GK_EX[7].y), true]], ans: `入学から16年 → 大学の卒業 <b>${GK_EX[7].y}年3月</b>`, label: `${GK_EX[0].y}年の小学校の入学から${GK_EX[7].y}年の大学の卒業までの帯を、小学校6年・中学3年・高校3年・大学4年に分けた図` });
 
+// 本文の例（計算のしかた・使う場面の例・まちがえやすいところ・よくある質問）。数字は tests/gakureki-wareki.test.mjs
+// 学年のはじまりと終わりの出典（法務省 日本法令外国語訳データベースの学校教育法施行規則 第59条。2026-10-31 に確かめた）
+const SRC_GAKUNEN = 'https://www.japaneselawtranslation.go.jp/ja/laws/view/4744/tb';
+const GK_APR1 = gakureki({ birth: '2010-04-01' }).rows;
+const GK_1998 = gakureki({ birth: '1998-08-15' }).rows;
+const GK_2005 = gakureki({ birth: '2005-02-10' }).rows;
+const GK_2023 = gakureki({ birth: '2023-05-20' }).rows;
+const GK_20 = THIS_YEAR - 20; // 今年20歳になる人の生まれた年
+const GK_20_LATE = gakureki({ birth: `${GK_20}-06-01` }).rows;
+const GK_20_EARLY = gakureki({ birth: `${GK_20}-02-01` }).rows;
+
 const GK_FAQS = [
   {
     q: '早生まれの入学の年は？',
@@ -177,6 +188,10 @@ const GK_FAQS = [
   {
     q: '幼稚園や保育園の卒園はいつですか？',
     a: `<p>小学校に入学する年の3月です。2004年6月10日生まれなら、${GK_EX[0].y}年3月に卒園します。</p>`,
+  },
+  {
+    q: '今年20歳になる人は、中学校を何年に卒業しましたか？',
+    a: `<p>${GK_20}年4月2日から12月31日生まれなら${GK_20_LATE[3].y}年3月、1月1日から4月1日生まれなら${GK_20_EARLY[3].y}年3月です。</p>`,
   },
   {
     q: '浪人や留年したときは？',
@@ -231,7 +246,13 @@ function renderGakureki() {
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
-${section('formula', '計算のしかた', GK_ZUKAI)}
+${section(
+  'formula',
+  '計算のしかた',
+  `${GK_ZUKAI}
+<p>小学校の学年は4月1日にはじまり、次の年の3月31日に終わります。小学校には、満6歳になった日の次の日からあとの、最初の学年のはじめに入学します。年齢は誕生日の前の日が終わるときに1つ上がるので、4月1日生まれは3月31日に6歳になり、1つ上の学年に入ります。例：2010年4月1日生まれの小学校の入学は${GK_APR1[0].y}年4月で、2009年4月2日生まれと同じ学年です。</p>
+<p>出典：<a href="${SRC_GAKUNEN}">学校教育法施行規則 第59条</a>、<a href="${SRC_AGE}">国立天文台 暦Wiki</a></p>`,
+)}
 
 ${section(
   'table',
@@ -244,6 +265,23 @@ ${GK_ROWS}
 </tbody>
 </table></div>
 <p class="note">入学は4月、大学の卒業は3月の年です。</p>`,
+)}
+
+${section(
+  'scenes',
+  '使う場面の例',
+  `<p>1998年8月生まれで、高校から大学へ進んだとき。履歴書の学歴は、高校の入学が${GK_1998[4].y}年4月で${GK_1998[4].wareki}年、大学の卒業が${GK_1998[7].y}年3月で${GK_1998[7].wareki}年です。</p>
+<p>2005年2月生まれは早生まれで、2004年4月2日から12月31日に生まれた人と同じ学年です。中学校の卒業は${GK_2005[3].y}年3月です。</p>
+<p>2023年5月生まれの子の小学校の入学は${GK_2023[0].y}年4月で、幼稚園や保育園の卒園は${GK_2023[0].y}年3月です。今の年齢は<a href="/nenrei/">年齢の計算</a>で出せます。</p>`,
+)}
+
+${section(
+  'mistakes',
+  'まちがえやすいところ',
+  `<h3>「◯年度の卒業」は、次の年の3月です</h3>
+<p>2020年度は2020年4月から2021年3月までなので、2020年度の卒業は2021年3月です。履歴書の学歴には、卒業した年の2021年を書きます。</p>
+<h3>早生まれの人が、生まれた年の行を見る</h3>
+<p>学歴早見表は、4月2日から12月31日生まれの年です。2005年3月生まれが2005年の行を見ると、どの年も1年おそくなります。2004年の行を見てください。</p>`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(GK_FAQS))}

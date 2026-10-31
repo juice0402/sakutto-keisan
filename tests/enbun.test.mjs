@@ -63,3 +63,18 @@ test('塩の重さとスプーンの目安（ページの表）', () => {
   const want = { 1: '小さじ1/4', 2: '小さじ1/4', 3: '小さじ1/2', 5: '小さじ3/4', 6: '小さじ1', 9: '小さじ1と1/2', 10: '小さじ1と3/4', 12: '小さじ2', 15: '小さじ2と1/2', 18: '大さじ1', 20: '大さじ1と小さじ1/4', 30: '大さじ1と小さじ2' };
   for (const [g, text] of Object.entries(want)) assert.equal(spoonText(Number(g), tsp, tbsp), text, `${g}g`);
 });
+
+test('塩分濃度の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const salt = (base, pct) => enbun({ base, pct, salt: null, out: 'salt' }).salt;
+  const sp = (g) => spoonText(g, ENBUN_SPOON.tsp, ENBUN_SPOON.tbsp);
+  assert.deepEqual([salt(250, 2), sp(5)], [5, '小さじ3/4']); // 計算式の例：きゅうり250gを2％
+  assert.deepEqual([salt(400, 2), sp(8)], [8, '小さじ1と1/4']); // 白菜400gの浅漬け
+  assert.deepEqual([salt(3000, 1), sp(30)], [30, '大さじ1と小さじ2']); // 水3Lのパスタのゆで汁
+  assert.equal(enbun({ base: 600, pct: null, salt: 18, out: 'pct' }).pct, 3); // 砂抜きの塩水の濃さ
+  assert.equal(fmt(enbun({ base: 1000, pct: 3, salt: null, out: 'salt' }).whole, 1), '2.9'); // 水1Lに30gは全体で約2.9％
+  assert.equal(enbun({ base: 970, pct: null, salt: 30, out: 'pct' }).whole, 3); // 水970gに30gで全体の3％
+  assert.equal(sp(15), '小さじ2と1/2'); // しっとりした塩は小さじ1が5g
+  assert.equal(2.5 * ENBUN_SPOON.moist.tsp, 12.5);
+  assert.deepEqual([salt(800, 2), salt(300, 2)], [16, 6]); // ボウルの重さまで入れたとき
+  assert.deepEqual([salt(1000, 2), sp(20)], [20, '大さじ1と小さじ1/4']); // よくある質問：水1Lで2％
+});

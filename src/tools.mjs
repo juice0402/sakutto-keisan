@@ -20,7 +20,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '割引後の値段と、いくら安くなるか',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-31',
     related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
@@ -118,7 +118,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '何％か、15％はいくつか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['shohizei', 'waribiki', 'waribiki-ritsu', 'rieki-ritsu'],
   },
   {
@@ -195,7 +195,7 @@ export const TOOLS = [
     parent: 'nenrei',
     short: '生年月日から、学校の入学と卒業の年',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'wareki', 'nissu'],
   },
   // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
@@ -226,7 +226,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '令和・平成・昭和は西暦何年か',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['nenrei', 'gakureki', 'yakudoshi', 'choju', 'nissu', 'jikan'],
   },
   {
@@ -248,7 +248,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '100gあたりの値段で、どれがいちばん安いか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['matomegai', 'waribiki', 'recipe', 'kishaku'],
   },
   // 実質単価の比較の下のページ（10/21。もとは実質単価の比較の「入り数」「割引シール」のボタン）
@@ -268,7 +268,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '2人分のレシピを3人分にするときの分量',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['tanka', 'waribiki', 'kishaku'],
   },
   {
@@ -390,7 +390,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '原液と水を何mlずつ入れるか',
     published: true,
-    updated: '2026-10-26',
+    updated: '2026-10-31',
     related: ['enbun-noudo', 'sentaku-senzai', 'recipe', 'seisou-jikan'],
   },
   {
@@ -400,7 +400,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '浅漬けやパスタの塩は何gか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'mentsuyu', 'tanka'],
   },
   // 希釈率の使いみち別（parent のページの下に並べる）
@@ -411,7 +411,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '2倍・3倍・4倍濃縮のつゆと水の量',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'hyohakuzai', 'ekihi'],
   },
   {
@@ -432,7 +432,7 @@ export const TOOLS = [
     parent: 'kishaku',
     short: '500倍・1000倍は水1Lに何mlか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'hyohakuzai', 'mentsuyu', 'tanka'],
   },
   // 残業代：時給から計算するページがもとで、月給から計算するページはその下（parent のページからだけリンク）
@@ -497,7 +497,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '上代と掛け率から下代、下代から掛け率',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka', 'gensen-choshu'],
   },
   // 源泉徴収（10/27 夜の作業 #62）

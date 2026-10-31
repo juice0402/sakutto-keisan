@@ -166,3 +166,16 @@ test('お米の合は重さ、お酒の合は ml を添える', () => {
   assert.deepEqual(out.map((r) => [r.to, r.sub]), [['3合', '約450g'], ['1と½合', '270ml']]);
   assert.deepEqual(scaleRecipe([{ name: '牛乳', amount: 2.5, unit: 'カップ' }], 0.5).map((r) => [r.to, r.sub]), [['250ml', '1と¼カップ']]);
 });
+
+test('レシピの人数換算の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const to = (rows, ratio) => scaleRecipe(rows, ratio).map((x) => `${x.approx ? '約' : ''}${x.to}${x.sub ? `/${x.sub}` : ''}`);
+  assert.equal(peopleRatio(4, 3).ratio, 0.75); // 計算式の例：4人分の水800mlを3人分
+  assert.deepEqual(to([{ name: '水', amount: 800, unit: 'ml' }], 0.75), ['600ml']);
+  assert.equal(peopleRatio(2, 5).ratio, 2.5); // 2人分を5人分
+  assert.deepEqual(to([{ name: '豚こま肉', amount: 200, unit: 'g' }, { name: 'しょうゆ', amount: 1.5, unit: '大さじ' }], 2.5), ['500g', '大さじ3と¾']);
+  assert.equal(haveRatio(300, 360).ratio, 1.2); // 手元の鶏もも肉360g
+  assert.deepEqual(to([{ name: '水', amount: 200, unit: 'ml' }, { name: '玉ねぎ', amount: 1, unit: '個' }], 1.2), ['240ml', '約1と¼個']);
+  assert.deepEqual(to([{ name: 'お米', amount: 3, unit: '合' }], 0.5), ['1と½合/約225g']); // お米3合を半分
+  assert.deepEqual(to([{ name: '牛乳', amount: 1, unit: 'カップ' }], 1), ['200ml/1カップ']); // 1カップは200ml（1合は180ml）
+  assert.deepEqual(to([{ name: 'しょうゆ', amount: 1, unit: '大さじ' }], peopleRatio(2, 1).ratio), ['大さじ½']); // よくある質問：2人分を1人分
+});
