@@ -400,7 +400,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '浅漬けやパスタの塩は何gか',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'mentsuyu', 'tanka'],
   },
   // 希釈率の使いみち別（parent のページの下に並べる）
@@ -497,7 +497,7 @@ export const TOOLS = [
     category: 'shigoto',
     short: '上代と掛け率から下代、下代から掛け率',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka', 'gensen-choshu'],
   },
   // 源泉徴収（10/27 夜の作業 #62）

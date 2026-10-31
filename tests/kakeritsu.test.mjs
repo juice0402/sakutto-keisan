@@ -51,3 +51,18 @@ test('まだ入れていない・まちがった入力', () => {
   assert.equal(kakeritsu({ jodai: 3000, rate: 120, gedai: null, out: 'gedai' }).field, 'rate');
   assert.equal(kakeritsu({ jodai: 3000, rate: null, gedai: 0, out: 'rate' }).field, 'gedai');
 });
+
+test('掛け率の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const g = (jodai, rate) => kakeritsu({ jodai, rate, gedai: null, out: 'gedai' });
+  assert.deepEqual([g(4500, 70).gedai, g(4500, 70).profit], [3150, 1350]); // 計算式の例：上代4,500円の7掛け
+  assert.deepEqual([g(3800, 65).gedai, g(3800, 65).profit], [2470, 1330]); // 上代3,800円の6.5掛け
+  const r = kakeritsu({ jodai: 2500, rate: null, gedai: 1625, out: 'rate' }); // 見積もりの掛け率
+  assert.deepEqual([r.pct, kakeText(r.pct)], [65, '6.5']);
+  assert.equal(kakeritsu({ jodai: null, rate: 70, gedai: 840, out: 'jodai' }).jodai, 1200); // 下代と掛け率から上代
+  assert.equal(Math.round(1800 * 1.4), 2520); // 下代に40％を上乗せしても上代にならない
+  assert.equal(kakeritsu({ jodai: null, rate: 60, gedai: 1800, out: 'jodai' }).jodai, 3000);
+  assert.equal(Math.round((3000 * 6) / 100), 180); // 6％と取りちがえ
+  assert.equal(g(3000, 6).gedai, 1800); // ツールは6を6掛けとして計算
+  assert.equal(kakePctText(kakeritsu({ jodai: 3300, rate: null, gedai: 1800, out: 'rate' }).pct), '54.5'); // 税込みと税抜きがまざる
+  assert.deepEqual([g(3000, 50).gedai, g(3000, 80).gedai], [1500, 2400]); // よくある質問
+});
