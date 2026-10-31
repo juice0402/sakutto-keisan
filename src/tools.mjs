@@ -248,7 +248,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '100gあたりの値段で、どれがいちばん安いか',
     published: true,
-    updated: '2026-10-21',
+    updated: '2026-10-31',
     related: ['matomegai', 'waribiki', 'recipe', 'kishaku'],
   },
   // 実質単価の比較の下のページ（10/21。もとは実質単価の比較の「入り数」「割引シール」のボタン）
@@ -268,7 +268,7 @@ export const TOOLS = [
     category: 'seikatsu',
     short: '2人分のレシピを3人分にするときの分量',
     published: true,
-    updated: '2026-10-29',
+    updated: '2026-10-31',
     related: ['tanka', 'waribiki', 'kishaku'],
   },
   {
