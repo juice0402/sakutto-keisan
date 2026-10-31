@@ -47,6 +47,31 @@ export const DENKI_USES = [
     modes: [{ b: '強', watt: 1500 }, { b: '中', watt: 900 }, { b: '弱', watt: 600 }], basis: 'w',
   },
 ];
+// 家電別のページの「メーカーの数字」の表・使う場面の例・まちがえやすいところの出典（10/31 #97 で確かめた）
+// 電気毛布：パナソニックのしき毛布（DB-U12T）とかけしき毛布（DB-R31M）の仕様、取扱説明書（DB-U11T）の寝る前の使いかた
+// ホットカーペット：パナソニックの1畳・2畳・3畳（DC-1NK・DC-2NK・DC-3NK）の仕様、NKシリーズの面積の切りかえ、UP LIFE の電気代の記事
+// セラミックヒーター：パナソニックの DS-FS1200（50Hz・60Hz）と、ひとセンサーの DS-FZS1200（在室45分・不在15分の試験）、UP LIFE の節約の記事
+// オイルヒーター：デロンギのよくある質問（1500W・1200Wタイプの1時間の電気代）と製品ページ（サーモスタット・タイマー）
+// こたつ：山善の家具調こたつ（GKR-HDN802H）の製品ページと、GKR-802H の取扱説明書（測定の条件・強と弱のちがい・上手な使いかた）
+export const DENKI_CHECKED = '2026-10-31';
+export const DENKI_MAKER = {
+  moufuShiki: { name: 'パナソニック DB-U12T', url: 'https://panasonic.jp/danbo/products/DB-U12T/spec.html' },
+  moufuKake: { name: 'パナソニック DB-R31M', url: 'https://panasonic.jp/danbo/products/DB-R31M/spec.html' },
+  moufuManual: { name: 'パナソニック DB-U11T の取扱説明書', url: 'https://panasonic.jp/manualdl/p-db/db/db-u11t_01.pdf' },
+  carpet1: { name: 'DC-1NK', url: 'https://panasonic.jp/danbo/products/DC-1NK/spec.html' },
+  carpet2: { name: 'DC-2NK', url: 'https://panasonic.jp/danbo/products/DC-2NK/spec.html' },
+  carpet3: { name: 'DC-3NK', url: 'https://panasonic.jp/danbo/products/DC-3NK/spec.html' },
+  carpetSeries: { name: 'NKシリーズ', url: 'https://panasonic.jp/danbo/DC-NK.html' },
+  carpetUpLife: { name: 'パナソニック UP LIFE', url: 'https://panasonic.jp/life/housework/100166.html' },
+  ceramicFs: { name: 'パナソニック DS-FS1200', url: 'https://panasonic.jp/danbo/products/DS-FS1200/spec.html' },
+  ceramicFzs: { name: 'DS-FZS1200', url: 'https://panasonic.jp/danbo/products/DS-FZS1200/feature.html' },
+  ceramicUpLife: { name: 'パナソニック UP LIFE', url: 'https://panasonic.jp/life/air/170094.html' },
+  oilFaq: { name: 'デロンギのよくある質問', url: 'https://www.delonghi.com/ja-jp/faqs/%E3%81%94%E8%B3%BC%E5%85%A5%E5%89%8D%E3%81%AE%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E3%81%94%E8%B3%AA%E5%95%8F/a/253341' },
+  oilProduct: { name: 'デロンギ RHJ10F1015-DG', url: 'https://www.delonghi.com/ja-jp/p/oiruhi%E3%83%BCta%E3%83%BC-rhj10f1015-dg-oiruhi%E3%83%BCta%E3%83%BC-da%E3%83%BCkugure%E3%83%BC/RHJ10F1015-DG.html?pid=0108776317' },
+  kotatsuHdn: { name: '山善 GKR-HDN802H', url: 'https://book.yamazen.co.jp/product/detail/I00008272' },
+  kotatsuManual: { name: '山善 GKR-802H の取扱説明書', url: 'https://book.yamazen.co.jp/downloads/W7N2823PGKR-802H/?mode=view' },
+};
+
 // ほかの出典（よくある質問で使う）
 export const DENKI_MORE = {
   nitoriKotatsu: { name: 'ニトリ', url: 'https://www.nitori-net.jp/ec/product/5692266/' },

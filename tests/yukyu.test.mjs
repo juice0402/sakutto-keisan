@@ -66,3 +66,23 @@ test('入れていない・まちがい', () => {
   assert.equal(yukyuFuyo({ hire: '2026-04-01', on: '2026-03-01', week: 5 }).field, 'on');
   assert.equal(yukyuFuyo({ hire: '2026-02-30', on: '2026-10-01', week: 5 }).field, 'hire');
 });
+
+test('有給休暇の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const f = (hire, on, week) => yukyuFuyo({ hire, on, week });
+  const a = f('2025-10-15', '2026-04-15', 4); // 計算式の例：週4日
+  assert.deepEqual([yukyuDateText(a.cur.date), a.days, yukyuDateText(a.next.date), a.next.days], ['2026年4月15日', 7, '2027年4月15日', 8]);
+  const b = f('2026-01-10', '2026-07-10', 5); // 年度の途中の入社
+  assert.deepEqual([yukyuDateText(b.cur.date), b.days, yukyuDateText(b.next.date), b.next.days, b.duty], ['2026年7月10日', 10, '2027年7月10日', 11, true]);
+  const c = f('2023-04-01', '2026-10-01', 3); // 週3日・勤続3年6か月
+  assert.deepEqual([c.days, c.duty, yukyuTenureText(c)], [8, false, '3年6か月']);
+  assert.equal(f('2020-04-01', '2025-10-01', 3).days, 10); // 週3日で10日になるのは5年6か月
+  const d = f('2025-08-31', '2026-03-01', 5); // 月末の入社
+  assert.deepEqual([yukyuDateText(d.cur.date), d.days, yukyuDateText(d.cur.until)], ['2026年3月1日', 10, '2028年2月29日']);
+  assert.equal(f('2025-08-31', '2026-02-28', 5).days, 0);
+  const e = f('2026-04-01', '2026-10-01', 5); // 1回目は6か月後
+  assert.deepEqual([yukyuDateText(e.cur.date), e.days], ['2026年10月1日', 10]);
+  assert.deepEqual([f('2026-04-01', '2026-10-01', 5).days, f('2026-04-01', '2026-10-01', 4).days], [10, 7]); // 週30時間以上
+  const g = f('2024-04-01', '2026-10-01', 5); // 前の年の分
+  assert.deepEqual([g.days, g.prev.days, yukyuDateText(g.prev.date), yukyuDateText(g.prev.until)], [12, 11, '2025年10月1日', '2027年9月30日']);
+  assert.deepEqual(YUKYU_TABLE[3], [5, 6, 6, 8, 9, 10, 11]); // よくある質問：週3日
+});
