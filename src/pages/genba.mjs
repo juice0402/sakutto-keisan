@@ -205,6 +205,7 @@ ${relatedHtml(tool)}
     ogImage: `/og/${tool.slug}.png`,
     scripts: ['genba.js'],
     wide: true,
+    css: '@media print{@page{size:A4;margin:14mm}}', // 印刷の紙はこのページだけ（site.css に書くと全ページに残る）
     footNote: '入力した数字は送信しません。現場と「メモする」の記録は、この端末の中だけに保存します。',
     body,
   });

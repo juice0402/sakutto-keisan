@@ -21,8 +21,9 @@ function gbLoad() {
   try {
     const v = JSON.parse(localStorage.getItem(GB_KEY) || 'null');
     if (v && Array.isArray(v.sites) && v.sites.length) {
-      const sites = v.sites.slice(0, GENBA_SITES_MAX).map((s, i) => gbClean(s, i + 1));
-      return { cur: Math.min(Math.max(0, Number(v.cur) || 0), sites.length - 1), sites };
+      // 壊れた1件（null など）だけ捨てて、ほかの現場は残す
+      const sites = v.sites.filter((s) => s && typeof s === 'object').slice(0, GENBA_SITES_MAX).map((s, i) => gbClean(s, i + 1));
+      if (sites.length) return { cur: Math.min(Math.max(0, Number(v.cur) || 0), sites.length - 1), sites };
     }
   } catch { /* 読めないときは、はじめから */ }
   return { cur: 0, sites: [genbaBlank(1)] };
