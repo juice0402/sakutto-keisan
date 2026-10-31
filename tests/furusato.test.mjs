@@ -223,3 +223,15 @@ test('控除の内わけ（ページの計算例と表）', () => {
   assert.equal(furusatoBreakdown({ donation: 10000, income: null }, Y2026).missing, 'income');
   assert.equal(furusatoBreakdown({ donation: 0, income: man(500) }, Y2026).field, 'donation');
 });
+
+test('制度の変更点の本文：使う場面の例・まちがえやすいところ', async () => {
+  const { SEIDO_ITEMS, SEIDO_EX } = await import('../src/pages/furusato-seido.mjs');
+  assert.equal(SEIDO_ITEMS.filter((x) => x.from === 2026).length, 2); // 2026年をえらぶと2つ
+  const r = furusatoLimit({ income: man(1000) }, Y2026); // 年収1,000万円・ひとり
+  const b = furusatoBreakdown({ donation: r.limit, income: man(1000) }, Y2026);
+  assert.deepEqual([r.limit, b.tokurei], [177000, 121765]);
+  assert.deepEqual([SEIDO_EX.limit, SEIDO_EX.tokurei], [177000, 121765]);
+  assert.ok(b.tokurei * 10 < 1930000); // 193万円の10分の1にもならない
+  assert.deepEqual([10000 * 0.3, 10000 * 0.525, 10000 * 0.6, 10000 - 10000 * 0.525], [3000, 5250, 6000, 4750]); // 1万円の寄付
+  assert.deepEqual([2026 - 2018 + 1, 2027 - 2018 + 1], [9, 10]); // 令和9年度・令和10年度の住民税
+});

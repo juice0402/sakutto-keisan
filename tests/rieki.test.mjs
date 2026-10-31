@@ -50,3 +50,22 @@ test('赤字・小数・まちがった入力', () => {
   assert.equal(rieki({ price: 1000, rate: 120, out: 'cost' }).field, 'rate');
   assert.equal(rieki({ price: 1500, cost: 0, out: 'rate' }).times, null); // 原価0円
 });
+
+test('利益率の本文：計算式の例・使う場面の例・まちがえやすいところ・よくある質問', () => {
+  const r = (o) => {
+    const x = rieki(o);
+    return [x.price, x.cost, x.profit, pctText(x.rate)];
+  };
+  assert.deepEqual(r({ cost: 2400, rate: 25, out: 'price' }), [3200, 2400, 800, '25']); // 計算式の例
+  assert.deepEqual(r({ price: 980, cost: 650, out: 'rate' }), [980, 650, 330, '33.6']); // 雑貨
+  const dish = rieki({ cost: 420, rate: 70, out: 'price' }); // 原価率30％
+  assert.deepEqual([dish.price, pctText(dish.costRate)], [1400, '30']);
+  assert.equal(rieki({ price: 1980, rate: 40, out: 'cost' }).cost, 1188); // 原価の上限
+  assert.deepEqual(r({ price: 2800, cost: 2000, out: 'rate' }), [2800, 2000, 800, '28.5']); // 原価に40％をのせる
+  assert.equal(rieki({ cost: 2000, rate: 40, out: 'price' }).price, 3334);
+  assert.deepEqual(r({ price: 1350, cost: 1000, out: 'rate' }), [1350, 1000, 350, '25.9']); // 1割引き
+  assert.equal(rieki({ price: 1500, cost: 1000, out: 'rate' }).profit, 500);
+  assert.equal((500 - 350) / 500, 0.3); // 利益は3割減る
+  assert.deepEqual([r({ price: 1000, cost: 700, out: 'rate' })[3], r({ price: 1100, cost: 700, out: 'rate' })[3]], ['30', '36.3']); // 税込みと税抜き
+  assert.equal(rieki({ cost: 700, rate: 30, out: 'price' }).price, 1000); // よくある質問
+});
