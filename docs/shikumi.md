@@ -16,6 +16,7 @@
 | `henreihin-daily.yml` | 毎日6:07（12月は18:07も） | 返礼品の取り直しの本番の公開 | — |
 | `henreihin-check.yml` | 手で・返礼品の探し方を変えた PR | 楽天から取れるかの確かめ | — |
 | `mihari.yml` | 上の workflow が main で終わったとき・毎朝5:47 | 見張り（下の節）。失敗・日付・ページを見て、あるときだけ Issue | — |
+| `merge-ok.yml` | PR に merge-ok が付いたとき・PR の点検が終わったとき | マージの印（下の節）。点検が通ったら squash でマージして公開を動かす | 印の付いた PR |
 
 ## 見張り（mihari.yml）
 - 2026-11-02 司令塔：見張りだけの Claude の予約タスクをやめ、`.github/workflows/mihari.yml` と `scripts/mihari.mjs`（テストは `tests/mihari.test.mjs`）に移した。何もなければ何もしない。Issue のラベルは2つ：`mihari`＝知らせるだけ（毎朝の「朝の確認」が知らせる）、`night`＝直すことが決まったもの（題「【夜】…」・本文は夜のメモ。毎晩の「夜のまとめ作業」が PR まで）
@@ -23,6 +24,11 @@
 - 毎朝5:47：出典の確認日（ふるさと納税・SPU。テストと同じ決まりで期限を出し、残り10日以内で `night`）・Kドリームスの SPU のページ（11/22 まで。cap が null でメンテナンスの文がなければ `night`）・国税庁の消費税率引下げ特設サイト（火曜・1/31 まで。「成立しました」「公布されました」などがはっきり出たら `night`、「成立した場合」の文が消えただけなら `mihari`）・お買い物マラソンの記録（15日。終わった回6・上限がわかっている回4で `night`）・早見表の PDF（11/1〜12/20。来年の PDF がなく PR もなければ `night`）。外のページが7日見られないと `mihari`
 - watch.yml・check-links.yml の Issue も題「【夜】…」・ラベル night・本文は夜のメモ（`node scripts/mihari.mjs memo`）。夜のメモの中身は `scripts/mihari.mjs` の `MEMO`
 - いじるとき：確認日のテスト（tests/furusato.test.mjs・tests/spu.test.mjs）の日数を変えたら `passesChecked` も直す。手で試すときは Actions の「見張り」を `dry_run`（と `today`）で動かす
+
+## マージの印（merge-ok.yml）
+- 2026-11-02 司令塔：しょーくんが司令塔で「マージして」と言ったら、司令塔は PR にラベル `merge-ok` を付けるだけ。`.github/workflows/merge-ok.yml`・`scripts/merge-ok.mjs`（テストは `tests/merge-ok.test.mjs`）が点検（Build and Deploy・出典の点検・Henreihin check）の合格を待って squash でマージし、公開（deploy.yml）を main で1回動かす。夜の作業・予約タスクはこのラベルを付けない
+- 本文の「#12 の PR #34 のあとにマージ」などの順番を守る。点検が通らない・main とぶつかった → コメントして `merge-blocked`（司令塔が見る）。check-runs が1つもない PR は印から10分でマージ
+- 試すときは Actions の「マージの印」を `dry_run` で動かす。main とぶつかっている PR は GitHub の決まりで印を付けても動かないので、ほかの PR の点検が終わったときか手で動かしたときに見る
 
 ## Merge の例外（元の文）
 - 流れの例外のくわしいこと
