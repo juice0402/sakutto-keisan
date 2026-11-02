@@ -124,15 +124,25 @@ with sync_playwright() as p:
         def shot(url):
             page.goto(url)
             page.add_style_tag(content=VIS)
-            page.wait_for_timeout(80)
+            page.wait_for_timeout(300)
             return Image.open(io.BytesIO(page.screenshot(full_page=True, animations='disabled'))).convert('RGB')
 
-        for path in pages + ['/genba/']:
+        def differ(path):
             a, b = shot(BASE + path), shot(COMPARE + path)
             if a.size != b.size:
-                bad(f'390px {path} 大きさがちがう {a.size} と {b.size}')
-            elif ImageChops.difference(a, b).getbbox():
-                bad(f'390px {path} 画素がちがう {ImageChops.difference(a, b).getbbox()}')
+                return f'大きさがちがう {a.size} と {b.size}'
+            box = ImageChops.difference(a, b).getbbox()
+            return f'画素がちがう {box}' if box else None
+
+        for path in pages + ['/genba/']:
+            # 同じビルドを2回撮っても、紙のすみが1〜2画素ずれることが時々ある（11/2 に確かめた）。3回つづけてちがうときだけ NG
+            why = differ(path)
+            for _ in range(2):
+                if not why:
+                    break
+                why = differ(path)
+            if why:
+                bad(f'390px {path} {why}')
         ctx.close()
     browser.close()
 
