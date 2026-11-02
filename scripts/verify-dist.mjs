@@ -174,7 +174,8 @@ for (const t of TOOLS.filter((x) => x.published)) {
   const f = join(DIST, url, 'index.html');
   if (!existsSync(f)) { fail(url, '公開中なのにページがない'); continue; }
   const title = (readFileSync(f, 'utf8').match(/<title>([^<]*)<\/title>/) || [])[1] || '';
-  if (!title.startsWith(t.name.replace(/（.*$/, ''))) fail(url, `title の先頭がツール名でない: ${title}`);
+  // 現場手帳は検索される言葉を先に「清掃の作業計画表と時間割｜現場手帳｜…」（#106 しょーくんと決めた）。このページだけ、名前が｜で区切って入っていればよい
+  if (!title.startsWith(t.name.replace(/（.*$/, '')) && !(t.slug === 'genba' && title.includes(`｜${t.name}｜`))) fail(url, `title の先頭がツール名でない: ${title}`);
   if (!sitemap.includes(`<loc>${SITE.url}${url}</loc>`)) fail('/sitemap.xml', `${t.slug} が載っていない`);
   if (!t.updated) fail(url, 'tools.mjs に updated がない');
   if (!readFileSync(f, 'utf8').includes(`/og/${t.slug}.png`)) fail(url, 'ツール専用の共有画像を使っていない（scripts/make-images.py で作る）');

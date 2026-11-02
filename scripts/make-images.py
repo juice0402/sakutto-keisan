@@ -448,6 +448,12 @@ def seisou_doc(img, cx, top):
         d.text((bx + w / 2 - d.textlength(num, font=f) / 2, y0 + 10 * S), num, font=f, fill='#FFFFFF')
 
 
+def genba_doc(img, cx, top):
+    """現場手帳：作業計画書（ページの見本：事務室600㎡・廊下300㎡・トイレ40㎡を2人で8:00から）"""
+    doc_sheet(img, cx, top, '作業計画書', 'かかる時間', '1時間33分', '', ('時刻', '場所', '時間'),
+              (('8:00', '事務室', '49分'), ('8:49', '廊下', '19分'), ('9:08', 'トイレ', '25分')))
+
+
 def mitsumori_doc(img, cx, top):
     """清掃の見積もり計算：見積書（ページの計算例：300㎡を㎡単価8円で週5回）。1年の帯は書類に入らないので描かない"""
     doc_sheet(img, cx, top, '見積書', '1か月の料金', '52,000', '円', ('期間', '回数', '料金'),
@@ -1324,7 +1330,7 @@ def hensachi_mount(d, x, y):
 VISUALS = {
     'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart, 'fx-lot': fx_lot, 'yukyu-fuyo': yukyu_doc, 'gensen-choshu': gensen_doc,
-    'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'seisou-mitsumori': mitsumori_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
+    'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'seisou-mitsumori': mitsumori_doc, 'genba': genba_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
     # 割引計算・実質単価の比較の下のページ（10/21）
     'warikan': lambda img, cx, top: receipt(img, cx, top, [('1人', '3,400', '')], [1, 1, 1], [('合計', '10,000円'), ('集める（3人分）', '10,200円'), ('おつり', '200円')]),
     'warikan-keisha': lambda img, cx, top: receipt(img, cx, top, [('多め', '8,600', '× 1人'), ('ふつう', '4,300', '× 4人'), ('少なめ', '2,200', '× 2人')],

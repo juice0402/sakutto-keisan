@@ -297,6 +297,13 @@ CASES = {
         (('fill', '#area', '1000'), '#r-foot', '人数か作業時間を入れてください'),
         (('fill', '#people', '2'), None, None),
     ],
+    'genba': [
+        (None, '#r-foot', '事務室の面積を入れてください'),
+        (('fill', '#ar-0', '600'), '#r-foot', '人数を入れてください'),
+        (('fill', '#people', '2'), '#r-foot', 'はじめの時刻を入れてください'),
+        (('fill', '#start', '08:00'), '#r-foot', 'おわりの時刻を入れてください'),
+        (('fill', '#end', '11:00'), None, None),
+    ],
     'seisou-mitsumori': [
         (None, '#r-foot', '回数をえらんでください'),
         (('click', '.tile[data-year="260"]'), '#r-foot', '面積を入れてください'),
