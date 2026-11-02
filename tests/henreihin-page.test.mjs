@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 
 process.env.HENREIHIN = 'fixture';
 const { setInlineScripts } = await import('../src/layout.mjs');
-setInlineScripts(Object.fromEntries(['henreihin.js', 'notes.js'].map((f) => [f, '/* テストではスクリプトの中身は見ない */'])));
+setInlineScripts(Object.fromEntries(['henreihin.js', 'notes.js', 'pc.js'].map((f) => [f, '/* テストではスクリプトの中身は見ない */'])));
 const { default: render } = await import('../src/pages/henreihin.mjs');
 const pages = Object.fromEntries(render().map((p) => [p.path, p.html]));
 

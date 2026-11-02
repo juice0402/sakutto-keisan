@@ -60,6 +60,66 @@ function numberNotes(body) {
   return body.replace(/class="((?:tiles|seg)(?: [^"]*)?)"/g, (_, c) => `class="${c}" data-note="${Math.min(++n, 3)}" data-fresh`);
 }
 
+// パソコン（1080px〜）の見開き（10/31 連絡 C-017・#107）：<main> の中身を左の段（.pc-left）と右の段（.pc-right）に分ける
+//   計算のページ：左＝h1・説明・#calc まで、右＝そのあと（1画面めの下の読みもの）
+//   トップ：左＝題・ちょいメモ・よく使う計算、右＝分類の一覧から下
+//   #calc のないページ：左＝最初の section・div の前まで（h1・説明）と、h2 が3つ以上なら目次。右＝本文
+//   1080px 未満では入れ物が display: contents で見た目に効かない（site.css）。並べる順番は変えない
+const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+function topLevel(html) {
+  const out = [];
+  const re = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][\w-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g;
+  let depth = 0;
+  let cur = null;
+  let m;
+  while ((m = re.exec(html))) {
+    if (!m[2]) continue;
+    const [, close, tag0, attrs] = m;
+    const tag = tag0.toLowerCase();
+    if (close) {
+      depth--;
+      if (depth === 0 && cur) { cur.end = re.lastIndex; out.push(cur); cur = null; }
+      continue;
+    }
+    if (VOID.has(tag) || attrs.endsWith('/')) {
+      if (depth === 0) out.push({ tag, attrs, start: m.index, end: re.lastIndex });
+      continue;
+    }
+    if (depth === 0) cur = { tag, attrs, start: m.index };
+    depth++;
+    if (tag === 'script' || tag === 'style') {
+      const endAt = html.indexOf(`</${tag}`, re.lastIndex);
+      re.lastIndex = endAt < 0 ? html.length : endAt;
+    }
+  }
+  return out;
+}
+const pcToc = (right) => {
+  const hs = [...right.matchAll(/<h2 id="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g)];
+  if (hs.length < 3) return '';
+  return `<nav class="pc-toc" aria-label="このページの中"><ul>${hs
+    .map(([, id, t]) => `<li><a href="#${id}">${t.replace(/<[^>]+>/g, '')}</a></li>`)
+    .join('')}</ul></nav>`;
+};
+export function spread(body, path) {
+  const els = topLevel(body);
+  let at = -1;
+  let toc = false;
+  const calc = els.find((e) => /\sid="calc"/.test(e.attrs));
+  if (calc) at = calc.end;
+  else if (path === '/') {
+    const pick = els.find((e) => /aria-labelledby="cat-pick"/.test(e.attrs));
+    if (pick) at = pick.end;
+  } else {
+    const first = els.find((e) => e.tag === 'section' || e.tag === 'div');
+    if (first) { at = first.start; toc = true; }
+  }
+  if (at <= 0) return body;
+  const left = body.slice(0, at);
+  const right = body.slice(at);
+  return `<div class="pc-left">${left}${toc ? pcToc(right) : ''}</div><div class="pc-right">${right}</div>`;
+}
+
 /**
  * ページ全体のHTML
  * @param {object} p
@@ -88,6 +148,10 @@ export function page(p) {
   // 外部の読み込みは決めたものだけ。印（data-ext）を見て scripts/verify-dist.mjs が見張る
   const ads = Boolean(SITE.adsense) && !p.noAds && !p.noindex && !p.ext;
   const ext = p.ext || (ads ? 'adsense' : '');
+  // 見開き：現場手帳（自分の2列）と 404 はそのまま
+  const body = numberNotes(p.body);
+  const main = p.wide || p.path === '/404' ? body : spread(body, p.path);
+  const pc = main !== body;
 
   return `<!doctype html>
 <html lang="ja"${ext ? ` data-ext="${ext}"` : ''}>
@@ -117,12 +181,12 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 ${ads ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsense}" crossorigin="anonymous"></script>\n` : ''}<style>${inlineCss}${p.css || ''}</style>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceAll('<', '\\u003c')}</script>`).join('\n')}
 </head>
-<body data-theme="${theme}"${p.wide ? ' class="is-wide"' : ''}>
+<body data-theme="${theme}"${p.wide ? ' class="is-wide"' : pc ? ' class="is-spread"' : ''}>
 <header class="site-header">
   <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>
 <main class="wrap">
-${numberNotes(p.body)}
+${main}
 ${breadcrumbHtml(crumbs)}
 </main>
 <footer class="site-footer">
@@ -137,7 +201,7 @@ ${breadcrumbHtml(crumbs)}
     <p class="copy">© ${year === SITE.startYear ? year : `${SITE.startYear}–${year}`} ${esc(SITE.name)}</p>
   </div>
 </footer>
-${[...(p.scripts || []), ...(/class="(?:tiles|seg)[\s"]/.test(p.body) ? ['notes.js'] : [])].map(scriptTag).join('\n')}
+${[...(p.scripts || []), ...(/class="(?:tiles|seg)[\s"]/.test(p.body) ? ['notes.js'] : []), ...(pc ? ['pc.js'] : [])].map(scriptTag).join('\n')}
 </body>
 </html>
 `;

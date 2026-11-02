@@ -1529,3 +1529,22 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .gb-doc .gb-pick button[aria-pressed="false"] { display: none; }
   .gb-water { width: 2em; border: 0; padding: 0; }
 }
+/* パソコン（1080px〜）の見開き（10/31 連絡 C-017・#107）：左の段＝h1・説明・計算（とまる）、右の段＝読みもの。段の間はノートのとじ目の線1本
+   1080px 未満は入れ物が見た目に効かない（display: contents）。左の段のとまる場所は src/client/pc.js。印刷はそのまま */
+.pc-left, .pc-right { display: contents; }
+.pc-toc { display: none; }
+@media screen and (min-width: 1080px) {
+  .is-spread .wrap { max-width: 1120px; }
+  .is-spread main.wrap { display: grid; grid-template-columns: 470px minmax(0, 1fr); }
+  .pc-left, .pc-right { display: block; min-width: 0; }
+  .pc-left { position: sticky; top: 14px; align-self: start; padding: 0 40px 0 0; }
+  .pc-right { padding: 4px 0 0 40px; border-left: 1.5px solid var(--border); }
+  .pc-right .prose { content-visibility: visible; }
+  .pc-right > .prose:first-child, .pc-right > .cat:first-child { margin-top: 6px; }
+  main.wrap > .crumbs { grid-column: 1 / -1; }
+  .pc-left .pick-grid { grid-template-columns: repeat(4, 1fr); }
+  .pc-toc { display: block; margin: 18px 0 0; font-size: 15px; }
+  .pc-toc ul { margin: 0; padding: 0; list-style: none; }
+  .pc-toc li { border-bottom: 1px dashed var(--border); }
+  .pc-toc a { display: block; padding: 9px 2px; color: var(--text); text-decoration: none; }
+}
