@@ -2,7 +2,7 @@
 // 全6サイトの「日本から・Google 経由の訪問」を Cloudflare Web Analytics で見て、急に落ちたらサイトごとに mihari の Issue を作る
 //   直近3日（UTC のきのうまで）がどれも、その前の7日の1日平均の半分以下 → 落ちこみ。前の7日の1日平均が20未満のサイトは見ない
 //   開いた Issue があり、きのうの数が Issue の baseline の70%以上 → 「戻った」で閉じる
-//   鍵の権限が足りない → Issue「Cloudflare の鍵にアクセス解析を見る権限がない」（workflow は失敗にしない）。つながらない・5xx → ログに1行だけ
+//   鍵の権限が足りない → Issue「Cloudflare の鍵にアクセス解析を見る権限がない」（workflow は失敗にしない）。つながらない・5xx・429 → ログに1行だけ
 // 環境変数：CLOUDFLARE_API_TOKEN・CLOUDFLARE_ACCOUNT_ID（deploy.yml と同じ Secrets）・GITHUB_TOKEN・DRY_RUN=true（Issue を作らず、題と本文と判定の表をログに出す）・TODAY=YYYY-MM-DD（UTC の日付を決めて試す）
 
 import { pathToFileURL } from 'node:url';
@@ -126,7 +126,7 @@ export async function askCloudflare(from, to, { token, account, fetchImpl = fetc
   let json = null;
   try { json = await r.json(); } catch { /* 本文が JSON でない */ }
   if (authError(r.status, json)) return { auth: true };
-  if (r.status >= 500) return { skip: `Cloudflare が HTTP ${r.status}` };
+  if (r.status >= 500 || r.status === 429) return { skip: `Cloudflare が HTTP ${r.status}` };
   if (!r.ok) throw new Error(`Cloudflare の GraphQL：HTTP ${r.status}`);
   if (json?.errors?.length) {
     const msg = json.errors.map((e) => e.message).join(' / ').slice(0, 200);

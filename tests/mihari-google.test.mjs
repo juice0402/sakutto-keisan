@@ -95,6 +95,7 @@ test('Cloudflare の答え：data.viewer と viewer の両方を読む・権限�
   assert.deepEqual(await askCloudflare('a', 'b', { fetchImpl: fake(403, { errors: [] }) }), { auth: true });
   assert.deepEqual(await askCloudflare('a', 'b', { fetchImpl: fake(200, { data: null, errors: [{ message: 'not authorized' }] }) }), { auth: true });
   assert.match((await askCloudflare('a', 'b', { fetchImpl: fake(502, null) })).skip, /HTTP 502/);
+  assert.match((await askCloudflare('a', 'b', { fetchImpl: fake(429, { errors: [{ message: 'rate limited' }] }) })).skip, /HTTP 429/);
   assert.match((await askCloudflare('a', 'b', { fetchImpl: async () => { throw new TypeError('fetch failed'); } })).skip, /つながらない/);
   await assert.rejects(askCloudflare('a', 'b', { fetchImpl: fake(200, { errors: [{ message: 'unknown field' }] }) }), /unknown field/);
 });
