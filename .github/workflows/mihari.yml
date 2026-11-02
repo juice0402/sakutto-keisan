@@ -1,0 +1,95 @@
+name: 見張り
+
+# 見張り（scripts/mihari.mjs）。何もなければ何もしない。何かあったときだけ Issue を作る（くわしくは docs/shikumi.md の「見張り（mihari.yml）」）
+#   止まると困る workflow（公開・公式のページの見張り・出典の点検・返礼品の毎日の取り直し）が main で失敗 → ラベル mihari の Issue（朝の確認が知らせる）。成功 → 「直った」で閉じる
+#   毎朝5:47（日本時間）：出典の確認日・Kドリームス（11/22 まで）・消費税（火曜・1/31 まで）・お買い物マラソンの記録（15日）・早見表の PDF（11/1〜12/20）
+#     → 直すことがあればラベル night の Issue（夜のまとめ作業が PR まで進める）
+# Claude の使用量は使わない。GITHUB_TOKEN だけ
+
+on:
+  workflow_run:
+    workflows: [Build and Deploy, Watch official pages, 出典の点検, Henreihin daily]
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '47 20 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'true のときは Issue を作らず、作るはずの題と本文をログに出す'
+        type: boolean
+        default: true
+      today:
+        description: '日付を決めて試す（YYYY-MM-DD。空なら今日）'
+        required: false
+        default: ''
+
+permissions:
+  issues: write
+  contents: read
+  actions: read
+  checks: read
+  pull-requests: read
+
+concurrency:
+  group: mihari-${{ github.event.workflow_run.name || 'daily' }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    # PR の CI の失敗は知らせない。取り消し（cancelled）・とばした（skipped）は何もしない
+    if: >-
+      github.event_name == 'workflow_run' && github.event.workflow_run.event != 'pull_request' &&
+      contains(fromJSON('["success","failure","timed_out","startup_failure"]'), github.event.workflow_run.conclusion)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: 失敗なら Issue、成功なら閉じる
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          WR_NAME: ${{ github.event.workflow_run.name }}
+          WR_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          WR_ID: ${{ github.event.workflow_run.id }}
+          WR_URL: ${{ github.event.workflow_run.html_url }}
+          WR_STARTED: ${{ github.event.workflow_run.run_started_at }}
+        run: node scripts/mihari.mjs run
+
+  daily:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: 前回の状態（外のページを見られなかった日）
+        uses: actions/cache/restore@v4
+        with:
+          path: .mihari
+          key: mihari-${{ github.run_id }}
+          restore-keys: mihari-
+
+      - name: 日付とページを見る
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          TODAY: ${{ inputs.today }}
+        run: node scripts/mihari.mjs daily
+
+      - name: 今回の状態を残す
+        if: always() && hashFiles('.mihari/state.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .mihari
+          key: mihari-${{ github.run_id }}

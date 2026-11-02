@@ -4,7 +4,7 @@ name: 出典の点検
 # - src を変える PR：その PR で足した・変えたリンクだけ。結果は注記に出し、PR は止めない
 #   （点検のしくみを変える PR は、ぜんぶのリンク）
 # - 毎週月曜 7:41（日本時間）：ぜんぶのリンクと、確認日が近いもの。直すものがあれば Issue「出典の点検」
-#   （開いた Issue があればコメント）。毎日 8:32 の予約タスク「公式ページの見張りの対応」が直す
+#   （開いた Issue があればコメント）。ラベル night も付け、毎晩の夜のまとめ作業が直す
 # Claude の使用量は使わない
 
 on:
@@ -68,11 +68,15 @@ jobs:
         if: steps.chk.outputs.ng == '1' && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
+        # 夜のまとめ作業が直せるように、ラベル night も付け、題は「【夜】…」、本文は夜のメモ＋報告（scripts/mihari.mjs memo）
         run: |
           gh label create "出典の点検" --color D93F0B --description "毎週の出典・外部リンクの点検" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
+          gh label create night --color 5319e7 --description "夜のまとめ作業が直す" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
           N=$(gh issue list --repo "$GITHUB_REPOSITORY" --label "出典の点検" --state open --json number --jq '.[0].number')
           if [ -n "$N" ]; then
+            gh issue edit "$N" --repo "$GITHUB_REPOSITORY" --add-label night
             gh issue comment "$N" --repo "$GITHUB_REPOSITORY" --body-file report.md
           else
-            gh issue create --repo "$GITHUB_REPOSITORY" --title "出典の点検：直すところがあります" --label "出典の点検" --body-file report.md
+            node scripts/mihari.mjs memo links report.md > issue.md
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "【夜】出典の点検：直すところがあります" --label "出典の点検" --label night --body-file issue.md
           fi
