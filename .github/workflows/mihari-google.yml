@@ -1,0 +1,45 @@
+name: 見張り（Google からの訪問）
+
+# 見張り（scripts/mihari-google.mjs）。全6サイトの「日本から・Google 経由の訪問」を Cloudflare Web Analytics で1日1回見る
+#   直近3日（UTC のきのうまで）がどれも、前の7日の1日平均の半分以下 → サイトごとにラベル mihari の Issue（朝の確認が知らせる）
+#   きのうの数が Issue の baseline の70%以上にもどったら「戻った」で閉じる。前の7日の1日平均が20未満のサイトは見ない
+# 鍵は deploy.yml と同じ Secrets（CLOUDFLARE_API_TOKEN・CLOUDFLARE_ACCOUNT_ID）。値はログに出さない。Claude の使用量は使わない
+
+on:
+  schedule:
+    - cron: '13 20 * * *' # 日本時間 5:13
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'true のときは Issue を作らず、作るはずの題と本文と判定の表をログに出す'
+        type: boolean
+        default: true
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: mihari-google
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Google からの訪問を見る
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: node scripts/mihari-google.mjs
