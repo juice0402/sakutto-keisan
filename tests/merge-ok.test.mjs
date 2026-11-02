@@ -36,6 +36,8 @@ test('待つのは、指定した PR か issue の PR がまだ開いている�
   // issue の番号だけ：ブランチ claude/night-<番号> か「Closes #番号」の PR
   assert.deepEqual(waitingOn(orderDeps('#106 のあとにマージ'), open, 114), [109]);
   assert.deepEqual(waitingOn(orderDeps('#118 のあとにマージ'), open, 114), [120]);
+  assert.deepEqual(waitingOn(orderDeps('#42 のあとにマージ'), [pr(52, { head: { ref: 'claude/night-42-build' } })], 114), [52]);
+  assert.deepEqual(waitingOn(orderDeps('#4 のあとにマージ'), [pr(52, { head: { ref: 'claude/night-42-build' } })], 114), []);
   assert.deepEqual(waitingOn(orderDeps('#11 のあとにマージ'), [pr(12, { body: 'Closes #118' })], 114), []);
   // 「PR #番号」は PR だけを見る。自分は待たない
   assert.deepEqual(waitingOn(orderDeps('PR #106 のあとにマージ'), open, 114), []);

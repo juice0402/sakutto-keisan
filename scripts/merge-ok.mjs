@@ -52,12 +52,13 @@ export function orderDeps(body) {
 }
 
 // 順番の指定のうち、まだ開いている PR の番号（なければ空。空ならマージへ進んでよい）
-// issue の番号は、開いている PR のうち、ブランチが claude/night-<番号> か本文に「Closes #番号」があるもの
+// issue の番号は、開いている PR のうち、ブランチが claude/night-<番号>（claude/night-<番号>-… も）か本文に「Closes #番号」があるもの
 export function waitingOn(deps, openPulls, self) {
   const open = openPulls.filter((p) => p.number !== self);
   const linked = (n) => {
+    const branch = new RegExp(`^claude/night-${n}(?:-|$)`);
     const closes = new RegExp(`\\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\\s*:?\\s*#${n}(?!\\d)`, 'i');
-    return open.filter((p) => p.head?.ref === `claude/night-${n}` || closes.test(p.body || '')).map((p) => p.number);
+    return open.filter((p) => branch.test(p.head?.ref || '') || closes.test(p.body || '')).map((p) => p.number);
   };
   const out = new Set();
   for (const d of deps) {
