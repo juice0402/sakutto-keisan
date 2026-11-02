@@ -1,6 +1,6 @@
 name: Watch official pages
 
-# 公式のページの見張り（scripts/watch-pages.mjs）。変わったら Issue を立てる（スマホに通知が届く）
+# 公式のページの見張り（scripts/watch-pages.mjs）。変わったら Issue「【夜】…」を立てる（ラベル night。毎晩の夜のまとめ作業が直す）
 #   3時間おき：お買い物マラソンの公式のページ（日付・時刻・ポイント・倍の数字だけをくらべる）
 #   毎日（朝6:53）：SPU の公式のページ（日付・ポイント・円・倍の数字だけをくらべる）
 #   週1回（月曜の朝）：ふるさと納税の出典のページ（本文の指紋だけをくらべる）
@@ -68,12 +68,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GROUP: ${{ steps.g.outputs.group }}
+        # 夜のまとめ作業が直せるように、ラベル night・題「【夜】…」・本文は夜のメモ＋報告（scripts/mihari.mjs memo）
+        # 開いている同じ見張りの Issue（前の題のものもふくむ）があれば、night を付けてコメントを足す
         run: |
           case "$GROUP" in
-            point) title='お買い物マラソンの公式のページが変わりました' ;;
-            spu) title='SPUの公式のページが変わりました' ;;
-            *) title='ふるさと納税の出典のページが変わりました' ;;
+            point) old='お買い物マラソンの公式のページが変わりました' ;;
+            spu) old='SPUの公式のページが変わりました' ;;
+            *) old='ふるさと納税の出典のページが変わりました' ;;
           esac
-          open=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
-          if [ -n "$open" ]; then gh issue comment "$open" --body-file watch-report.md
-          else gh issue create --title "$title" --body-file watch-report.md; fi
+          title="【夜】$old"
+          gh label create night --color 5319e7 --description "夜のまとめ作業が直す" 2>/dev/null || true
+          open=$(gh issue list --state open --limit 100 --json number,title --jq "map(select(.title == \"$title\" or .title == \"$old\"))[0].number // empty")
+          if [ -n "$open" ]; then
+            gh issue edit "$open" --add-label night
+            gh issue comment "$open" --body-file watch-report.md
+          else
+            node scripts/mihari.mjs memo "watch-$GROUP" watch-report.md > issue.md
+            gh issue create --title "$title" --label night --body-file issue.md
+          fi
