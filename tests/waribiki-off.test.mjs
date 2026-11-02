@@ -30,7 +30,7 @@ test('率ごとの割引：割引後の値段から元の値段', () => {
 
 test('率ごとの割引：使う場面の例・まちがえやすいところの数字（10/31 #98）', async () => {
   const { setInlineScripts } = await import('../src/layout.mjs');
-  setInlineScripts(Object.fromEntries(['waribiki-off.js', 'notes.js'].map((f) => [f, '/* */'])));
+  setInlineScripts(Object.fromEntries(['waribiki-off.js', 'notes.js', 'pc.js'].map((f) => [f, '/* */'])));
   const { default: render } = await import('../src/pages/waribiki-off.mjs');
   const html = Object.fromEntries(render().map((p) => [p.path, p.html]));
   const has = (r, ...xs) => xs.forEach((x) => assert.ok(html[`/waribiki/${r}/`].includes(x), `${r}: ${x}`));

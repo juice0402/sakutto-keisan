@@ -3,6 +3,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SITE } from '../src/site.mjs';
 import render from '../src/pages/info.mjs';
+import { setInlineScripts } from '../src/layout.mjs';
+
+// 見開きのページに入る pc.js（テストではスクリプトの中身は見ない）
+setInlineScripts({ 'pc.js': '/* */' });
 
 const byPath = () => Object.fromEntries(render().map((p) => [p.path, p.html]));
 
