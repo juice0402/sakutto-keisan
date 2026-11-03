@@ -24,6 +24,7 @@
 - 毎朝5:47：出典の確認日（ふるさと納税・SPU。テストと同じ決まりで期限を出し、残り10日以内で `night`）・Kドリームスの SPU のページ（11/22 まで。cap が null でメンテナンスの文がなければ `night`）・国税庁の消費税率引下げ特設サイト（火曜・1/31 まで。「成立しました」「公布されました」などがはっきり出たら `night`、「成立した場合」の文が消えただけなら `mihari`）・お買い物マラソンの記録（15日。終わった回6・上限がわかっている回4で `night`）・早見表の PDF（11/1〜12/20。来年の PDF がなく PR もなければ `night`）。外のページが7日見られないと `mihari`
 - watch.yml・check-links.yml の Issue も題「【夜】…」・ラベル night・本文は夜のメモ（`node scripts/mihari.mjs memo`）。夜のメモの中身は `scripts/mihari.mjs` の `MEMO`
 - いじるとき：確認日のテスト（tests/furusato.test.mjs・tests/spu.test.mjs）の日数を変えたら `passesChecked` も直す。手で試すときは Actions の「見張り」を `dry_run`（と `today`）で動かす
+- Google からの訪問（2026-11-02 司令塔・#120）：`.github/workflows/mihari-google.yml`（毎朝5:13）・`scripts/mihari-google.mjs`（テストは `tests/mihari-google.test.mjs`）。全6サイトの「日本から・Google 経由の訪問」を Cloudflare Web Analytics の GraphQL で「直近3日（UTC のきのうまで）」と「その前の7日」の2回に分けて聞く（7日をこえると倍率が1でなくなるため）。前の7日の1日平均が20未満のサイトは見ない。直近3日がどれも平均の半分以下ならサイトごとに `mihari` の Issue「Google からの訪問が急に減った：<ドメイン>」（本文に `<!-- baseline: … -->`）。開いていれば1日1回「まだ続いている」、きのうが baseline の70%以上で「戻った」と閉じる。鍵の権限がない（401・403・権限の言葉）ときは Issue「Cloudflare の鍵にアクセス解析を見る権限がない」で、workflow は失敗にしない（読めた回に閉じる）。つながらない・5xx・回数の上限はログに1行だけ。サイトと site_tag は `SITES`。手で試すときは Actions の「見張り（Google からの訪問）」を `dry_run` で（ログに判定の表）
 
 ## マージの印（merge-ok.yml）
 - 2026-11-02 司令塔：しょーくんが司令塔で「マージして」と言ったら、司令塔は PR にラベル `merge-ok` を付けるだけ。`.github/workflows/merge-ok.yml`・`scripts/merge-ok.mjs`（テストは `tests/merge-ok.test.mjs`）が点検（Build and Deploy・出典の点検・Henreihin check）の合格を待って squash でマージし、公開（deploy.yml）を main で1回動かす。夜の作業・予約タスクはこのラベルを付けない
