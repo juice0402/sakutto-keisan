@@ -15,11 +15,12 @@ export const POINT_EVENTS = [
   { name: 'お買い物マラソン', start: '2026-10-04T20:00', end: '2026-10-09T01:59', cap: null, url: SCHEDULE, checked: '2026-10-22' },
   { name: 'お買い物マラソン', start: '2026-10-14T20:00', end: '2026-10-17T09:59', cap: null, url: SCHEDULE, checked: '2026-10-22' },
   { name: 'お買い物マラソン', start: '2026-10-24T20:00', end: '2026-10-27T09:59', cap: 7000, grant: '2026-11-15', expires: '2026-12-31', url: MARATHON, checked: '2026-10-23' },
+  { name: 'お買い物マラソン', start: '2026-11-04T20:00', end: '2026-11-11T01:59', cap: 7000, grant: '2026-12-15', expires: '2027-01-31', url: MARATHON, checked: '2026-11-03' },
 ];
 
 // 計算の決まりの出典（ページの下に出す）
 export const POINT_SOURCES = [
-  { name: '楽天市場「お買い物マラソン」', url: MARATHON, checked: '2026-10-23', what: '今回の上限・付与日・有効期限・エントリー・買う順番・キャンセル' },
+  { name: '楽天市場「お買い物マラソン」', url: MARATHON, checked: '2026-11-03', what: '今回の上限・付与日・有効期限・エントリー・買う順番・キャンセル' },
   { name: '楽天市場「お買い物マラソン ガイド＆買いまわりルール詳細」', url: 'https://event.rakuten.co.jp/campaign/point-up/marathon/guide/', checked: '2026-10-23', what: '1ショップの数え方・倍率・税抜・上限' },
   { name: '楽天市場ヘルプ「対象サービスについて」', url: 'https://ichiba.faq.rakuten.net/detail/000006874', checked: '2026-10-23', what: '店舗の数に入らないもの（楽天ふるさと納税など）' },
   { name: '楽天市場「楽天スーパーSALE ガイド」', url: 'https://event.rakuten.co.jp/campaign/supersale/guide/', checked: '2026-10-23', what: 'スーパーSALEの買いまわりの決まり' },
