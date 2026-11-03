@@ -36,7 +36,7 @@ test('一覧の「上限に届く買い物」（税込）', () => {
   assert.equal(reachOf('toushin'), 440000);
   assert.equal(reachOf('books'), 110000);
   assert.equal(reachOf('travel'), 110000);
-  assert.equal(reachOf('kdreams'), null); // 上限は公式で確かめられていない
+  assert.equal(reachOf('kdreams'), 440000); // 上限2,000（楽天Kドリームスの SPU のページ）
   // 届く額のちょうどで上限、1円少ないと届かない
   for (const x of SPU_ITEMS) {
     const c = spuCapOf(x);
@@ -59,7 +59,7 @@ test('上限で止まる分と、上限に届いたサービス', () => {
   assert.deepEqual(r.full.map((x) => x.id), ['mobile', 'carrier', 'hikari']);
   assert.equal(r.rows.find((x) => x.id === 'mobile').pts, 2000);
   assert.equal(r.next.id, 'card');
-  assert.deepEqual(r.noCap.map((x) => x.id), ['kdreams']);
+  assert.deepEqual(r.noCap.map((x) => x.id), []);
   assert.ok(r.lost > 0);
   // えらんでいないときは楽天会員の1倍だけ
   const one = calc(30000, []);
