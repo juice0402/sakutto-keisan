@@ -13,6 +13,7 @@ const FAMIMA = 'https://pointcard.rakuten.co.jp/campaign/spu/familymart/';
 const DENKI = 'https://energy.rakuten.co.jp/info/20240301_spu.html';
 const RAKUMA = 'https://rakuma.rakuten.co.jp/info/campaign/spu/';
 const PASHA = 'https://pasha.rakuten.co.jp/special/campaign/spu/';
+const KDREAMS = 'https://keirin.kdreams.jp/special/spu/';
 
 /** 楽天会員の通常の1倍（上限なし。いつも入る） */
 export const SPU_BASE = 1;
@@ -35,7 +36,7 @@ export const SPU_ITEMS = [
   { id: 'denki', label: 'でんき', name: '楽天でんき', rate: 0.5, cap: 1000, cond: '前の月の利用が5,500円以上で、カードで支払う', url: DENKI, checked: '2026-10-23' },
   { id: 'rakuma', label: 'ラクマ', name: '楽天ラクマ', rate: 0.5, cap: 500, cond: '月2,000円以上を売って、発送を通知する', url: RAKUMA, checked: '2026-10-23' },
   { id: 'pasha', label: 'Pasha', name: 'Rakuten Pasha', rate: 0.5, cap: 1000, cond: 'アイテムクーポンで月500以上を申請する', url: PASHA, checked: '2026-10-23' },
-  { id: 'kdreams', label: 'Kドリームス', name: '楽天Kドリームス', rate: 0.5, cap: null, cond: '月1万円以上の車券（ワイドはのぞく）', url: SPU_PAGE, checked: '2026-10-23' },
+  { id: 'kdreams', label: 'Kドリームス', name: '楽天Kドリームス', rate: 0.5, cap: 2000, cond: '月1万円以上の車券（ワイドはのぞく）', url: KDREAMS, checked: '2026-11-03' },
 ];
 
 /** 全部そろったときの倍率（いまは18.5倍） */
@@ -52,6 +53,7 @@ export const SPU_SOURCES = [
   { name: '楽天でんき「SPUのお知らせ」', url: DENKI, checked: '2026-10-23', what: '楽天でんきの条件と上限' },
   { name: '楽天ラクマ「SPU」', url: RAKUMA, checked: '2026-10-23', what: 'ラクマの条件と上限' },
   { name: 'Rakuten Pasha「SPU」', url: PASHA, checked: '2026-10-23', what: 'Pashaの条件と上限' },
+  { name: '楽天Kドリームス「SPU」', url: KDREAMS, checked: '2026-11-03', what: 'Kドリームスの条件と上限' },
 ];
 
 // 5と0のつく日（楽天カードのキャンペーン。毎月5・10・15・20・25・30日。開催日ごとにエントリーして楽天カードで払うと、通常1倍＋SPUの楽天カード＋2倍に＋1倍）
