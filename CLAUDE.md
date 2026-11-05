@@ -36,7 +36,8 @@ CLAUDE.md は1万字以内に保つ。経緯・ツールごとのくわしいこ
 ## ファイル（くわしい中身は docs/files.md）
 - `src/site.mjs`：サイト名・URL・カテゴリとテーマ・`SITE`（`SITE.contact` に Google フォームの URL を入れると /contact/ とフッターのリンクが出る）。`src/tools.mjs`：ツールの一覧（トップ・関連ツール・sitemap はここから作る。`published`・`parent`・`pick`・`more`・`related`）
 - `src/layout.mjs`：ページの外側（head・ヘッダー・フッター・構造化データ）と本文の部品。`src/parts.mjs`：ツールページの共通部品
-- `src/pages/*.mjs`：ページ。default 関数が `{ path, html, sitemap, updated }`（またはその配列）を返す
+- `src/pages/*.mjs`：ページ。default 関数が `{ path, html, sitemap, updated }`（またはその配列）を返す。HTML 以外のファイルは `{ path, raw }`
+- 読みもの `/yomimono/`：1本1ファイル `src/yomimono/<slug>.mjs`（ひな形 `_hinagata.mjs`・棚 `_shelf.mjs`）、ページ・一覧・RSS は `src/pages/yomimono.mjs`、書き方とネタの山は `docs/yomimono-neta.md`
 - `src/lib/*.mjs`：計算のロジック（DOM を触らない。テストとブラウザの両方で使う）。`src/client/*.js`：ブラウザ用の入口（1ツール1ファイル。`*.mjs` は共通部品）
 - `src/data/*.mjs`：出典つきの数字。確認日から決まった日数がたつとテストが止まるものがある（出典を開いて確かめ直し、確認日を直す）
 - `src/styles/site.css`：デザイン（テーマごとに `[data-theme]`）。`public/`：そのままコピー。`tests/*.test.mjs`：`node --test` のテスト。`scripts/verify-dist.mjs`：ビルド後の全ページ点検

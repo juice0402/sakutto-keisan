@@ -7,15 +7,15 @@
 ### 置く場所と作り方
 - 読みものの棚（docs/sodateru.md の「読みものの棚をつくる」）ができてから書く。main に `src/pages/yomimono.mjs` がなければ、書かずに飛ばす（報告ファイルに「- 読みもの：止めた（読みものの棚がまだない）」）
 - 1本＝1ファイル `src/yomimono/<slug>.mjs`。ひな形 `src/yomimono/_hinagata.mjs` をコピーして書く（`_` で始まるファイルはビルドが読まない）。slug はローマ字の短い名前（例 `danbou-hikaku`）で、URL は `/yomimono/<slug>/`。一度公開したら変えない
-- ファイルの中身（棚の形。棚ができたときに変わっていたら、棚のほうに合わせる）
-  - `slug`・`title`（h1 と title の頭。問いか短い言い切りの文）・`lead`（1行。全角22字まで）
+- ファイルの中身は `export default { … }` と `export const NUMS = { … }`（棚の形。ひな形のとおり。tests/yomimono.test.mjs の `checkYomimono` が欄を点検する）
+  - `slug`（ファイル名と同じ）・`title`（h1 と、title「題｜読みもの｜サクッと計算」の頭。問いか短い言い切りの文）・`lead`（1行。全角21字まで。半角は0.55で数える）
   - `category`：src/site.mjs の CATEGORIES の id（seikatsu・gyoji・shigoto・furusato・point・fx）。手帳の見た目と、見張る言葉が決まる
   - `tools`：つなぐ計算の slug（src/tools.mjs の published）。1つめが「自分の数字で確かめる」の行き先で、共有画像もその計算のものになる
-  - `published`・`updated`：日付（日本時間の YYYY-MM-DD）
+  - `published`・`updated`：日付（日本時間の YYYY-MM-DD）。棚は published の新しい順。ページの h1 の下に、同じ日なら「◯年◯月◯日公開」、ちがえば「◯年◯月◯日更新」が出る
   - `description`：全角80〜120字・数字入り・ほかのページと同じにしない
-  - `body`：h1 とリードのあとに入る HTML。節は `section(id, 見出し, 中身)`（src/layout.mjs）で作り、図は `src/zukai.mjs` の部品で描く
-  - `faqs`：0〜3問（検索で使われていそうな問いだけ。答えは1〜2文）
-  - `sources`：`{ name, url, checked, what }` の並び
+  - `body`：h1 とリードのあとに入る HTML。節は `section(id, 見出し, 中身)`（src/layout.mjs）で作り、図は `src/zukai.mjs` の部品で描く。節の id は `ym-` で始めない（棚が出す節の id。字数の数えから外れる）。h2 が3つ以上あると、パソコンでは左に目次が出る
+  - `faqs`：0〜3問（検索で使われていそうな問いだけ。`{ q: '問い', a: '<p>答え</p>' }`。答えは1〜2文）。0問なら節も FAQPage も出ない
+  - `sources`：`{ name, url, checked, what }` の並び（url は https）。出典の節に「名前のリンク（何を、◯年◯月◯日に確認）」の形で出る
 - 本文に出す数字は src/lib の計算か src/data のデータから作る（手で打たない）。本文に出す数字は `export const NUMS = { … }` にまとめ、`tests/yomimono-<slug>.test.mjs` で、自分で確かめた値と比べる
 - src/data の数字を使うときは、そのデータに書いてある出典と確認日を、そのまま出典の節に使ってよい（開き直さなくてよい）。新しい数字だけ、ネタの行の URL か WebSearch で開いたページで確かめる
 - 一覧（/yomimono/）・トップの「読みもの」・計算のページの「この計算の読みもの」・RSS・サイトマップには、ファイルを足せばビルドで自動で入る。src/tools.mjs はさわらない（つなぐ計算の `updated` も変えない）
