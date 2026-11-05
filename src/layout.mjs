@@ -136,6 +136,8 @@ export function spread(body, path) {
  * @param {boolean}[p.noAds]    AdSense を置かない（楽天APIの情報を出すページ。楽天ウェブサービスの規約 第10条）
  * @param {string} [p.footNote] フッターの「送信しません」の1行を、このページだけ差しかえる（寄付メモは端末の中に保存する）
  * @param {string} [p.ext]      外部の読み込みの印（rakuten-img＝返礼品のページの楽天の商品画像）。scripts/verify-dist.mjs が見張る
+ * @param {boolean}[p.feed]     読みもののRSS（/yomimono/feed.xml）を head で知らせる（読みもののページとトップ。読みものがあるときだけ）
+ * @param {string} [p.cat]      読みもののカテゴリ（<body data-cat>）。scripts/verify-dist.mjs がカテゴリごとの使わない言葉を見張る
  */
 export function page(p) {
   const fullTitle = p.path === '/' ? p.title : `${p.title}｜${SITE.name}`;
@@ -174,14 +176,14 @@ ${p.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <meta property="og:image:alt" content="${esc(p.title)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="format-detection" content="telephone=no">
-<link rel="manifest" href="/manifest.webmanifest">
+${p.feed ? `<link rel="alternate" type="application/rss+xml" title="${esc(SITE.name)}の読みもの" href="/yomimono/feed.xml">\n` : ''}<link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/favicon.ico?v=${ICON_V}" sizes="48x48">
 <link rel="icon" href="/favicon.svg?v=${ICON_V}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=${ICON_V}">
 ${ads ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsense}" crossorigin="anonymous"></script>\n` : ''}<style>${inlineCss}${p.css || ''}</style>
 ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceAll('<', '\\u003c')}</script>`).join('\n')}
 </head>
-<body data-theme="${theme}"${p.wide ? ' class="is-wide"' : pc ? ' class="is-spread"' : ''}>
+<body data-theme="${theme}"${p.cat ? ` data-cat="${p.cat}"` : ''}${p.wide ? ' class="is-wide"' : pc ? ' class="is-spread"' : ''}>
 <header class="site-header">
   <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>

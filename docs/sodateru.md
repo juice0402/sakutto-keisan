@@ -7,7 +7,7 @@
 
 ## 山
 
-### [ ] 読みものの棚をつくる（/yomimono/）
+### [x] 読みものの棚をつくる（/yomimono/）（#131）
 - やること：読みものを置く場所を作る（読みものの1本めは、棚がマージされたあと、予約タスク「読みもの書き」が docs/yomimono-neta.md のいちばん上から書く）
   - ひな形 `src/yomimono/_hinagata.mjs`（`_` で始まるファイルはビルドが読まない）。ファイルの中身は docs/yomimono-neta.md の「置く場所と作り方」の欄（slug・title・lead・category・tools・published・updated・description・body・faqs・sources と `NUMS`）
   - `src/pages/yomimono.mjs`：`src/yomimono/` の `_` で始まらないファイルを読み、一覧 `/yomimono/` と各ページ `/yomimono/<slug>/` を返す（published の新しい順）。0本のときは何も出さない（一覧・トップの節・RSS・サイトマップも出さない）

@@ -2,6 +2,8 @@ import { SITE, CATEGORIES } from '../site.mjs';
 import { TOOLS, toolUrl, CALC_COUNT, LAST_UPDATED } from '../tools.mjs';
 import { page, esc, absUrl, section } from '../layout.mjs';
 import { doodle } from '../doodles.mjs';
+import { yomiListHtml } from '../parts.mjs';
+import { yomimono } from '../yomimono/_shelf.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 
@@ -50,6 +52,9 @@ export default function render() {
 <p>計算はお使いの端末のブラウザの中で行い、入力した数字は送信しません。くわしくは<a href="/about/">このサイトについて</a>に書いています。</p>`,
   );
   const news = section('recent', '最近更新した計算', `<ul class="recent">${recent}</ul>`);
+  // 読みもの（#131）：新しい3本と一覧へのリンク。0本のときは出さない。パソコンの見開きでは右の段
+  const yomi = yomimono();
+  const reads = yomi.length ? `${section('yomi', '読みもの', `${yomiListHtml(yomi.slice(0, 3))}<p><a href="/yomimono/">読みもの一覧へ</a></p>`)}\n` : '';
 
   const body = `
 <div class="hero">
@@ -63,7 +68,7 @@ export default function render() {
 </section>
 ${cats}
 ${about}
-${news}
+${reads}${news}
 <div class="tip"><strong>ホーム画面に追加できます</strong>共有ボタンかメニューの「ホーム画面に追加」から。</div>
 `;
 
@@ -73,6 +78,7 @@ ${news}
     description: `割引・消費税・パーセント・割り勘・ふるさと納税の上限・家電の電気代・FXのロスカットなど、${CALC_COUNT}の計算ツールをまとめたサイトです。スマホのブラウザで使えて、入力した数字は送信しません。${jaDate(LAST_UPDATED)}更新。`,
     body,
     scripts: ['home-memo.js'],
+    feed: yomi.length > 0,
     jsonLd: [
       { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, alternateName: SITE.alternateName, url: absUrl('/'), inLanguage: 'ja' },
     ],

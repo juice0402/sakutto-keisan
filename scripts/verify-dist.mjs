@@ -127,9 +127,11 @@ for (const file of htmlFiles) {
     // 同じ運営者のサイト名「安全衛生の便利帳」は名前なので見ない（プロジェクトの site-principles.md）
     const visible = `${shown.replace(/<p class="hr-name">[\s\S]*?<\/p>/g, ' ').replace(/<[^>]+>/g, ' ')} ${title} ${desc}`.replaceAll('安全衛生の便利帳', ' ');
     const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'コツ', '——'];
-    if (rel.startsWith('/furusato/')) NG.push('お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント');
+    // 読みもの（#131）はパスではなくカテゴリ（<body data-cat>）で、ふるさと納税・楽天のポイントと同じ言葉を見張る
+    const cat = (html.match(/<body\b[^>]*\sdata-cat="([^"]+)"/) || [])[1];
+    if (rel.startsWith('/furusato/') || cat === 'furusato') NG.push('お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント');
     // 楽天のポイントのページは、楽天アフィリエイトの決まり（予想・あおり・くじの紹介をしない）
-    if (rel.startsWith('/point/')) NG.push('お得', '最安', '必ず得', '倍確定', '予想', '次回は', 'ラッキーくじ', 'スロット', '楽天公認');
+    if (rel.startsWith('/point/') || cat === 'point') NG.push('お得', '最安', '必ず得', '倍確定', '予想', '次回は', 'ラッキーくじ', 'スロット', '楽天公認');
     const hit = NG.filter((w) => visible.includes(w));
     if (hit.length) fail(rel, `使わない言葉がある: ${hit.join('・')}`);
   }
@@ -243,7 +245,7 @@ const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", nbsp: ' ' };
 const ownText = (html) => {
   const main = (html.match(/<main[\s\S]*?<\/main>/) || [''])[0];
   return [...main.matchAll(/<section class="prose" aria-labelledby="([^"]+)">([\s\S]*?)<\/section>/g)]
-    .filter((m) => m[1] !== 'related')
+    .filter((m) => m[1] !== 'related' && !m[1].startsWith('ym-')) // 関連ツールと、読みものの棚が出す節（ym-。この計算の読みもの・自分の数字で確かめる・出典・よくある質問・ほかの読みもの・一覧）
     .map((m) =>
       m[2]
         .replace(/<(table|script|style|svg|h2)\b[\s\S]*?<\/\1>/g, ' ')
@@ -267,6 +269,17 @@ if (shortPages.length) {
   if (OWN_STRICT) for (const [u, n] of shortPages) fail(u, `自分の文が${OWN_MIN}字未満（${n}字）。しくみ・使う場面の例・まちがえやすいところを足す`);
   else console.log(`（自分の文が${OWN_MIN}字未満のページ ${shortPages.length}：${list}）`);
 }
+
+// 読みもの（#131）：/yomimono/<slug>/ の自分の文（body の .prose の節。棚が出す ym- の節はのぞく）は 1,200字以上。一覧のページは数えない
+const YOMI_MIN = 1200;
+for (const file of htmlFiles) {
+  const rel = '/' + relative(DIST, file).replace(/index\.html$/, '');
+  if (!/^\/yomimono\/[^/]+\/$/.test(rel)) continue;
+  const n = [...ownText(readFileSync(file, 'utf8'))].length;
+  if (n < YOMI_MIN) fail(rel, `読みものの自分の文が${YOMI_MIN}字未満（${n}字）。書き足す（同じことの言いかえで増やさない）`);
+}
+const feed = join(DIST, 'yomimono', 'feed.xml');
+if (existsSync(join(DIST, 'yomimono', 'index.html')) !== existsSync(feed)) fail('/yomimono/feed.xml', '一覧と RSS のどちらかだけがある');
 
 // 同じ形のページの重なり（10/31 #98）：組の中の2ページで、自分の文の中の同じ文（。？で区切った8字以上）が、
 // 文の少ないほうの3割をこえたら止める。同じ形のページを、ページごとにちがう中身にするため

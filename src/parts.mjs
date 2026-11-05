@@ -1,6 +1,7 @@
 import { SITE, CATEGORIES } from './site.mjs';
 import { TOOLS, toolBySlug, toolUrl } from './tools.mjs';
 import { esc, absUrl } from './layout.mjs';
+import { yomimono } from './yomimono/_shelf.mjs';
 
 // ツールページの共通部品
 
@@ -18,7 +19,20 @@ export const toolListHtml = (tools) =>
     .map((t) => `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></a></li>`)
     .join('')}</ul>`;
 
-/** 関連ツール（公開済みだけ。足りなければ同じカテゴリから補う。0件ならトップへのリンクだけ） */
+/** 読みものの一覧（題と1行。toolListHtml と同じ行の形） */
+export const yomiUrl = (y) => `/yomimono/${y.slug}/`;
+export const yomiListHtml = (list) =>
+  `<ul class="tool-list">${list
+    .map((y) => `<li><a class="tool-card" href="${yomiUrl(y)}"><span class="tool-name">${esc(y.title)}</span><span class="tool-desc">${esc(y.lead)}</span></a></li>`)
+    .join('')}</ul>`;
+
+/** 計算のページの「この計算の読みもの」（その計算を tools に入れている読みもの、新しい順に3本まで。ないときは出さない） */
+export function yomiForToolHtml(tool) {
+  const list = yomimono().filter((y) => y.tools.includes(tool.slug)).slice(0, 3);
+  return list.length ? `<section class="prose" aria-labelledby="ym-for"><h2 id="ym-for">この計算の読みもの</h2>${yomiListHtml(list)}</section>\n` : '';
+}
+
+/** 関連ツール（公開済みだけ。足りなければ同じカテゴリから補う。0件ならトップへのリンクだけ）。前に「この計算の読みもの」 */
 export function relatedHtml(tool, max = 4) {
   const picked = (tool.related || []).map(toolBySlug).filter((t) => t && t.published);
   for (const t of TOOLS) {
@@ -27,7 +41,7 @@ export function relatedHtml(tool, max = 4) {
     if (t.published && !t.parent && t.slug !== tool.slug && t.category === tool.category && !picked.includes(t)) picked.push(t);
   }
   const list = picked.length ? toolListHtml(picked.slice(0, max)) : '';
-  return `<section class="prose" aria-labelledby="related"><h2 id="related">ほかの計算ツール</h2>${list}<p><a href="/">ツール一覧へ</a></p></section>`;
+  return `${yomiForToolHtml(tool)}<section class="prose" aria-labelledby="related"><h2 id="related">ほかの計算ツール</h2>${list}<p><a href="/">ツール一覧へ</a></p></section>`;
 }
 
 /** ツールページの構造化データ（WebApplication） */
