@@ -203,6 +203,12 @@ const seenPaths = new Set();
 for (const p of pages) {
   if (seenPaths.has(p.path)) throw new Error(`同じURLのページが2つあります: ${p.path}`);
   seenPaths.add(p.path);
+  // HTML 以外のファイル（読みものの RSS・カレンダーの .ics）：{ path, raw } はそのまま書く（サイトマップには入れない）
+  if (p.raw != null) {
+    mkdirSync(dirname(join(DIST, p.path)), { recursive: true });
+    writeFileSync(join(DIST, p.path), p.raw);
+    continue;
+  }
   const file = p.file ? join(DIST, p.file) : join(DIST, p.path, 'index.html');
   mkdirSync(dirname(file), { recursive: true });
   // そのページで使う CSS だけにして、行頭の字下げと空行を取る（<pre> や <textarea> は使っていない）
@@ -214,7 +220,7 @@ for (const p of pages) {
 if (existsSync(join(ROOT, 'public'))) cpSync(join(ROOT, 'public'), DIST, { recursive: true });
 const { SITE } = await import(pathToFileURL(join(ROOT, 'src/site.mjs')));
 const urls = pages
-  .filter((p) => p.sitemap)
+  .filter((p) => p.sitemap && p.raw == null)
   .map((p) => `  <url><loc>${SITE.url}${p.path}</loc>${p.updated ? `<lastmod>${p.updated}</lastmod>` : ''}</url>`);
 writeFileSync(
   join(DIST, 'sitemap.xml'),
