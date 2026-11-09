@@ -1,5 +1,5 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { memoSummary, memoText, memoParse, MEMO_MAX_ROWS } from '../lib/furusato-memo.mjs';
+import { memoSummary, memoText, memoParse, nokoriHash, MEMO_MAX_ROWS } from '../lib/furusato-memo.mjs';
 import { furusatoDeadlines, ONESTOP_MAX } from '../lib/furusato-tetsuzuki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints, copyText } from './ui.mjs';
 
@@ -7,6 +7,7 @@ import { $, enterToNext, numericOnly, tidyOnBlur, focusHints, copyText } from '.
 // 上限の目安の結果の「寄付メモ」から開くと、#limit=57000&y=2026 で上限が入る（# のうしろはサーバーに送られない）
 // 保存できない端末（プライベートブラウズなど）でも、計算はそのまま使える
 const KEY = 'sakutto-furusato-memo';
+const HR = document.getElementById('r-hr'); // 残りまでの返礼品の1行（返礼品のページが出ているときだけある）
 const FIRST = Number($('calc').dataset.first);
 const IDX = Array.from({ length: MEMO_MAX_ROWS }, (_, i) => i);
 const now = new Date();
@@ -157,6 +158,12 @@ function update(changed = false) {
   } else {
     $('r-cap').textContent = '寄付の合計';
     $('r-num').textContent = sum.count ? fmt(sum.total) : '？';
+  }
+  if (HR) {
+    // 今年の残りがあるときだけ。返礼品のページでチェック欄が入った状態で開く（# はサーバーに送られない）
+    const show = year === THIS_YEAR && sum.left !== null && sum.left > 0;
+    HR.hidden = !show;
+    if (show) HR.querySelectorAll('a').forEach((a) => (a.hash = nokoriHash(sum.left)));
   }
   const due = sum.unsent && !sum.over && year === DL.onestop.forYear ? `申請書は${DL.onestop.date.m}月${DL.onestop.date.d}日必着です` : '';
   $('r-foot').textContent = sum.limit === null ? '上限を入れてください' : !sum.count ? '寄付した自治体と金額を入れてください' : due;

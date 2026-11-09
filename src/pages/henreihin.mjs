@@ -66,6 +66,11 @@ const PRICE_TILES = `<div class="tiles tiles-4 hr-price" role="group" aria-label
       <button type="button" class="tile tile-word" data-max="0" aria-pressed="true"><b>すべて</b><small>寄付額</small></button>
     </div>`;
 
+// 寄付メモの残りでしぼるチェック欄（寄付メモに今年の上限があって残りがあるときだけ、スクリプトが出す）
+const MEMO_CHECK = `<div class="calc-tools hr-memo" hidden><button type="button" class="tool-btn" id="hr-memo" aria-pressed="false"><span>寄付メモの残り <span id="hr-left"></span>円まで</span></button></div>`;
+// 11月1日〜12月31日だけ、スクリプトが出す（日数は見た人の端末の日付から）。1画面めに収まるように1行で、リンク先は「ふるさと納税はいつまで」
+const DUE = `<p class="hr-due" id="hr-due" hidden>今年の分は<a href="/furusato/shimekiri/">12月31日の寄付まで</a>（<span id="hr-days"></span>）</p>`;
+
 const HOW = section(
   'how',
   '1万円あたりの量の出し方',
@@ -178,7 +183,9 @@ ${(() => {
   return lines.length ? `<p class="hr-sum">${lines.join('')}</p>` : '';
 })()}
 <div class="calc hr-calc" id="calc">
+  ${DUE}
   ${PRICE_TILES}
+  ${MEMO_CHECK}
   ${NOSCRIPT}
 </div>
 <div class="hr-sheet" aria-live="polite">
