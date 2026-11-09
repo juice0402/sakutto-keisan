@@ -78,7 +78,7 @@
 ## ネタの山
 行の形：題 — だれの何に答えるか／使う資料（URL・サイトのデータ）／つなぐ計算。上から順に書く。
 
-- [ ] 冬の暖房代を1か月でくらべる：灯油ファンヒーター・エアコン・電気のヒーター — 部屋を暖める道具をえらぶ人に、同じ使い方（1日8時間×30日など）で1か月の目安を1つの表と帯の図に。灯油代とエアコンなどの電気代は別々の計算のページにしかないので、並べるのはここだけ。灯油の値段はデータのもの（手で打たない）／src/data/touyu.mjs・src/data/denki.mjs の数字と出典（ダイニチ・パナソニック・デロンギなど）・目安単価31円/kWh ／/touyu-dai/・/denki-dai/・/ceramic-heater/・/oil-heater/
+- [x] 冬の暖房代を1か月でくらべる：灯油ファンヒーター・エアコン・電気のヒーター（PR #138・2026-11-08）
 - [ ] 暖房の設定温度を1℃下げると、1か月いくら変わる？ — エアコンの暖房の温度で迷う人に、資源エネルギー庁の数字（21℃から20℃にしたときの年間の電気の差）を31円/kWhで円にし、1か月あたりにする。暖房の期間の数え方は出典のとおり／https://www.enecho.meti.go.jp/category/saving_and_new/saving/general/howto/airconditioning/index.html ／/denki-dai/
 - [ ] トイレ掃除の時間は男女でちがう：現場で数えていること — 清掃の作業時間を見積もる人（清掃・ビルメンの仕事）に。運営者から聞いた話1と、トイレの日常清掃の歩掛り（0.254人＝1人1時間約49㎡）の計算で、雨の日に回数がふえた日の時間の足し方を例にする。男女のどちらが長いかは書かない／src/lib/seisou.mjs・https://www.city.sapporo.jp/kanzai/keiyaku/ippan-syuyaku/r2-zenki/documents/nyusatusetumei_bekki4-seiso.pdf ／/seisou-jikan/・/genba/
 - [ ] 消毒液を薄めるとき、勤め先で決まっていること — 次亜塩素酸ナトリウムを薄める人（清掃・介護・家庭）に。運営者から聞いた話2（ゴーグル・ボトル・24時間）と、0.02％・0.1％の量の早見（/hyohakuzai/ のデータ）。24時間の理由は広島市のページの範囲で書く／src/data/hyohakuzai.mjs・https://www.city.hiroshima.lg.jp/site/infectious-disease-joho/332.html （更新 2026-01-30）・https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/syoudoku_00001.html ／/hyohakuzai/
