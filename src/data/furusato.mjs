@@ -81,7 +81,7 @@ export const FURUSATO_YEARS = {
 
 // 出典（ページの下に出す。checked は Claude が本文を開いて確かめた日。90日、11〜1月は30日たったらテストで止まる）
 export const FURUSATO_SOURCES = [
-  { name: '総務省「ふるさと納税の仕組み（税金の控除について）」', url: 'https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/deduction.html', checked: '2026-10-21', what: '控除の計算式' },
+  { name: '総務省「ふるさと納税の仕組み（税金の控除について）」', url: 'https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/deduction.html', checked: '2026-11-09', what: '控除の計算式' },
   { name: '国税庁「給与所得者（従業員）の方へ（令和8年分）」', url: 'https://www.nta.go.jp/users/gensen/nencho/index/kyuyosyotokusya.htm', checked: '2026-10-22', what: '令和8年分の基礎控除' },
   { name: '財務省「令和8年度税制改正の大綱」', url: 'https://www.mof.go.jp/tax_policy/tax_reform/outline/fy2026/08taikou_01.htm', checked: '2026-10-22', what: '給与所得控除の最低保障額' },
   { name: '渋谷区「令和9年度住民税の税制改正のお知らせ」', url: 'https://www.city.shibuya.tokyo.jp/kurashi/juminzei/zesei/zeisei_kaisei09.html', checked: '2026-10-22', what: '住民税の給与所得控除・基礎控除' },
