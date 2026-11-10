@@ -12,6 +12,7 @@ import { FURUSATO_TETSUZUKI_SOURCES } from '../data/furusato.mjs';
 import { kakuteiEnd, ONESTOP_MAX } from '../lib/furusato-tetsuzuki.mjs';
 import { weekdayOf } from '../lib/hizuke.mjs';
 import { MEMO_MAX_ROWS, MEMO_NAME_MAX } from '../lib/furusato-memo.mjs';
+import { HENREIHIN_LIVE, HENREIHIN_MODE, HENREIHIN_CATS } from '../data/henreihin.mjs';
 import { stair, band, zBox, zCal } from '../zukai.mjs';
 
 const YEAR = 2026; // 寄付の年（本文の表。1月1日に次の年へ。src/pages/furusato.mjs と同じ）
@@ -306,6 +307,12 @@ const MEMO_FAQS = [
   },
 ];
 
+// 残りの下の1行：その額までの返礼品へ（額はすぐ上に出ているので、スマホで1行に収まるように書かない）（返礼品のページが出ているときだけ。# に残りを入れるのはスクリプト）
+const MEMO_HR = () =>
+  HENREIHIN_LIVE && HENREIHIN_MODE !== 'off'
+    ? `<p class="kifu-hr" id="r-hr" hidden>残りまでの返礼品：${HENREIHIN_CATS.map((c) => `<a href="/furusato/henreihin/${c.slug}/">${esc(c.name)}</a>`).join('・')}</p>`
+    : '';
+
 function renderMemo() {
   const tool = toolBySlug('furusato-memo');
   const path = '/furusato/memo/';
@@ -325,6 +332,7 @@ function renderMemo() {
   <div class="doc" aria-live="polite">
     <p class="doc-title">寄付の控え</p>
     <p class="doc-sum" id="r-sum"><span class="doc-sum-k" id="r-cap">のこり</span><span class="doc-sum-v"><b id="r-num">？</b>円</span></p>
+    ${MEMO_HR()}
     <p class="doc-info"><span id="r-year"></span><span id="r-save"></span></p>
     <div class="kifu-bar" id="memo-bar" aria-hidden="true"></div>
     <table class="doc-table os-table"><tbody>
