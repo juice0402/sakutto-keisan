@@ -68,3 +68,33 @@ export function memoParse(json) {
   }
   return { years };
 }
+
+/** 日本時間の今日 { y, m, d }（見た人の端末の時計から。ビルドの日ではない） */
+export function jstDate(now) {
+  const j = new Date(now.getTime() + 9 * 3600e3);
+  return { y: j.getUTCFullYear(), m: j.getUTCMonth() + 1, d: j.getUTCDate() };
+}
+
+/** その年の寄付メモの残り（円）。メモがない・上限がない・残りが0以下なら null */
+export function memoLeftOf(store, year) {
+  const v = store && store.years ? store.years[year] : null;
+  if (!v || !v.limit) return null;
+  const { left } = memoSummary(v.rows, v.limit);
+  return left > 0 ? left : null;
+}
+
+/** 11月1日〜12月31日だけ、今年の寄付の締め切り（12月31日）まであと何日か。ほかの日は null */
+export function nenmatsuDaysLeft({ y, m, d }) {
+  if (m < 11) return null;
+  return Math.round((Date.UTC(y, 11, 31) - Date.UTC(y, m - 1, d)) / 864e5);
+}
+
+/** 寄付メモから返礼品のページへ渡す # （サーバーには送られない） */
+export const nokoriHash = (left) => `#nokori=${Math.floor(left)}`;
+
+/** 返礼品のページで # を読む（#nokori=23000）。ちがう形なら null */
+export function readNokori(hash) {
+  const m = /^#nokori=(\d{1,9})$/.exec(String(hash || ''));
+  const n = m ? Number(m[1]) : 0;
+  return n > 0 ? n : null;
+}

@@ -27,7 +27,7 @@
 - 読むファイル：docs/yomimono-neta.md・CLAUDE.md（ページの決まり・文章の決まり・デザインの決まり）・src/layout.mjs（page・section・spread）・src/parts.mjs・src/zukai.mjs・src/pages/index.mjs・scripts/build.mjs・scripts/verify-dist.mjs
 - マージ：する
 
-### [ ] 寄付メモの「残り」で返礼品をしぼる（ふるさと納税の年末）
+### [x] 寄付メモの「残り」で返礼品をしぼる（ふるさと納税の年末）（#144）
 - やること：寄付メモ（/furusato/memo/）に記録した今年の「上限の目安まであといくら」を、返礼品の4ページ（/furusato/henreihin/kome/・niku/・gyokai/・nichiyouhin/）に渡し、その額までの返礼品だけを並べられるようにする
   - 返礼品のページ：「寄付額でしぼる」のマスの下に、1行のチェック欄「寄付メモの残り 23,000円まで」（数字はメモから。aria-pressed で、押すとその額までの行だけ、もう一度押すと元にもどる）。寄付額のマス（1万円・2万円・3万円まで・すべて）とチェック欄は、どちらか1つだけが効く（チェック欄を押すとマスは「すべて」の扱いにし、マスを押すとチェックを外す）。しぼった結果が0件のときは、今の hr-none の文のまま
   - 残りの出し方：localStorage の `sakutto-furusato-memo` を src/lib/furusato-memo.mjs の memoParse で読み、今年（ブラウザの日本時間の年）の limit と rows を memoSummary にわたして left を使う。メモがない・今年の上限が入っていない・left が0以下のときは、チェック欄を出さない（hidden のまま）。去年のメモしかないときも出さない
