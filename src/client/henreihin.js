@@ -64,6 +64,6 @@ if (memoBtn && left) {
 const due = document.getElementById('hr-due');
 const days = nenmatsuDaysLeft(today);
 if (due && days !== null) {
-  document.getElementById('hr-days').textContent = days ? `あと${days}日` : '今日まで';
+  document.getElementById('hr-days').textContent = days ? `あと${days}日` : '今日が最終日';
   due.hidden = false;
 }

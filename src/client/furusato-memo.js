@@ -1,5 +1,5 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { memoSummary, memoText, memoParse, nokoriHash, MEMO_MAX_ROWS } from '../lib/furusato-memo.mjs';
+import { memoSummary, memoText, memoParse, nokoriHash, jstDate, MEMO_MAX_ROWS } from '../lib/furusato-memo.mjs';
 import { furusatoDeadlines, ONESTOP_MAX } from '../lib/furusato-tetsuzuki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints, copyText } from './ui.mjs';
 
@@ -10,9 +10,9 @@ const KEY = 'sakutto-furusato-memo';
 const HR = document.getElementById('r-hr'); // 残りまでの返礼品の1行（返礼品のページが出ているときだけある）
 const FIRST = Number($('calc').dataset.first);
 const IDX = Array.from({ length: MEMO_MAX_ROWS }, (_, i) => i);
-const now = new Date();
-const THIS_YEAR = now.getFullYear();
-const DL = Object.fromEntries(furusatoDeadlines({ y: THIS_YEAR, m: now.getMonth() + 1, d: now.getDate() }).map((x) => [x.key, x]));
+const MEMO_TODAY = jstDate(new Date()); // 日本時間の今日（返礼品のページと同じ年にそろえる）
+const THIS_YEAR = MEMO_TODAY.y;
+const DL = Object.fromEntries(furusatoDeadlines(MEMO_TODAY).map((x) => [x.key, x]));
 let canSave = true;
 let saved = false; // この画面で保存したか（「保存しました」を出す）
 const store = loadMemo();
