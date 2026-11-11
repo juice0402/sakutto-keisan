@@ -5,6 +5,6 @@
 export const AMAZON_CARD = { prime: 2, normal: 1.5 }; // Amazon Mastercard の Amazon.co.jp での還元率（%）
 
 export const AMAZON_SOURCES = [
-  { name: 'About Amazon「Amazonポイントの貯め方＆使い方」', url: 'https://www.aboutamazon.jp/news/guide/how-to-earn-and-use-amazon-points', checked: '2026-10-23', what: '商品ごとのポイント・Amazon Mastercard' },
+  { name: 'About Amazon「Amazonポイントの貯め方＆使い方」', url: 'https://www.aboutamazon.jp/news/guide/how-to-earn-and-use-amazon-points', checked: '2026-11-11', what: '商品ごとのポイント・Amazon Mastercard' },
   { name: '三井住友カード「Amazon Mastercard」', url: 'https://www.smbc-card.com/nyukai/affiliate/amazon/index.jsp', checked: '2026-10-23', what: 'Amazon Mastercard の還元率' },
 ];
