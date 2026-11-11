@@ -21,6 +21,8 @@ CLAUDE.md の「ファイル」の短い一覧のくわしい版。ファイル�
 | `src/data/seisou-tanka.mjs` | 清掃の見積もりの目安：国土交通省の建築保全業務労務単価（清掃員・10地区・年度）と、島根県の清掃業務委託料算定要領の経費の率。毎年2月ごろ出る次の年度の単価に直す（年度の終わりから90日でテストが止まる） |
 | `src/lib/genba.mjs`・`src/pages/genba.mjs`・`src/client/genba.js` | 現場手帳 `/genba/`（#106）：場所ごとの時間・時間割・見積もりの目安・トイレの消毒液の計算と、場所の1行の HTML（ページとブラウザで共通）。現場は localStorage `sakutto-genba`。くわしくは docs/tools.md の「現場手帳」 |
 | `src/data/touyu.mjs` | 灯油代の計算の暖房のマス（メーカーの燃料消費量 L/h の強・弱、出典の仕様のページ）と、灯油の値段のはじめの値（資源エネルギー庁の石油製品価格調査の18Lの店頭価格と調査の日） |
+| `src/data/kondate.mjs` | 晩ごはんシミュレーターの食材 `KONDATE_ING`（3グループ・72）と料理 `KONDATE_DISHES`（202品。`{ id, name, kind, ings }`、id は変えない・消さない）。くわしくは docs/kondate.md の「料理のデータ」 |
+| `src/lib/kondate.mjs` | 晩ごはんシミュレーターの1週間の組み方・1日の入れかえ・買うもの・端末のデータ（localStorage `sakutto-kondate`）の読み書き・ページの例の週。テストは `tests/kondate.test.mjs` |
 | `src/data/enbun.mjs` | 塩分濃度の計算の用途のマス（浅漬け・パスタ・砂抜き・梅干しの濃度と出典）と、塩のスプーンの重さ（食塩 小さじ1＝6g・大さじ1＝18g） |
 | `src/data/furusato.mjs` | ふるさと納税の上限の計算に使う、寄付した年ごとの税の数字（給与所得控除・基礎控除・配偶者と扶養の控除・調整控除の人的控除の差・所得割がかからない基準）と出典・確認日（`FURUSATO_SOURCES`。手続きのページの出典は `FURUSATO_TETSUZUKI_SOURCES`、制度の変更点は `FURUSATO_SEIDO_SOURCES`）。1月1日に次の年を足す |
 | `src/data/henreihin.mjs` | 返礼品のページの設定：`HENREIHIN_LIVE`（本番に出すか）、ビルドのときの `HENREIHIN_MODE`（off・fixture・api）、カテゴリと楽天で探す言葉・外す言葉・ジャンルID、一覧の数、寄付額のマス |
