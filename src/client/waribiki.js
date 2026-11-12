@@ -1,5 +1,5 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { calcDiscount, compareDiscounts, wariLabel } from '../lib/waribiki.mjs';
+import { calcDiscount, compareDiscounts, wariLabel, wariMemoLine } from '../lib/waribiki.mjs';
 import { $, enterToNext, tidyOnBlur, numericOnly } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgTag } from './share-img.mjs';
@@ -17,7 +17,7 @@ const S = {
   more: false,
 };
 let lastKey = '';
-const memo = choiMemo('waribiki.png');
+const memo = choiMemo('waribiki.png', (list) => wariMemoLine(list, Date.now()));
 
 const yen = (x) => `${fmt(x)}円`;
 const show = (id, on) => { $(id).hidden = !on; };
@@ -142,6 +142,8 @@ function update() {
   memo({
     q: `${yen(price)}の${r.steps.map((s) => offWord(s.rate)).join('＋')}`,
     a: yen(r.final),
+    p: r.final,
+    o: r.off,
     img: () => imgTag({ was: yen(price), price: fmt(r.final), rate: r.off > 0 ? `${fmt(r.totalRate, 1)}%` : '', save: r.off > 0 ? `${yen(r.off)} おトク` : '割引なし', conv: r.off > 0 ? convText(r.totalRate) : '' }),
   });
 }

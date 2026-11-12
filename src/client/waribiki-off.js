@@ -1,10 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { calcDiscount, originalFrom, wariLabel } from '../lib/waribiki.mjs';
+import { calcDiscount, originalFrom, wariLabel, wariMemoLine } from '../lib/waribiki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgTag } from './share-img.mjs';
 
-const memo = choiMemo(`waribiki-${$('calc').dataset.rate}.png`);
+const memo = choiMemo(`waribiki-${$('calc').dataset.rate}.png`, (list) => wariMemoLine(list, Date.now()));
 
 // 率ごとの割引（/waribiki/30/ など）：元の値段か割引後の値段のあとから入れたほうから、もう片方を点線の答えの欄に
 // 結果は値札（割引率のシールは決まっている）
@@ -50,6 +50,9 @@ function update() {
   $('t-price').textContent = fmt(sale);
   const about = from === 'sale' && !res.exact ? '約' : '';
   const entry = from === 'sale' ? { q: `${RATE}％オフで${yen(sale)}`, a: `元の値段${about}${yen(price)}` } : { q: `${yen(price)}の${RATE}％オフ`, a: yen(sale) };
+  entry.p = sale;
+  entry.o = price - sale;
+  if (about) entry.e = 1;
   entry.img = () => imgTag({
     was: `${about}${yen(price)}`,
     price: fmt(sale),
