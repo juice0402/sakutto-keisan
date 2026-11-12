@@ -1,4 +1,4 @@
-import { fix, roundBy } from './number.mjs';
+import { fix, roundBy, fmt } from './number.mjs';
 
 // 割引計算（ブラウザとテストの両方で使う）
 
@@ -91,4 +91,34 @@ export function originalFrom(sale, rate) {
   while (Math.floor(fix((p * (100 - rate)) / 100)) > sale) p--;
   while (Math.floor(fix((p * (100 - rate)) / 100)) < sale) p++;
   return { ok: true, price: p, exact: false };
+}
+
+// ちょいメモの「今日の合計」（割引の計算の8ページで共通。#150）
+// メモ { t：ページの slug, d：メモした時刻（ms）, p：払う額, o：安くなった額, e：元の値段が「約」なら 1 }
+export const WARI_MEMO_SLUGS = ['waribiki', 'waribiki-ritsu', 'waribiki-10', 'waribiki-15', 'waribiki-20', 'waribiki-30', 'waribiki-40', 'waribiki-50'];
+
+/** 日本時間の日付の番号（同じ日なら同じ数） */
+export const jstDay = (ms) => Math.floor((ms + 9 * 3600000) / 86400000);
+
+/** slugs のページで、now と同じ日（日本時間）にメモした数字つきのメモの合計。{ n, p, o, about } */
+export function memoTotal(list, slugs, now) {
+  const today = jstDay(now);
+  const r = { n: 0, p: 0, o: 0, about: false };
+  for (const m of list) {
+    if (!m || !slugs.includes(m.t) || typeof m.d !== 'number' || jstDay(m.d) !== today) continue;
+    if (!Number.isFinite(m.p) || !Number.isFinite(m.o)) continue;
+    r.n += 1;
+    r.p = fix(r.p + m.p);
+    r.o = fix(r.o + m.o);
+    if (m.e) r.about = true;
+  }
+  return r;
+}
+
+/** ちょいメモの上の1行。足せるメモがなければ空 */
+export function wariMemoLine(list, now) {
+  const t = memoTotal(list, WARI_MEMO_SLUGS, now);
+  if (!t.n) return '';
+  // 「払う」と金額のあいだは改行しない空白（\u00a0）
+  return `割引のページで今日メモした${t.n}品：払う\u00a0${fmt(t.p)}円・安くなった\u00a0${t.about ? '約' : ''}${fmt(t.o)}円`;
 }
