@@ -22,14 +22,14 @@ export const POINT_EVENTS = [
 export const POINT_SOURCES = [
   { name: '楽天市場「お買い物マラソン」', url: MARATHON, checked: '2026-11-03', what: '今回の上限・付与日・有効期限・エントリー・買う順番・キャンセル' },
   { name: '楽天市場「お買い物マラソン ガイド＆買いまわりルール詳細」', url: 'https://event.rakuten.co.jp/campaign/point-up/marathon/guide/', checked: '2026-10-23', what: '1ショップの数え方・倍率・税抜・上限' },
-  { name: '楽天市場ヘルプ「対象サービスについて」', url: 'https://ichiba.faq.rakuten.net/detail/000006874', checked: '2026-10-23', what: '店舗の数に入らないもの（楽天ふるさと納税など）' },
+  { name: '楽天市場ヘルプ「対象サービスについて」', url: 'https://ichiba.faq.rakuten.net/detail/000006874', checked: '2026-11-12', what: '店舗の数に入らないもの（楽天ふるさと納税など）' },
   { name: '楽天市場「楽天スーパーSALE ガイド」', url: 'https://event.rakuten.co.jp/campaign/supersale/guide/', checked: '2026-10-23', what: 'スーパーSALEの買いまわりの決まり' },
   { name: '楽天市場「10月お買い物マラソンガイド」', url: SCHEDULE, checked: '2026-10-22', what: '10月の開催の期間' },
 ];
 
 // 買いまわりの1店舗の判定（/point/taishou/）の出典。決まりの文が変わったら気づけるように、見張り（spu・毎日）は本文の指紋でくらべる（mode: 'text'）
 export const POINT_COUNT_SOURCES = [
-  { name: '楽天市場ヘルプ「【ショップ買いまわり】対象サービスについて」', url: 'https://ichiba.faq.rakuten.net/detail/000006874', checked: '2026-10-23', what: '数えるもの・数えないもの', mode: 'text' },
-  { name: '楽天市場ヘルプ「【ショップ買いまわり】予約購入は買いまわりの対象になりますか？」', url: 'https://ichiba.faq.rakuten.net/detail/000006914', checked: '2026-10-23', what: '数える予約商品', mode: 'text' },
+  { name: '楽天市場ヘルプ「【ショップ買いまわり】対象サービスについて」', url: 'https://ichiba.faq.rakuten.net/detail/000006874', checked: '2026-11-12', what: '数えるもの・数えないもの', mode: 'text' },
+  { name: '楽天市場ヘルプ「【ショップ買いまわり】予約購入は買いまわりの対象になりますか？」', url: 'https://ichiba.faq.rakuten.net/detail/000006914', checked: '2026-11-12', what: '数える予約商品', mode: 'text' },
   { name: '楽天市場「お買い物マラソン ガイド＆買いまわりルール詳細」', url: 'https://event.rakuten.co.jp/campaign/point-up/marathon/guide/', checked: '2026-10-23', what: '1,000円の数え方・送料・同じ店の合計・ポイントで払った分', mode: 'text' },
 ];
