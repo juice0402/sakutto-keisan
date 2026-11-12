@@ -22,8 +22,8 @@ const withShelf = (list, fn) => {
   }
 };
 const PUBLISHED = TOOLS.filter((t) => t.published);
-// 全ページの使わない言葉と、コーナーごとの言葉（scripts/verify-dist.mjs と同じ）
-const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'コツ', '——', '→', '›', '<', '*'];
+// 全ページの使わない言葉（CLAUDE.md の文章の決まり。「ポイント」も）と、コーナーごとの言葉（scripts/verify-dist.mjs と同じ）
+const NG = ['しましょう', 'ぜひ', '便利', '簡単', '安心', 'おすすめ', 'ポイント', 'コツ', '——', '→', '›', '<', '*'];
 const NG_FURUSATO = ['お得', 'コスパ', '還元', '購入', '買う', 'セール', 'ドカ盛り', '節税', '残りわずか', '今だけ', 'ポイント'];
 const NG_POINT = ['お得', '最安', '必ず得', '倍確定', '予想', '次回は', 'ラッキーくじ', 'スロット', '楽天公認'];
 const names = (html) => [...html.matchAll(/<span class="tool-name">([^<]*)<\/span>/g)].map((m) => m[1]);

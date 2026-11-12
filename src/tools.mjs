@@ -814,7 +814,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['point-shikumi', 'point-spu', 'point', 'waribiki'],
-    next: [['point-spu', '使っているサービスから、倍率を出す'], ['point-shikumi', 'ポイントがふえる3つのしくみを見る']],
+    next: [['point-spu', '使っているサービスから、倍率を出す'], ['point-shikumi', '倍率がふえる3つのしくみを見る']],
   },
   {
     slug: 'point',
