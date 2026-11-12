@@ -56,7 +56,7 @@
 - 読むファイル：src/pages/henreihin.mjs・src/client/henreihin.js・src/data/henreihin.mjs・src/pages/furusato-tetsuzuki.mjs・src/client/furusato-memo.js・src/lib/furusato-memo.mjs・src/pages/info.mjs（プライバシーポリシー）・docs/furusato.md（言葉の決まり・返礼品のしくみ）・CLAUDE.md（デザインの決まり・ページの決まり）
 - マージ：する
 
-### [ ] 晩ごはんシミュレーター①：料理のデータと組み方（約200品）
+### [x] 晩ごはんシミュレーター①：料理のデータと組み方（約200品）（#152）
 - やること：晩ごはんシミュレーター（/kondate/。ページは次の項目②）の中身を作る。ページはまだ出さない（tools.mjs に足さない）
   - `src/data/kondate.mjs`：食材の一覧 `KONDATE_ING`（グループ「肉・魚」「野菜」「ほか」に分けた配列。ページの冷蔵庫・苦手の一覧と、料理の食材の言葉をこれ1つにそろえる）と、料理の一覧 `KONDATE_DISHES`（約200品）。料理は `{ id, name, kind, ings }`：id はローマ字の短い名前（一度出したら変えない・消さない）、name は家庭でふつうに呼ぶ名前、kind は 肉・魚・麺・丼・カレー・鍋・ほか のどれか1つ、ings は主な食材2〜4つ（KONDATE_ING の言葉だけ）。作り方・分量・季節は入れない
   - kind の分け方と数の目安：肉（肉が主役のおかず。約55）・魚（魚介が主役のおかず。約35）・麺（約30）・丼（ごはんにのせる・混ぜる。チャーハンもここ。約25）・カレー（ルウやカレー粉の料理。シチュー・ハヤシライスもここ。約15）・鍋（おでんもここ。約20）・ほか（卵・豆腐・野菜が主役。決まりが「おまかせ」の日だけ出る。約20）
