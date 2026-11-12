@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   jstDate, addDays, daysBetween, weekdayOf, jaDate, jaDateTime, passesChecked, deadlineOf, checkedAlerts,
   textOf, norm, kdreamsState, shohizeiStatus, kirokuCount, kirokuReady, inPrintWindow, printsMissing,
-  MEMO, nightBody, WATCHED, failureBody, clip, footer,
+  MEMO, nightBody, WATCHED, failureBody, clip, footer, verdict, pickLatest, notedToday, closedAfter,
 } from '../scripts/mihari.mjs';
 
 const at = (s) => Date.parse(`${s}+09:00`); // 日本時間の時刻
@@ -125,4 +126,64 @@ test('失敗の Issue：何が止まったか・いつ・URL・ステップ・�
   assert.ok(!body.includes('  - d'));
   assert.ok(body.trim().endsWith(footer()));
   assert.equal(clip('x\n  y'), 'x y');
+});
+
+test('いちばん新しい実行：main の完了した実行だけ・cancelled などは飛ばしてその前を見る・PR の CI は見ない', () => {
+  const run = (id, conclusion, created, more = {}) => ({ id, conclusion, status: 'completed', head_branch: 'main', event: 'push', created_at: created, ...more });
+  const runs = [
+    run(6, 'failure', '2026-11-13T03:00:00Z', { head_branch: 'claude/x' }),
+    run(5, 'failure', '2026-11-13T02:30:00Z', { event: 'pull_request' }),
+    run(4, null, '2026-11-13T02:00:00Z', { status: 'in_progress' }),
+    run(3, 'cancelled', '2026-11-13T01:00:00Z'),
+    run(2, 'skipped', '2026-11-13T00:30:00Z'),
+    run(1, 'failure', '2026-11-12T23:00:00Z', { event: 'workflow_dispatch' }),
+    run(0, 'success', '2026-11-12T22:00:00Z'),
+  ];
+  assert.equal(pickLatest(runs).id, 1);
+  assert.equal(pickLatest([...runs].reverse()).id, 1);
+  assert.equal(pickLatest(runs.slice(6)).id, 0);
+  assert.equal(pickLatest(runs.slice(0, 5)), null);
+});
+
+test('判定は workflow_run と同じ：成功なら閉じる・失敗なら Issue・取り消しなどは何もしない', () => {
+  assert.equal(verdict('success'), 'resolve');
+  for (const c of ['failure', 'timed_out', 'startup_failure']) assert.equal(verdict(c), 'raise', c);
+  for (const c of ['cancelled', 'skipped', 'neutral', 'action_required', null]) assert.equal(verdict(c), 'none', String(c));
+});
+
+test('同じ題の Issue には1日1回だけ：今日作った・今日の「まだ続いている」があれば何もしない', () => {
+  const now = at('2026-11-13T15:11');
+  const bot = (body, created) => ({ user: { type: 'Bot' }, body, created_at: created });
+  const old = { created_at: '2026-11-11T01:00:00Z' };
+  assert.equal(notedToday({ created_at: '2026-11-12T16:00:00Z' }, [], now), true); // 日本時間 11/13 1:00 に作った
+  assert.equal(notedToday(old, [], now), false);
+  assert.equal(notedToday(old, [bot('まだ続いている（u）', '2026-11-13T00:20:00Z')], now), true);
+  assert.equal(notedToday(old, [bot('まだ続いている（u）', '2026-11-12T14:00:00Z')], now), false); // 日本時間 11/12 23:00
+  assert.equal(notedToday(old, [{ user: { type: 'User' }, body: 'まだ続いている', created_at: '2026-11-13T00:20:00Z' }], now), false);
+  assert.equal(notedToday(old, [bot('直った（u）', '2026-11-13T00:20:00Z')], now), false);
+});
+
+test('3時間ごとの見張り：失敗のあとに閉じられた同じ題の Issue があれば作り直さない', () => {
+  const t = WATCHED['Build and Deploy'].title;
+  const issues = [
+    { number: 9, title: t, closed_at: '2026-11-13T05:00:00Z' },
+    { number: 8, title: 'ほかの題', closed_at: '2026-11-13T06:00:00Z' },
+    { number: 7, title: t, closed_at: '2026-11-13T05:00:00Z', pull_request: {} },
+  ];
+  assert.equal(closedAfter(issues, t, '2026-11-13T04:00:00Z').number, 9);
+  assert.equal(closedAfter(issues, t, '2026-11-13T05:30:00Z'), null);
+  assert.equal(closedAfter([], t, '2026-11-13T04:00:00Z'), null);
+});
+
+test('mihari.yml：3時間ごとにも見る（毎朝の点検は1日1回のまま）・見張る workflow は WATCHED と同じ', () => {
+  const wf = readFileSync(new URL('../.github/workflows/mihari.yml', import.meta.url), 'utf8');
+  assert.match(wf, /^\s*schedule:\n\s*- cron: '47 20 \* \* \*'.*\n\s*- cron: '11 \*\/3 \* \* \*'/m);
+  const job = (name) => wf.split(/\n {2}(?=[a-z]+:\n)/).find((b) => b.startsWith(`${name}:`)) || '';
+  assert.match(job('latest'), /github\.event\.schedule == '11 \*\/3 \* \* \*'/);
+  assert.match(job('latest'), /node scripts\/mihari\.mjs latest/);
+  assert.match(job('daily'), /github\.event\.schedule == '47 20 \* \* \*'/);
+  assert.doesNotMatch(job('daily'), /\*\/3/);
+  assert.match(job('daily'), /node scripts\/mihari\.mjs daily/);
+  const listed = wf.match(/workflows: \[(.+)\]/)[1].split(',').map((x) => x.trim());
+  assert.deepEqual(listed.sort(), Object.keys(WATCHED).sort());
 });

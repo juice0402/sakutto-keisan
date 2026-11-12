@@ -15,12 +15,13 @@
 | `check-links.yml` | src を変える PR・毎週月曜7:41 | 出典・外部リンクの点検（下の節） | — |
 | `henreihin-daily.yml` | 毎日6:07（12月は18:07も） | 返礼品の取り直しの本番の公開 | — |
 | `henreihin-check.yml` | 手で・返礼品の探し方を変えた PR | 楽天から取れるかの確かめ | — |
-| `mihari.yml` | 上の workflow が main で終わったとき・毎朝5:47 | 見張り（下の節）。失敗・日付・ページを見て、あるときだけ Issue | — |
+| `mihari.yml` | 上の workflow が main で終わったとき・3時間ごと（毎時11分）・毎朝5:47 | 見張り（下の節）。失敗・日付・ページを見て、あるときだけ Issue | — |
 | `merge-ok.yml` | PR に merge-ok が付いたとき・PR の点検が終わったとき | マージの印（下の節）。点検が通ったら squash でマージして公開を動かす | 印の付いた PR |
 
 ## 見張り（mihari.yml）
 - 2026-11-02 司令塔：見張りだけの Claude の予約タスクをやめ、`.github/workflows/mihari.yml` と `scripts/mihari.mjs`（テストは `tests/mihari.test.mjs`）に移した。何もなければ何もしない。Issue のラベルは2つ：`mihari`＝知らせるだけ（毎朝の「朝の確認」が知らせる）、`night`＝直すことが決まったもの（題「【夜】…」・本文は夜のメモ。毎晩の「夜のまとめ作業」が PR まで）
 - 失敗：Build and Deploy・Watch official pages・出典の点検・Henreihin daily が main で失敗 → `mihari`（成功したら「直った」で閉じる）。PR の CI は見ない
+- 3時間ごとにも見る（2026-11-13・#161）：マージの印などが GITHUB_TOKEN で動かした公開は、終わっても workflow_run が来ない（GitHub の決まり）。そこで schedule `11 */3 * * *` の job `latest`（`node scripts/mihari.mjs latest`）が、見張る workflow ごとに main のいちばん新しい完了した実行（cancelled・skipped は飛ばす。`pickLatest`）を workflow_run と同じ判定に通す。同じ題の Issue が開いていれば1日1回だけ「まだ続いている」（今日作った Issue にはコメントしない。`notedToday`）。その失敗のあとに閉じられた同じ題の Issue があれば作り直さない（`closedAfter`）。毎朝の点検（daily）は `47 20 * * *` の回だけ（`github.event.schedule` で分ける）。手で動かすと両方動く
 - 毎朝5:47：出典の確認日（ふるさと納税・SPU。テストと同じ決まりで期限を出し、残り10日以内で `night`）・Kドリームスの SPU のページ（11/22 まで。cap が null でメンテナンスの文がなければ `night`）・国税庁の消費税率引下げ特設サイト（火曜・1/31 まで。「成立しました」「公布されました」などがはっきり出たら `night`、「成立した場合」の文が消えただけなら `mihari`）・お買い物マラソンの記録（15日。終わった回6・上限がわかっている回4で `night`）・早見表の PDF（11/1〜12/20。来年の PDF がなく PR もなければ `night`）。外のページが7日見られないと `mihari`
 - watch.yml・check-links.yml の Issue も題「【夜】…」・ラベル night・本文は夜のメモ（`node scripts/mihari.mjs memo`）。夜のメモの中身は `scripts/mihari.mjs` の `MEMO`
 - いじるとき：確認日のテスト（tests/furusato.test.mjs・tests/spu.test.mjs）の日数を変えたら `passesChecked` も直す。手で試すときは Actions の「見張り」を `dry_run`（と `today`）で動かす
