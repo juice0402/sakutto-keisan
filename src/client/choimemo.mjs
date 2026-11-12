@@ -44,8 +44,8 @@ function cmWhen(ms) {
   return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-// 付箋の字は言葉のまん中で改行しない（CSS の keep-all）。改行してよいのは、数字や漢字のあとの「の・を・で・に」などと「・」「、」のあとだけ
-const CM_BREAK = /([^ぁ-ゟ\s])(から|まで|より|には|では|との|への|の|を|で|に|は|と|が|へ|も)|[・、]/g;
+// 付箋の字は言葉のまん中で改行しない（CSS の keep-all）。改行してよいのは、数字や漢字のあとの「の・を・で・に」などと「・」「、」「：」のあとだけ
+const CM_BREAK = /([^ぁ-ゟ\s])(から|まで|より|には|では|との|への|の|を|で|に|は|と|が|へ|も)|[・、：]/g;
 
 /** text を el に入れる。改行してよい所に <wbr>（文字はそのまま入れるので HTML にならない） */
 function cmWrap(el, text) {
@@ -59,11 +59,25 @@ function cmWrap(el, text) {
   el.append(text.slice(at));
 }
 
-/** 付箋を並べる。tool があればそのツールのメモだけ、なければ全ツールのメモ（1行の頭にツールの短い名前） */
-export function cmDraw(box, tool, max) {
-  const list = cmLoad().filter((m) => !tool || m.t === tool).slice(0, max);
-  box.hidden = !list.length;
+/** 付箋を並べる。tool があればそのツールのメモだけ、なければ全ツールのメモ（1行の頭にツールの短い名前）
+ * sum：ぜんぶのメモから一覧の上の1行を作る関数（割引のページの今日の合計。空なら出さない） */
+export function cmDraw(box, tool, max, sum) {
+  const all = cmLoad();
+  const list = all.filter((m) => !tool || m.t === tool).slice(0, max);
+  const line = sum ? sum(all) : '';
+  box.hidden = !list.length && !line;
   const ul = box.querySelector('ul');
+  if (sum) {
+    let el = box.querySelector('.cm-sum');
+    if (!el) {
+      el = document.createElement('p');
+      el.className = 'cm-sum';
+      ul.before(el);
+    }
+    el.hidden = !line;
+    el.textContent = '';
+    cmWrap(el, line);
+  }
   ul.textContent = '';
   for (const m of list) {
     const li = document.createElement('li');
@@ -84,7 +98,7 @@ export function cmDraw(box, tool, max) {
     x.textContent = '消す';
     x.addEventListener('click', () => {
       cmStore(cmLoad().filter((o) => o.d !== m.d));
-      cmDraw(box, tool, max);
+      cmDraw(box, tool, max, sum);
     });
     li.append(when, q, a, x);
     ul.append(li);
@@ -99,20 +113,28 @@ function cmFlash(btn, text, back) {
 }
 
 /** 「メモする」の段とちょいメモを動かす（choiMemo と memoOnly で共通）。返すのは { tool, set(entry), cur() } */
-function cmBar(bar, box) {
+function cmBar(bar, box, sum) {
   const add = document.getElementById('cm-add');
   const tool = bar.dataset.tool;
   let cur = null;
   bar.hidden = false;
-  cmDraw(box, tool, CM_TOOL_SHOW);
+  cmDraw(box, tool, CM_TOOL_SHOW, sum);
   add.addEventListener('click', () => {
     if (!cur) return;
     const list = cmLoad();
     const top = list.find((m) => m.t === tool);
-    if (!top || top.q !== cur.q || top.a !== cur.a) {
+    const same = top && top.q === cur.q && top.a === cur.a;
+    // 合計に入るメモ（p がある）は、同じ品をもう1つ買うときのために、2秒たてば同じ1行でもメモする
+    if (!same || (typeof cur.p === 'number' && Date.now() - top.d >= 2000)) {
       const d = Math.max(Date.now(), ...list.map((m) => m.d + 1));
-      cmStore([{ t: tool, n: bar.dataset.name, q: cur.q, a: cur.a, d }, ...list]);
-      cmDraw(box, tool, CM_TOOL_SHOW);
+      const m = { t: tool, n: bar.dataset.name, q: cur.q, a: cur.a, d };
+      if (typeof cur.p === 'number' && typeof cur.o === 'number') {
+        m.p = cur.p;
+        m.o = cur.o;
+        if (cur.e) m.e = 1;
+      }
+      cmStore([m, ...list]);
+      cmDraw(box, tool, CM_TOOL_SHOW, sum);
     }
     cmFlash(add, 'メモしました', 'メモする');
   });
@@ -135,14 +157,15 @@ export function memoOnly() {
 
 /**
  * 計算のページのちょいメモと画像で送る。返す関数に、いまの結果を渡す（答えが出ていないときは null）
- * entry：{ q：入れた数字の1行, a：答え, img：画像の canvas を作る関数 }
+ * entry：{ q：入れた数字の1行, a：答え, img：画像の canvas を作る関数, p・o・e：合計に入れる数（割引のページだけ） }
+ * sum：ちょいメモの上の1行を作る関数（cmDraw）
  */
-export function choiMemo(file) {
+export function choiMemo(file, sum) {
   const bar = document.getElementById('cm-bar');
   const box = document.getElementById('cm-list');
   if (!bar || !box || !cmUsable()) return () => {};
   const send = document.getElementById('cm-share');
-  const m = cmBar(bar, box);
+  const m = cmBar(bar, box, sum);
   send.addEventListener('click', () => {
     const cur = m.cur();
     if (!cur) return;
