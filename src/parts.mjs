@@ -26,22 +26,40 @@ export const yomiListHtml = (list) =>
     .map((y) => `<li><a class="tool-card" href="${yomiUrl(y)}"><span class="tool-name">${esc(y.title)}</span><span class="tool-desc">${esc(y.lead)}</span></a></li>`)
     .join('')}</ul>`;
 
-/** 計算のページの「この計算の読みもの」（その計算を tools に入れている読みもの、新しい順に3本まで。ないときは出さない） */
+/**
+ * 計算のあとの「つぎに」（#159・C-027）：tools.mjs の next から2行まで。その計算の読みものがあれば「計算1つ＋読みもの1本（いちばん新しい）」、なければ「計算2つ」
+ * relatedHtml がいちばん下の節の前に出し、layout.mjs の page() が計算カード（#calc）のすぐ下へ動かす
+ */
+export function nextPicks(tool) {
+  const tools = (tool.next || []).map(([slug, why]) => ({ t: toolBySlug(slug), why })).filter(({ t }) => t && t.published && t.slug !== tool.slug);
+  const yomi = yomimono().find((y) => y.tools.includes(tool.slug)) || null;
+  return { tools: tools.slice(0, yomi ? 1 : 2), yomi: tools.length ? yomi : null };
+}
+export function nextHtml(tool) {
+  const { tools, yomi } = nextPicks(tool);
+  const rows = tools.map(({ t, why }) => `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(why)}</span></a></li>`);
+  if (yomi) rows.push(`<li><a class="tool-card" href="${yomiUrl(yomi)}"><span class="tool-name">${esc(yomi.title)}</span><span class="tool-desc">読みもの。${esc(yomi.lead)}</span></a></li>`);
+  return rows.length ? `<section class="prose nx" id="nx" aria-labelledby="nx-h"><h2 id="nx-h">つぎに</h2><ul class="tool-list">${rows.join('')}</ul></section>\n` : '';
+}
+
+/** 計算のページの「この計算の読みもの」（その計算を tools に入れている読みもの、新しい順に3本まで。「つぎに」で出した1本はのぞく。ないときは出さない） */
 export function yomiForToolHtml(tool) {
-  const list = yomimono().filter((y) => y.tools.includes(tool.slug)).slice(0, 3);
+  const skip = nextPicks(tool).yomi;
+  const list = yomimono().filter((y) => y.tools.includes(tool.slug) && y !== skip).slice(0, 3);
   return list.length ? `<section class="prose" aria-labelledby="ym-for"><h2 id="ym-for">この計算の読みもの</h2>${yomiListHtml(list)}</section>\n` : '';
 }
 
-/** 関連ツール（公開済みだけ。足りなければ同じカテゴリから補う。0件ならトップへのリンクだけ）。前に「この計算の読みもの」 */
+/** 関連ツール（公開済みだけ。「つぎに」で出した計算はのぞく。足りなければ同じカテゴリから補う。0件ならトップへのリンクだけ）。前に「つぎに」と「この計算の読みもの」 */
 export function relatedHtml(tool, max = 4) {
-  const picked = (tool.related || []).map(toolBySlug).filter((t) => t && t.published);
+  const shown = new Set(nextPicks(tool).tools.map(({ t }) => t));
+  const picked = (tool.related || []).map(toolBySlug).filter((t) => t && t.published && !shown.has(t));
   for (const t of TOOLS) {
     if (picked.length >= max) break;
     // 足りない分は同じカテゴリの親のツールから（使いみち別のページは親のページからリンクする）
-    if (t.published && !t.parent && t.slug !== tool.slug && t.category === tool.category && !picked.includes(t)) picked.push(t);
+    if (t.published && !t.parent && t.slug !== tool.slug && t.category === tool.category && !picked.includes(t) && !shown.has(t)) picked.push(t);
   }
   const list = picked.length ? toolListHtml(picked.slice(0, max)) : '';
-  return `${yomiForToolHtml(tool)}<section class="prose" aria-labelledby="related"><h2 id="related">ほかの計算ツール</h2>${list}<p><a href="/">ツール一覧へ</a></p></section>`;
+  return `${nextHtml(tool)}${yomiForToolHtml(tool)}<section class="prose" aria-labelledby="related"><h2 id="related">ほかの計算ツール</h2>${list}<p><a href="/">ツール一覧へ</a></p></section>`;
 }
 
 /** ツールページの構造化データ（WebApplication） */

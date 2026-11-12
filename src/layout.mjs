@@ -61,7 +61,7 @@ function numberNotes(body) {
 }
 
 // パソコン（1080px〜）の見開き（10/31 連絡 C-017・#107）：<main> の中身を左の段（.pc-left）と右の段（.pc-right）に分ける
-//   計算のページ：左＝h1・説明・#calc まで、右＝そのあと（1画面めの下の読みもの）
+//   計算のページ：左＝h1・説明・#calc（とすぐ下の「つぎに」#nx）まで、右＝そのあと（1画面めの下の読みもの）
 //   トップ：左＝題・ちょいメモ・よく使う計算、右＝分類の一覧から下
 //   #calc のないページ：左＝最初の section・div の前まで（h1・説明）と、h2 が3つ以上なら目次。右＝本文
 //   1080px 未満では入れ物が display: contents で見た目に効かない（site.css）。並べる順番は変えない
@@ -101,12 +101,23 @@ const pcToc = (right) => {
     .map(([, id, t]) => `<li><a href="#${id}">${t.replace(/<[^>]+>/g, '')}</a></li>`)
     .join('')}</ul></nav>`;
 };
+// 計算のあとの「つぎに」（#159。parts.mjs の nextHtml。relatedHtml がいちばん下の節の前に出す）を、計算カード（#calc）のすぐ外・下へ動かす。#calc のないページはそのまま
+const NX = /<section class="prose nx" id="nx"[\s\S]*?<\/section>\n?/;
+export function placeNext(body) {
+  const m = body.match(NX);
+  if (!m) return body;
+  const rest = body.slice(0, m.index) + body.slice(m.index + m[0].length);
+  const calc = topLevel(rest).find((e) => /\sid="calc"/.test(e.attrs));
+  return calc ? `${rest.slice(0, calc.end)}\n${m[0]}${rest.slice(calc.end)}` : body;
+}
 export function spread(body, path) {
   const els = topLevel(body);
   let at = -1;
   let toc = false;
-  const calc = els.find((e) => /\sid="calc"/.test(e.attrs));
-  if (calc) at = calc.end;
+  const ci = els.findIndex((e) => /\sid="calc"/.test(e.attrs));
+  const calc = els[ci];
+  // 「つぎに」が #calc のすぐ後ろにあれば、左の段に入れる
+  if (calc) at = /\sid="nx"/.test(els[ci + 1]?.attrs || '') ? els[ci + 1].end : calc.end;
   else if (path === '/') {
     const pick = els.find((e) => /aria-labelledby="cat-pick"/.test(e.attrs));
     if (pick) at = pick.end;
@@ -151,7 +162,7 @@ export function page(p) {
   const ads = Boolean(SITE.adsense) && !p.noAds && !p.noindex && !p.ext;
   const ext = p.ext || (ads ? 'adsense' : '');
   // 見開き：現場手帳（自分の2列）と 404 はそのまま
-  const body = numberNotes(p.body);
+  const body = numberNotes(placeNext(p.body));
   const main = p.wide || p.path === '/404' ? body : spread(body, p.path);
   const pc = main !== body;
 

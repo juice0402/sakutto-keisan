@@ -51,7 +51,7 @@ CLAUDE.md は1万字以内に保つ。経緯・ツールごとのくわしいこ
 1. `src/lib/<slug>.mjs` に計算（DOM なし）と `tests/<slug>.test.mjs`（ページに載せる計算例は必ずテストに入れる）
 2. `src/pages/<slug>.mjs`（割引計算 `waribiki.mjs` をお手本に）：h1・リード（1行）・計算カード・計算式（しくみ）・計算例・使う場面の例・まちがえやすいところ・よくある質問（答えは短く）・関連ツール。「使い方」の節は作らない
 3. `src/client/<slug>.js`（入力したそばから結果を出す。クリア。共通部品は `src/client/ui.mjs`）。入力の流れは下の「入力の流れは上から下へ」のとおりに作る（上の欄から名指しする案内・迷う欄の `hint`・`enterToNext`・空にした欄は外す）。`scripts/check-flow.py` の `CASES` に「操作と、そのあとに出る案内」を、`scripts/check-fold.py` の `CASES` に答えの場所を足す
-4. `src/tools.mjs` を `published: true`・`updated` を今日に。`related` を見直す（ほかのツールの `related` にも足す）
+4. `src/tools.mjs` を `published: true`・`updated` を今日に。`related`・`next` を見直す（ほかのツールの `related` にも足す）
 5. `python3 scripts/make-images.py` でSNSの共有画像（`public/og/<slug>.png`）を作ってコミット。ツールらしい絵は `VISUALS` に足す（割引＝値札）
 6. 下の「公開前の決まり」をぜんぶやる → PR → プレビューを Playwright のスマホ幅（390px）で確認
 

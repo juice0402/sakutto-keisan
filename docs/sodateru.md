@@ -21,7 +21,7 @@
 - 読むファイル：src/client/choimemo.mjs・src/client/waribiki.js・src/client/waribiki-off.js・src/client/waribiki-ritsu.js・src/parts.mjs（memoHtml）・src/lib/number.mjs・docs/tools.md
 - マージ：する
 
-### [ ] 計算のあとの「つぎに」（C-027 サイトの中の沼・案B）
+### [x] 計算のあとの「つぎに」（C-027 サイトの中の沼・案B）（#159）
 - やること：計算のページ全部（tools.mjs で公開している計算。relatedHtml を使うページ）で、計算カード（#calc）のすぐ下に節「つぎに」を出す。行は2つまで：その計算の読みものがあれば「計算1つ＋読みもの1本」、なければ「計算2つ」
   - データ：src/tools.mjs の公開している全部の計算に `next: [['slug', '理由'], ['slug', '理由']]`（計算2つ。上から使う）。理由は「答えのあと、その計算で何をするか」の1行（全角26字まで・です・ます調にしない短い言い切り。下の「決まったこと」の文の形）。下の「決まったこと」の6ページはその文のまま、ほかは「迷ったら」のえらび方で書く
   - 部品：src/parts.mjs に `nextHtml(tool)`。`<section class="prose nx" id="nx" aria-labelledby="nx-h"><h2 id="nx-h">つぎに</h2>` に、toolListHtml と同じ行の形（.tool-list・.tool-card。.tool-name に計算の名前・.tool-desc に理由）。読みものの行は .tool-name に題・.tool-desc に「読みもの。」と lead。読みものは yomiForToolHtml と同じえらび方の、いちばん新しい1本

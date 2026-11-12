@@ -237,7 +237,7 @@ for (const file of htmlFiles) {
 rmSync(tmpDir, { recursive: true, force: true });
 
 // 自分の文の字数（10/31 AdSense の再審査「有用性の低いコンテンツ」から。site-principles の「広告の審査」）
-// 数えるのは main の .prose の節のうち、関連ツール（related）をのぞいた見える文字（表・見出し・図・空白はのぞく）。
+// 数えるのは main の .prose の節のうち、関連ツール（related）と計算のあとの「つぎに」（#nx・#159）をのぞいた見える文字（表・見出し・図・空白はのぞく）。
 // 対象は公開中の計算ページと返礼品（noindex のページはのぞく）。OWN_STRICT が false のあいだは一覧を出すだけで止めない
 const OWN_MIN = 900;
 const OWN_STRICT = true; // 10/31 #98：全部の計算ページが OWN_MIN をこえたので、900字未満で止める
@@ -245,7 +245,7 @@ const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", nbsp: ' ' };
 const ownText = (html) => {
   const main = (html.match(/<main[\s\S]*?<\/main>/) || [''])[0];
   return [...main.matchAll(/<section class="prose" aria-labelledby="([^"]+)">([\s\S]*?)<\/section>/g)]
-    .filter((m) => m[1] !== 'related' && !m[1].startsWith('ym-')) // 関連ツールと、読みものの棚が出す節（ym-。この計算の読みもの・自分の数字で確かめる・出典・よくある質問・ほかの読みもの・一覧）
+    .filter((m) => m[1] !== 'related' && m[1] !== 'nx-h' && !m[1].startsWith('ym-')) // 関連ツールと、読みものの棚が出す節（ym-。この計算の読みもの・自分の数字で確かめる・出典・よくある質問・ほかの読みもの・一覧）
     .map((m) =>
       m[2]
         .replace(/<(table|script|style|svg|h2)\b[\s\S]*?<\/\1>/g, ' ')

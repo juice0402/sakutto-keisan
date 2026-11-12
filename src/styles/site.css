@@ -1128,6 +1128,8 @@ h1 {
 
 /* 本文（画面の外にあるうちは描画を後回しにして、最初の表示を速く） */
 .prose { margin: 40px 0 0; content-visibility: auto; contain-intrinsic-size: auto 480px; }
+/* 計算のあとの「つぎに」（#159）：計算カードのすぐ下なので後回しにしない。パソコンの左の段では1列 */
+.nx { content-visibility: visible; }
 .prose h2 { font-size: 19px; line-height: 1.45; margin: 0 0 12px; padding: 0 0 4px; border-bottom: 2px solid var(--text); }
 .prose h3 { font-size: 16px; margin: 18px 0 6px; }
 .prose p, .prose ul, .prose ol { margin: 0 0 12px; }
@@ -1544,6 +1546,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .pc-left { position: sticky; top: 14px; align-self: start; padding: 0 40px 0 0; }
   .pc-right { padding: 4px 0 0 40px; border-left: 1.5px solid var(--border); }
   .pc-right .prose { content-visibility: visible; }
+  .pc-left .nx .tool-list { grid-template-columns: 1fr; }
   .pc-right > .prose:first-child, .pc-right > .cat:first-child { margin-top: 6px; }
   main.wrap > .crumbs { grid-column: 1 / -1; }
   .pc-left .pick-grid { grid-template-columns: repeat(4, 1fr); }
