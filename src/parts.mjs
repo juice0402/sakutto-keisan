@@ -33,13 +33,30 @@ export const yomiListHtml = (list) =>
 export function nextPicks(tool) {
   const tools = (tool.next || []).map(([slug, why]) => ({ t: toolBySlug(slug), why })).filter(({ t }) => t && t.published && t.slug !== tool.slug);
   const yomi = yomimono().find((y) => y.tools.includes(tool.slug)) || null;
-  return { tools: tools.slice(0, yomi ? 1 : 2), yomi: tools.length ? yomi : null };
+  // 「つづけて使う」（tool.carry・#163）のページは計算2つと読みもの1本を計算カードの中に出す
+  return { tools: tools.slice(0, yomi && !tool.carry ? 1 : 2), yomi: tools.length ? yomi : null };
 }
 export function nextHtml(tool) {
+  if (tool.carry) return '';
   const { tools, yomi } = nextPicks(tool);
   const rows = tools.map(({ t, why }) => `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(why)}</span></a></li>`);
   if (yomi) rows.push(`<li><a class="tool-card" href="${yomiUrl(yomi)}"><span class="tool-name">${esc(yomi.title)}</span><span class="tool-desc">読みもの。${esc(yomi.lead)}</span></a></li>`);
   return rows.length ? `<section class="prose nx" id="nx" aria-labelledby="nx-h"><h2 id="nx-h">つぎに</h2><ul class="tool-list">${rows.join('')}</ul></section>\n` : '';
+}
+
+/**
+ * つづけて使う（#163・C-027 案A）：計算カードの中、「メモする」の段の下。「つぎに」と同じ計算2つと読みもの1本
+ * 計算の行は、答えが出るまでは next の理由の文。答えが出たらページのスクリプトが数字入りの文と # 付きのリンクに変える（src/client/tsuzuki.mjs の tzRows）
+ */
+export function tsuzukiHtml(tool) {
+  const { tools, yomi } = nextPicks(tool);
+  if (!tools.length) return '';
+  const rows = tools.map(
+    ({ t, why }) =>
+      `<li><a class="tz-link" id="tz-${esc(t.slug)}" href="${toolUrl(t)}" data-base="${toolUrl(t)}" data-why="${esc(why)}"><b class="tz-name">${esc(t.name)}</b><span class="tz-t">${esc(why)}</span></a></li>`,
+  );
+  const ym = yomi ? `<p class="tz-h">この答えの読みもの</p><ul class="tz-list"><li><a class="tz-link" href="${yomiUrl(yomi)}"><b class="tz-name">${esc(yomi.title)}</b></a></li></ul>` : '';
+  return `<div class="tz" id="tz"><p class="tz-h">つづけて使う</p><ul class="tz-list">${rows.join('')}</ul>${ym}</div>`;
 }
 
 /** 計算のページの「この計算の読みもの」（その計算を tools に入れている読みもの、新しい順に3本まで。「つぎに」で出した1本はのぞく。ないときは出さない） */
@@ -83,4 +100,4 @@ export const toolLd = (tool, description) => ({
 // share：「画像で送る」も出すか（よく使う計算の8つ＋希釈率。ほかのツールは「メモする」だけで、段いっぱいの幅。#71）
 export const memoHtml = (tool, share = true) =>
   `<div class="${share ? 'cm-add' : 'cm-add cm-one'}" id="cm-bar" data-tool="${esc(tool.slug)}" data-name="${esc(tool.pickName || tool.name.replace(/の計算$/, ''))}" hidden><button type="button" class="tool-btn" id="cm-add" disabled>メモする</button>${share ? '<button type="button" class="tool-btn" id="cm-share" disabled>画像で送る</button>' : ''}</div>
-  <section class="cm cm2" id="cm-list" aria-labelledby="cm-h" hidden><h2 class="cm-h" id="cm-h">ちょいメモ</h2><ul></ul></section>`;
+  ${tool.carry ? tsuzukiHtml(tool) : ''}<section class="cm cm2" id="cm-list" aria-labelledby="cm-h" hidden><h2 class="cm-h" id="cm-h">ちょいメモ</h2><ul></ul></section>`;

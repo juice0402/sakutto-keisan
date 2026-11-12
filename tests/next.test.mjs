@@ -110,7 +110,7 @@ test('読みものがないとき：ほかの計算ツールは related の残�
 
 test('差しこみ：「つぎに」は計算カード（#calc）のすぐ外・下、パソコンの見開きでは左の段', () =>
   withShelf([], () => {
-    const t = toolBySlug('waribiki');
+    const t = toolBySlug('kishaku');
     const body = `<h1>割引計算</h1><div class="calc" id="calc"><div class="in"><p>答え</p></div></div>\n<section class="prose" aria-labelledby="how"><h2 id="how">しくみ</h2><p>本文</p></section>\n${relatedHtml(t)}`;
     const placed = placeNext(body);
     assert.match(placed, /id="calc"><div class="in"><p>答え<\/p><\/div><\/div>\n<section class="prose nx" id="nx"/);

@@ -4,6 +4,11 @@ import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 import { wkYen, setWkNote, drawTickets, drawRows, unitSeg } from './warikan-ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgReceipt } from './share-img.mjs';
+import { TZ_WARIKAN } from '../lib/tsuzuki.mjs';
+import { tzTake, tzLater, tzFill } from './tsuzuki.mjs';
+
+// つづけて使う（#163）：割引計算などから来たとき（#total=…）は、はじめに読んですぐ # を消す
+const carried = tzTake(TZ_WARIKAN);
 
 // 割り勘の計算：合計と人数から1人いくらか。結果はお会計のレシート（大きな1人の額・人数分の券・合計と集める額とおつり・端数を幹事が払うとき）
 const val = (id) => parseNum($(id).value);
@@ -66,3 +71,4 @@ $('clear').addEventListener('click', () => {
 });
 enterToNext(INPUTS);
 update();
+if (carried) tzLater(() => tzFill($('total'), fmt(carried.total, 0)));
