@@ -5,6 +5,7 @@
 //   pick: 1〜8 … いちばん上の「よく使う計算」に、この順で出す（王道）。pickName はそこに出す短い名前（なければ name から「の計算」を取る）
 //   more: true … カテゴリの「ほかの計算」にたたむ（すき間の計算）
 //   どちらもないもの … カテゴリにそのまま出す。parent があるもの（下のページ）はトップに出さない
+//   next: [['slug', '理由'], …] … 計算カードのすぐ下の「つぎに」（#159）。答えのあと、その数字で何をするかの1行（全角26字まで）。上から使い、読みものがあれば計算1つ＋読みもの1本（src/parts.mjs の nextHtml）
 //   pickSeason: { months, replaces } … その月にビルドしたときだけ、「よく使う計算」の replaces 番目と入れかえる（ふるさと納税は11〜12月）
 // path … コーナーのページは入れ子のURL（/furusato/jougen/）。なければ /<slug>/
 import { HENREIHIN_MODE } from './data/henreihin.mjs';
@@ -22,6 +23,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
+    next: [['kakeritsu', '割引を何掛けかに直して、仕入れ値を出す'], ['warikan', '割引後の値段を、何人かで分ける']],
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
   {
@@ -33,6 +35,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki', 'tanka', 'rieki-ritsu'],
+    next: [['waribiki', '同じ率で、ほかの品の割引後の値段を出す'], ['tanka', '割引後の値段を、100gあたりでくらべる']],
   },
   // 率ごとの割引（10/27 しょーくん「くらしノートに負けない」。検索候補「10 オフ いくら」「20 オフ 元の値段」。割引計算の下のページ。src/pages/waribiki-off.mjs）
   {
@@ -45,6 +48,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki', 'waribiki-15', 'waribiki-20', 'waribiki-30'],
+    next: [['waribiki', 'ほかの率でも、割引後の値段を出す'], ['tanka', '割引後の値段を、100gあたりでくらべる']],
   },
   {
     slug: 'waribiki-15',
@@ -56,6 +60,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-20', 'waribiki-30'],
+    next: [['waribiki', 'ほかの率でも、割引後の値段を出す'], ['tanka', '割引後の値段を、100gあたりでくらべる']],
   },
   {
     slug: 'waribiki-20',
@@ -67,6 +72,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-30'],
+    next: [['waribiki', 'ほかの率でも、割引後の値段を出す'], ['tanka', '割引後の値段を、100gあたりでくらべる']],
   },
   {
     slug: 'waribiki-30',
@@ -78,6 +84,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
+    next: [['waribiki', 'ほかの率でも、割引後の値段を出す'], ['tanka', '割引後の値段を、100gあたりでくらべる']],
   },
   {
     slug: 'waribiki-40',
@@ -89,6 +96,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
+    next: [['waribiki', 'ほかの率でも、割引後の値段を出す'], ['tanka', '割引後の値段を、100gあたりでくらべる']],
   },
   {
     slug: 'waribiki-50',
@@ -100,6 +108,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['waribiki', 'waribiki-10', 'waribiki-15', 'waribiki-20'],
+    next: [['waribiki', 'ほかの率でも、割引後の値段を出す'], ['tanka', '割引後の値段を、100gあたりでくらべる']],
   },
   {
     slug: 'shohizei',
@@ -110,6 +119,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['percent', 'waribiki', 'warikan', 'tanka'],
+    next: [['warikan', '税込の合計を、何人かで分ける'], ['waribiki', '税込の値段から、割引後の値段を出す']],
   },
   {
     slug: 'percent',
@@ -120,6 +130,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['shohizei', 'waribiki', 'waribiki-ritsu', 'rieki-ritsu'],
+    next: [['waribiki', 'その％で、割引後の値段を出す'], ['shohizei', 'その値段の税込と税抜を出す']],
   },
   {
     slug: 'nissu',
@@ -130,6 +141,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nenrei', 'dai-nan-youbi', 'okuizome', 'shijukunichi', 'wareki', 'jikan', 'percent'],
+    next: [['nenrei', 'その日に何歳になるかを出す'], ['dai-nan-youbi', 'その日が第何曜日かを出す']],
   },
   {
     slug: 'nenrei',
@@ -140,6 +152,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['gakureki', 'wareki', 'yakudoshi', 'shichigosan', 'nissu', 'jikan'],
+    next: [['gakureki', 'その年齢の子の、入学と卒業の年を出す'], ['yakudoshi', '生まれた年から、厄年の年を出す']],
   },
   // 家族の行事（10/27 しょーくん「くらしノートに負けない」。検索候補の調べで「いつ 計算」が多かったもの。ページは src/pages/gyoji.mjs）
   {
@@ -150,6 +163,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nenrei', 'okuizome', 'yakudoshi', 'gakureki'],
+    next: [['gakureki', 'その子の入学と卒業の年を出す'], ['nenrei', 'きょうだいの今の年齢と学年を出す']],
   },
   {
     slug: 'yakudoshi',
@@ -159,6 +173,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['choju', 'nenrei', 'wareki', 'shichigosan'],
+    next: [['choju', '同じ生まれ年で、長寿祝いの年を出す'], ['nenrei', '生まれた年から、今の年齢と干支を出す']],
   },
   {
     slug: 'choju',
@@ -168,6 +183,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['yakudoshi', 'nenrei', 'wareki', 'nissu'],
+    next: [['yakudoshi', '同じ生まれ年で、厄年の年を出す'], ['nissu', 'お祝いの日まで、あと何日かを出す']],
   },
   {
     slug: 'okuizome',
@@ -177,6 +193,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nissu', 'shichigosan', 'nenrei', 'shijukunichi'],
+    next: [['shichigosan', '同じ生まれた日で、七五三の年を出す'], ['nissu', 'ほかの記念日まで、あと何日かを出す']],
   },
   {
     slug: 'shijukunichi',
@@ -186,6 +203,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nissu', 'okuizome', 'wareki', 'choju'],
+    next: [['nissu', '法要の日まで、あと何日かを出す'], ['wareki', '案内状に書く年を、和暦に直す']],
   },
   // 年齢の計算の下のページ（10/22 しょーくん「何歳のときに卒業したか、いちいち調べてる」）
   {
@@ -197,6 +215,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nenrei', 'wareki', 'nissu'],
+    next: [['wareki', '入学と卒業の年を、和暦に直す'], ['nenrei', 'その年の年齢と干支を出す']],
   },
   // 10/22 しょーくん「昭和とか平成に直したりとか、いちいち調べてる」。王道なので、トップのカテゴリにそのまま出す
   // 10/27 しょーくん「くらしノートに負けない」。検索候補「第何曜日 数え方」「偏差値 パーセント」
@@ -209,6 +228,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nissu', 'wareki', 'nenrei', 'jikan'],
+    next: [['nissu', 'その日まで、あと何日かを出す'], ['wareki', 'その日の年を、和暦に直す']],
   },
   {
     slug: 'hensachi',
@@ -219,6 +239,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['percent', 'gakureki', 'nenrei', 'bmi'],
+    next: [['percent', '上位何％を、何人中の何人かに直す'], ['gakureki', '受験する年の、入学と卒業の年を出す']],
   },
   {
     slug: 'wareki',
@@ -228,6 +249,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nenrei', 'gakureki', 'yakudoshi', 'choju', 'nissu', 'jikan'],
+    next: [['nenrei', 'その年に生まれた人の年齢を出す'], ['gakureki', '生まれた年から、入学と卒業の年を出す']],
   },
   {
     slug: 'jikan',
@@ -239,6 +261,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nissu', 'zangyo-dai', 'nenrei', 'percent'],
+    next: [['zangyo-dai', '合計した残業の時間から、残業代を出す'], ['nissu', '日をまたぐ予定の、日数を出す']],
   },
   {
     slug: 'tanka',
@@ -250,6 +273,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['matomegai', 'waribiki', 'recipe', 'kishaku'],
+    next: [['matomegai', 'まとめ売りや割引シールの品もくらべる'], ['waribiki', '安かった品の、割引後の値段を出す']],
   },
   // 実質単価の比較の下のページ（10/21。もとは実質単価の比較の「入り数」「割引シール」のボタン）
   {
@@ -261,6 +285,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['tanka', 'waribiki', 'recipe'],
+    next: [['tanka', '100gあたりの値段で、ほかの品もくらべる'], ['recipe', '買った量で、レシピの分量を出す']],
   },
   {
     slug: 'recipe',
@@ -270,6 +295,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['tanka', 'waribiki', 'kishaku'],
+    next: [['enbun-noudo', '分量を変えたあとの塩の量を、濃度で出す'], ['tanka', '材料の値段を、100gあたりでくらべる']],
   },
   {
     slug: 'warikan',
@@ -280,6 +306,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['warikan-keisha', 'waribiki', 'tanka', 'denki-dai'],
+    next: [['warikan-keisha', '多めに払う人がいるときの分け方を出す'], ['waribiki', 'クーポンを引いたときの合計を出す']],
   },
   // 割り勘の計算の下のページ（多めに払う人がいるとき）
   {
@@ -291,6 +318,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['warikan', 'waribiki', 'rieki-ritsu'],
+    next: [['warikan', '全員同じ額で分けたときとくらべる'], ['waribiki', 'クーポンを引いたときの合計を出す']],
   },
   {
     slug: 'denki-dai',
@@ -300,6 +328,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['touyu-dai', 'warikan', 'tanka', 'waribiki'],
+    next: [['touyu-dai', '灯油のストーブの1か月の代金とくらべる'], ['warikan', '1か月の電気代を、家族で分ける']],
   },
   {
     slug: 'touyu-dai',
@@ -310,6 +339,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['denki-dai', 'oil-heater', 'ceramic-heater', 'warikan'],
+    next: [['denki-dai', 'エアコンの電気代とくらべる'], ['ceramic-heater', '電気のヒーターの電気代とくらべる']],
   },
   {
     slug: 'sentaku-senzai',
@@ -320,6 +350,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['kishaku', 'tanka', 'enbun-noudo', 'denki-dai'],
+    next: [['kishaku', 'つけおきの洗剤を、何倍に薄めるか出す'], ['tanka', '洗剤の値段を、量あたりでくらべる']],
   },
   // 電気代の計算の下のページ（家電別。トップの目次には出さない）
   {
@@ -331,6 +362,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['denki-dai', 'denki-moufu', 'hot-carpet', 'ceramic-heater'],
+    next: [['denki-dai', 'ほかの家電の電気代も合わせて出す'], ['denki-moufu', '寝るときは、電気毛布の電気代とくらべる']],
   },
   {
     slug: 'denki-moufu',
@@ -341,6 +373,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['denki-dai', 'kotatsu', 'hot-carpet', 'ceramic-heater'],
+    next: [['denki-dai', 'ほかの家電の電気代も合わせて出す'], ['kotatsu', 'こたつの電気代とくらべる']],
   },
   {
     slug: 'hot-carpet',
@@ -352,6 +385,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['denki-dai', 'kotatsu', 'denki-moufu', 'ceramic-heater'],
+    next: [['denki-dai', 'ほかの家電の電気代も合わせて出す'], ['kotatsu', 'こたつの電気代とくらべる']],
   },
   {
     slug: 'ceramic-heater',
@@ -363,6 +397,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['denki-dai', 'touyu-dai', 'oil-heater', 'kotatsu'],
+    next: [['denki-dai', 'ほかの家電の電気代も合わせて出す'], ['touyu-dai', '灯油のストーブの1か月の代金とくらべる']],
   },
   {
     slug: 'oil-heater',
@@ -374,6 +409,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['denki-dai', 'touyu-dai', 'ceramic-heater', 'kotatsu'],
+    next: [['denki-dai', 'ほかの家電の電気代も合わせて出す'], ['ceramic-heater', 'セラミックヒーターの電気代とくらべる']],
   },
   {
     slug: 'bmi',
@@ -383,6 +419,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['nenrei', 'percent', 'recipe', 'enbun-noudo'],
+    next: [['percent', '標準体重までの差が、体重の何％か出す'], ['nissu', '目標の日まで、あと何日かを出す']],
   },
   {
     slug: 'kishaku',
@@ -392,6 +429,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['enbun-noudo', 'sentaku-senzai', 'recipe', 'seisou-jikan'],
+    next: [['hyohakuzai', '消毒液は、漂白剤の濃度から量を出す'], ['genba', '現場ごとの薄め方を、手帳に残す']],
   },
   {
     slug: 'enbun-noudo',
@@ -402,6 +440,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'mentsuyu', 'tanka'],
+    next: [['recipe', '人数を変えたときの塩の量を出す'], ['mentsuyu', 'めんつゆを何倍に薄めるか出す']],
   },
   // 希釈率の使いみち別（parent のページの下に並べる）
   {
@@ -413,6 +452,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['kishaku', 'recipe', 'hyohakuzai', 'ekihi'],
+    next: [['recipe', '人数を変えたときの、つゆと水の量を出す'], ['kishaku', 'ほかの濃縮の液も、何倍かで薄める']],
   },
   {
     slug: 'hyohakuzai', // URL は公開したまま（名前は 10/18 に「塩素系漂白剤」から変えた）
@@ -424,6 +464,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['kishaku', 'mentsuyu', 'genba', 'ekihi'],
+    next: [['genba', '現場ごとの薄め方を、手帳に残す'], ['kishaku', 'ほかの洗剤も、何倍かで薄める']],
   },
   {
     slug: 'ekihi',
@@ -434,6 +475,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['kishaku', 'hyohakuzai', 'mentsuyu', 'tanka'],
+    next: [['kishaku', 'ほかの液も、何倍かで薄める'], ['hyohakuzai', '道具の消毒液を、漂白剤から作る']],
   },
   // 残業代：時給から計算するページがもとで、月給から計算するページはその下（parent のページからだけリンク）
   {
@@ -444,6 +486,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['zangyo-gekkyu', 'yukyu-fuyo', 'rieki-ritsu', 'seisou-jikan'],
+    next: [['zangyo-gekkyu', '月給の人は、年間休日から残業代を出す'], ['jikan', '1か月の残業の時間を合計する']],
   },
   {
     slug: 'zangyo-gekkyu',
@@ -454,6 +497,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['zangyo-dai', 'yukyu-fuyo', 'rieki-ritsu', 'seisou-jikan'],
+    next: [['jikan', '1か月の残業の時間を合計する'], ['yukyu-fuyo', '入社日から、有給休暇の日数を出す']],
   },
   // 有給休暇の付与日数（10/27 夜の作業 #61）
   {
@@ -464,6 +508,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['zangyo-dai', 'zangyo-gekkyu', 'nissu', 'loan'],
+    next: [['nissu', '次に有給がふえる日まで、あと何日か出す'], ['zangyo-dai', '時給から、残業代を出す']],
   },
   {
     slug: 'yukyu',
@@ -480,6 +525,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['kakeritsu', 'gensen-choshu', 'waribiki', 'tanka', 'seisou-jikan'],
+    next: [['kakeritsu', '利益率から、何掛けで仕入れるかを出す'], ['waribiki', '値引きしたときの売値を出す']],
   },
   {
     slug: 'loan',
@@ -489,6 +535,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['rieki-ritsu', 'percent', 'zangyo-dai', 'shohizei'],
+    next: [['percent', '利息が、借りたお金の何％かを出す'], ['nissu', '返し終わる日まで、あと何日かを出す']],
   },
   {
     slug: 'kakeritsu',
@@ -499,6 +546,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka', 'gensen-choshu'],
+    next: [['rieki-ritsu', '上代で売ったときの利益率を出す'], ['waribiki', '何掛けを、割引後の値段で確かめる']],
   },
   // 源泉徴収（10/27 夜の作業 #62）
   {
@@ -510,6 +558,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['kakeritsu', 'rieki-ritsu', 'shohizei', 'yukyu-fuyo'],
+    next: [['shohizei', '報酬の税込と税抜を出す'], ['rieki-ritsu', '報酬と経費から、利益率を出す']],
   },
   {
     slug: 'seisou-jikan',
@@ -520,6 +569,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['seisou-mitsumori', 'genba', 'kishaku', 'rieki-ritsu', 'zangyo-dai'],
+    next: [['seisou-mitsumori', '同じ作業と面積で、1か月の料金の目安を出す'], ['genba', '場所ごとの時間を、現場手帳にまとめる']],
   },
   {
     slug: 'seisou-mitsumori',
@@ -530,6 +580,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['seisou-jikan', 'genba', 'rieki-ritsu', 'kishaku'],
+    next: [['genba', '現場ごとの料金と時間を、手帳にまとめる'], ['seisou-jikan', '同じ面積で、何時間かかるか出す']],
   },
   // 現場手帳（#106。清掃の現場の時間割と作業計画書。お仕事の目次に出す。よく使う計算には入れない）
   {
@@ -540,6 +591,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['seisou-jikan', 'seisou-mitsumori', 'hyohakuzai'],
+    next: [['seisou-jikan', '場所ごとの作業時間を、面積から出す'], ['hyohakuzai', '消毒液の薄め方を、漂白剤から出す']],
   },
   {
     slug: 'shakai-hoken',
@@ -557,6 +609,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['fx-losscut', 'fx-lot', 'fx-swap'],
+    next: [['fx-losscut', '維持率から、ロスカットまでの値幅を出す'], ['fx-lot', '許せる損から、取引の量を決める']],
   },
   {
     slug: 'fx-losscut',
@@ -566,6 +619,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['fx-iji-ritsu', 'fx-lot', 'fx-swap'],
+    next: [['fx-lot', '許せる損から、取引の量を決める'], ['fx-iji-ritsu', '証拠金を足したときの維持率を出す']],
   },
   {
     slug: 'fx-swap',
@@ -575,6 +629,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['fx-iji-ritsu', 'fx-losscut', 'fx-lot'],
+    next: [['fx-iji-ritsu', 'その量で、証拠金維持率を出す'], ['fx-losscut', 'ロスカットまで、あと何円の損かを出す']],
   },
   // ロット＝通貨の量（10/27 夜の作業 #61）
   {
@@ -585,6 +640,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['fx-losscut', 'fx-iji-ritsu', 'fx-swap'],
+    next: [['fx-losscut', 'その量で、ロスカットまでの値幅を出す'], ['fx-iji-ritsu', 'その量で、証拠金維持率を出す']],
   },
   // ふるさと納税のコーナー（10/22 統合。claude/sakutto-tougou-plan.md）。入口は /furusato/、ページは /furusato/ の下
   {
@@ -598,6 +654,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['furusato-memo', 'furusato-henreihin', 'furusato-nenshu', 'furusato-fuufu', 'furusato-jougen', 'furusato-onestop', 'furusato-shimekiri'],
+    next: [['furusato-memo', '上限を入れて、寄付の記録と残りの枠を見る'], ['furusato-onestop', '申請書の数と期限を確かめる']],
   },
   // 10/23 検索候補の調べ（claude/sakutto-chishiki-debate-2026-10-23.md）：寄付額から年収の目安
   {
@@ -611,6 +668,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['furusato', 'furusato-fuufu', 'furusato-memo', 'furusato-jougen'],
+    next: [['furusato', '家族を入れて、上限の目安を出し直す'], ['furusato-memo', '寄付の記録と、残りの枠をつける']],
   },
   {
     slug: 'furusato-fuufu',
@@ -623,6 +681,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['furusato', 'furusato-nenshu', 'furusato-memo', 'furusato-onestop'],
+    next: [['furusato-memo', '2人の寄付の記録と、残りの枠をつける'], ['furusato-onestop', '申請書の数と期限を確かめる']],
   },
   {
     slug: 'furusato-uchiwake',
@@ -635,6 +694,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['furusato', 'furusato-nenshu', 'furusato-onestop', 'furusato-jougen'],
+    next: [['furusato', '年収と家族から、上限の目安を出す'], ['furusato-jougen', '決定通知書から、上限を出し直す']],
   },
   {
     slug: 'furusato-jougen',
@@ -646,6 +706,7 @@ export const TOOLS = [
     updated: '2026-10-29',
     more: true,
     related: ['furusato', 'furusato-seido', 'furusato-memo', 'furusato-onestop'],
+    next: [['furusato-memo', '上限を入れて、寄付の記録をつける'], ['furusato-onestop', '申請書の数と期限を確かめる']],
   },
   // 第2弾（10/22）：寄付メモ・ワンストップ特例・締め切り
   {
@@ -658,6 +719,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['furusato', 'furusato-henreihin', 'furusato-onestop', 'furusato-shimekiri', 'furusato-jougen'],
+    next: [['furusato-onestop', '寄付した自治体の数で、申請書をそろえる'], ['furusato-shimekiri', '年内の寄付と申請書の期限を確かめる']],
   },
   {
     slug: 'furusato-onestop',
@@ -669,6 +731,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['furusato-shimekiri', 'furusato-memo', 'furusato', 'furusato-jougen'],
+    next: [['furusato-shimekiri', '申請書の期限まで、あと何日か出す'], ['furusato-memo', '寄付の記録と、自治体の数をつける']],
   },
   {
     slug: 'furusato-shimekiri',
@@ -681,6 +744,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['furusato-onestop', 'furusato-memo', 'furusato', 'nissu'],
+    next: [['furusato-onestop', '出す申請書の数と、添えるコピーを確かめる'], ['furusato-memo', '寄付の記録と、残りの枠をつける']],
   },
   {
     slug: 'furusato-seido',
@@ -693,6 +757,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-31',
     related: ['furusato', 'furusato-shimekiri', 'furusato-onestop', 'furusato-memo'],
+    next: [['furusato', '今年の上限の目安を出す'], ['furusato-shimekiri', '年内の寄付と申請書の期限を確かめる']],
   },
   // 第3弾（10/22）：返礼品。楽天市場の商品検索APIでビルドのときに取る。キーが入って HENREIHIN_LIVE にするまでは公開しない
   {
@@ -705,6 +770,7 @@ export const TOOLS = [
     published: HR_LIVE,
     updated: '2026-10-22',
     related: ['furusato', 'furusato-memo', 'furusato-onestop', 'furusato-shimekiri'],
+    next: [['furusato-memo', '寄付の記録と、残りの枠をつける'], ['furusato', '年収と家族から、上限の目安を出す']],
   },
   ...[
     ['kome', 'お米', '1万円あたり何kgか、多い順'],
@@ -722,6 +788,7 @@ export const TOOLS = [
     published: HR_LIVE,
     updated: '2026-10-22',
     related: ['furusato-henreihin', 'furusato', 'furusato-memo', 'furusato-shimekiri'],
+    next: [['furusato-henreihin', 'ほかの品の、1万円あたりの量とくらべる'], ['furusato-memo', '寄付の記録と、残りの枠をつける']],
   })),
   // 楽天のポイントのコーナー（10/22 統合）。お買い物マラソンの買いまわりの計算。楽天APIは使わない
   // 10/23 しょーくん「楽天初心者向けが欲しい。Amazon の人は SPU をそもそも知らない」
@@ -735,6 +802,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['point-spu', 'point', 'point-amazon', 'waribiki'],
+    next: [['point-spu', '使っているサービスから、倍率を出す'], ['point', '買いまわりの特典の目安を出す']],
   },
   {
     slug: 'point-amazon',
@@ -746,6 +814,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['point-shikumi', 'point-spu', 'point', 'waribiki'],
+    next: [['point-spu', '使っているサービスから、倍率を出す'], ['point-shikumi', '倍率がふえる3つのしくみを見る']],
   },
   {
     slug: 'point',
@@ -757,6 +826,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['point-spu', 'point-taishou', 'point-shikumi', 'waribiki'],
+    next: [['point-taishou', '買う店が1店舗に数えるかを確かめる'], ['point-spu', '使っているサービスから、倍率を出す']],
   },
   // 10/23 討論で合意：買いまわりの1店舗の判定（数える店・数えない店）
   {
@@ -769,6 +839,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['point', 'point-spu', 'point-shikumi', 'waribiki'],
+    next: [['point', '合計と店舗の数から、特典の目安を出す'], ['point-spu', '使っているサービスから、倍率を出す']],
   },
   // 10/23 しょーくん「SPU はしくみが複雑なので、最新情報としてすぐにページを」。倍率と上限は src/data/spu.mjs
   {
@@ -781,6 +852,7 @@ export const TOOLS = [
     published: true,
     updated: '2026-10-29',
     related: ['point', 'point-shikumi', 'waribiki', 'shohizei'],
+    next: [['point', '買いまわりの特典の目安を出す'], ['point-amazon', '同じ買い物で、Amazonとくらべる']],
   },
 ];
 
