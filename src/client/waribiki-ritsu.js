@@ -1,10 +1,10 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { calcRate, rateFromOff, wariLabel } from '../lib/waribiki.mjs';
+import { calcRate, rateFromOff, wariLabel, wariMemoLine } from '../lib/waribiki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgTag } from './share-img.mjs';
 
-const memo = choiMemo('waribiki-ritsu.png');
+const memo = choiMemo('waribiki-ritsu.png', (list) => wariMemoLine(list, Date.now()));
 
 // 割引率の計算：元の値段と、割引後の値段か値引きの額（あとから入れたほう）から何％オフか。もう片方の欄に答え（点線の枠に赤い数字）
 let from = 'sale';
@@ -71,6 +71,9 @@ function update() {
   memo({
     q: `${yen(price)} → ${yen(res.sale)}`,
     a: res.increase ? `${fmt(-res.rate, 1)}％高い` : `${fmt(res.rate, 1)}％オフ`,
+    // 高くなったときは、安くなった額に入れない（0円）
+    p: res.sale,
+    o: res.increase ? 0 : res.off,
     img: () => imgTag({
       was: yen(price),
       price: `${exactRate ? '' : '約'}${fmt(res.increase ? -res.rate : res.rate, 1)}`,
