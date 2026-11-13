@@ -40,7 +40,7 @@ function kcCell(i, w, from, dates, have) {
   const opts = KONDATE_RULES.map((r) => `<option${r === rule ? ' selected' : ''}>${r}</option>`).join('');
   let dish;
   if (rule === '作らない') dish = '<button type="button" class="kb-dish is-off" disabled><b>作らない</b></button>';
-  else if (x) dish = `<button type="button" class="kb-dish" data-i="${i}"${past ? ' disabled' : ''}><b>${x.name}</b><small>${x.ings.map((g) => (have.has(g) ? `<mark>${g}</mark>` : g)).join('・')}</small></button>`;
+  else if (x) dish = `<button type="button" class="kb-dish" data-i="${i}"${past ? ' disabled' : ''}><b>${x.name}</b><small>${x.ings.map((g) => `<span class="nw">${have.has(g) ? `<mark>${g}</mark>` : g}</span>`).join('・<wbr>')}</small></button>`;
   else if (kcWhy[kcView]?.[i]) dish = `<p class="kb-why">${kcWhy[kcView][i]}</p>`;
   else dish = '<button type="button" class="kb-dish" disabled></button>';
   return `<div class="${cls}"><div class="kb-top"><button type="button" class="kb-dow" data-i="${i}" aria-pressed="${lock}"${!x || past ? ' disabled' : ''}><b class="d">${KONDATE_DOW[i]}</b><small>${dates[i]}</small></button><label class="${rt}"><span>${rule}</span><select data-i="${i}" aria-label="${KONDATE_DOW[i]}曜の決まり"${past ? ' disabled' : ''}>${opts}</select></label></div>${dish}</div>`;
