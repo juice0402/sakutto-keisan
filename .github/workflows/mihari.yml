@@ -2,6 +2,8 @@ name: 見張り
 
 # 見張り（scripts/mihari.mjs）。何もなければ何もしない。何かあったときだけ Issue を作る（くわしくは docs/shikumi.md の「見張り（mihari.yml）」）
 #   止まると困る workflow（公開・公式のページの見張り・出典の点検・返礼品の毎日の取り直し）が main で失敗 → ラベル mihari の Issue（朝の確認が知らせる）。成功 → 「直った」で閉じる
+#   3時間ごと（毎時11分）と手で動かしたとき：見張る workflow ごとに main のいちばん新しい完了した実行を同じ判定に通す（node scripts/mihari.mjs latest）
+#     マージの印（merge-ok.yml）などが GITHUB_TOKEN で動かした公開は、終わっても workflow_run が来ないため（GitHub の決まり。2026-11-13）
 #   毎朝5:47（日本時間）：出典の確認日・Kドリームス（11/22 まで）・消費税（火曜・1/31 まで）・お買い物マラソンの記録（15日）・早見表の PDF（11/1〜12/20）
 #     → 直すことがあればラベル night の Issue（夜のまとめ作業が PR まで進める）
 # Claude の使用量は使わない。GITHUB_TOKEN だけ
@@ -12,7 +14,8 @@ on:
     types: [completed]
     branches: [main]
   schedule:
-    - cron: '47 20 * * *'
+    - cron: '47 20 * * *'   # 毎朝の点検（daily）。1日1回だけ
+    - cron: '11 */3 * * *'  # いちばん新しい実行（latest）
   workflow_dispatch:
     inputs:
       dry_run:
@@ -32,7 +35,7 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: mihari-${{ github.event.workflow_run.name || 'daily' }}
+  group: mihari-${{ github.event.workflow_run.name || github.event.schedule || 'manual' }}
   cancel-in-progress: false
 
 jobs:
@@ -62,8 +65,32 @@ jobs:
           WR_STARTED: ${{ github.event.workflow_run.run_started_at }}
         run: node scripts/mihari.mjs run
 
+  # 見張る workflow の一覧は、上の workflow_run の workflows: と同じ（scripts/mihari.mjs の WATCHED。テストが見る）
+  latest:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && github.event.schedule == '11 */3 * * *')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: いちばん新しい実行を見る（失敗なら Issue、成功なら閉じる）
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: node scripts/mihari.mjs latest
+
   daily:
-    if: github.event_name != 'workflow_run'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && github.event.schedule == '47 20 * * *')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

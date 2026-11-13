@@ -4,6 +4,8 @@
 //   ラベル night  … 直すことが決まっているもの（題は「【夜】…」、本文は夜のメモの形）。毎晩の「夜のまとめ作業」が PR まで進める
 // 使い方：
 //   node scripts/mihari.mjs run                      workflow_run（WR_* の環境変数）。失敗 → mihari の Issue、成功 → 同じ題の Issue を閉じる
+//   node scripts/mihari.mjs latest                   3時間ごと・手で動かしたとき。見張る workflow ごとに main のいちばん新しい完了した実行を、run と同じ判定に通す
+//                                                    （マージの印などが GITHUB_TOKEN で動かした公開は、終わっても workflow_run が来ないため。2026-11-13）
 //   node scripts/mihari.mjs daily                    毎朝の点検（確認日・Kドリームス・消費税・お買い物マラソンの記録・早見表の PDF）
 //   node scripts/mihari.mjs memo <kind> <report.md>  watch.yml・check-links.yml の Issue の本文（夜のメモ＋報告）を出す
 // 環境変数：GITHUB_TOKEN・GITHUB_REPOSITORY・DRY_RUN=true（Issue を作らず、題と本文をログに出す）・TODAY=YYYY-MM-DD（日付を決めて試す）
@@ -320,6 +322,32 @@ export const WATCHED = {
   'Henreihin daily': { title: '返礼品の毎日の取り直しが止まっています（henreihin-daily.yml）', what: '返礼品の毎日の取り直し（henreihin-daily.yml）が失敗しました。毎日の本番の公開が動いていません。' },
 };
 
+// 実行の結果 → すること（workflow_run の job の if と同じ。cancelled・skipped などは何もしない）
+export function verdict(conclusion) {
+  if (conclusion === 'success') return 'resolve';
+  if (['failure', 'timed_out', 'startup_failure'].includes(conclusion)) return 'raise';
+  return 'none';
+}
+
+// 3時間ごと・手で動かしたとき：main のいちばん新しい完了した実行（cancelled などは飛ばして、その前の実行を見る。PR の CI は見ない）
+export function pickLatest(runs) {
+  return runs
+    .filter((r) => r.head_branch === 'main' && r.status === 'completed' && r.event !== 'pull_request' && verdict(r.conclusion) !== 'none')
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id)[0] || null;
+}
+
+// 今日（日本時間）もう知らせたか：今日作った Issue か、今日の見張りの「まだ続いている」
+export function notedToday(issue, comments, nowMs) {
+  const today = jstDate(nowMs);
+  const on = (iso) => Boolean(iso) && jstDate(Date.parse(iso)) === today;
+  return on(issue.created_at) || comments.some((c) => c.user?.type === 'Bot' && String(c.body).startsWith('まだ続いている') && on(c.created_at));
+}
+
+// その実行が終わったあとに閉じた同じ題の Issue（知らせたあと、だれかが閉じた）。3時間ごとに同じ失敗で作り直さない
+export function closedAfter(issues, title, endedAt) {
+  return issues.find((i) => !i.pull_request && i.title === title && i.closed_at && Date.parse(i.closed_at) >= Date.parse(endedAt)) || null;
+}
+
 export const clip = (s, n = 200) => {
   const t = String(s).replace(/\s+/g, ' ').trim();
   return t.length > n ? `${t.slice(0, n)}…` : t;
@@ -385,13 +413,14 @@ async function ensureLabel(name) {
   await gh('labels', { method: 'POST', body: { name, ...LABELS[name] } }).catch((e) => console.log(`ラベル ${name} を作れなかった（${e.message}）`));
 }
 
-// その日（日本時間）にまだなら「まだ続いている」を1つだけ
-async function commentOnce(number, text) {
-  const since = new Date(Date.parse(`${jstDate(Date.now())}T00:00:00+09:00`)).toISOString();
-  const today = await pages(`issues/${number}/comments?since=${since}`, 2);
-  if (today.some((c) => c.user?.type === 'Bot' && c.body.startsWith('まだ続いている'))) return console.log(`#${number}：今日はもうコメントした`);
-  await gh(`issues/${number}/comments`, { method: 'POST', body: { body: text } });
-  console.log(`#${number} に「まだ続いている」とコメントした`);
+// その日（日本時間）にまだなら「まだ続いている」を1つだけ（今日作った Issue にはコメントしない）
+async function commentOnce(issue, text) {
+  const nowMs = Date.now();
+  const since = new Date(Date.parse(`${jstDate(nowMs)}T00:00:00+09:00`)).toISOString();
+  const today = await pages(`issues/${issue.number}/comments?since=${since}`, 2);
+  if (notedToday(issue, today, nowMs)) return console.log(`#${issue.number}：今日はもう知らせた`);
+  await gh(`issues/${issue.number}/comments`, { method: 'POST', body: { body: text } });
+  console.log(`#${issue.number} に「まだ続いている」とコメントした`);
 }
 
 // 同じ題の開いた Issue があればコメント、なければ作る
@@ -402,7 +431,7 @@ async function raise({ title, body, label, match = (t) => t === title, once = fa
     console.log(`[dry_run] ${open ? `#${open.number} にコメントするはず：${still}` : `Issue を作るはず（ラベル ${label}）`}\n題：${title}\n${open ? '' : body}\n---`);
     return;
   }
-  if (open) return commentOnce(open.number, still);
+  if (open) return commentOnce(open, still);
   if (once || label === 'night') {
     const same = (await pages('issues?state=all', 20)).filter((i) => !i.pull_request && match(i.title));
     if (once && same.length) return console.log(`閉じた同じ Issue がある（#${same[0].number}）ので作らない：${title}`);
@@ -428,19 +457,23 @@ async function resolve(title, url) {
   }
 }
 
-// ---------- workflow_run ----------
-async function onRun() {
-  const name = process.env.WR_NAME;
-  const conclusion = process.env.WR_CONCLUSION;
+// ---------- workflow_run・いちばん新しい実行 ----------
+// 1つの実行を判定する：成功 → 同じ題の Issue を閉じる、失敗 → Issue（開いていれば1日1回「まだ続いている」）
+// latest：3時間ごと・手で動かしたとき。その実行のあとに閉じた同じ題の Issue があれば作り直さない
+async function judge({ name, conclusion, id, url, started, ended }, { latest = false } = {}) {
   const w = WATCHED[name];
   if (!w) return console.log(`見張りの対象ではない：${name}`);
-  const url = process.env.WR_URL;
-  if (conclusion === 'success') return resolve(w.title, url);
-  if (!['failure', 'timed_out', 'startup_failure'].includes(conclusion)) return console.log(`${name}：${conclusion}（何もしない）`);
+  const v = verdict(conclusion);
+  if (v === 'resolve') return resolve(w.title, url);
+  if (v === 'none') return console.log(`${name}：${conclusion}（何もしない）`);
+  if (latest && !(await openIssues()).some((i) => i.title === w.title)) {
+    const done = closedAfter(await pages('issues?state=closed&labels=mihari&sort=updated', 1), w.title, ended);
+    if (done) return console.log(`${name}：失敗のまま。この実行のあとに #${done.number} が閉じられたので作り直さない`);
+  }
   const steps = [];
   const notes = [];
   try {
-    const { jobs = [] } = (await gh(`actions/runs/${process.env.WR_ID}/jobs?filter=latest&per_page=100`)) || {};
+    const { jobs = [] } = (await gh(`actions/runs/${id}/jobs?filter=latest&per_page=100`)) || {};
     for (const j of jobs.filter((x) => ['failure', 'timed_out'].includes(x.conclusion))) {
       const bad = (j.steps || []).filter((s) => ['failure', 'timed_out'].includes(s.conclusion)).map((s) => s.name);
       steps.push(`${j.name} › ${bad.join('・') || '（ステップ不明）'}`);
@@ -454,9 +487,36 @@ async function onRun() {
   await raise({
     title: w.title,
     label: 'mihari',
-    body: failureBody({ what: w.what, when: jaDateTime(process.env.WR_STARTED || new Date().toISOString()), url, steps, notes }),
+    body: failureBody({ what: w.what, when: jaDateTime(started || new Date().toISOString()), url, steps, notes }),
     still: `まだ続いている（${url}）`,
   });
+}
+
+async function onRun() {
+  const e = process.env;
+  return judge({ name: e.WR_NAME, conclusion: e.WR_CONCLUSION, id: e.WR_ID, url: e.WR_URL, started: e.WR_STARTED });
+}
+
+// 見張る workflow ごとに main のいちばん新しい完了した実行を見る
+async function latest() {
+  console.log(`見張り：いちばん新しい実行を見る${DRY ? '・dry_run' : ''}`);
+  const { workflows = [] } = (await gh('actions/workflows?per_page=100')) || {};
+  let failed = 0;
+  for (const name of Object.keys(WATCHED)) {
+    try {
+      const wf = workflows.find((x) => x.name === name);
+      if (!wf) throw new Error('workflow が見つからない');
+      const { workflow_runs: runs = [] } = (await gh(`actions/workflows/${wf.id}/runs?branch=main&status=completed&exclude_pull_requests=true&per_page=30`)) || {};
+      const run = pickLatest(runs);
+      if (!run) { console.log(`${name}：main の完了した実行がない`); continue; }
+      console.log(`${name}：いちばん新しい実行は ${jaDateTime(run.run_started_at || run.created_at)} の ${run.conclusion}（${run.event}・${run.html_url}）`);
+      await judge({ name, conclusion: run.conclusion, id: run.id, url: run.html_url, started: run.run_started_at || run.created_at, ended: run.updated_at }, { latest: true });
+    } catch (e) {
+      failed++;
+      console.log(`::warning title=見張り（${name}）::${e.message}`);
+    }
+  }
+  if (failed) process.exitCode = 1;
 }
 
 // ---------- 毎朝の点検 ----------
@@ -621,13 +681,14 @@ async function daily() {
 async function main() {
   const [cmd, ...args] = process.argv.slice(2);
   if (cmd === 'run') return onRun();
+  if (cmd === 'latest') return latest();
   if (cmd === 'daily') return daily();
   if (cmd === 'memo' && MEMO[args[0]] && args[1] && existsSync(args[1])) {
     const file = args[0] === 'links' ? 'check-links.yml' : 'watch.yml';
     process.stdout.write(nightBody(MEMO[args[0]], readFileSync(args[1], 'utf8'), file));
     return;
   }
-  console.error('使い方：node scripts/mihari.mjs run | daily | memo <watch-point|watch-spu|watch-furusato|links> <report.md>');
+  console.error('使い方：node scripts/mihari.mjs run | latest | daily | memo <watch-point|watch-spu|watch-furusato|links> <report.md>');
   process.exitCode = 2;
 }
 
