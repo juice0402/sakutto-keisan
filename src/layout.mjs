@@ -148,6 +148,7 @@ export function spread(body, path) {
  * @param {string} [p.footNote] フッターの「送信しません」の1行を、このページだけ差しかえる（寄付メモは端末の中に保存する）
  * @param {string} [p.ext]      外部の読み込みの印（rakuten-img＝返礼品のページの楽天の商品画像）。scripts/verify-dist.mjs が見張る
  * @param {boolean}[p.feed]     読みもののRSS（/yomimono/feed.xml）を head で知らせる（読みもののページとトップ。読みものがあるときだけ）
+ * @param {string} [p.top]      見開きの上に、2つの段にまたがって置く HTML（晩ごはんシミュレーターの手帳。パソコンで左右の段の上）
  * @param {string} [p.cat]      読みもののカテゴリ（<body data-cat>）。scripts/verify-dist.mjs がカテゴリごとの使わない言葉を見張る
  */
 export function page(p) {
@@ -165,6 +166,7 @@ export function page(p) {
   const body = numberNotes(placeNext(p.body));
   const main = p.wide || p.path === '/404' ? body : spread(body, p.path);
   const pc = main !== body;
+  const top = p.top || '';
 
   return `<!doctype html>
 <html lang="ja"${ext ? ` data-ext="${ext}"` : ''}>
@@ -199,7 +201,7 @@ ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replaceA
   <div class="wrap"><a class="brand" href="/">${LOGO_SVG}<span>${esc(SITE.name)}</span></a></div>
 </header>
 <main class="wrap">
-${main}
+${top}${main}
 ${breadcrumbHtml(crumbs)}
 </main>
 <footer class="site-footer">

@@ -197,3 +197,30 @@ export const KONDATE_EXAMPLE = {
 
 export const kondateExampleWeek = () =>
   kondateMakeWeek({ ...KONDATE_EXAMPLE, rand: kondateRand(KONDATE_EXAMPLE.seed) });
+
+/** 週の見出し：'11月9日〜15日'（月をまたぐときは '11月30日〜12月6日'） */
+export function kondateWeekLabel(monday) {
+  const [, m1, d1] = monday.split('-').map(Number);
+  const [, m2, d2] = kondateAddDays(monday, 6).split('-').map(Number);
+  return `${m1}月${d1}日〜${m1 === m2 ? '' : `${m2}月`}${d2}日`;
+}
+
+/** ちょいメモの1行：{ q:'買うもの（11/10〜11/15）', a:'豚こま・さば' }。買うものがなければ null */
+export function kondateBuyMemo(monday, from, list) {
+  if (!list.length) return null;
+  const ds = kondateWeekDates(monday);
+  const f = Math.min(Math.max(0, from), 6);
+  return { q: `買うもの（${f === 6 ? ds[6] : `${ds[f]}〜${ds[6]}`}）`, a: list.map((x) => x.ing).join('・') };
+}
+
+/** これまでの献立：before（月曜）より前で料理が1つでもある週を新しい順に。料理のない日は「作らない」 */
+export function kondatePastWeeks(weeks, before) {
+  return Object.keys(weeks)
+    .filter((k) => k < before && weeks[k].dishes.some(Boolean))
+    .sort()
+    .reverse()
+    .map((k) => {
+      const names = weeks[k].dishes.map((id) => (id ? KONDATE_BY_ID.get(id).name : '作らない'));
+      return { monday: k, label: `${kondateWeekDates(k)[0]}〜`, names, count: weeks[k].dishes.filter(Boolean).length };
+    });
+}

@@ -1327,8 +1327,61 @@ def hensachi_mount(d, x, y):
     mx = x + 40 / 60 * W
     d.line([(mx, y + 10 * S), (mx, base)], fill=RED, width=4 * S)
 
+
+def kondate_week(img, cx, top):
+    """晩ごはんシミュレーター：ウィークリー手帳の1週間（ページの例：月 肉・火 魚・水 麺・木 おまかせ・金 丼・土 作らない・日 カレー）
+    2列×4マス。曜日の右に決まりの付箋（肉はピンク・魚は水色・ほかは黄色・おまかせは点線）、下に料理名。8マスめは買うもの"""
+    d = ImageDraw.Draw(img)
+    w, h = 470 * S, 392 * S
+    x0, y0 = cx - w // 2, top - 70 * S
+    cw, ch = w // 2, h // 4
+    d.rectangle([x0, y0, x0 + w, y0 + h], fill='#FFFFFF', outline=INK, width=3 * S)
+    days = (('月', '肉', 'ロールキャベツ'), ('火', '魚', 'さばの竜田揚げ'), ('水', '麺', 'カルボナーラ'), ('木', 'おまかせ', '鮭の南蛮漬け'),
+            ('金', '丼', 'しらす丼'), ('土', '作らない', None), ('日', 'カレー', 'ハヤシライス'))
+    notes = {'肉': '#FFDBE2', '魚': '#D9EAFC'}
+    f_dow, f_rule, f_dish, f_small = font('black', 30), font('bold', 17), font('black', 25), font('bold', 19)
+    for i in range(8):
+        cx0, cy0 = x0 + (i % 2) * cw, y0 + (i // 2) * ch
+        if i % 2 == 0:
+            d.line([(cx0 + cw, cy0), (cx0 + cw, cy0 + ch)], fill='#B7C2D2', width=2 * S)
+        if i < 6:
+            d.line([(cx0, cy0 + ch), (cx0 + cw, cy0 + ch)], fill='#B7C2D2', width=2 * S)
+        if i == 7:
+            d.rectangle([cx0 + 2 * S, cy0 + 2 * S, cx0 + cw - 2 * S, cy0 + ch - 2 * S], fill=SHEET)
+            d.text((cx0 + 16 * S, cy0 + 12 * S), '買うもの', font=font('black', 24), fill=INK)
+            d.text((cx0 + 126 * S, cy0 + 17 * S), '12', font=font('black', 22), fill=RED)
+            d.text((cx0 + 154 * S, cy0 + 19 * S), 'つ', font=f_small, fill=PENCIL)
+            d.text((cx0 + 16 * S, cy0 + 48 * S), '合いびき肉・さば', font=f_small, fill=INK)
+            d.text((cx0 + 16 * S, cy0 + 72 * S), 'ベーコン・チーズ…', font=f_small, fill=INK)
+            continue
+        dow, rule, dish = days[i]
+        color = RED if dow == '日' else '#2F62A8' if dow == '土' else INK
+        d.text((cx0 + 14 * S, cy0 + 8 * S), dow, font=f_dow, fill=color)
+        d.text((cx0 + 52 * S, cy0 + 20 * S), f'11/{9 + i}', font=f_small, fill=PENCIL)
+        nx1, ny0 = cx0 + cw - 12 * S, cy0 + 12 * S
+        nx0 = nx1 - 82 * S
+        if rule == 'おまかせ':
+            for k in range(0, 82, 8):
+                d.line([(nx0 + k * S, ny0), (nx0 + min(k + 4, 82) * S, ny0)], fill='#9AA6B6', width=2 * S)
+                d.line([(nx0 + k * S, ny0 + 30 * S), (nx0 + min(k + 4, 82) * S, ny0 + 30 * S)], fill='#9AA6B6', width=2 * S)
+            d.line([(nx0, ny0), (nx0, ny0 + 30 * S)], fill='#9AA6B6', width=2 * S)
+            d.line([(nx1, ny0), (nx1, ny0 + 30 * S)], fill='#9AA6B6', width=2 * S)
+        elif rule == '作らない':
+            d.rectangle([nx0, ny0, nx1, ny0 + 30 * S], outline='#D3DCE8', width=2 * S)
+        else:
+            d.rectangle([nx0, ny0, nx1, ny0 + 30 * S], fill=notes.get(rule, '#FFF2A8'))
+        rw = d.textlength(rule, font=f_rule)
+        d.text(((nx0 + nx1) / 2 - rw / 2, ny0 + 4 * S), rule, font=f_rule, fill=PENCIL if rule == '作らない' else INK)
+        if dish:
+            d.text((cx0 + 14 * S, cy0 + 52 * S), dish, font=f_dish, fill=INK)
+        else:
+            d.line([(cx0 + 10 * S, cy0 + ch - 8 * S), (cx0 + cw - 10 * S, cy0 + 50 * S)], fill='#B7C2D2', width=2 * S)
+            d.text((cx0 + 14 * S, cy0 + 56 * S), '作らない', font=f_small, fill=PENCIL)
+    tape(img, cx, y0, 150 * S, 34 * S, 3)
+
+
 VISUALS = {
-    'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kishaku': dilute_bottle,
+    'waribiki': price_tag, 'tanka': compare_tags, 'recipe': recipe_memo, 'kondate': kondate_week, 'kishaku': dilute_bottle,
     'fx-iji-ritsu': fx_gauge, 'fx-losscut': fx_cut, 'fx-swap': fx_swap_chart, 'fx-lot': fx_lot, 'yukyu-fuyo': yukyu_doc, 'gensen-choshu': gensen_doc,
     'rieki-ritsu': rieki_doc, 'kakeritsu': kakeritsu_doc, 'seisou-jikan': seisou_doc, 'seisou-mitsumori': mitsumori_doc, 'genba': genba_doc, 'zangyo-dai': zangyo_doc, 'zangyo-gekkyu': zangyo_gekkyu_doc,
     # 割引計算・実質単価の比較の下のページ（10/21）

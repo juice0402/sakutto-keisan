@@ -17,6 +17,7 @@ HEIGHT = 660
 
 # slug: (ふつうの入力, 答えの場所)
 CASES = {
+    'kondate': (lambda pg: None, '#kb-make'),  # 晩ごはんシミュレーター：はじめて開いたとき「1週間をつくる」が1画面の中
     'waribiki': (lambda pg: (pg.fill('#price', '1980'), pg.click('.tile[data-pct="30"]')), '.tag-price'),
     'waribiki-ritsu': (lambda pg: (pg.fill('#price', '2000'), pg.fill('#sale', '1700')), '.rieki-bar'),
     'shohizei': (lambda pg: pg.fill('#net', '1980'), '.rc-sum'),
