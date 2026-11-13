@@ -3,6 +3,11 @@ import { kakeritsu, kakePct, kakeText, kakePctText, KAKE_FIELDS } from '../lib/k
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgCard, figSegs, SEGS_H } from './share-img.mjs';
+import { TZ_KAKERITSU } from '../lib/tsuzuki.mjs';
+import { tzTake, tzLater, tzFill } from './tsuzuki.mjs';
+
+// つづけて使う（#163）：割引計算などから来たとき（#jodai=…&rate=…）は、はじめに読んですぐ # を消す
+const carried = tzTake(TZ_KAKERITSU);
 
 const memo = choiMemo('kakeritsu.png');
 
@@ -156,3 +161,13 @@ $('clear').addEventListener('click', () => {
 enterToNext(INPUTS);
 focusHints(document.querySelector('.box-rows'));
 update();
+// 引きついだ数字は、手で入れたのと同じに入れる（掛け率が5〜8掛けなら、その付箋がえらばれる）
+if (carried) {
+  tzLater(() => {
+    ['jodai', 'rate'].forEach((id) => {
+      if (carried[id] === undefined) return;
+      remember(id, false);
+      tzFill($(id), id === 'jodai' ? fmt(carried[id], 2) : String(carried[id]));
+    });
+  });
+}

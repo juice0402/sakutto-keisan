@@ -279,6 +279,15 @@ h1 {
 .cm-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 0; }
 .cm-add .tool-btn { width: 100%; }
 .cm-one { grid-template-columns: 1fr; }
+/* つづけて使う（#163・C-027 案A）：計算カードの中、「メモする」の段の下。答えの数字を # で次の計算へ（src/client/tsuzuki.mjs） */
+.tz { margin: 16px 0 0; padding: 10px 0 0; border-top: 1.5px dotted var(--border); }
+.tz-h { margin: 0; font-size: var(--cap); color: var(--muted); }
+.tz-list { list-style: none; margin: 0 0 4px; padding: 0; }
+.tz-link { display: block; min-height: 44px; padding: 8px 0; color: var(--text); text-decoration: none; font-size: 15px; line-height: 1.5; }
+.tz-name { font-weight: 800; color: var(--text); text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.tz-t { display: block; color: var(--muted); font-size: 14px; }
+.tz-link.is-num .tz-t { display: inline; color: var(--text); font-size: 15px; }
+.tz-num { color: var(--red); font-weight: 800; }
 .cm { margin: 22px 0 0; font-size: 15px; color: var(--text); }
 .cm ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .cm-h { margin: 0 0 6px; font-weight: 800; font-size: 15px; }

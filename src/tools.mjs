@@ -24,6 +24,7 @@ export const TOOLS = [
     updated: '2026-10-31',
     related: ['waribiki-ritsu', 'tanka', 'warikan', 'rieki-ritsu', 'percent', 'shohizei'],
     next: [['kakeritsu', '割引を何掛けかに直して、仕入れ値を出す'], ['warikan', '割引後の値段を、何人かで分ける']],
+    carry: true, // つづけて使う（#163）：next を計算カードの中に、答えの数字入りで出す（parts.mjs の tsuzukiHtml）
   },
   // 割引計算の下のページ（10/21。もとは割引計算の「何％オフ？」のボタン）
   {

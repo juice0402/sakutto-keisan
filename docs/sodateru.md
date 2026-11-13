@@ -43,7 +43,7 @@
 - 読むファイル：src/parts.mjs・src/tools.mjs・src/layout.mjs（spread・topLevel）・src/pages/yomimono.mjs・src/yomimono/_shelf.mjs・scripts/verify-dist.mjs・scripts/check-fold.py・CLAUDE.md（デザインの決まり・文章の決まり）・docs/files.md
 - マージ：する
 
-### [ ] つづけて使う①：数字を引きつぐしくみと、割引から2つ（C-027・案A）
+### [x] つづけて使う①：数字を引きつぐしくみと、割引から2つ（C-027・案A）（#163）
 - やること：答えのすぐ下の行から、自分の数字を入れたまま次の計算を開けるようにする。まずしくみと /waribiki/ の2つ（→ 掛け率・→ 割り勘）
   - 送る側（/waribiki/）：「つぎに」の節は出さず、計算カードの中の「メモする」の段の下に「つづけて使う」の段（見本の案A）。中身は「つぎに」と同じ next の計算2つと読みもの1本（ないときは計算2つだけ）。答えが出るまでは、計算の行は next の理由の文のまま。答えが出たら、行の文を数字入りに変え（例：「掛け率の計算で、2,980円の7掛けを開く」「割り勘の計算で、2,086円を人数で分ける」）、リンクに数字を付ける。答えを消すと理由の文にもどる
   - 渡し方：URL の #（例：/kakeritsu/#jodai=2980&rate=70）。サーバーには送らない。受けとる側は、ページのスクリプトのはじめで # を読み、すぐ `history.replaceState(null, '', location.pathname)` で消す（お手本は src/client/henreihin.js の #nokori と src/client/furusato-memo.js）。受けとる名前はページごとに決めた欄だけ・数字だけ（`^\d{1,9}(\.\d{1,2})?$`）・その欄の上限の中だけ。合わないものは何もしないで、ふつうに開く

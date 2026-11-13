@@ -3,6 +3,8 @@ import { calcDiscount, compareDiscounts, wariLabel, wariMemoLine } from '../lib/
 import { $, enterToNext, tidyOnBlur, numericOnly } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgTag } from './share-img.mjs';
+import { waribikiTsuzuki } from '../lib/tsuzuki.mjs';
+import { tzRows } from './tsuzuki.mjs';
 
 const inPrice = $('price');
 const inRate = $('rate');
@@ -114,9 +116,16 @@ function syncInputs() {
 /** ちょいメモの1行の割引（10％きざみは「3割引」、ほかは「15％オフ」） */
 const offWord = (p) => (p > 0 && p % 10 === 0 ? `${p / 10}割引` : `${fmt(p, 1)}％オフ`);
 
+/** つづけて使う（#163）：答えがあれば、掛け率と割り勘の行を数字入りに。ないとき・くらべるときは理由の文 */
+function carry(p = {}) {
+  const r = waribikiTsuzuki({ ...p, compare: S.mode === 'compare' });
+  tzRows({ 'tz-kakeritsu': r.kakeritsu, 'tz-warikan': r.warikan });
+}
+
 function update() {
   syncInputs();
   memo(null);
+  carry();
   if (S.mode === 'compare') return updateCompare();
   const it = S.items.a;
   const price = num(it.price);
@@ -139,6 +148,7 @@ function update() {
       : '',
     round: r.steps.some((s) => s.rounded),
   });
+  carry({ price, rate, rate2, final: r.final });
   memo({
     q: `${yen(price)}の${r.steps.map((s) => offWord(s.rate)).join('＋')}`,
     a: yen(r.final),
