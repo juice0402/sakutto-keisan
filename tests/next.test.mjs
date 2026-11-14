@@ -60,11 +60,11 @@ test('決まった6ページの next は連絡 C-027 の文のまま', () => {
 
 test('nextHtml：読みものがないと計算2つ', () =>
   withShelf([], () => {
-    const t = toolBySlug('kishaku');
+    const t = toolBySlug('hyohakuzai'); // 希釈率は「つづけて使う」になったので（#168）、その下のページで
     const html = nextHtml(t);
     assert.match(html, /^<section class="prose nx" id="nx" aria-labelledby="nx-h"><h2 id="nx-h">つぎに<\/h2><ul class="tool-list">/);
-    assert.deepEqual(names(html), ['次亜塩素酸ナトリウムの薄め方', '現場手帳']);
-    assert.ok(html.includes('<span class="tool-desc">消毒液は、漂白剤の濃度から量を出す</span>'));
+    assert.deepEqual(names(html), ['現場手帳', '希釈率の計算']);
+    assert.ok(html.includes('<span class="tool-desc">現場ごとの薄め方を、手帳に残す</span>'));
     assert.ok(html.includes(`href="${toolUrl(toolBySlug('genba'))}"`));
     assert.ok(!html.includes('読みもの。'));
   }));
@@ -110,7 +110,7 @@ test('読みものがないとき：ほかの計算ツールは related の残�
 
 test('差しこみ：「つぎに」は計算カード（#calc）のすぐ外・下、パソコンの見開きでは左の段', () =>
   withShelf([], () => {
-    const t = toolBySlug('kishaku');
+    const t = toolBySlug('hyohakuzai');
     const body = `<h1>割引計算</h1><div class="calc" id="calc"><div class="in"><p>答え</p></div></div>\n<section class="prose" aria-labelledby="how"><h2 id="how">しくみ</h2><p>本文</p></section>\n${relatedHtml(t)}`;
     const placed = placeNext(body);
     assert.match(placed, /id="calc"><div class="in"><p>答え<\/p><\/div><\/div>\n<section class="prose nx" id="nx"/);

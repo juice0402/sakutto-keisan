@@ -443,6 +443,7 @@ export const TOOLS = [
     updated: '2026-10-31',
     related: ['enbun-noudo', 'sentaku-senzai', 'recipe', 'seisou-jikan'],
     next: [['hyohakuzai', '消毒液は、漂白剤の濃度から量を出す'], ['genba', '現場ごとの薄め方を、手帳に残す']],
+    carry: true, // つづけて使う②（#168）：1つめの next に答えの数字を渡す
   },
   {
     slug: 'enbun-noudo',
@@ -560,6 +561,7 @@ export const TOOLS = [
     updated: '2026-10-31',
     related: ['rieki-ritsu', 'waribiki', 'waribiki-ritsu', 'tanka', 'gensen-choshu'],
     next: [['rieki-ritsu', '上代で売ったときの利益率を出す'], ['waribiki', '何掛けを、割引後の値段で確かめる']],
+    carry: true, // つづけて使う②（#168）：1つめの next に答えの数字を渡す
   },
   // 源泉徴収（10/27 夜の作業 #62）
   {
@@ -583,6 +585,7 @@ export const TOOLS = [
     updated: '2026-10-29',
     related: ['seisou-mitsumori', 'genba', 'kishaku', 'rieki-ritsu', 'zangyo-dai'],
     next: [['seisou-mitsumori', '同じ作業と面積で、1か月の料金の目安を出す'], ['genba', '場所ごとの時間を、現場手帳にまとめる']],
+    carry: true, // つづけて使う②（#168）：1つめの next に答えの数字を渡す
   },
   {
     slug: 'seisou-mitsumori',

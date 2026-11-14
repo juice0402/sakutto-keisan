@@ -4,7 +4,10 @@ import assert from 'node:assert/strict';
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { tzHash, tzRead, payPct, waribikiTsuzuki, TZ_KAKERITSU, TZ_WARIKAN } from '../src/lib/tsuzuki.mjs';
+import { tzHash, tzRead, payPct, waribikiTsuzuki, seisouTsuzuki, kakeTsuzuki, kishakuTsuzuki, tzWork, TZ_KAKERITSU, TZ_WARIKAN, TZ_MITSU, TZ_RIEKI, TZ_HYOHAKU } from '../src/lib/tsuzuki.mjs';
+import { SEISOU_WORKS, seisou } from '../src/lib/seisou.mjs';
+import { kakeritsu } from '../src/lib/kakeritsu.mjs';
+import { dilute } from '../src/lib/kishaku.mjs';
 import { calcDiscount } from '../src/lib/waribiki.mjs';
 import { kakePct } from '../src/lib/kakeritsu.mjs';
 import { toolBySlug } from '../src/tools.mjs';
@@ -107,5 +110,64 @@ test('割引計算のページ：「つぎに」の節は出さず、メモす�
   // 行の文は全角30字まで
   for (const s of ['掛け率の計算で、999,999,999円の8.55掛けを開く', '割り勘の計算で、99,999,999円を人数で分ける']) assert.ok(s.length <= 30, s);
   // ほかのページはこれまでどおり
-  assert.ok(!memoHtml(toolBySlug('kakeritsu')).includes('id="tz"'));
+  assert.ok(!memoHtml(toolBySlug('warikan')).includes('id="tz"'));
+});
+
+// つづけて使う②（#168）：清掃の作業時間 → 見積もり・掛け率 → 利益率・希釈率 → 次亜塩素酸ナトリウムの薄め方
+test('清掃の作業時間 → 清掃の見積もり：作業の名前と面積（自由の欄の速さなら面積だけ）', () => {
+  const r = seisou({ area: 120, people: 1, hours: null, speed: 49, out: 'hours' });
+  const row = seisouTsuzuki({ workId: 'toilet', area: r.area });
+  assert.equal(row.hash, '#work=3&area=120');
+  assert.equal('清掃の見積もり計算' + plain(row.text), '清掃の見積もり計算で、トイレ 120㎡の料金を出す');
+  const free = seisouTsuzuki({ workId: null, area: 1500 });
+  assert.equal(free.hash, '#area=1500');
+  assert.equal(plain(free.text), 'で、1,500㎡の料金を出す');
+  assert.equal(seisouTsuzuki({ workId: 'office', area: 0 }), null);
+  assert.equal(seisouTsuzuki({ workId: 'office', area: 12.345 }), null);
+  // 受けとる側：何番目の作業か（2ページで同じ並び）
+  const got = tzRead('#work=3&area=120', TZ_MITSU);
+  assert.deepEqual(got, { work: 3, area: 120 });
+  assert.equal(SEISOU_WORKS[tzWork(got)].id, 'toilet');
+  assert.equal(tzWork(tzRead('#work=1.5&area=120', TZ_MITSU)), null);
+  assert.equal(tzRead('#work=5&area=120', TZ_MITSU), null);
+  assert.equal(tzWork(tzRead('#area=120', TZ_MITSU)), null);
+  // 4つの作業の名前と並び（見積もりのページのマスも同じ SEISOU_WORKS から作る）
+  assert.deepEqual(SEISOU_WORKS.map((w) => w.name), ['事務室', '廊下', 'トイレ', '床洗浄']);
+});
+
+test('掛け率 → 利益率：上代は売値、下代は原価', () => {
+  const r = kakeritsu({ jodai: 1980, rate: 65, gedai: null, out: 'gedai' });
+  assert.equal(r.gedai, 1287);
+  const row = kakeTsuzuki({ jodai: r.jodai, gedai: r.gedai });
+  assert.equal(row.hash, '#price=1980&cost=1287');
+  assert.equal('利益率の計算' + plain(row.text), '利益率の計算で、上代1,980円・下代1,287円を開く');
+  assert.deepEqual(tzRead(row.hash, TZ_RIEKI), { price: 1980, cost: 1287 });
+  assert.equal(kakeTsuzuki({ jodai: 1980, gedai: 0 }), null);
+  assert.equal(kakeTsuzuki({ jodai: 1234.567, gedai: 100 }), null);
+  assert.equal(tzRead('#price=1980&rate=30', TZ_RIEKI), null);
+});
+
+test('希釈率 → 次亜塩素酸ナトリウムの薄め方：できあがりの量', () => {
+  const r = dilute({ ratio: 10, amount: 500 });
+  const row = kishakuTsuzuki({ total: r.total });
+  assert.equal(row.hash, '#total=500');
+  assert.equal('次亜塩素酸ナトリウムの薄め方' + plain(row.text), '次亜塩素酸ナトリウムの薄め方で、できあがり500mlを開く');
+  assert.equal(plain(kishakuTsuzuki({ total: 2000 }).text), 'で、できあがり2Lを開く');
+  assert.deepEqual(tzRead('#total=500', TZ_HYOHAKU), { total: 500 });
+  assert.equal(kishakuTsuzuki({ total: 0 }), null);
+  assert.equal(tzRead('#total=abc', TZ_HYOHAKU), null);
+});
+
+test('3つのページ：「つぎに」は出さず「つづけて使う」。1つめは数字を受けとる計算、2つめは理由の文のまま', () => {
+  for (const [slug, first, second] of [['seisou-jikan', 'seisou-mitsumori', 'genba'], ['kakeritsu', 'rieki-ritsu', 'waribiki'], ['kishaku', 'hyohakuzai', 'genba']]) {
+    const t = toolBySlug(slug);
+    assert.equal(t.carry, true, slug);
+    assert.equal(nextHtml(t), '', slug);
+    const html = memoHtml(t);
+    assert.ok(html.includes(`id="tz-${first}"`) && html.includes(`id="tz-${second}"`), slug);
+  }
+  // 受けとる側の行は「つづけて使う」にしない（数字を渡すのは送る側だけ）
+  for (const slug of ['seisou-mitsumori', 'rieki-ritsu', 'hyohakuzai']) assert.ok(!toolBySlug(slug).carry, slug);
+  // 行の文は全角30字まで
+  for (const s of ['清掃の見積もり計算で、床洗浄 99,999㎡の料金を出す', '利益率の計算で、上代99,999円・下代99,999円を開く', '次亜塩素酸ナトリウムの薄め方で、できあがり9.99Lを開く']) assert.ok(s.length <= 30, s);
 });

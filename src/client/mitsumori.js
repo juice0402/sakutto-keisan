@@ -3,6 +3,11 @@ import { mitsumori, mitsuMonths, mitsuYearCheck, MITSU_FIELDS } from '../lib/mit
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgCard } from './share-img.mjs';
+import { TZ_MITSU, tzWork } from '../lib/tsuzuki.mjs';
+import { tzTake, tzLater, tzFill } from './tsuzuki.mjs';
+
+// つづけて使う②（#168）：清掃の作業時間から来たとき（#work=…&area=…）は、はじめに読んですぐ # を消す
+const carried = tzTake(TZ_MITSU);
 
 const memo = choiMemo('seisou-mitsumori.png');
 
@@ -176,3 +181,14 @@ $('clear').addEventListener('click', () => {
 enterToNext(MITSU_INPUTS);
 focusHints(document.querySelector('.box-rows'));
 update();
+// 引きついだ作業はそのマスを押したのと同じ（㎡単価に目安が入る）、面積は手で入れたのと同じに入れる。回数はえらんでもらう
+if (carried) {
+  tzLater(() => {
+    const w = tzWork(carried);
+    if (w !== null && WORK_TILES[w]) WORK_TILES[w].click();
+    if (carried.area !== undefined) {
+      rememberField('area', false);
+      tzFill($('area'), areaText(carried.area));
+    }
+  });
+}
