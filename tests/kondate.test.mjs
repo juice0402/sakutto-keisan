@@ -252,3 +252,42 @@ test('決まった乱数：同じ種なら同じ並び・0以上1未満', () => 
     assert.ok(x >= 0 && x < 1);
   }
 });
+
+test('週の見出し・買うもののメモ・これまでの献立', async () => {
+  const { kondateWeekLabel, kondateBuyMemo, kondatePastWeeks } = await import('../src/lib/kondate.mjs');
+  assert.equal(kondateWeekLabel('2026-11-09'), '11月9日〜15日');
+  assert.equal(kondateWeekLabel('2026-11-30'), '11月30日〜12月6日');
+  assert.equal(kondateWeekLabel('2026-12-28'), '12月28日〜1月3日');
+  const list = [{ ing: '豚こま' }, { ing: 'さば' }];
+  assert.deepEqual(kondateBuyMemo('2026-11-09', 1, list), { q: '買うもの（11/10〜11/15）', a: '豚こま・さば' });
+  assert.deepEqual(kondateBuyMemo('2026-11-09', 6, list), { q: '買うもの（11/15）', a: '豚こま・さば' });
+  assert.equal(kondateBuyMemo('2026-11-09', 0, []), null);
+  const weeks = {
+    '2026-10-26': { dishes: Array(7).fill(null), locked: Array(7).fill(false) },
+    '2026-11-02': { dishes: ['gyudon', null, null, null, null, null, null], locked: Array(7).fill(false) },
+    '2026-11-09': { dishes: ['gyudon', null, null, null, null, null, null], locked: Array(7).fill(false) },
+  };
+  const past = kondatePastWeeks(weeks, '2026-11-09');
+  assert.equal(past.length, 1);
+  assert.equal(past[0].label, '11/2〜');
+  assert.equal(past[0].names[1], '作らない');
+  assert.equal(past[0].count, 1);
+});
+
+test('ページの例と使う場面の例（/kondate/ の本文の数字）', async () => {
+  const P = await import('../src/pages/kondate.mjs');
+  assert.deepEqual(P.EX_DISHES.map((x) => (x ? x.name : null)), ['ロールキャベツ', 'さばの竜田揚げ', 'カルボナーラ', '鮭の南蛮漬け', 'しらす丼', null, 'ハヤシライス']);
+  assert.equal(P.EX_BUY.length, 12);
+  assert.equal(P.EX_BUY_NOFRIDGE.length, 15);
+  assert.equal(P.SC_FRIDGE, 28);
+  assert.equal(P.SC_NG, 26);
+  assert.equal(P.SC_WED.length, 10);
+  assert.equal(P.SC_WED.map((x) => x.ing).join('・'), 'ベーコン・チーズ・スパゲッティ・鮭・にんじん・ピーマン・しらす・ねぎ・牛こま・しめじ');
+  // 冷蔵庫の丸で外れたのはキャベツ・玉ねぎ・卵の3つ（本文の文）
+  const off = P.EX_BUY_NOFRIDGE.map((x) => x.ing).filter((i) => !P.EX_BUY.some((y) => y.ing === i));
+  assert.deepEqual(off.sort(), ['キャベツ', '卵', '玉ねぎ'].sort());
+  // 苦手にさば・鮭を入れた魚の日は、あじ・ぶり・たらの料理が候補に残る（本文の文）
+  const { kondateCandidates } = await import('../src/lib/kondate.mjs');
+  const fish = kondateCandidates('魚', ['さば', '鮭']).flatMap((x) => x.ings);
+  for (const i of ['あじ', 'ぶり', 'たら']) assert.ok(fish.includes(i), i);
+});

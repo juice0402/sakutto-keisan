@@ -295,8 +295,20 @@ export const TOOLS = [
     short: '2人分のレシピを3人分にするときの分量',
     published: true,
     updated: '2026-10-31',
-    related: ['tanka', 'waribiki', 'kishaku'],
+    related: ['kondate', 'tanka', 'waribiki', 'kishaku'],
     next: [['enbun-noudo', '分量を変えたあとの塩の量を、濃度で出す'], ['tanka', '材料の値段を、100gあたりでくらべる']],
+  },
+  // 晩ごはんシミュレーター（#152・#166。docs/kondate.md）。料理と食材は src/data/kondate.mjs、組み方は src/lib/kondate.mjs
+  {
+    slug: 'kondate',
+    name: '晩ごはんシミュレーター',
+    ogTitle: '晩ごはん\nシミュレーター',
+    category: 'seikatsu',
+    short: '1週間の晩ごはんを、曜日の決まりで組む',
+    published: true,
+    updated: '2026-11-14',
+    related: ['recipe', 'tanka', 'enbun-noudo', 'waribiki'],
+    next: [['recipe', 'レシピの分量を、家の人数に直す'], ['tanka', '買うものの値段を、100gあたりでくらべる']],
   },
   {
     slug: 'warikan',
