@@ -7,7 +7,7 @@ import { TZ_RIEKI } from '../lib/tsuzuki.mjs';
 import { tzTake, tzLater, tzFill } from './tsuzuki.mjs';
 
 // つづけて使う②（#168）：掛け率の計算から来たとき（#price=…&cost=…）は、はじめに読んですぐ # を消す
-const carried = tzTake(TZ_RIEKI);
+const riekiCarried = tzTake(TZ_RIEKI);
 
 const memo = choiMemo('rieki-ritsu.png');
 
@@ -126,12 +126,12 @@ $('clear').addEventListener('click', () => {
 enterToNext(INPUTS);
 update();
 // 引きついだ売値と原価は、手で入れたのと同じに入れる（入れた順は売値・原価。利益率が答えになる）
-if (carried) {
+if (riekiCarried) {
   tzLater(() => {
     ['price', 'cost'].forEach((id) => {
-      if (carried[id] === undefined) return;
+      if (riekiCarried[id] === undefined) return;
       order = [...order.filter((f) => f !== id), id].slice(-2);
-      tzFill($(id), fmt(carried[id], 2));
+      tzFill($(id), fmt(riekiCarried[id], 2));
     });
   });
 }
