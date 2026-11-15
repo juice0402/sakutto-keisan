@@ -3,8 +3,8 @@ import { kakeritsu, kakePct, kakeText, kakePctText, KAKE_FIELDS } from '../lib/k
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgCard, figSegs, SEGS_H } from './share-img.mjs';
-import { TZ_KAKERITSU } from '../lib/tsuzuki.mjs';
-import { tzTake, tzLater, tzFill } from './tsuzuki.mjs';
+import { TZ_KAKERITSU, kakeTsuzuki } from '../lib/tsuzuki.mjs';
+import { tzTake, tzLater, tzFill, tzRows } from './tsuzuki.mjs';
 
 // つづけて使う（#163）：割引計算などから来たとき（#jodai=…&rate=…）は、はじめに読んですぐ # を消す
 const carried = tzTake(TZ_KAKERITSU);
@@ -98,8 +98,11 @@ function update() {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? kakeEmpty() : '';
     memo(null);
+    tzRows({ 'tz-rieki-ritsu': null });
     return;
   }
+  // つづけて使う②（#168）：上代 → 売値・下代 → 原価で利益率の計算へ
+  tzRows({ 'tz-rieki-ritsu': kakeTsuzuki({ jodai: res.jodai, gedai: res.gedai }) });
   $('r-num').textContent = out === 'rate' ? kakePctText(res.pct) : yen(res[out]);
   memo({
     q: `上代${yen(res.jodai)}円・${kakePctText(res.pct)}%`,

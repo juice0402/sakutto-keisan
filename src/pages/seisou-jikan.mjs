@@ -21,7 +21,7 @@ const { daily: SRC_DAILY, regular: SRC_REGULAR, view: SRC_VIEW } = SEISOU_SRC;
 // 作業のマス：ことばだけ（数字は「370㎡の事務室」と読まれやすいので、マスには書かない。10/20 しょーくん）。
 // えらぶと、下の「1人1時間に掃除できる面積」の欄に目安の数字が入る
 const TILES = `<div class="tiles tiles-4" role="group" aria-label="作業をえらぶ">${SEISOU_WORKS.map(
-  (w) => `<button type="button" class="tile tile-word" data-speed="${w.speed}" aria-pressed="false"><b>${w.name}</b><small>${w.kind}</small></button>`,
+  (w) => `<button type="button" class="tile tile-word" data-speed="${w.speed}" data-work="${w.id}" aria-pressed="false"><b>${w.name}</b><small>${w.kind}</small></button>`,
 ).join('')}</div>`;
 
 const tool = toolBySlug('seisou-jikan');

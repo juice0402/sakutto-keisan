@@ -1,6 +1,8 @@
 import { fmt } from './number.mjs';
 import { kakePct, kakeText } from './kakeritsu.mjs';
 import { WARIKAN_MAX_TOTAL } from './warikan.mjs';
+import { SEISOU_WORKS } from './seisou.mjs';
+import { volumeText } from './kishaku.mjs';
 
 // つづけて使う（#163・C-027 案A）：答えの数字を、次の計算のページへ URL の # で渡す（サーバーには送らない）
 // 受けとる側は、決めた名前・数字だけ（整数9けたまで・小数2けたまで）・その欄の上限の中だけを使う。合わないものがあれば何もしない
@@ -10,6 +12,10 @@ export const TZ_NUM = /^\d{1,9}(\.\d{1,2})?$/;
 // 受けとるページごとの欄と範囲（min より大きく max まで）
 export const TZ_KAKERITSU = { jodai: [0, 999999999], rate: [0, 100] };
 export const TZ_WARIKAN = { total: [0, WARIKAN_MAX_TOTAL] };
+// つづけて使う②（#168）：清掃の見積もり（work は作業のマスの何番目か 1〜4・面積）・利益率（売値・原価）・次亜塩素酸ナトリウムの薄め方（できあがりの量 ml）
+export const TZ_MITSU = { work: [0, SEISOU_WORKS.length], area: [0, 999999999] };
+export const TZ_RIEKI = { price: [0, 999999999], cost: [0, 999999999] };
+export const TZ_HYOHAKU = { total: [0, 999999999] };
 
 const tzOk = (v, [min, max]) => Number.isFinite(v) && TZ_NUM.test(String(v)) && v > min && v <= max;
 
@@ -74,4 +80,36 @@ export function waribikiTsuzuki({ price, rate, rate2 = null, final, compare = fa
     ? { hash: tzHash({ total: final }, TZ_WARIKAN), text: [['で、'], [`${fmt(final)}円`, true], ['を人数で分ける']] }
     : null;
   return { kakeritsu, warikan };
+}
+
+/**
+ * 清掃の作業時間の答えから、清掃の見積もりの行。workId は えらんだ作業のマスの id（自由の欄で速さを入れたときは null＝面積だけ）
+ * 2つの計算は作業のマスが同じ並び（SEISOU_WORKS）なので、何番目かで渡す
+ */
+export function seisouTsuzuki({ workId = null, area }) {
+  if (!tzOk(area, TZ_MITSU.area)) return null;
+  const i = SEISOU_WORKS.findIndex((w) => w.id === workId);
+  const w = i < 0 ? null : SEISOU_WORKS[i];
+  return {
+    hash: tzHash(w ? { work: i + 1, area } : { area }, TZ_MITSU),
+    text: [['で、'], ...(w ? [[`${w.name} `]] : []), [`${fmt(area)}㎡`, true], ['の料金を出す']],
+  };
+}
+
+/** 受けとった work（1〜4）から作業のマスの何番目か（0から）。整数でないときは null */
+export const tzWork = (got) => (got && Number.isInteger(got.work) && got.work >= 1 && got.work <= SEISOU_WORKS.length ? got.work - 1 : null);
+
+/** 掛け率の答えから、利益率の行（上代 → 売値・下代 → 原価） */
+export function kakeTsuzuki({ jodai, gedai }) {
+  if (!tzOk(jodai, TZ_RIEKI.price) || !tzOk(gedai, TZ_RIEKI.cost)) return null;
+  return {
+    hash: tzHash({ price: jodai, cost: gedai }, TZ_RIEKI),
+    text: [['で、上代'], [`${fmt(jodai)}円`, true], ['・下代'], [`${fmt(gedai)}円`, true], ['を開く']],
+  };
+}
+
+/** 希釈率の答えから、次亜塩素酸ナトリウムの薄め方の行（できあがりの量だけ） */
+export function kishakuTsuzuki({ total }) {
+  if (!tzOk(total, TZ_HYOHAKU.total)) return null;
+  return { hash: tzHash({ total }, TZ_HYOHAKU), text: [['で、できあがり'], [volumeText(total), true], ['を開く']] };
 }

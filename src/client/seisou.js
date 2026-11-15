@@ -3,6 +3,8 @@ import { seisou, minText, hoursValue, SEISOU_FIELDS } from '../lib/seisou.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgCard } from './share-img.mjs';
+import { seisouTsuzuki } from '../lib/tsuzuki.mjs';
+import { tzRows } from './tsuzuki.mjs';
 
 const memo = choiMemo('seisou-jikan.png');
 
@@ -82,9 +84,13 @@ function update() {
     $('r-num').textContent = '？';
     $('r-foot').textContent = res.empty ? emptyText() : '';
     memo(null);
+    tzRows({ 'tz-seisou-mitsumori': null });
     $('r-total').textContent = '';
     return;
   }
+  // つづけて使う②（#168）：作業のマスと面積を清掃の見積もりへ（自由の欄で速さを入れたときは面積だけ）
+  const tile = document.querySelector('.tile[data-speed][aria-pressed="true"]');
+  tzRows({ 'tz-seisou-mitsumori': seisouTsuzuki({ workId: tile ? tile.dataset.work : null, area: res.area }) });
   $('r-total').textContent = `のべ ${minText(Math.ceil(res.personHours * 60))}`;
   const ans = out === 'people' ? `${fmt(res.people, 0)}人` : out === 'area' ? `${fmt(res.area, 0)}㎡` : minText(res.minutes);
   memo({

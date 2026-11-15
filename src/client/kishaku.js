@@ -3,6 +3,8 @@ import { dilute, ratioFromPercent, ratioFromParts, waterPart, volumeText, spoonT
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgBottle } from './share-img.mjs';
+import { TZ_HYOHAKU, kishakuTsuzuki } from '../lib/tsuzuki.mjs';
+import { tzTake, tzLater, tzFill, tzRows } from './tsuzuki.mjs';
 
 // 希釈率の計算と、使いみち別のページ（めんつゆ・漂白剤・液体肥料）で共通。ページごとのちがいは #calc の data-*
 //   data-how：薄め方を決めておく（times：何倍 / pct：濃度）。ないときは上の3つのタブでえらぶ
@@ -22,6 +24,9 @@ const FROM = { total: 'total', conc: 'concentrate', water: 'water' };
 const BOTTLE_FULL = 82; // ボトルの何％まで液を入れて見せるか
 const val = (id) => parseNum($(id).value);
 const memo = choiMemo('kishaku.png');
+// つづけて使う②（#168）：希釈率の計算から次亜塩素酸ナトリウムの薄め方へ、できあがりの量を渡す（#total=…）。受けとるのは /hyohakuzai/ だけ
+const kishakuCarried = $('cm-bar') && $('cm-bar').dataset.tool === 'hyohakuzai' ? tzTake(TZ_HYOHAKU) : null;
+const carryTotal = (res) => tzRows({ 'tz-hyohakuzai': res ? kishakuTsuzuki({ total: parseNum($('v-total').value) }) : null });
 // 薄め方の欄（ページの上から順。Enter で次の欄へ進む順番になる）
 const RATIO_IDS = [...document.querySelectorAll('#calc input')].map((el) => el.id).filter((id) => ['ratio', 'pc', 'pw', 'src', 'target'].includes(id));
 
@@ -105,6 +110,7 @@ function update() {
   const amt = val(`v-${basis}`);
   // 入力まちがいの印・えらんでいるマス
   memo(null);
+  carryTotal(null);
   RATIO_IDS.forEach((id) => $(`f-${id}`).classList.toggle('has-error', rr.field === id));
   AMOUNTS.forEach((k) => $(`f-${k}`).classList.toggle('has-error', k === basis && (Number.isNaN(amt) || amt === 0)));
   const custom = $(CUSTOM).value !== '';
@@ -129,6 +135,7 @@ function update() {
   }
   drawBottle(res);
   showAmounts(res);
+  carryTotal(res);
   const way = how === 'parts' || C.label === 'parts' ? `${partsText(rr.ratio)}で` : `${bottleLabel(rr.ratio)}に`;
   const v = { total: volumeText(res.total), conc: volumeText(res.concentrate), water: volumeText(res.water) };
   const ask = { total: `できあがり${v.total}を`, conc: `${CONC}${v.conc}を`, water: `水${v.water}で` }[basis];
@@ -208,3 +215,5 @@ enterToNext([$('v-conc')]);
 enterToNext([$('v-water')]);
 fitCustom();
 update();
+// 引きついだできあがりの量は、手で入れたのと同じに入れる（濃度はえらんでもらう）
+if (kishakuCarried) tzLater(() => tzFill($('v-total'), mlValue(kishakuCarried.total)));
