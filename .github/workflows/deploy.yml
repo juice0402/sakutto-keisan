@@ -3,7 +3,8 @@ name: Build and Deploy
 # テスト → ビルド → 写真の読み取りソフトを用意 → 全ページ点検 →（PRでは写真の読み取りのテスト）→ Cloudflare Pages へ直接アップロード（Direct Upload）
 # →（本番では）変わったページを IndexNow で検索エンジンに知らせる
 # 返礼品のページ（/furusato/henreihin/）は、楽天のデータでビルドのときに作る（scripts/henreihin-mode.mjs・fetch-henreihin.mjs）。
-#   取ったデータはランナーの中だけ（.henreihin/。コミットしない・成果物に上げない・ログには件数だけ）
+#   家電別の電気代のページの型番の値段も同じ（scripts/fetch-kaden.mjs → .kaden/）
+#   取ったデータはランナーの中だけ（.henreihin/・.kaden/。コミットしない・成果物に上げない・ログには件数だけ）
 #   毎日の取り直しは henreihin-daily.yml がこのワークフローを main で動かす
 # Cloudflare 側ではビルドしないので、アカウント共有の「月500回のビルド枠」を使わない
 #   main への push        → 本番（https://sakutto-keisan.com）
@@ -57,6 +58,15 @@ jobs:
           RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
         run: node scripts/fetch-henreihin.mjs
 
+      - name: 家電の型番の値段を楽天から取る
+        # 家電別の電気代の5ページの節（#172）。取れなかった日・キーがないときは節を出さずに進む（公開は止めない）
+        continue-on-error: true
+        env:
+          RAKUTEN_APPLICATION_ID: ${{ secrets.RAKUTEN_APPLICATION_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+        run: node scripts/fetch-kaden.mjs
+
       - name: ビルド
         env:
           HENREIHIN: ${{ steps.hr.outputs.mode }}
@@ -73,7 +83,7 @@ jobs:
       - name: 楽天のデータを消す
         # ビルドしたら要らない。アップロードするのは dist/ だけ
         if: always()
-        run: rm -rf .henreihin
+        run: rm -rf .henreihin .kaden
 
       - name: 写真の読み取りのテスト（プルリクエストのとき）
         if: github.event_name == 'pull_request'

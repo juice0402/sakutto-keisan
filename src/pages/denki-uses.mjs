@@ -8,8 +8,10 @@ import { denkiCard, hourYen, denkiZukai, denkiBars } from '../denki.mjs';
 import { DENKI_PRICE, DENKI_USES, DENKI_MORE, DENKI_MAKER, DENKI_CHECKED } from '../data/denki.mjs';
 import { denki } from '../lib/denki.mjs';
 import { fmt } from '../lib/number.mjs';
+import { loadKaden, kadenSection } from '../kaden.mjs';
 
 const P = DENKI_PRICE.value;
+const KADEN = loadKaden(); // 型番の値段（楽天市場。.kaden/data.json があるときだけ。#172）
 const esc = (s) => s.replace(/&/g, '&amp;');
 const link = (name, url) => `<a href="${esc(url)}">${name}</a>`;
 const yen1 = (x) => fmt(x, 1);
@@ -261,6 +263,7 @@ function render(u) {
 <p class="lead">${t.lead}</p>
 
 ${denkiCard({ tool, tiles: u.modes.map((m) => ({ b: m.b, small: hourYen(m.watt), watt: m.watt })), label: '強さをえらぶ', name: u.name, empty: '強さをえらんでください', wattEx: String(u.modes[0].watt), hoursEx: String(u.hours) })}
+${kadenSection(u, KADEN)}
 
 ${section(
   'table',

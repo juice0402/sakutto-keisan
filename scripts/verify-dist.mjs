@@ -156,6 +156,17 @@ for (const file of htmlFiles) {
       if (i >= 4 && !m[0].includes('loading="lazy"')) fail(rel, '5枚目からの商品画像が loading="lazy" でない');
     });
   }
+  // 家電別の電気代のページの型番の値段（#172）：リンクの上に「広告」・楽天のクレジット・リンクは楽天の affiliateUrl で sponsored・商品画像なし
+  if (html.includes('class="kd-list"')) {
+    const ad = html.indexOf('<p class="kd-ad">広告　楽天アフィリエイトを利用しています</p>');
+    if (ad < 0 || ad > html.indexOf('class="kd-list"')) fail(rel, '型番の値段のリンクより上に「広告　楽天アフィリエイトを利用しています」がない');
+    if (!html.includes('<!-- Rakuten Web Services Attribution Snippet FROM HERE -->\n<a href="https://developers.rakuten.com/" target="_blank">Supported by Rakuten Developers</a>\n<!-- Rakuten Web Services Attribution Snippet TO HERE -->')) fail(rel, '楽天のクレジットがない（指定のHTMLのまま）');
+    for (const m of html.matchAll(/<a class="kd-go" href="([^"]*)"([^>]*)>/g)) {
+      if (!/rel="[^"]*sponsored/.test(m[2])) fail(rel, '型番の値段のリンクに rel="sponsored" がない');
+      if (!/^https:\/\/(hb\.afl|item)\.rakuten\.co\.jp\//.test(m[1])) fail(rel, `型番の値段のリンクが楽天でない: ${m[1].slice(0, 60)}`);
+    }
+    if (/thumbnail\.image\.rakuten/.test(html)) fail(rel, '型番の値段の節に商品画像がある（外部の読み込みを増やさない）');
+  }
   for (const m of html.matchAll(/\b(?:href|src)="(\/[^"]*)"/g)) {
     if (!resolves(m[1])) fail(rel, `リンク先がない: ${m[1]}`);
   }

@@ -25,6 +25,7 @@ CLAUDE.md は1万字以内に保つ。経緯・ツールごとのくわしいこ
   - Secrets：`CLOUDFLARE_API_TOKEN`（Pages の編集だけ）・`CLOUDFLARE_ACCOUNT_ID`
   - 本番では IndexNow に、中身が変わったページだけを知らせる
 - 返礼品のページ（楽天の商品検索API）は、公開のときにビルドの中で取ってHTMLにするだけ。取ったデータ（`.henreihin/`）はコミットしない・成果物に上げない・ログには件数だけ。Secrets は `RAKUTEN_APPLICATION_ID`・`RAKUTEN_ACCESS_KEY`・`RAKUTEN_AFFILIATE_ID`（値はどこにも出さない）。楽天のアプリの有効期限は2027年10月22日。くわしくは docs/furusato.md の「返礼品のしくみ」
+- 家電別の電気代の5ページの型番の値段も同じアプリで、ビルドの前に `scripts/fetch-kaden.mjs` が取って `.kaden/`（コミットしない・ログは件数だけ）。取れない日は節を出さずに通す。くわしくは docs/shikumi.md の「公開」
 - 見張り（`watch.yml`）・リンクの点検（`check-links.yml`）・返礼品の毎日の取り直し（`henreihin-daily.yml`）も Actions で動く。くわしくは docs/shikumi.md
 - 見張り（`mihari.yml`・`scripts/mihari.mjs`）：公開などの失敗は Issue（ラベル mihari。終わるたびと3時間ごとにも見る。マージの印が動かした公開は終わっても知らせが来ないため）、確認日・外のページで直すことが決まったら Issue「【夜】…」（ラベル night）。くわしくは docs/shikumi.md の「見張り（mihari.yml）」
 - 見張り（Google からの訪問。`mihari-google.yml`・`scripts/mihari-google.mjs`）：全6サイトの日本から Google 経由の訪問（Cloudflare Web Analytics）が直近3日どれも前の7日の平均の半分以下ならサイトごとに Issue（ラベル mihari）。くわしくは docs/shikumi.md の同じ節

@@ -946,6 +946,12 @@ h1 {
 .hr-cats .tool-btn { flex-direction: row; justify-content: space-between; align-items: baseline; min-height: 52px; padding: 0 2px; border: 0; border-bottom: 1.5px dashed var(--border); border-radius: 0; background: none; font-size: 17px; }
 .hr-cats small { font-size: 13px; font-weight: 700; color: var(--muted); }
 .hr-credit { margin: 20px 0 0; font-size: 12px; color: var(--muted); }
+/* 家電別の電気代のページの型番の値段（#172）：広告の表示・楽天市場へのリンク（画像なし）・クレジット */
+.kd-ad { margin: 12px 0 4px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.prose .kd-list { list-style: none; margin: 0; padding: 0; }
+.prose .kd-list li { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.kd-go { display: inline-block; min-height: 24px; margin-right: 8px; font-weight: 700; color: var(--text); text-underline-offset: 3px; }
+.kd-credit { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
 /* お買い物マラソン：回の1行と、10マスのスタンプカード */
 .pt-event { margin: 0 0 10px; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-event.is-past { color: var(--muted); }
