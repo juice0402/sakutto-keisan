@@ -40,6 +40,7 @@
 
 ## 公開（deploy.yml）と IndexNow
 - 公開のくわしいこと
+  - 家電別の電気代の5ページの型番の値段（#172）：ビルドの前に `scripts/fetch-kaden.mjs` が楽天市場を型番ごとに1回（返礼品と同じアプリ・同じ呼び方）探して `.kaden/data.json`（.gitignore・成果物に上げない・ビルドのあと消す）に置く。ログは型番ごとの件数だけ。キーがない・取れない日は `continue-on-error` で節を出さずに進む（見張りの issue にしない）。毎日6:07の返礼品の取り直しで新しくなる
   - 本番では、アップロードの前後に `scripts/indexnow.mjs` が動き、**中身が変わったページだけ**を IndexNow（Bing・Yandex・Naver・Seznam・Yep）に知らせる。前回の指紋は本番の `/indexnow-pages.json`、鍵は `SITE.indexnowKey`（ビルドが `/<鍵>.txt` を置く）。結果は Actions の注意書き（IndexNow）で見る。Google は IndexNow に入っていないので、サイトマップとリンクで見つけてもらう
 
 ## 公式のページの見張り（watch.yml）

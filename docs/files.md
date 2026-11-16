@@ -29,6 +29,7 @@ CLAUDE.md の「ファイル」の短い一覧のくわしい版。ファイル�
 | `src/data/henreihin.mjs` | 返礼品のページの設定：`HENREIHIN_LIVE`（本番に出すか）、ビルドのときの `HENREIHIN_MODE`（off・fixture・api）、カテゴリと楽天で探す言葉・外す言葉・ジャンルID、一覧の数、寄付額のマス |
 | `src/lib/henreihin.mjs` | 返礼品の名前から量を読む（`readAmount`：5kg×3袋・定期便・ロール・箱。読めないものは null で一覧に出さない）、1万円あたりの量、発送の時期の言葉、ならべ方、はじめの1件（`firstPick`） |
 | `scripts/rakuten.mjs`・`fetch-henreihin.mjs`・`check-henreihin.mjs`・`henreihin-mode.mjs`・`cleanup-deployments.mjs` | 楽天の商品検索の呼び方、ビルドの前に取って `.henreihin/data.json` に置く、キーが入った日に取れるか確かめる、ビルドのモードを決める、古い公開を消す（上の「しくみ」の返礼品のページ） |
+| `scripts/fetch-kaden.mjs`・`src/kaden.mjs`・`src/lib/kaden.mjs`・`src/client/kaden.mjs` | 家電別の電気代の型番の値段（#172）：楽天から取って `.kaden/data.json` に置く・節の HTML・型番のならしとしぼり方とこの冬の日数・帯を入力に合わせて変える（`denki.js` から） |
 | `src/data/point.mjs` | お買い物マラソン・スーパーSALE の回ごとの期間と上限（楽天市場の公式のページで確かめたものだけ。公式URLと確認日つき。上限が公式で確かめられないあいだは null。付与日と有効期限は `grant`・`expires`）と、上限のマス・1店舗の最低金額・最大の店舗数。新しい回が公式に出たら足す |
 | `src/data/spu.mjs` | SPU のサービスごとの倍率・1か月の上限・条件の短いまとめ（公式で確かめたものだけ。URLと確認日つき。上限が確かめられないものは null）と出典（`SPU_SOURCES`。見張りのページ）。確認日から90日でテストが止まる。計算は `src/lib/spu.mjs`。5と0のつく日の倍率と上限（`POINT_DAY`）もここ |
 | `src/data/amazon.mjs` | Amazon Mastercard の還元率（プライム会員2%・会員でない人1.5%）と出典（About Amazon・三井住友カード）。見張りは SPU と同じ。確認日から90日でテストが止まる |

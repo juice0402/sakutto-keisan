@@ -3,6 +3,7 @@ import { denki } from '../lib/denki.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgCard, figMeter, METER_H } from './share-img.mjs';
+import { kdDraw } from './kaden.mjs';
 
 const memo = choiMemo(`${location.pathname.split('/').filter(Boolean).pop() || 'denki-dai'}.png`);
 
@@ -47,6 +48,7 @@ function update() {
   TILES.forEach((t) => t.setAttribute('aria-pressed', String(t === picked)));
   setNote(res.error || '', !!res.error);
   const name = [BASE, picked ? picked.querySelector('b').textContent : ''].filter(Boolean).join(' ');
+  kdDraw(res, name); // 家電別のページの「この冬の電気代」の帯（節があるときだけ）
   if (!res.ok) {
     setBig('1か月', '？');
     $('r-foot').textContent = res.empty ? EMPTY[res.missing] : '';
