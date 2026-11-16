@@ -41,3 +41,20 @@ CLAUDE.md の「ファイル」の短い一覧のくわしい版。ファイル�
 | `scripts/verify-dist.mjs` | ビルド後の全ページ点検（title・description・canonical・h1・タグの閉じ忘れ・id の重複・リンク切れ・共有画像・外部読み込みなし・入力欄の inputmode とラベル・ズーム防止・スクリプトの文法） |
 | `scripts/make-images.py` | SNSの共有画像（OGP）とホーム画面用アイコンを作る（Pillow と日本語フォントが要るので Claude の環境で動かしてコミット）。トップ・固定ページの `og/default.jpg` は、サイトの決めの1枚（Canva の切り紙の絵 `scripts/art/ogp-kirigami.jpg`。10/26 しょーくんが3案からえらんだ）に字をのせる。ツールのページは答えの絵のまま |
 | `src/prints.mjs`・`scripts/make-prints.py` | 印刷用の早見表（A4・1枚のPDF。年齢・和暦／学歴／消毒液／割引／薄め方）。右下のすみにサイト名とそのページのURLのQRコード（make-prints.py が segno で作る線の絵。QRが表や字とかさなると止まる）。見た目は「手帳のおまけのページ」（10/26 しょーくんが3案からえらんだ）。表はサイトの計算とデータから作る。数字や文を変えたら `python3 scripts/make-prints.py` で作り直してコミット（`tests/prints.test.mjs` が `src/data/prints.json` の指紋で作り直し忘れを見張る）。年の入るPDFは今年と来年を置き、ページは今年のPDFにリンク（1月1日のビルドで切りかわる）。毎年11月1日の予約タスクが次の年を足す |
+
+## CLAUDE.md から移した元の文（2026-11-16・#174）
+CLAUDE.md を短くしたときに、元の節を文のまま移したもの。CLAUDE.md には要点と「くわしくは」の1行だけを残した。決まりはここにも CLAUDE.md にも有効。
+
+### ファイル（くわしい中身は docs/files.md）
+- `src/site.mjs`：サイト名・URL・カテゴリとテーマ・`SITE`（`SITE.contact` に Google フォームの URL を入れると /contact/ とフッターのリンクが出る）。`src/tools.mjs`：ツールの一覧（トップ・関連ツール・sitemap はここから作る。`published`・`parent`・`pick`・`more`・`related`）
+- `src/layout.mjs`：ページの外側（head・ヘッダー・フッター・構造化データ）と本文の部品。`src/parts.mjs`：ツールページの共通部品
+- `src/pages/*.mjs`：ページ。default 関数が `{ path, html, sitemap, updated }`（またはその配列）を返す。HTML 以外のファイルは `{ path, raw }`
+- 読みもの `/yomimono/`：1本1ファイル `src/yomimono/<slug>.mjs`（ひな形 `_hinagata.mjs`・棚 `_shelf.mjs`）、ページ・一覧・RSS は `src/pages/yomimono.mjs`、書き方とネタの山は `docs/yomimono-neta.md`
+- `src/lib/*.mjs`：計算のロジック（DOM を触らない。テストとブラウザの両方で使う）。`src/client/*.js`：ブラウザ用の入口（1ツール1ファイル。`*.mjs` は共通部品）
+- `src/data/*.mjs`：出典つきの数字。確認日から決まった日数がたつとテストが止まるものがある（出典を開いて確かめ直し、確認日を直す）
+- `src/styles/site.css`：デザイン（テーマごとに `[data-theme]`）。`public/`：そのままコピー。`tests/*.test.mjs`：`node --test` のテスト。`scripts/verify-dist.mjs`：ビルド後の全ページ点検
+- `scripts/make-images.py`（共有画像とアイコン）・`make-prints.py`（印刷用の早見表のPDF）：Claude の環境で動かしてコミットする。早見表の数字や文を変えたら作り直す（テストが見張る）
+
+#### ブラウザ用スクリプトの決まり（小さなバンドラーの都合）
+- import は1行で `import { a, b } from './x.mjs';` の形だけ
+- まとめると1つのスコープになるので、`src/lib`・`src/client` のファイル間で**同じ名前の関数・変数を作らない**（重なると点検の文法チェックで落ちる）
