@@ -53,3 +53,29 @@
 
 ## 入力した数字と外部の読み込み
 - 計算はブラウザの中だけ。**入力した数字を送らない**。保存するのは3つだけで、どれもこの端末のブラウザの localStorage（送らない）：ちょいメモ（「メモする」を押したときの1行と日時）と寄付メモ `/furusato/memo/` と現場手帳 `/genba/`（`sakutto-genba`。現場10件と、印刷・画像で送るを押した回数と最初の日）（フッターの1行は `page({ footNote })` でそのページだけ差しかえる）。プライバシーポリシーにも書いた。外部のスクリプト・画像・フォントを読み込まない。例外はページの印 `<html data-ext>` で決めた2つだけ（10/22 統合の設計）：`adsense`＝AdSense のスクリプト（`SITE.adsense` に運営者IDを入れると、noindex と `noAds` のページをのぞく全ページに入り、ビルドが `/ads.txt` を置く。空のあいだは何も入らない）、`rakuten-img`＝返礼品のページの楽天の商品画像。2つを同じページに入れない。`verify-dist.mjs` が見張る
+
+## CLAUDE.md から移した元の文（2026-11-16・#174）
+CLAUDE.md を短くしたときに、元の節を文のまま移したもの。CLAUDE.md には要点と「くわしくは」の1行だけを残した。決まりはここにも CLAUDE.md にも有効。
+
+### しくみ
+- **依存パッケージなし**の Node だけのビルド（`scripts/build.mjs`）。npm install は不要。クラウド環境では npm レジストリに届かないことがあるので、パッケージを足さない
+- コマンド：`npm run check`（テスト → ビルド → 全ページ点検）。PR前に必ず緑にする
+- 軽さ：CSS とスクリプトは各ページに埋め込み（読み込みはHTMLの1回だけ）。スクリプトはまとめるときに使われていない関数を自動で落とし（ツリーシェイキング。部品のファイルは行頭の宣言だけで書く）、コメント・字下げを取る。CSS もページごとに、そのページの HTML とスクリプトに出てこないクラス・id のルールと、ほかのテーマの色を自動で落とす（**クラス名は HTML か JS にそのままの形で書く**。`'is-' + x` のように組み立てない）。画面外の本文は `content-visibility` で後回し。使わなくなったCSS・関数はその場で消す
+- 公開：GitHub Actions（`.github/workflows/deploy.yml`）が Cloudflare Pages へ **Direct Upload**。Cloudflare 側のビルドは使わない（あそびトーク・FANZA・ヤセ活と共有の「月500回」のビルド枠を使わないため）
+  - PR → プレビュー（PRに自動でURLのコメント）／ main → 本番
+  - Secrets：`CLOUDFLARE_API_TOKEN`（Pages の編集だけ）・`CLOUDFLARE_ACCOUNT_ID`
+  - 本番では IndexNow に、中身が変わったページだけを知らせる
+- 返礼品のページ（楽天の商品検索API）は、公開のときにビルドの中で取ってHTMLにするだけ。取ったデータ（`.henreihin/`）はコミットしない・成果物に上げない・ログには件数だけ。Secrets は `RAKUTEN_APPLICATION_ID`・`RAKUTEN_ACCESS_KEY`・`RAKUTEN_AFFILIATE_ID`（値はどこにも出さない）。楽天のアプリの有効期限は2027年10月22日。くわしくは docs/furusato.md の「返礼品のしくみ」
+- 見張り（`watch.yml`）・リンクの点検（`check-links.yml`）・返礼品の毎日の取り直し（`henreihin-daily.yml`）も Actions で動く。くわしくは docs/shikumi.md
+- 見張り（`mihari.yml`・`scripts/mihari.mjs`）：公開などの失敗は Issue（ラベル mihari。終わるたびと3時間ごとにも見る。マージの印が動かした公開は終わっても知らせが来ないため）、確認日・外のページで直すことが決まったら Issue「【夜】…」（ラベル night）。くわしくは docs/shikumi.md の「見張り（mihari.yml）」
+- 見張り（Google からの訪問。`mihari-google.yml`・`scripts/mihari-google.mjs`）：全6サイトの日本から Google 経由の訪問（Cloudflare Web Analytics）が直近3日どれも前の7日の平均の半分以下ならサイトごとに Issue（ラベル mihari）。くわしくは docs/shikumi.md の同じ節
+- 流れ：ブランチ `claude/...` → PR → CI が緑・プレビューで確認 → **しょーくんに知らせてから Merge**
+  - 例外は2つだけ（CI が緑なら自分で Merge して、しょーくんに報告）。毎月1日の予約タスク「サクッと計算 スワップの金利の更新（Claude）」の、`src/data/fx-swap.mjs` だけを直した PR。毎日8:32の予約タスク「サクッと計算 公式ページの見張りの対応（Claude）」の PR（税金の数字や手続きが変わったときも同じ）
+  - 見張りの対応で直すのは `src/data/point.mjs`・`spu.mjs`・`furusato.mjs`・ふるさと納税とマラソンと SPU のページの文・テスト。「出典の点検」の Issue では、消えたリンクを同じ発行元の新しいページに差しかえる。計算のしくみ（`src/lib/`）まで変えるときは Merge せずに報告
+  - ほかの予約タスクは PR まで（Merge はしょーくん）：毎週火曜9:32「サクッと計算 消費税の引き下げの見張り（Claude）」・12/27 に1回「サクッと計算 2027年の寄付の準備（Claude）」・毎年11月1日の印刷用の早見表の次の年。一覧は docs/shikumi.md
+
+### 公開前の決まり（しょーくんの方針・10/16）：**高速化・デバッグ・SEO** を必ずやってから公開する
+- **やるのは公開（main へ Merge）の直前に1回だけ**。途中の修正ごとにはやらない。途中は `npm run check` と、変えたところの確認だけでよい
+- **高速化**：`npm run check` のあと、ページの重さ（gzip）を前と比べる。スロー4G・CPU 4倍遅いスマホの想定で FCP・LCP を測り（目安：1秒未満）、入力1回の処理が重くないか見る。増えた CSS・関数・使っていない部品を消す。CSS を変えたら、変える前と後の全ページのスクリーンショットを撮って、見た目が変わっていないか画素でくらべる
+- **デバッグ**：計算はページに載せる例をすべてテストに入れる。`scripts/check-fold.py`（答えが1画面に見えるか）。`scripts/check-edges.py`（入力の段の左右のはしがそろっているか）。`scripts/check-flow.py`（入力の流れ：上の欄から名指しする案内・案内が1行・欄の説明・Enter が答えの欄に入らない）。Playwright で 360・390・768px：横スクロールなし・コンソールのエラーなし・入力欄は16px以上・高さがそろっている・数字だけ入る・全角→半角・Enterで次の欄・クリア・ボタンをもう一度押すと元にもどる・まちがった入力（0・空・文字）・大きすぎる数・入力した文字をそのまま表示しても HTML にならない（エスケープ）。ほかのツールのページもいっしょに動かして、こわれていないか確かめる
+- **SEO**：title（検索される言葉が先）・description（30〜160文字）・h1・canonical・構造化データ（WebApplication・FAQPage・BreadcrumbList）・sitemap の lastmod・共有画像・トップと関連ツールからのリンク・本文（計算式・計算例・よくある質問）を確かめる
