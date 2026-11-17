@@ -86,10 +86,10 @@ function dump(sheets) {
 }
 
 async function main() {
-  const ua = { 'user-agent': 'Mozilla/5.0 (compatible; site-build)' };
+  const ua = { 'user-agent': 'Mozilla/5.0 (compatible; sakutto-keisan-build)', accept: 'text/html,application/xhtml+xml,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,*/*;q=0.8', 'accept-language': 'ja,en;q=0.5' };
   try {
     const res = await fetch(RESULTS_URL, { headers: ua, signal: AbortSignal.timeout(30000) });
-    if (!res.ok) throw new Error(`結果のページが ${res.status}`);
+    if (!res.ok) throw new Error(`結果のページが ${res.status}（${res.headers.get('server') || ''}）`);
     const url = findSeriesUrl(await res.text());
     if (!url) throw new Error('結果のページに時系列の xlsx のリンクがありません');
     const x = await fetch(url, { headers: ua, signal: AbortSignal.timeout(60000) });
