@@ -59,9 +59,7 @@ jobs:
 
       - name: 灯油の値段を取る
         # 資源エネルギー庁の給油所の週の時系列から、灯油の店頭・全国の18L（.touyu/。コミットしない・成果物に上げない）
-        # 取れなかったときも止めない（灯油代のページは src/data/touyu.mjs の値のまま）
-        env:
-          TOUYU_DUMP: '1'
+        # 取れなかったときも止めない（灯油代のページは src/data/touyu.mjs の値のまま）。シートの形を見たいときは env に TOUYU_DUMP: '1'
         run: node scripts/fetch-touyu.mjs
 
       - name: ビルド

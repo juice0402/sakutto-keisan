@@ -43,6 +43,18 @@ test('灯油の店頭・全国の18Lをえらぶ（配達はえらばない）',
   assert.deepEqual(pickTouyu(sh), { sheet: '灯油', unit: '18L', weeks: [{ date: '2026-11-09', can: 2563 }, { date: '2026-11-16', can: 2570 }] });
 });
 
+test('公表の形（11/17 に CI で見た）：シート「灯油店頭」「灯油配達」・B列が調査日・C列が全国の18L', () => {
+  const head = { A1: '灯油店頭\n現金価格※', B1: '調査日', C1: '全         国', D1: '北 海 道 局' };
+  const sh = readXlsx(
+    makeXlsx([
+      { name: 'レギュラー', cells: { A1: 'レギュラー', B1: '調査日', C1: '全         国', B2: 46335, C2: 169.9 } },
+      { name: '灯油店頭', cells: { ...head, B2: 33112, C2: 801, D2: 747, B3: 46335, C3: 2589, D3: 2824, A4: '※消費税込み価格。' } },
+      { name: '灯油配達', cells: { ...head, A1: '灯油配達', B2: 46335, C2: 2785 } },
+    ]),
+  );
+  assert.deepEqual(pickTouyu(sh), { sheet: '灯油店頭', unit: '18L', weeks: [{ date: '1990-08-27', can: 801 }, { date: '2026-11-09', can: 2589 }] });
+});
+
 test('1Lの値段だけなら18倍、灯油がなければ止める', () => {
   const sh = readXlsx(makeXlsx([{ name: '灯油（店頭）', cells: { A1: '調査日', B1: '全国', A2: '2026/11/16', B2: 142.8 } }]));
   assert.deepEqual(pickTouyu(sh), { sheet: '灯油（店頭）', unit: '1L', weeks: [{ date: '2026-11-16', can: 2570 }] });
