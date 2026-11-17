@@ -39,6 +39,7 @@
   - 例外：毎日の予約タスク「サクッと計算 公式ページの見張りの対応（Claude）」のPRも、CI が緑なら自分で Merge して報告する。税金の数字や手続きが変わったときも同じ（10/22 しょーくんが「全部自動でマージ」をえらんだ）
 
 ## 公開（deploy.yml）と IndexNow
+- 灯油の値段（#178）：deploy.yml がビルドの前に `scripts/fetch-touyu.mjs` を動かし、灯油の店頭・全国の18Lを `.touyu/price.json` に置く（コミットしない・成果物に上げない・ログは「灯油：◯月◯日調査 ◯円（◯週）」だけ）。取れなかったときはビルドを止めず、注意書きに1行出して `TOUYU_PRICE` のまま。HENREIHIN_LIVE とは関係なく PR・本番の公開のたびに取る（本番は毎日の返礼品の取り直しの公開でも新しくなる。返礼品を出していない時期は main の公開のときだけ）
 - 公開のくわしいこと
   - 本番では、アップロードの前後に `scripts/indexnow.mjs` が動き、**中身が変わったページだけ**を IndexNow（Bing・Yandex・Naver・Seznam・Yep）に知らせる。前回の指紋は本番の `/indexnow-pages.json`、鍵は `SITE.indexnowKey`（ビルドが `/<鍵>.txt` を置く）。結果は Actions の注意書き（IndexNow）で見る。Google は IndexNow に入っていないので、サイトマップとリンクで見つけてもらう
 

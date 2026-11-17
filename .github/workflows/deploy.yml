@@ -57,6 +57,13 @@ jobs:
           RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
         run: node scripts/fetch-henreihin.mjs
 
+      - name: 灯油の値段を取る
+        # 資源エネルギー庁の給油所の週の時系列から、灯油の店頭・全国の18L（.touyu/。コミットしない・成果物に上げない）
+        # 取れなかったときも止めない（灯油代のページは src/data/touyu.mjs の値のまま）
+        env:
+          TOUYU_DUMP: '1'
+        run: node scripts/fetch-touyu.mjs
+
       - name: ビルド
         env:
           HENREIHIN: ${{ steps.hr.outputs.mode }}
@@ -70,10 +77,10 @@ jobs:
           HENREIHIN: ${{ steps.hr.outputs.mode }}
         run: npm run verify
 
-      - name: 楽天のデータを消す
+      - name: 楽天のデータと灯油の値段を消す
         # ビルドしたら要らない。アップロードするのは dist/ だけ
         if: always()
-        run: rm -rf .henreihin
+        run: rm -rf .henreihin .touyu
 
       - name: 写真の読み取りのテスト（プルリクエストのとき）
         if: github.event_name == 'pull_request'

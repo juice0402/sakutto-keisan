@@ -21,7 +21,7 @@ CLAUDE.md の「ファイル」の短い一覧のくわしい版。ファイル�
 | `src/data/denki.mjs` | 電気代の単価のはじめの値（全国家庭電気製品公正取引協議会の目安単価）と、家電のマスの消費電力の目安、家電別のページの強さごとの消費電力（`DENKI_USES`。どれも出典URLつき）。ページの表と出典のリンクはここから作る |
 | `src/data/seisou-tanka.mjs` | 清掃の見積もりの目安：国土交通省の建築保全業務労務単価（清掃員・10地区・年度）と、島根県の清掃業務委託料算定要領の経費の率。毎年2月ごろ出る次の年度の単価に直す（年度の終わりから90日でテストが止まる） |
 | `src/lib/genba.mjs`・`src/pages/genba.mjs`・`src/client/genba.js` | 現場手帳 `/genba/`（#106）：場所ごとの時間・時間割・見積もりの目安・トイレの消毒液の計算と、場所の1行の HTML（ページとブラウザで共通）。現場は localStorage `sakutto-genba`。くわしくは docs/tools.md の「現場手帳」 |
-| `src/data/touyu.mjs` | 灯油代の計算の暖房のマス（メーカーの燃料消費量 L/h の強・弱、出典の仕様のページ）と、灯油の値段のはじめの値（資源エネルギー庁の石油製品価格調査の18Lの店頭価格と調査の日） |
+| `src/data/touyu.mjs` | 灯油代の計算の暖房のマス（メーカーの燃料消費量 L/h の強・弱、出典の仕様のページ）と、灯油の値段のはじめの値（取れなかったとき用。ページは `src/touyu-now.mjs` が `.touyu/price.json` の最新の週をえらぶ）（資源エネルギー庁の石油製品価格調査の18Lの店頭価格と調査の日） |
 | `src/data/kondate.mjs` | 晩ごはんシミュレーターの食材 `KONDATE_ING`（3グループ・72）と料理 `KONDATE_DISHES`（202品。`{ id, name, kind, ings }`、id は変えない・消さない）。くわしくは docs/kondate.md の「料理のデータ」 |
 | `src/lib/kondate.mjs` | 晩ごはんシミュレーターの1週間の組み方・1日の入れかえ・買うもの・端末のデータ（localStorage `sakutto-kondate`）の読み書き・ページの例の週。テストは `tests/kondate.test.mjs` |
 | `src/data/enbun.mjs` | 塩分濃度の計算の用途のマス（浅漬け・パスタ・砂抜き・梅干しの濃度と出典）と、塩のスプーンの重さ（食塩 小さじ1＝6g・大さじ1＝18g） |

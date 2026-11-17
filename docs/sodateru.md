@@ -169,7 +169,7 @@
 - 読むファイル：src/data/denki.mjs・src/pages/denki-uses.mjs・src/client/denki.js・scripts/fetch-henreihin.mjs・scripts/rakuten.mjs・src/data/henreihin.mjs（取ったデータの扱い）・.github/workflows/deploy.yml・docs/furusato.md の「返礼品のしくみ」・src/zukai.mjs・src/pages/info.mjs・CLAUDE.md（しくみ・ページの決まり・文章の決まり）
 - マージ：する
 
-### [ ] 灯油の値段を毎週自動で取る（取り方と計算のはじめの値）
+### [x] 灯油の値段を毎週自動で取る（取り方と計算のはじめの値）（#178）
 - やること：資源エネルギー庁「石油製品価格調査」の給油所の週ごとの時系列（Excel）を公開のたびに取り、灯油代の計算（/touyu-dai/）のはじめの値と、その下の1行（「◯月◯日調査・全国の店頭・18L」）を最新の週にする。グラフと表は次の項目
   - 取り方：`scripts/fetch-touyu.mjs` を作り、deploy.yml でビルドの前に動かす（`scripts/fetch-henreihin.mjs` と同じ形）。https://www.enecho.meti.go.jp/statistics/petroleum_and_lpgas/pl007/results.html を取り、`xlsx/<6けたの数字>s5.xlsx`（給油所の週の時系列。1990年8月27日から）のリンクを探して取る。ファイル名は毎週変わるので、URL を決め打ちしない
   - 11/4 にチャットで確かめたこと：最新は 2026-10-28 公表で、ファイルは `pl007/xlsx/261028s5.xlsx`（時系列）・`pl007/xlsx/261028.xlsx`（詳細版）・`pl007/docx/261028.docx`（概要版）。6けたは公表日（YYMMDD）。毎週月曜調査・水曜公表。結果のページに18Lの値段の数字は直接は書いていない

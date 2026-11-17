@@ -41,9 +41,9 @@
 ## ビルド・テスト・公開
 - `npm run check`＝`npm test`（`node --test`）→ `npm run build`（`scripts/build.mjs` が `dist/` を作る）→ `npm run verify`（`scripts/verify-dist.mjs`）
 - 画面の点検（Python・Playwright）：`scripts/check-fold.py`・`check-edges.py`・`check-flow.py`・`check-pc.py`
-- 公開は `.github/workflows/deploy.yml`（PR → プレビュー、main → 本番・`scripts/indexnow.mjs`）。返礼品は `scripts/fetch-henreihin.mjs`（Actions だけ）
+- 公開は `.github/workflows/deploy.yml`（PR → プレビュー、main → 本番・`scripts/indexnow.mjs`）。返礼品は `scripts/fetch-henreihin.mjs`（Actions だけ）。灯油の値段は `scripts/fetch-touyu.mjs`（xlsx の読み取りは `scripts/xlsx.mjs`）→ `src/touyu-now.mjs`
 
 ## 自動で作るファイル（読まない・手で直さない）
-- `dist/`（ビルド）・`.henreihin/`（楽天から取ったもの・コミットしない）・`.watch/`・`watch-report.md`・`.indexnow-urls.txt`
+- `dist/`（ビルド）・`.henreihin/`（楽天から取ったもの・コミットしない）・`.touyu/`（灯油の値段・コミットしない）・`.watch/`・`watch-report.md`・`.indexnow-urls.txt`
 - `public/og/*.png`・アイコン（`scripts/make-images.py` で作る）
 - `public/print/*.pdf` と `src/data/prints.json`（`scripts/make-prints.py` で作る）

@@ -4,14 +4,13 @@ import assert from 'node:assert/strict';
 import { Z_DENKI } from '../src/pages/denki-dai.mjs';
 import { denkiZukai, denkiBars } from '../src/denki.mjs';
 import { DENKI_USES } from '../src/data/denki.mjs';
-import { Z_TOUYU } from '../src/pages/touyu-dai.mjs';
+import { Z_TOUYU, TOUYU_NOW } from '../src/pages/touyu-dai.mjs';
 import { Z_BMI } from '../src/pages/bmi.mjs';
 import { Z_HENSACHI } from '../src/pages/hensachi.mjs';
 import { Z_YOUBI } from '../src/pages/dai-nan-youbi.mjs';
 import { Z_WAREKI } from '../src/pages/wareki.mjs';
 import { Z_GAKU } from '../src/pages/nenrei.mjs';
 import { daiNanYoubi } from '../src/lib/dai-nan-youbi.mjs';
-import { TOUYU_PRICE } from '../src/data/touyu.mjs';
 import { literPrice } from '../src/lib/touyu.mjs';
 
 test('電気代の図：こたつ600W・1日8時間・単価31円', () => {
@@ -31,7 +30,7 @@ test('家電別の図：強さごとの棒と絵の式', () => {
 test('灯油代の図：1時間0.3L・1日8時間', () => {
   assert.equal(Z_TOUYU.litersDay, 2.4);
   assert.equal(Z_TOUYU.canDays, 7.5);
-  assert.equal(Z_TOUYU.month, Math.round(Z_TOUYU.litersDay * 30 * literPrice(TOUYU_PRICE.can)));
+  assert.equal(Z_TOUYU.month, Math.round(Z_TOUYU.litersDay * 30 * literPrice(TOUYU_NOW.can)));
 });
 
 test('からだの図：BMIと偏差値', () => {
