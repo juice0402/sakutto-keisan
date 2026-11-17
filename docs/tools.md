@@ -73,6 +73,7 @@
 
 ## 灯油代 /touyu-dai/
 - 灯油の値段のはじめの値と欄の下の1行（「◯月◯日調査・全国の店頭・18L」）は、公開のたびに `scripts/fetch-touyu.mjs` が資源エネルギー庁の給油所の週の時系列（`xlsx/<公表日>s5.xlsx`）から取った最新の週（`.touyu/price.json`・コミットしない）。取れなかったときと手元のビルドは `src/data/touyu.mjs` の `TOUYU_PRICE`（`src/touyu-now.mjs` がえらぶ）。読みもの「暖房くらべ」は `TOUYU_PRICE` のまま（#178）
+- 灯油の値段の記録（#180・節 `kiroku`）：同じ `.touyu/price.json` から、この冬（10月〜3月）と前の冬の週ごとの折れ線（`zukai.mjs` の `lineChart`。線は SVG、目もりと値は HTML の文字）と、直近12週の表（調査日・18L・前の週からの差）。計算は `src/touyu-now.mjs` の `touyuRecord`・`touyuHistory`、テストは `tests/touyu-kiroku.test.mjs`。取れなかった・いちばん新しい週が冬でない（4〜9月）・はじめの値より古いときは節を出さない。前の冬がなければこの冬だけ。「高い・安い」や見通しは書かない
 
 ## 家族の行事
 - 家族の行事（10/27 しょーくん「くらしノートに負けない」。カテゴリ `gyoji`）：七五三 `/shichigosan/`（きょうだい3人まで・全員そろって祝える年に色）・厄年 `/yakudoshi/`・長寿祝い `/choju/`・お食い初め `/okuizome/`・四十九日 `/shijukunichi/`。数字と出典は `src/data/gyoji.mjs`（神社・お寺の公式などで確かめたものだけ。ちがう所はちがうと書く）、計算は `src/lib/gyoji.mjs`（数え年＝今年−生まれた年＋1）。早見表はビルドした年で作る

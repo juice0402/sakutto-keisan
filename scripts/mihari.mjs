@@ -6,7 +6,7 @@
 //   node scripts/mihari.mjs run                      workflow_run（WR_* の環境変数）。失敗 → mihari の Issue、成功 → 同じ題の Issue を閉じる
 //   node scripts/mihari.mjs latest                   3時間ごと・手で動かしたとき。見張る workflow ごとに main のいちばん新しい完了した実行を、run と同じ判定に通す
 //                                                    （マージの印などが GITHUB_TOKEN で動かした公開は、終わっても workflow_run が来ないため。2026-11-13）
-//   node scripts/mihari.mjs daily                    毎朝の点検（確認日・Kドリームス・消費税・お買い物マラソンの記録・早見表の PDF）
+//   node scripts/mihari.mjs daily                    毎朝の点検（確認日・Kドリームス・消費税・お買い物マラソンの記録・早見表の PDF・灯油の値段）
 //   node scripts/mihari.mjs memo <kind> <report.md>  watch.yml・check-links.yml の Issue の本文（夜のメモ＋報告）を出す
 // 環境変数：GITHUB_TOKEN・GITHUB_REPOSITORY・DRY_RUN=true（Issue を作らず、題と本文をログに出す）・TODAY=YYYY-MM-DD（日付を決めて試す）
 
@@ -159,6 +159,20 @@ export const kirokuReady = (c) => c.ended >= 6 && c.withCap >= 4;
 
 export const inPrintWindow = (date) => date.slice(5) >= '11-01' && date.slice(5) <= '12-20';
 export const printsMissing = (names, year) => [`nenrei-${year + 1}.pdf`, `gakureki-${year + 1}.pdf`].filter((n) => !names.includes(n));
+
+// ---------- 灯油の値段（#180） ----------
+// 10月〜3月だけ見る。本番の /touyu-dai/ の「◯月◯日調査」が14日より古ければ知らせる
+export const inTouyuSeason = (date) => { const m = Number(date.slice(5, 7)); return m >= 10 || m <= 3; };
+// ページの文の「11月9日調査」→ 'YYYY-MM-DD'（今日より先にならない年。いくつかあればいちばん新しい日）。なければ null
+export function touyuDayOf(text, today) {
+  const y = Number(today.slice(0, 4));
+  const days = [...norm(text).matchAll(/(\d{1,2})月(\d{1,2})日調査/g)].map((m) => {
+    const d = `${y}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}`;
+    return d > today ? `${y - 1}${d.slice(4)}` : d;
+  });
+  return days.sort().pop() || null;
+}
+export const touyuStale = (day, today, limit = 14) => !day || daysBetween(day, today) > limit;
 
 // ---------- Issue の本文 ----------
 const DONE = '`npm run check` が緑で、PR の CI（build-deploy）も緑';
@@ -649,6 +663,34 @@ async function checkPrints(nowMs, today) {
   });
 }
 
+const TOUYU_PAGE = 'https://sakutto-keisan.com/touyu-dai/';
+async function checkTouyu(state, nowMs, today) {
+  if (!inTouyuSeason(today)) return;
+  const page = await fetchPage(TOUYU_PAGE);
+  const ok = page.status >= 200 && page.status < 300;
+  await track(state, 'touyu', 'サクッと計算の灯油代のページ', TOUYU_PAGE, ok, today, page.error || `HTTP ${page.status}`);
+  if (!ok) return;
+  const day = touyuDayOf(page.text, today);
+  const title = '灯油代のページの灯油の値段が古いままです';
+  console.log(`灯油の値段：本番は${day ? `${jaDate(day)}調査（${daysBetween(day, today)}日前）` : '調査日が見つからない'}`);
+  if (!touyuStale(day, today)) return resolve(title, RUN_URL);
+  await raise({
+    title,
+    label: 'mihari',
+    body: [
+      day ? `本番の灯油代のページの灯油の値段が ${jaDate(day)} 調査のままで、${daysBetween(day, today)}日たっています（${today}。14日より古いと知らせる）。` : `本番の灯油代のページに「◯月◯日調査」が見つかりません（${today}）。`,
+      '資源エネルギー庁の価格調査が取れていないか、本番の作り直しが動いていないかもしれません。Build and Deploy のいちばん新しい実行の「灯油」の注記を見てください。',
+      '',
+      `- ページ：${TOUYU_PAGE}`,
+      `- 実行：${RUN_URL}`,
+      '',
+      footer(),
+      '',
+    ].join('\n'),
+    still: `まだ続いている（${day ? `${jaDate(day)}調査・${daysBetween(day, today)}日前` : '調査日なし'}。${RUN_URL}）`,
+  });
+}
+
 async function daily() {
   const nowMs = process.env.TODAY ? Date.parse(`${process.env.TODAY}T05:47:00+09:00`) : Date.now();
   const today = jstDate(nowMs);
@@ -662,6 +704,7 @@ async function daily() {
     ['消費税', () => checkShohizei(state, nowMs, today)],
     ['お買い物マラソンの記録', () => checkKiroku(nowMs, today)],
     ['早見表', () => checkPrints(nowMs, today)],
+    ['灯油の値段', () => checkTouyu(state, nowMs, today)],
   ];
   for (const [name, fn] of steps) {
     try {
