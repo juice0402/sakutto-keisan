@@ -260,3 +260,66 @@
 - 迷ったら：見張りの決まり（mihari.mjs の kirokuReady：終わった回6以上・上限が数字の回4以上）にとどかないあいだは noindex にしてサイトマップから外し、とどいたビルドで自動で外れるようにする（site-principles の「広告の審査」：中身のうすいページは育つまで noindex）。kirokuCount と kirokuReady は src/lib/ に移して、ページと mihari.mjs の両方から使ってよい。noindex のあいだも、表の見方・上限の種類（5,000・7,000・10,000）・期間の長さ・付与と期限の関係・データの確かめ方を書き、自分の文 900字を目安にする（水増しはしない）
 - 読むファイル：scripts/mihari.mjs（MEMO.kiroku・kirokuCount・kirokuReady・checkKiroku）・src/data/point.mjs・src/pages/point.mjs・src/pages/spu.mjs・docs/point.md・CLAUDE.md（ツールを1つ足す手順・公開前の決まり・文章の決まり・ページの決まり）
 - マージ：する
+
+### [ ] 清掃の作業時間：作業指示書を A4 1枚で印刷する
+- やること：/seisou-jikan/ の結果の作業指示書（大きな答え・作業・面積・人数・1人あたりの表・床を人数で分けた図）を、A4 1枚に印刷できるようにする
+  - 「印刷する」のボタンを、答えが出たときだけ出る段（ちょいメモ・画像で送るの段 `#cm-bar`）に足す。押すと `window.print()`。お手本は現場手帳（src/pages/genba.mjs の `gb-print` と、ページの `css` に `@media print{@page{size:A4;margin:14mm}}` を書く形。site.css には書かない）
+  - 印刷に出すのは作業指示書だけ。ヘッダー・入力欄・本文・つぎに・フッター・広告の枠は `@media print` で出さない。白黒で読める（赤ペンの答えは黒でも読める太さ）。紙のいちばん下に小さく「サクッと計算 清掃の作業時間」とページの URL の1行（貼れる早見表と同じく、どこで作ったか分かるように）
+  - 答えが出ていないときはボタンを出さない（`hidden`）
+  - テスト：ビルドしたページにボタンと印刷の CSS が入っていること（ほかの清掃のページに入っていないこと）
+  - docs/tools.md の清掃の作業時間の行に1行
+- できあがりの条件：`npm run check` が緑。Playwright で 390px に答えを出し、`page.pdf({ format: 'A4' })` で1ページに収まり、指示書のほかの部分が出ていないこと（PDF を画像にしたものを PR に）。check-fold.py が通る（ボタンが増えても答えが1画面に見える）
+- 決まったこと：C-028（連絡板・11/12）の sakutto は「いまは仕事の道具を深くする向き（清掃の作業時間の形）」。清掃の作業時間はサイトのクリックの約半分（claude/search-data-sakutto.md の 11/11 の回：136表示・16クリック）。印刷は A4 1枚で `@media print`（現場手帳 #106・docs/tools.md の現場手帳の行）
+- 迷ったら：段がスマホ 390px で1行に収まらないときは、「印刷する」を段の下に文字のボタンで1つ（四角いボタンを横に並べない）。印刷した回数は残さない（保存は CLAUDE.md の4つの道具だけ）。指示書の見た目は画面のままで、印刷のために作り直さない
+- 読むファイル：src/pages/seisou-jikan.mjs・src/client/seisou.js・src/pages/genba.mjs（印刷の形）・src/parts.mjs（memoHtml）・docs/tools.md の清掃の作業時間と現場手帳の行
+- マージ：する
+- 足した：育てる山の補充（自動・2026-11-18）
+
+### [ ] 清掃の見積もり：見積書を A4 1枚で印刷する
+- やること：/seisou-mitsumori/ の結果の見積書（1回・1か月・1年の表、清掃する月の1年の帯、1か月の税込み）を、A4 1枚に印刷できるようにする。形は前の項目「清掃の作業時間：作業指示書を A4 1枚で印刷する」と同じ（ボタンの置き方・`@media print`・紙のいちばん下の1行）
+  - 見積書の上に、印刷した日（日本時間の「2026年11月18日」の形・ブラウザの日付）を1行。宛名や会社名の欄は作らない（手で書く余白を見積書の上に少し）
+  - 紙のいちばん下に、㎡単価の目安の出どころを1行（ページの本文にある「歩掛り÷100×清掃員の全国平均の単価×経費の割合の目安」の言い方をそのまま。数字は目安と書く）
+  - テスト：ビルドしたページにボタンと印刷の CSS が入っていること・印刷した日の書き方（日付の関数を src/lib に置くならそのテスト）
+  - docs/tools.md の清掃の見積もりの行に1行
+- できあがりの条件：`npm run check` が緑。Playwright で 390px に答えを出し、`page.pdf({ format: 'A4' })` で1ページに収まる（PDF を画像にしたものを PR に）。check-fold.py が通る
+- 決まったこと：C-028（連絡板・11/12）の sakutto は「いまは仕事の道具を深くする向き（清掃の作業時間の形）」。見積もりの㎡単価の目安の出し方は claude/sakutto-handoff.md の「大事な決めごと」（歩掛り÷100×清掃員の全国平均×島根県の率のまん中）
+- 迷ったら：「見積書」の字はページの今の言い方に合わせる（正式な見積書と思わせる「御見積書」「印」の欄は作らない）。税込みの書き方は画面と同じ。ボタンの置き方は前の項目で決めた形にそろえる
+- 読むファイル：前の項目の PR で足した印刷の形・src/pages/seisou-mitsumori.mjs・src/client/mitsumori.js・src/lib/mitsumori.mjs・docs/tools.md の清掃の見積もりの行
+- 順番：「清掃の作業時間：作業指示書を A4 1枚で印刷する」のあと
+- マージ：する
+- 足した：育てる山の補充（自動・2026-11-18）
+
+### [ ] 次亜塩素酸ナトリウムの薄め方：ボトルに貼る表示を印刷する
+- やること：/hyohakuzai/ で答えが出たら、薄めた液のボトルに貼る表示（切って貼る小さな札）を A4 1枚に並べて印刷できるようにする
+  - 札の中身：「消毒液 飲めません」・「次亜塩素酸ナトリウム 0.02％」（えらんだ濃度）・「できあがり 500ml（漂白剤 ◯ml＋水）」（今の答え）・「作った日 ＿月＿日 ＿時」（手で書く空欄。薄めた液は使うたびに作るので日付は入れない）
+  - A4 に同じ札を8枚（2列×4段）。切り取りの細い線。白黒で読める。札のすみに小さく「サクッと計算」
+  - ボタンは「表示を印刷する」を答えの段（`#cm-bar`）に1つ。印刷のときは札だけを出す（`@media print`。ページの `css` に書く。site.css には書かない）。印刷の形は「清掃の作業時間：作業指示書を A4 1枚で印刷する」と同じ
+  - 本文の「気をつけること」の表の出典に、宮城県の資料を足す：src/data/hyohakuzai.mjs の HYOHAKU_CAUTION_SOURCES に「宮城県」https://www.pref.miyagi.jp/documents/3619/378518.pdf （11/18 に開いて確かめた中身：「消毒液を入れた容器は，飲用不可や消毒液等の表示をして，乳幼児の手の届かないところへ保管するなどして，誤飲を防ぎましょう。」「作った消毒液は，時間の経過で効果が減少していくため，こまめに作り使い切りましょう。」。文は写さず自分の言葉で）。HYOHAKU_CAUTIONS に「入れた容器に、消毒液で飲めないことを書いておく」を1行
+  - テスト：札の文の作り方（濃度・できあがりの量・漂白剤の量が答えと同じ。希釈率のテストのファイルに足す）・ほかの使いみち別のページに札とボタンが出ないこと
+  - docs/tools.md の希釈率の使いみち別の行に1行
+- できあがりの条件：`npm run check` が緑。Playwright で 390px に答えを出し、`page.pdf({ format: 'A4' })` で1ページに札8枚が収まる（PDF を画像にしたものを PR に）。check-fold.py が通る。出典の点検（check-links）で宮城県の PDF が通る
+- 決まったこと：C-028（連絡板・11/12）の sakutto は「いまは仕事の道具を深くする向き」。希釈はサイトでいちばん表示の多い入口（claude/search-data-sakutto.md の 11/11 の回：/kishaku/ 1,375表示・8クリック）で、C-026（答えのページに来る理由）の③「自分の数字が残る・持ち帰る」
+- 迷ったら：札の字は「飲めません」の1か所だけ大きく（赤ペンの色は使わない。印刷は白黒）。札の数は8枚で固定（選ぶ欄を作らない）。運営者の勤め先の話（ゴーグル・24時間）は札にも本文にも書かない（読みもの #170 で書いた）。check-links で宮城県の PDF が 403 などになったら、同じ中身の自治体のページを WebSearch で探して差しかえる（見つからなければ HYOHAKU_CAUTIONS の1行と出典は足さずに、札だけで PR）
+- 読むファイル：src/pages/kishaku-uses.mjs（hyohakuzai）・src/data/hyohakuzai.mjs・src/client/kishaku.js・前の項目の PR で足した印刷の形・docs/tools.md の希釈率の行
+- 順番：「清掃の作業時間：作業指示書を A4 1枚で印刷する」のあと
+- マージ：する
+- 足した：育てる山の補充（自動・2026-11-18）
+
+### [ ] ふるさと納税の締め切りをカレンダーで登録できる（/furusato/calendar.ics）
+- やること：カレンダーのファイル `/furusato/calendar.ics` を作り、/furusato/shimekiri/ と /furusato/ に「カレンダーに入れる」のリンクを1行ずつ足す
+  - 中身：src/lib/furusato-tetsuzuki.mjs の `furusatoDeadlines`・`kakuteiEnd` で出す日だけ（新しく日付を書かない）。ビルドした日から見て、これから来る次の3つ（終わったものは入れず、次の年の分を入れる）
+    - 「ふるさと納税：年内の寄付の締め切り」12月31日（終日）。説明「この年の寄付として数えるのは、12月31日までに入金（クレジットカードは決済）したもの。自治体や払い方で受付の終わりが早いことがあります。」
+    - 「ふるさと納税：ワンストップ特例の申請書の必着日」翌年1月10日（終日）。説明「寄付した翌年の1月10日までに届くように出します（土日でも同じ）。」
+    - 「ふるさと納税：確定申告の期間」翌年2月16日〜`kakuteiEnd` の日（終日の期間。DTEND は終わりの日の次の日）
+    - どの説明にも「目安です。くわしくは寄付した自治体と国税庁・総務省のページで確かめてください。」と /furusato/shimekiri/ の URL
+  - 頭と形は「楽天の予定をカレンダーで登録できる（/point/calendar.ics）」と同じ（ics を作る関数をその PR で作っていれば使い回す。X-WR-CALNAME「サクッと計算 ふるさと納税の締め切り」）。UID は「furusato-<key>-<年>@sakutto-keisan.com」の形（ビルドのたびに変わらない）。Content-Type は public/_headers に行を足す
+  - リンク：「iPhone のカレンダーに入れる」（webcal://sakutto-keisan.com/furusato/calendar.ics）と「Google カレンダーに入れる」（https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fsakutto-keisan.com%2Ffurusato%2Fcalendar.ics）。説明は1行まで
+  - テスト：12月・1月5日・1月11日・3月16日にビルドしたときの中身（終わったものが入らない・次の年の分になる）・3月15日が土日の年の確定申告の終わり・ics の形
+  - docs/furusato.md に1行。tools.mjs の furusato-shimekiri の updated を作った日に
+- できあがりの条件：`npm run check` が緑。dist/furusato/calendar.ics を ics の読みこみ（Python の icalendar など）で読めて、11/18 にビルドすると 2026年12月31日・2027年1月10日・2027年2月16日〜3月15日の3つになる。/furusato/shimekiri/ と /furusato/ にリンクの行が出る
+- 決まったこと：site-principles の「楽しさで、わざわざ来てもらう」の入口「呼び戻せる入口：…カレンダーの購読（.ics。発売日・行事・期限）」と連絡板 C-016 の②。締め切りの決まりと出典は src/lib/furusato-tetsuzuki.mjs の頭の注記と src/data/furusato.mjs の FURUSATO_TETSUZUKI_SOURCES（総務省・名古屋市・函館市・国税庁。確認日 11/2〜11/9）。ふるさと納税は「目安」と書く・ポイントのお得さは書かない（CLAUDE.md のページの決まり）
+- 迷ったら：寄付メモや上限の数字は入れない（入力した数字はどこにも出さない）。返礼品や「お得」「駆けこみ」は書かない。通知（VALARM）は入れない（使う人のカレンダーの設定にまかせる）。/point/calendar.ics の PR がまだマージされていないときは止める（night-stopped。「順番」のとおり）
+- 読むファイル：src/lib/furusato-tetsuzuki.mjs・src/data/furusato.mjs（FURUSATO_TETSUZUKI_SOURCES）・src/pages/furusato-tetsuzuki.mjs（/furusato/shimekiri/）・src/pages/furusato.mjs・/point/calendar.ics の PR で足したファイル・public/_headers・docs/furusato.md
+- 順番：「楽天の予定をカレンダーで登録できる（/point/calendar.ics）」のあと
+- マージ：する
+- 足した：育てる山の補充（自動・2026-11-18）
