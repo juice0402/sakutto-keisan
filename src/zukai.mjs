@@ -42,3 +42,21 @@ export const hyakuMasu = (n, label) => {
   }).join('');
   return `<svg class="fz-masu" viewBox="0 0 ${s * 10} ${s * 10}" role="img" aria-label="${esc(label)}">${cells}</svg>`;
 };
+
+// 折れ線（#180 灯油の値段の記録）：線は SVG、目もり・凡例・最新の値は HTML の文字。絵ごと role="img" と aria-label に言葉で
+//   lines: [{ cls: 'lc-a'（赤ペン）| 'lc-b'（青の点線）, pts: [[x 0〜1, y 0〜1（下が0）]], end: 最後の点に添える字（なくてよい） }]
+//   keys: [[cls, 凡例の字]]、yTicks・xTicks: [[位置 0〜1, 字]]、label: aria-label
+const pc = (v) => Number((v * 100).toFixed(2));
+export const lineChart = ({ lines, keys = [], yTicks = [], xTicks = [], label }) => {
+  const grid = yTicks.map(([y]) => `<path class="lc-g" d="M0 ${pc(1 - y)}H100"/>`).join('');
+  const polys = lines.map((l) => `<polyline class="${l.cls}" points="${l.pts.map(([x, y]) => `${pc(x)},${pc(1 - y)}`).join(' ')}"/>`).join('');
+  const ends = lines
+    .filter((l) => l.end && l.pts.length)
+    .map((l) => {
+      const [x, y] = l.pts[l.pts.length - 1];
+      const at = `left:${pc(x)}%;top:${pc(1 - y)}%`;
+      return `<span class="lc-dot" style="${at}"></span><span class="${x > 0.7 ? 'lc-end lc-left' : 'lc-end'}" style="${at}">${l.end}</span>`;
+    })
+    .join('');
+  return `<figure class="lc" role="img" aria-label="${esc(label)}">${keys.length ? `<p class="lc-key">${keys.map(([cls, t]) => `<span class="${cls}">${t}</span>`).join('')}</p>` : ''}<div class="lc-plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${grid}${polys}</svg>${yTicks.map(([y, t]) => `<span class="lc-yt" style="top:${pc(1 - y)}%">${t}</span>`).join('')}${ends}</div><div class="lc-x">${xTicks.map(([x, t]) => `<span style="left:${pc(x)}%">${t}</span>`).join('')}</div></figure>`;
+};

@@ -1200,6 +1200,25 @@ h1 {
 .fz-masu { display: block; width: 100%; max-width: 220px; margin: 4px 0 8px; }
 .fz-masu rect { fill: #fff; stroke: #9db4cf; stroke-width: 1; }
 .fz-masu rect.on { fill: #f6d4d7; stroke: var(--red); stroke-width: 2; }
+/* 折れ線 lineChart（#180 灯油の値段の記録）：左に値段の目もり、線は赤ペン（この冬）と青の点線（前の冬） */
+.lc { margin: 4px 0 14px; }
+.lc-key { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0 0 8px; font-size: 13px; font-weight: 700; }
+.lc-key span::before { content: ""; display: inline-block; width: 22px; margin: 0 6px 0 0; vertical-align: middle; border-top: 2.5px solid var(--red); }
+.lc-key .lc-b::before { border-top: 2.5px dashed #2e6fb7; }
+.lc-plot { position: relative; height: 170px; margin: 12px 0 0 60px; border-bottom: 2px solid var(--text); }
+.lc-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lc-plot path, .lc-plot polyline { fill: none; vector-effect: non-scaling-stroke; }
+.lc-g { stroke: var(--rule); stroke-width: 1; }
+.lc-plot polyline { stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.lc-plot polyline.lc-a { stroke: var(--red); }
+.lc-plot polyline.lc-b { stroke: #2e6fb7; stroke-dasharray: 5 4; }
+.lc-yt { position: absolute; right: calc(100% + 6px); transform: translateY(-50%); font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.lc-dot { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--red); }
+.lc-end { position: absolute; transform: translate(8px, -110%); font-size: 15px; font-weight: 800; color: var(--red); white-space: nowrap; }
+.lc-end.lc-left { transform: translate(calc(-100% - 8px), -110%); }
+.lc-x { position: relative; height: 18px; margin: 4px 0 0 60px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.lc-x span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.lc-x span:first-child { transform: none; }
 .tbl-wrap { overflow-x: auto; margin: 0 0 12px; background: var(--surface); border: 1px solid var(--border); }
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap; }

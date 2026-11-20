@@ -6,10 +6,10 @@ import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { TOUYU_HEATERS } from '../data/touyu.mjs';
-import { touyuNow } from '../touyu-now.mjs';
+import { touyuNow, touyuHistory, winterDay } from '../touyu-now.mjs';
 import { touyu, literPrice } from '../lib/touyu.mjs';
 import { fmt, yenBand } from '../lib/number.mjs';
-import { stair, band, zBox, zReceipt } from '../zukai.mjs';
+import { stair, band, zBox, zReceipt, lineChart } from '../zukai.mjs';
 
 const tool = toolBySlug('touyu-dai');
 const path = '/touyu-dai/';
@@ -46,6 +46,44 @@ const ZUKAI = stair(zBox('1時間0.3L・1日8時間', `${fmt(EX.litersDay, 1)}L`
 const dayW = Number(((EX.litersDay / 18) * 100).toFixed(2));
 const fullDays = Math.floor(EX.canDays);
 const BAND = band({ head: '18L（1缶）', parts: [...Array.from({ length: fullDays }, (_, i) => ({ w: dayW, kind: i % 2 ? 'alt' : 'pay', text: '' })), { w: Number((100 - dayW * fullDays).toFixed(2)), kind: 'off', text: '' }], ruler: [[0, '0'], [dayW, `1日 ${fmt(EX.litersDay, 1)}L`], [100, '18L']], ans: `18 ÷ ${fmt(EX.litersDay, 1)} → <b>${fmt(EX.canDays, 1)}日</b>`, label: `18Lの帯を、1日に使う${fmt(EX.litersDay, 1)}Lずつに分けた図。${fmt(EX.canDays, 1)}日分` });
+
+// 灯油の値段の記録（#180）：この冬と前の冬の週ごとの値段の折れ線と、直近12週の表。取れなかったときは節を出さない
+const md = (date) => `${Number(date.slice(5, 7))}月${Number(date.slice(8))}日`;
+const diffText = (d) => (d === null ? '—' : d > 0 ? `+${fmt(d)}円` : d < 0 ? `−${fmt(-d)}円` : '0円');
+const WINTER_DAYS = 182; // 10月1日から3月31日まで
+const MONTHS = [[0, '10月'], [31, '11月'], [61, '12月'], [92, '1月'], [123, '2月'], [151, '3月']];
+export function kirokuHtml(rec) {
+  if (!rec) return '';
+  const ws = [rec.cur, rec.prev].filter(Boolean);
+  const cans = ws.flatMap((w) => w.weeks.map((x) => x.can));
+  const lo = Math.floor((Math.min(...cans) - 30) / 100) * 100;
+  const hi = Math.ceil((Math.max(...cans) + 30) / 100) * 100;
+  const step = hi - lo > 600 ? 200 : 100;
+  const y = (v) => (v - lo) / (hi - lo);
+  const pts = (w) => w.weeks.map((x) => [winterDay(x.date, w.year) / WINTER_DAYS, y(x.can)]);
+  const ticks = [];
+  for (let v = lo + step; v <= hi; v += step) ticks.push([y(v), `${fmt(v)}円`]);
+  const span = (w) => `${md(w.weeks[0].date)}の${fmt(w.weeks[0].can)}円から${md(w.weeks[w.weeks.length - 1].date)}の${fmt(w.weeks[w.weeks.length - 1].can)}円`;
+  const last = rec.cur.weeks[rec.cur.weeks.length - 1];
+  const chart = lineChart({
+    lines: [...(rec.prev ? [{ cls: 'lc-b', pts: pts(rec.prev) }] : []), { cls: 'lc-a', pts: pts(rec.cur), end: `${fmt(last.can)}円` }],
+    keys: [['lc-a', `この冬（${rec.cur.year}年10月から）`], ...(rec.prev ? [['lc-b', `前の冬（${rec.prev.year}年10月から）`]] : [])],
+    yTicks: ticks,
+    xTicks: MONTHS.map(([d, t]) => [d / WINTER_DAYS, t]),
+    label: `灯油18Lの全国の店頭の値段の週ごとの折れ線。この冬は${span(rec.cur)}。${rec.prev ? `前の冬は${span(rec.prev)}。` : ''}`,
+  });
+  const rows = rec.rows.map((r) => `<tr><td>${md(r.date)}</td><td class="num">${fmt(r.can)}円</td><td class="num">${diffText(r.diff)}</td></tr>`).join('\n');
+  return `${chart}<div class="tbl-wrap"><table>
+<thead><tr><th>調査日</th><th class="num">18L</th><th class="num">前の週から</th></tr></thead>
+<tbody>
+${rows}
+</tbody>
+</table></div>
+<p>資源エネルギー庁が毎週月曜に調べている、全国の給油所の店頭の灯油の値段です。${rec.prev ? '赤い線がこの冬、青い点線が前の冬で、横の目もりは10月1日からの月です。同じ時期の値段を前の冬とくらべられます。' : '赤い線がこの冬で、横の目もりは10月1日からの月です。前の冬の記録は取れなかったので、この冬だけをのせています。'}</p>
+<p>表は新しい週から${rec.rows.length}週分で、前の週からの差は円の増減です。店ごとの値段や配達の値段は、この数字とちがいます。上の計算の灯油の値段の欄には、いちばん新しい週の値段が入っています。</p>
+<p>出典：<a href="${esc(TOUYU_PRICE.url)}">資源エネルギー庁「石油製品価格調査」</a>をもとに作成${rec.unit === '1L' ? '（1Lの値段の18倍）' : ''}</p>`;
+}
+const KIROKU = kirokuHtml(touyuHistory());
 
 const FAQS = [
   {
@@ -109,6 +147,8 @@ export default function render() {
 </div>
 
 ${section('formula', '計算式', ZUKAI)}
+
+${KIROKU ? section('kiroku', '灯油の値段の記録', KIROKU) : ''}
 
 ${section(
   'days',

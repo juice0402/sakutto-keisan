@@ -185,7 +185,7 @@
 - 読むファイル：src/data/touyu.mjs・src/pages/touyu-dai.mjs・scripts/fetch-henreihin.mjs・.github/workflows/deploy.yml・.github/workflows/henreihin-daily.yml
 - マージ：する
 
-### [ ] 灯油の値段の記録をページに（グラフと表）
+### [x] 灯油の値段の記録をページに（グラフと表）（#180）
 - やること：灯油代のページ（/touyu-dai/）の本文に「灯油の値段の記録」の節を足し、値段が古くなったら見張りが知らせるようにする
   - 節の中身：この冬（10月から）と前の冬の、週ごとの値段の折れ線（ビルドで描く SVG。数字は HTML の文字・role="img"・aria-label）と、直近12週の表（調査日・18L・前の週からの差）。出典の1行は「資源エネルギー庁『石油製品価格調査』をもとに作成」（政府標準利用規約の出典の書き方）
   - 見張り：scripts/mihari.mjs の毎朝の点検に「本番の灯油の値段の調査日が14日より古い（10月〜3月だけ）」を足し、古ければ mihari の issue（プロジェクトの claude/mihari-spec.md の形）
