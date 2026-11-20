@@ -1,11 +1,12 @@
 // 灯油代の計算：ファンヒーターの大きさのマス（メーカーの燃料消費量）・1時間に使う灯油・1日に使う時間・灯油の値段から、1か月の灯油代と18Lが何日もつか
 // 結果は青いポリタンクの絵：ラベルに「18Lで何日」、横にいちばん大きな1か月の灯油代と、1か月に使うポリタンクの数
-// マスの数字と値段のはじめの値は src/data/touyu.mjs（出典つき）。ページに載せる計算例は tests/touyu.test.mjs で確かめる
+// マスの数字は src/data/touyu.mjs（出典つき）。値段のはじめの値は src/touyu-now.mjs（毎週取った最新の週か、src/data/touyu.mjs の値）。ページに載せる計算例は tests/touyu.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { TOUYU_PRICE, TOUYU_HEATERS } from '../data/touyu.mjs';
+import { TOUYU_HEATERS } from '../data/touyu.mjs';
+import { touyuNow } from '../touyu-now.mjs';
 import { touyu, literPrice } from '../lib/touyu.mjs';
 import { fmt, yenBand } from '../lib/number.mjs';
 import { stair, band, zBox, zReceipt } from '../zukai.mjs';
@@ -13,6 +14,8 @@ import { stair, band, zBox, zReceipt } from '../zukai.mjs';
 const tool = toolBySlug('touyu-dai');
 const path = '/touyu-dai/';
 const esc = (s) => s.replace(/&/g, '&amp;');
+export const TOUYU_NOW = touyuNow();
+const TOUYU_PRICE = TOUYU_NOW;
 const P18 = TOUYU_PRICE.can; // 18Lの値段（はじめの値）
 const P1 = literPrice(P18);
 const yen = (x) => fmt(x, x < 100 ? 1 : 0);
@@ -84,7 +87,7 @@ export default function render() {
   <div class="field" id="f-tiles"><div class="tiles tiles-4" role="group" aria-label="ファンヒーターの大きさをえらぶ">${TILES}</div></div>
   <div class="box-rows">
     ${boxField('lph', '1時間の灯油', 'L', '0.3', '', '説明書の「燃料消費量」')}
-    <div class="pair">${boxField('hours', '1日に使う時間', '時間', '8')}${boxField('price', '灯油の値段', '円', fmt(P18), fmt(P18), '1Lの値段か、18L（1缶）の値段')}</div>
+    <div class="pair">${boxField('hours', '1日に使う時間', '時間', '8')}${boxField('price', '灯油の値段', '円', fmt(P18), fmt(P18), TOUYU_PRICE.line)}</div>
   </div>
   <div class="slip pic" aria-live="polite">
     <p class="slip-title"><span>灯油代<small>目安</small></span><button type="button" class="clear-btn" id="clear">クリア</button></p>
