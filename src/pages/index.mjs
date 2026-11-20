@@ -2,7 +2,8 @@ import { SITE, CATEGORIES } from '../site.mjs';
 import { TOOLS, toolUrl, CALC_COUNT, LAST_UPDATED } from '../tools.mjs';
 import { page, esc, absUrl, section } from '../layout.mjs';
 import { doodle } from '../doodles.mjs';
-import { yomiListHtml } from '../parts.mjs';
+import { yomiListHtml, toolListHtml } from '../parts.mjs';
+import { KISETSU } from '../data/kisetsu.mjs';
 import { yomimono } from '../yomimono/_shelf.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
@@ -14,12 +15,28 @@ const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${N
 const card = (t) =>
   `<li><a class="tool-card" href="${toolUrl(t)}"><span class="tool-name">${esc(t.name)}</span><span class="tool-desc">${esc(t.short)}</span></a></li>`;
 
-export default function render() {
+// 「よく使う計算」：pick の順。季節のツール（ふるさと納税は11〜12月）は、その月に決めた番目と入れかえる
+export function homePicks(month) {
   const top = TOOLS.filter((t) => t.published && !t.parent);
   const picks = top.filter((t) => t.pick).sort((a, b) => a.pick - b.pick);
-  // 季節のツール（ふるさと納税は11〜12月）は、ビルドした月（日本時間）に「よく使う計算」の決めた番目と入れかえる
-  const month = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', month: 'numeric' }).format(new Date()));
   for (const t of top.filter((x) => x.pickSeason?.months.includes(month))) picks[t.pickSeason.replaces - 1] = t;
+  return picks;
+}
+// 「◯月の計算」（#188）：src/data/kisetsu.mjs のその月の計算。「よく使う計算」に出ているもの・published でないものは出さない。下のページもここには出す
+export const seasonTools = (month, picks = homePicks(month)) =>
+  (KISETSU[month] || []).map((s) => TOOLS.find((t) => t.slug === s)).filter((t) => t && t.published && !picks.includes(t));
+
+// month はテスト用。ふだんはビルドした日の日本時間の月（毎日の作り直しで、1日の朝に入れかわる）
+export default function render(month = Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', month: 'numeric' }).format(new Date()))) {
+  const top = TOOLS.filter((t) => t.published && !t.parent);
+  const picks = homePicks(month);
+  const season = seasonTools(month, picks);
+  const seasonHtml = season.length
+    ? `\n<section class="cat" aria-labelledby="cat-season">
+  <h2 id="cat-season">${month}月の計算</h2>
+  ${toolListHtml(season)}
+</section>`
+    : '';
 
   const cats = CATEGORIES.map((c) => {
     const tools = top.filter((t) => t.category === c.id && !picks.includes(t));
@@ -65,7 +82,7 @@ export default function render() {
 <section class="cat" aria-labelledby="cat-pick">
   <h2 id="cat-pick">よく使う計算</h2>
   <ul class="pick-grid">${picks.map((t) => `<li><a class="pick-cell" href="${toolUrl(t)}">${doodle(t.slug)}<span>${esc(t.pickName || t.name.replace(/の計算$/, ''))}</span></a></li>`).join('')}</ul>
-</section>
+</section>${seasonHtml}
 ${cats}
 ${about}
 ${reads}${news}
