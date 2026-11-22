@@ -12,6 +12,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { kirokuCount, kirokuReady } from '../src/lib/kiroku.mjs';
 
 const DAY = 86400000;
 const ROOT = new URL('../', import.meta.url);
@@ -150,12 +151,8 @@ export function shohizeiStatus(text) {
 }
 
 // ---------- お買い物マラソンの記録・早見表 ----------
-export function kirokuCount(events, nowMs) {
-  const endOf = (e) => Date.parse(`${/T\d\d:\d\d$/.test(e.end) ? `${e.end}:00` : e.end}+09:00`);
-  const ended = events.filter((e) => endOf(e) < nowMs);
-  return { ended: ended.length, withCap: ended.filter((e) => typeof e.cap === 'number').length };
-}
-export const kirokuReady = (c) => c.ended >= 6 && c.withCap >= 4;
+// 数え方はページ（/point/kiroku/）と同じ src/lib/kiroku.mjs
+export { kirokuCount, kirokuReady };
 
 export const inPrintWindow = (date) => date.slice(5) >= '11-01' && date.slice(5) <= '12-20';
 export const printsMissing = (names, year) => [`nenrei-${year + 1}.pdf`, `gakureki-${year + 1}.pdf`].filter((n) => !names.includes(n));

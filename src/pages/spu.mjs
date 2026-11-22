@@ -6,7 +6,7 @@ import { toolBySlug } from '../tools.mjs';
 import { page, section, faqHtml, faqLd, esc } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
-import { SPU_ITEMS, SPU_SOURCES, SPU_BASE, SPU_MAX } from '../data/spu.mjs';
+import { SPU_ITEMS, SPU_SOURCES, SPU_BASE, SPU_MAX, SPU_CHANGES } from '../data/spu.mjs';
 import { spuPoints, spuCapOf, spuReach } from '../lib/spu.mjs';
 import { fmt } from '../lib/number.mjs';
 import { stair, band, zBox } from '../zukai.mjs';
@@ -145,8 +145,7 @@ ${section(
   `<div class="tbl-wrap"><table class="tbl-text">
 <thead><tr><th>日付</th><th>変わったこと</th></tr></thead>
 <tbody>
-<tr><td class="nw">2026年7月1日</td><td>楽天ポイントカード＋ファミリーマートが加わり、全部そろうと18.5倍になりました。Rakuten Pashaの条件は、月500以上の申請だけになりました。</td></tr>
-<tr><td class="nw">2025年10月1日</td><td>楽天ふるさと納税の寄付が、原則としてSPUの対象外になりました。</td></tr>
+${SPU_CHANGES.map((c) => `<tr><td class="nw">${jaDate(c.date)}</td><td>${esc(c.text)}</td></tr>`).join('\n')}
 </tbody>
 </table></div>
 <p>公式のページで確かめた変更だけをのせています。</p>`,

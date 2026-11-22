@@ -56,6 +56,13 @@ export const SPU_SOURCES = [
   { name: '楽天Kドリームス「SPU」', url: KDREAMS, checked: '2026-11-03', what: 'Kドリームスの条件と上限' },
 ];
 
+// SPU の最近の変更（公式のページの更新履歴で確かめたものだけ・新しい順）。/point/spu/ と開催の記録 /point/kiroku/ の両方の表に出す
+// date は変わった日、text はページに出す自分の言葉のまとめ（公式の文を写さない）
+export const SPU_CHANGES = [
+  { date: '2026-07-01', text: '楽天ポイントカード＋ファミリーマートが加わり、全部そろうと18.5倍になりました。Rakuten Pashaの条件は、月500以上の申請だけになりました。' },
+  { date: '2025-10-01', text: '楽天ふるさと納税の寄付が、原則としてSPUの対象外になりました。' },
+];
+
 // 5と0のつく日（楽天カードのキャンペーン。毎月5・10・15・20・25・30日。開催日ごとにエントリーして楽天カードで払うと、通常1倍＋SPUの楽天カード＋2倍に＋1倍）
 // 楽天のポイントのしくみ /point/shikumi/ で使う。見張りは SPU と同じ（scripts/watch-pages.mjs spu）
 export const POINT_DAY = { name: '楽天カード「5と0のつく日」', url: 'https://event.rakuten.co.jp/card/pointday/', rate: 1, cap: 1000, checked: '2026-11-19', what: '5と0のつく日の倍率・上限・エントリー' };

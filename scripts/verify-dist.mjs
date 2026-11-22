@@ -178,7 +178,10 @@ for (const t of TOOLS.filter((x) => x.published)) {
   const title = (readFileSync(f, 'utf8').match(/<title>([^<]*)<\/title>/) || [])[1] || '';
   // 現場手帳は検索される言葉を先に「清掃の作業計画表と時間割｜現場手帳｜…」（#106 しょーくんと決めた）。晩ごはんシミュレーターも「1週間の献立を自動で組む｜…」（#166）。この2ページだけ、名前が｜で区切って入っていればよい
   if (!title.startsWith(t.name.replace(/（.*$/, '')) && !(['genba', 'kondate'].includes(t.slug) && title.includes(`｜${t.name}｜`))) fail(url, `title の先頭がツール名でない: ${title}`);
-  if (!sitemap.includes(`<loc>${SITE.url}${url}</loc>`)) fail('/sitemap.xml', `${t.slug} が載っていない`);
+  // 育つまで noindex のページ（開催の記録 /point/kiroku/・#193）は、サイトマップに入れない
+  const noidx = readFileSync(f, 'utf8').includes('<meta name="robots" content="noindex">');
+  if (noidx && sitemap.includes(`<loc>${SITE.url}${url}</loc>`)) fail('/sitemap.xml', `${t.slug} は noindex なのに載っている`);
+  if (!noidx && !sitemap.includes(`<loc>${SITE.url}${url}</loc>`)) fail('/sitemap.xml', `${t.slug} が載っていない`);
   if (!t.updated) fail(url, 'tools.mjs に updated がない');
   if (!readFileSync(f, 'utf8').includes(`/og/${t.slug}.png`)) fail(url, 'ツール専用の共有画像を使っていない（scripts/make-images.py で作る）');
 }
