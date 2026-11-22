@@ -12,7 +12,7 @@ export const CAL_PATH = '/point/calendar.ics';
 const HOST = new URL(SITE.url).host;
 const WEBCAL = `webcal://${HOST}${CAL_PATH}`;
 // /point/ と /point/shikumi/ の本文の1行
-export const CAL_LINKS = `<p>開催の期間と5と0のつく日を、<a href="${WEBCAL}">iPhone のカレンダーに入れる</a>か<a href="https://calendar.google.com/calendar/render?cid=${encodeURIComponent(WEBCAL)}">Google カレンダーに入れる</a>と、新しい回も入ります。</p>`;
+export const CAL_LINKS = `<p>お買い物マラソンの期間と5と0のつく日を、<a href="${WEBCAL}">iPhone のカレンダーに入れる</a>か<a href="https://calendar.google.com/calendar/render?cid=${encodeURIComponent(WEBCAL)}">Google カレンダーに入れる</a>と、新しい回も入ります。</p>`;
 
 const KEEP_DAYS = 90; // 終わってからこの日数までの回は残す
 const DAY_START = '2026-11-05'; // 5と0のつく日のくり返しの始まり（決めた日。ビルドのたびに変えない）
