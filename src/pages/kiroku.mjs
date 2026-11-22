@@ -55,8 +55,8 @@ function spanBars(ended) {
 }
 
 // 上限ごとの回の数のマス（1回1マス。わからない回は「—」の段）
-function capTally(stats) {
-  const rows = [...stats.byCap.map((x) => [capName(x.cap), x.n, true]), [DASH, stats.unknown, false]];
+export function capTally(stats) {
+  const rows = [...stats.byCap.map((x) => [capName(x.cap), x.n, true]), ...(stats.unknown ? [[DASH, stats.unknown, false]] : [])];
   return `<ul class="kr-tally" aria-label="上限ごとの回の数">${rows
     .map(([k, n, known]) => `<li><span class="kr-k">${k}</span><span class="kr-ms">${Array.from({ length: n }, () => `<span class="kr-m${known ? '' : ' kr-m-un'}"></span>`).join('')}</span><span class="kr-v">${n}回</span></li>`)
     .join('')}</ul>`;
@@ -126,7 +126,7 @@ export default function render(nowMs = Date.now()) {
     },
     {
       q: 'これは楽天のページですか？',
-      a: '<p>いいえ。個人が作っているサイトで、楽天グループとは関係ありません。数字は楽天市場の公式のページで確かめたものです。</p>',
+      a: '<p>いいえ。楽天グループとは関係のない個人のサイトです。数字は楽天市場の公式のページで確かめたものです。</p>',
     },
   ].filter(Boolean);
 
@@ -148,9 +148,9 @@ ${n
         'nagasa',
         '期間の長さ',
         `${spanBars(ended)}
-<p>${starts.length === 1 ? `どの回も${starts[0]}に始まり、` : ''}終わりは${ends.join('の回と')}${ends.length > 1 ? 'の回がありました' : 'でした'}。${stats.longest.hours !== stats.shortest.hours ? `いちばん長いのは${mdJa(stats.longest.e.start)}からの${spanJa(stats.longest)}で、短いのは${mdJa(stats.shortest.e.start)}からの${spanJa(stats.shortest)}です。` : ''}</p>
-${nightEnd ? `<p>終わりが${hm(nightEnd.end)}の回は、その日の夜中に終わります。${mdJa(nightEnd.end)} ${hm(nightEnd.end)}までの回なら、${mdJa(dayBefore(nightEnd.end))}の夜が最後の買い物の時間で、${mdJa(nightEnd.end)}の朝にはもう終わっています。</p>` : ''}
-<p>期間は回ごとに公式のページで決まり、長さはそろっていません。店の数は期間の中の注文だけで数えるので、終わりの時刻をこえた注文は入りません。</p>`,
+<p>${starts.length === 1 ? `どの回も${starts[0]}に始まり、` : ''}終わりの時刻は${ends.map((t) => `${t}が${ended.filter((e) => hm(e.end) === t).length}回`).join('、')}です。${stats.longest.hours !== stats.shortest.hours ? `いちばん長いのは${mdJa(stats.longest.e.start)}からの${spanJa(stats.longest)}で、短いのは${mdJa(stats.shortest.e.start)}からの${spanJa(stats.shortest)}です。` : ''}</p>
+${nightEnd ? `<p>終わりが${hm(nightEnd.end)}の回は、終わりの日の前の夜から続いて、日付が変わったあとに終わります。${mdJa(nightEnd.end)} ${hm(nightEnd.end)}までの回なら、${mdJa(dayBefore(nightEnd.end))}の夜から日付が変わって${hm(nightEnd.end)}までが期間のうちです。</p>` : ''}
+<p>この記録では、期間の長さは回ごとにちがい、そろっていません。</p>`,
       )
     : ''}
 
@@ -160,8 +160,7 @@ ${n
         '上限の種類',
         `${capTally(stats)}
 <p>買いまわりの特典の上限は、回によって${POINT_CAPS.map(fmt).join('・')}ポイントのどれかです。${caps}</p>
-${capsSeen.length ? `<p>${capsSeen.map((c) => `上限${fmt(c)}の回は、${POINT_MAX_SHOPS}店舗なら税込${fmt(pointReach(POINT_MAX_SHOPS, c))}円、5店舗なら税込${fmt(pointReach(5, c))}円の合計で特典が上限に届きます`).join('。')}。上限をこえた分には特典がつかないので、店の数ごとの届く額は<a href="/point/">${esc(parent.name)}</a>の早見表で確かめられます。</p>` : ''}
-<p>上限はSPUの上限とは別に数えます。SPUで倍率がふえていても、買いまわりの特典の上限は変わりません。</p>`,
+${capsSeen.length ? `<p>${capsSeen.map((c) => `上限${fmt(c)}の回は、${POINT_MAX_SHOPS}店舗なら税込${fmt(pointReach(POINT_MAX_SHOPS, c))}円、5店舗なら税込${fmt(pointReach(5, c))}円の合計で特典が上限に届きます`).join('。')}。店の数ごとの届く額は<a href="/point/">${esc(parent.name)}</a>の早見表にあります。</p>` : ''}`,
       )
     : ''}
 
@@ -170,8 +169,8 @@ ${granted.length
         'fuyo',
         '付与日と有効期限',
         `<p>${fuyoText}</p>
-${crossYear ? `<p>${mdJa(crossYear.start)}からの回のように、有効期限が次の年の${mdJa(crossYear.expires)}になる回もあります。年末に買いまわりをすると、特典を使う期限は年が明けてからです。</p>` : ''}
-<p>表の付与日と有効期限は、買いまわりの特典の分だけです。通常の1倍の分は表の日付とは別につきます。特典は期間限定ポイントなので、つく前に有効期限を見ておくと使いそびれをへらせます。</p>`,
+${crossYear ? `<p>${mdJa(crossYear.start)}からの回のように、有効期限が次の年の${mdJa(crossYear.expires)}になる回もあります。${yOf(crossYear.grant) === yOf(crossYear.end) ? 'この回は、特典がつくのは同じ年のうちで、使える期限は年が明けてからです。' : 'この回は、特典がつくのも使える期限も、年が明けてからです。'}</p>` : ''}
+<p>表の付与日と有効期限は、買いまわりの特典の分だけです。</p>`,
       )
     : ''}
 
@@ -190,7 +189,7 @@ ${SPU_CHANGES.map((c) => `<tr><td class="nw">${jaDate(c.date)}</td><td>${esc(c.t
 ${section(
   'tashikame',
   'データの確かめ方',
-  `<p>表の回は、楽天市場の公式のページで期間を確かめたものです。上限・付与日・有効期限は、その回の公式のページに出てから書いています。確かめる前に公式のページが次の回に変わったときは、${DASH}のままにしています。</p>
+  `<p>表の回は、楽天市場の公式のページで期間を確かめたものです。上限・付与日・有効期限は、その回の公式のページに出てから書いています。確かめる前に公式のページがあとの回の中身に変わったときは、${DASH}のままにしています。</p>
 <p>このページは作り直すたびに、終わりの日時を過ぎた回を表に足します。始まる前の回と開催中の回はのせません。</p>`,
 )}
 
@@ -200,7 +199,7 @@ ${section(
   'sources',
   '出典',
   `<ul class="src-list">${sources.map((x) => `<li><a href="${x.url}" rel="noopener">${esc(x.name)}</a>（${x.starts}からの回、${x.checked}に確認）</li>`).join('')}<li><a href="${SPU_PAGE}" rel="noopener">${esc(SPU_SOURCES[0].name)}</a>（SPUの変更）</li></ul>
-<p>個人が作っているサイトで、楽天グループとは関係ありません。キャンペーンの決まりは変わることがあるので、買う前に公式のページで確かめてください。</p>`,
+<p>このサイトは楽天グループとは関係のない個人のサイトです。キャンペーンの決まりは変わることがあるので、買う前に公式のページで確かめてください。</p>`,
 )}
 
 ${relatedHtml(tool)}

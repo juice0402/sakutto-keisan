@@ -10,7 +10,7 @@ import { setInlineScripts } from '../src/layout.mjs';
 import { POINT_EVENTS, POINT_CAPS } from '../src/data/point.mjs';
 import { pointReach } from '../src/lib/point.mjs';
 import { toolBySlug, CALC_COUNT, TOOLS } from '../src/tools.mjs';
-import render, { kirokuTable, kirokuFacts } from '../src/pages/kiroku.mjs';
+import render, { kirokuTable, kirokuFacts, capTally } from '../src/pages/kiroku.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 setInlineScripts(Object.fromEntries(readdirSync(join(HERE, '../src/client')).filter((f) => f.endsWith('.js')).map((f) => [f, '/* */'])));
@@ -108,7 +108,7 @@ test('本文の数字（2026年11月23日のデータ）', () => {
   assert.ok(html.includes('上限7,000の回は、10店舗なら税込85,580円、5店舗なら税込192,500円の合計で特典が上限に届きます'));
   assert.ok(html.includes('いちばん長いのは11月4日からの6日6時間で、短いのは10月14日からの2日14時間です。'));
   assert.ok(html.includes('付与日から有効期限までは46日から47日です。'));
-  assert.ok(html.includes('楽天グループとは関係ありません'));
+  assert.ok(html.includes('楽天グループとは関係のない個人のサイトです'));
 });
 
 test('tools.mjs：/point/ の下のページ・計算のツールの数には入れない・slug に kiroku', () => {
@@ -117,4 +117,17 @@ test('tools.mjs：/point/ の下のページ・計算のツールの数には入
   assert.equal(t.path, '/point/kiroku/');
   assert.equal(t.noCalc, true);
   assert.equal(CALC_COUNT, TOOLS.filter((x) => x.published && !x.noCalc && !x.slug.startsWith('furusato-henreihin')).length);
+});
+
+test('上限の種類のマス：わからない回が0のときは「—」の段を出さない', () => {
+  const list = [ev('2026-10-24T20:00', '2026-10-27T09:59', 7000)];
+  assert.ok(!capTally(kirokuStats(list, POINT_CAPS)).includes('—'));
+  assert.ok(capTally(kirokuStats([...list, ev('2026-10-04T20:00', '2026-10-09T01:59')], POINT_CAPS)).includes('<span class="kr-k">—</span>'));
+});
+
+test('本文：終わりの時刻ごとの回の数・楽天グループとは関係のない個人のサイト', () => {
+  const html = render(at('2026-11-23T06:00:00')).html;
+  assert.ok(html.includes('終わりの時刻は1:59が2回、9:59が2回です。'));
+  assert.ok(html.includes('楽天グループとは関係のない個人のサイト'));
+  assert.ok(!html.includes('次の回'));
 });
