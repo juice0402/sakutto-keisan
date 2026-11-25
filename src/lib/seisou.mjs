@@ -53,7 +53,7 @@ export const hoursValue = (m) => fmt(m / 60, 2);
 /**
  * 作業のマス：公共の建物の清掃の積算で使う歩掛り（100㎡を1回掃除するのに何人。1人＝1日8時間）から出した、1人1時間あたりの面積
  * 1人1時間あたりの面積 ＝ 100 ÷（歩掛り × 8）を、10㎡単位（50㎡より少ないときは1㎡単位）に丸めた目安
- * buai：清掃員A・B・Cの歩掛りを足したもの。日常清掃は札幌市の清掃業務の積算（床と床以外）、定期清掃は国土交通省の積算要領の検討資料（表面洗浄）から
+ * buai：清掃員A・B・Cの歩掛りを足したもの。日常清掃は札幌市の清掃業務の積算（床と床以外）、定期清掃は国土交通省の建築保全業務積算要領（令和5年版の表面洗浄）から
  */
 export const SEISOU_WORKS = [
   { id: 'office', name: '事務室', kind: '日常清掃', buai: 0.034, speed: 370 },
@@ -65,7 +65,7 @@ export const SEISOU_WORKS = [
 // 歩掛りの出典（清掃の作業時間と清掃の見積もりのページで使う）。daily：日常清掃、regular：床洗浄、view：業界団体の意見
 export const SEISOU_SRC = {
   daily: 'https://www.city.sapporo.jp/kanzai/keiyaku/ippan-syuyaku/r2-zenki/documents/nyusatusetumei_bekki4-seiso.pdf',
-  regular: 'https://www.mlit.go.jp/gobuild/content/001600832.pdf',
+  regular: 'https://www.mlit.go.jp/gobuild/content/001707670.pdf',
   view: 'https://www.mlit.go.jp/gobuild/content/001601093.pdf',
 };
 

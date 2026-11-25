@@ -231,7 +231,7 @@
 - 読むファイル：src/pages/index.mjs・src/parts.mjs・src/tools.mjs・src/layout.mjs（spread）
 - マージ：する
 
-### [ ] 楽天の予定をカレンダーで登録できる（/point/calendar.ics）
+### [x] 楽天の予定をカレンダーで登録できる（/point/calendar.ics）（#190）
 - やること：カレンダーのファイル `/point/calendar.ics` を作り、/point/ と /point/shikumi/ に「カレンダーに入れる」のリンクを足す
   - 中身1：お買い物マラソンの回（src/data/point.mjs の POINT_EVENTS。公式で確かめた回だけが入っているデータ。終わってから90日より前の回は入れない）。題「お買い物マラソン（楽天市場）」（POINT_EVENTS の name が別ならその名前に「（楽天市場）」）。start・end は日本時間の「2026-11-04T20:00」の形（時刻の後ろに時差は書いていない）なので、+09:00 として UTC の Z で書く。DTEND は end の時刻そのまま（01:59 は 01:59）。説明は自分の言葉の短い文（上限が数字の回は「買いまわりの上限 ◯ポイント」と、エントリーが要ること）と、/point/ の URL と公式の URL。UID は回の start から作る（ビルドのたびに変わらないように）
   - 中身2：5と0のつく日（src/data/spu.mjs の POINT_DAY）。終日の予定を1つ、`RRULE:FREQ=MONTHLY;BYMONTHDAY=5,10,15,20,25,30` でくり返す。DTSTART は決まった日（2026-11-05）にする（中身と UID がビルドのたびに変わらないように）。題「5と0のつく日（楽天カード）」。説明は POINT_DAY の数字から（その日ごとのエントリーと楽天カードで払うこと・＋1倍・上限）

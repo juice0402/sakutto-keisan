@@ -14,7 +14,7 @@ import { FURUSATO_SOURCES, FURUSATO_TETSUZUKI_SOURCES, FURUSATO_SEIDO_SOURCES, F
 
 const mode = process.argv.includes('--changed') ? 'changed' : 'all';
 const self = new URL(SITE.url).host;
-const skip = (u) => { try { const h = new URL(u).host; return h === self || h === 'schema.org' || u.includes('${'); } catch { return true; } };
+const skip = (u) => { try { const h = new URL(u).host; return h === self || h === 'schema.org' || h === 'calendar.google.com' || u.includes('${'); } catch { return true; } };
 
 // ページにあるリンク → どのページ・どんな字で出ているか
 const where = new Map();

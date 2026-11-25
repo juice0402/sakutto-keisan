@@ -11,6 +11,7 @@ import { POINT_EVENTS, POINT_SOURCES, POINT_CAPS, POINT_MIN_YEN, POINT_MAX_SHOPS
 import { marathonPoints, pointReach } from '../lib/point.mjs';
 import { fmt } from '../lib/number.mjs';
 import { stair, band, zBox } from '../zukai.mjs';
+import { CAL_LINKS } from './point-calendar.mjs';
 
 const jaDate = (s) => `${Number(s.slice(0, 4))}年${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 const capName = (c) => (c >= 10000 ? `${c / 10000}万` : fmt(c));
@@ -173,7 +174,8 @@ ${EVENT_ROWS}
 </tbody>
 </table></div>
 <p>楽天市場の公式のページで確かめた回だけをのせています。次の回の日程は、公式に出てから足します。</p>
-<p>終わった回の上限・付与日・有効期限は、<a href="/point/kiroku/">お買い物マラソンの過去の開催一覧</a>にまとめています。</p>`,
+<p>終わった回の上限・付与日・有効期限は、<a href="/point/kiroku/">お買い物マラソンの過去の開催一覧</a>にまとめています。</p>
+${CAL_LINKS}`,
 )}
 
 ${section('faq', 'よくある質問', faqHtml(FAQS))}

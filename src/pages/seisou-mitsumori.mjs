@@ -145,7 +145,7 @@ ${WORK_ROWS}
 <p class="note">人件費と㎡単価は1㎡・1回あたりです。</p>
 <p>消費税と、トイレットペーパーなどの消耗品は入っていません。実際の見積もりは、建物の汚れ方や作業する時間帯で変わります。</p>
 <p>清掃の業界団体からは、床の日常清掃の歩掛りは低すぎて、平均で約3.59倍にする必要があるという意見が出ています。</p>
-<p>出典：清掃員の単価は<a href="${ROUMU_TANKA.url}">国土交通省の${ROUMU_TANKA.year}建築保全業務労務単価</a>、経費の率は<a href="${SEISOU_KEIHI.url}">島根県の清掃業務委託料算定要領</a>、歩掛りは<a href="${SEISOU_SRC.daily}">札幌市の清掃業務の積算</a>と<a href="${SEISOU_SRC.regular}">国土交通省の検討資料</a>、業界団体の意見は<a href="${SEISOU_SRC.view}">国土交通省の検討課題の資料</a>です。${checkedText(ROUMU_TANKA.checked)}に確かめました。</p>`,
+<p>出典：清掃員の単価は<a href="${ROUMU_TANKA.url}">国土交通省の${ROUMU_TANKA.year}建築保全業務労務単価</a>、経費の率は<a href="${SEISOU_KEIHI.url}">島根県の清掃業務委託料算定要領</a>、歩掛りは<a href="${SEISOU_SRC.daily}">札幌市の清掃業務の積算</a>と<a href="${SEISOU_SRC.regular}">国土交通省の建築保全業務積算要領</a>、業界団体の意見は<a href="${SEISOU_SRC.view}">国土交通省の検討課題の資料</a>です。${checkedText(ROUMU_TANKA.checked)}に確かめました。</p>`,
 )}
 
 ${section(

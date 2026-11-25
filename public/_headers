@@ -17,6 +17,11 @@
 /yomimono/feed.xml
   Content-Type: application/rss+xml; charset=utf-8
 
+# 楽天のポイントの予定のカレンダー（#190。カレンダーのアプリが1日1回読み直す）
+/point/calendar.ics
+  Content-Type: text/calendar; charset=utf-8
+  Cache-Control: public, max-age=3600
+
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
