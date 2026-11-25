@@ -869,6 +869,21 @@ export const TOOLS = [
     updated: '2026-10-29',
     related: ['point', 'point-shikumi', 'waribiki', 'shohizei'],
     next: [['point', '買いまわりの特典の目安を出す'], ['point-amazon', '同じ買い物で、Amazonとくらべる']],
+  },  // #193 お買い物マラソンの開催の記録（終わった回の表。POINT_EVENTS からビルドのときに作る）。名前は検索候補「お買い物マラソン 過去」「一覧」「前回」から
+  // 計算のツールではないので noCalc（サイトの「◯の計算ツール」の数に入れない）。終わった回6以上・上限が数字の回4以上になるまでは noindex（src/lib/kiroku.mjs の kirokuReady）
+  {
+    slug: 'point-kiroku',
+    path: '/point/kiroku/',
+    name: 'お買い物マラソンの過去の開催一覧',
+    ogTitle: 'お買い物マラソンの\n過去の開催一覧',
+    category: 'point',
+    parent: 'point',
+    noCalc: true,
+    short: '終わった回の期間・上限・付与日・有効期限',
+    published: true,
+    updated: '2026-11-23',
+    related: ['point', 'point-spu', 'point-shikumi', 'point-taishou'],
+    next: [['point', '同じ上限で、買いまわりの特典の目安を出す'], ['point-spu', '使っているサービスから、倍率を出す']],
   },
 ];
 
@@ -876,7 +891,7 @@ export const publishedTools = () => TOOLS.filter((t) => t.published);
 export const toolBySlug = (slug) => TOOLS.find((t) => t.slug === slug);
 
 // 説明文（meta description）に書く計算ツールの数。返礼品の一覧は、毎日のデータで出たり消えたりするので数えない
-export const CALC_COUNT = TOOLS.filter((t) => t.published && !t.slug.startsWith('furusato-henreihin')).length;
+export const CALC_COUNT = TOOLS.filter((t) => t.published && !t.noCalc && !t.slug.startsWith('furusato-henreihin')).length;
 // いちばん新しいツールの更新日（YYYY-MM-DD）
 export const LAST_UPDATED = TOOLS.filter((t) => t.published).map((t) => t.updated).sort().at(-1);
 export const toolUrl = (t) => t.path || `/${t.slug}/`;

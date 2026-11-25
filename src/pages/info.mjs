@@ -34,7 +34,7 @@ const info = (path, name, description, body) => ({
 
 // カテゴリごとの計算の数（返礼品の一覧は計算ではないので数えない）。例：「生活・お買い物が21」
 const catCounts = () =>
-  CATEGORIES.map((c) => [c.name, TOOLS.filter((t) => t.published && t.category === c.id && !t.slug.startsWith('furusato-henreihin')).length])
+  CATEGORIES.map((c) => [c.name, TOOLS.filter((t) => t.published && !t.noCalc && t.category === c.id && !t.slug.startsWith('furusato-henreihin')).length])
     .filter(([, n]) => n > 0)
     .map(([name, n]) => `${name}が${n}`)
     .join('、');
