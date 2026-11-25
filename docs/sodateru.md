@@ -261,7 +261,7 @@
 - 読むファイル：scripts/mihari.mjs（MEMO.kiroku・kirokuCount・kirokuReady・checkKiroku）・src/data/point.mjs・src/pages/point.mjs・src/pages/spu.mjs・docs/point.md・CLAUDE.md（ツールを1つ足す手順・公開前の決まり・文章の決まり・ページの決まり）
 - マージ：する
 
-### [ ] 清掃の作業時間：作業指示書を A4 1枚で印刷する
+### [x] 清掃の作業時間：作業指示書を A4 1枚で印刷する（#197）
 - やること：/seisou-jikan/ の結果の作業指示書（大きな答え・作業・面積・人数・1人あたりの表・床を人数で分けた図）を、A4 1枚に印刷できるようにする
   - 「印刷する」のボタンを、答えが出たときだけ出る段（ちょいメモ・画像で送るの段 `#cm-bar`）に足す。押すと `window.print()`。お手本は現場手帳（src/pages/genba.mjs の `gb-print` と、ページの `css` に `@media print{@page{size:A4;margin:14mm}}` を書く形。site.css には書かない）
   - 印刷に出すのは作業指示書だけ。ヘッダー・入力欄・本文・つぎに・フッター・広告の枠は `@media print` で出さない。白黒で読める（赤ペンの答えは黒でも読める太さ）。紙のいちばん下に小さく「サクッと計算 清掃の作業時間」とページの URL の1行（貼れる早見表と同じく、どこで作ったか分かるように）

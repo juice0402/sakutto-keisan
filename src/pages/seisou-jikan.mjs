@@ -3,7 +3,7 @@
 // （10/20 しょーくんの判断。はじめは自分で入れるだけにしたが「相場すらわからない」ので、目安のマスを足した）
 // 結果は作業指示書（大きな答え、作業・面積・人数・1人あたりの表、床を人数で分けた図）。ページに載せる計算例は tests/seisou.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
-import { page, section, faqHtml, faqLd } from '../layout.mjs';
+import { page, section, faqHtml, faqLd, absUrl } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { SEISOU_WORKS, SEISOU_SRC, seisou, minText } from '../lib/seisou.mjs';
@@ -28,6 +28,20 @@ const tool = toolBySlug('seisou-jikan');
 const path = '/seisou-jikan/';
 
 const ANZEN = 'https://anzen-benricho.com';
+
+// 印刷（#197）：作業指示書だけを A4 1枚に。お手本は現場手帳（genba.mjs）。このページだけの CSS（site.css に書くと全ページに残る）
+// 「印刷する」が出ているときだけ、メモの段を3つに分ける。床の図は地の色で描くので、印刷でも色を出す。どこで作ったかの1行は紙のいちばん下
+export const PRINT_CSS = [
+  '.cm-add:has(#sj-print:not([hidden])){grid-template-columns:repeat(3,1fr)}',
+  '.sj-made{display:none}',
+  '@media print{@page{size:A4;margin:14mm}',
+  '.site-header,.site-footer,.crumbs,.pc-right,.pc-left>:not(.calc),main>:not(.pc-left):not(.calc),.calc>:not(.doc),.calc::before,.doc-clear{display:none!important}',
+  'main.wrap{max-width:none;padding:0}',
+  '.calc{margin:0;padding:0;border:0}',
+  '.doc{margin:0}',
+  '.floor-strips,.floor-strip{-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+  '.sj-made{display:block;position:fixed;left:0;right:0;bottom:0;margin:0;font-size:10px;color:#000;text-align:center}}',
+].join('');
 
 const FAQS = [
   {
@@ -76,9 +90,10 @@ export default function render() {
     <table class="doc-table"><thead><tr><th>作業</th><th>面積</th><th>人数</th><th>1人あたり</th></tr></thead><tbody><tr><td id="d-work">—</td><td id="d-area">—</td><td id="d-people">—</td><td id="d-per">—</td></tr></tbody></table>
     <div class="floor-plan" aria-hidden="true"><div class="floor-strips" id="s-floor"></div></div>
     <p class="doc-foot"><span id="r-foot">作業をえらんでください</span><span id="r-total"></span></p>
+    <p class="sj-made">サクッと計算 清掃の作業時間　${absUrl(path)}</p>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool)}
+  ${memoHtml(tool, true, '<button type="button" class="tool-btn" id="sj-print" hidden>印刷する</button>')}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
@@ -145,6 +160,7 @@ ${relatedHtml(tool)}
     theme: themeOf(tool),
     ogImage: `/og/${tool.slug}.png`,
     scripts: ['seisou.js'],
+    css: PRINT_CSS,
     body,
   });
   return { path, html, sitemap: true, updated: tool.updated };
