@@ -32,14 +32,17 @@ const ANZEN = 'https://anzen-benricho.com';
 // 印刷（#197）：作業指示書だけを A4 1枚に。お手本は現場手帳（genba.mjs）。このページだけの CSS（site.css に書くと全ページに残る）
 // 「印刷する」が出ているときだけ、メモの段を3つに分ける。床の図は地の色で描くので、印刷でも色を出す。どこで作ったかの1行は紙のいちばん下
 export const PRINT_CSS = [
-  '.cm-add:has(#sj-print:not([hidden])){grid-template-columns:repeat(3,1fr)}',
-  '.sj-made{display:none}',
+  '.cm-add:has(#sj-print:not([hidden])){grid-template-columns:repeat(3,1fr)}', // 画面：「印刷する」が出たら段を3つに
+  '.sj-made{display:none}', // 画面：どこで作ったかの1行は印刷のときだけ
   '@media print{@page{size:A4;margin:14mm}',
   '.site-header,.site-footer,.crumbs,.pc-right,.pc-left>:not(.calc),main>:not(.pc-left):not(.calc),.calc>:not(.doc),.calc::before,.doc-clear{display:none!important}',
   'main.wrap{max-width:none;padding:0}',
   '.calc{margin:0;padding:0;border:0}',
   '.doc{margin:0}',
   '.floor-strips,.floor-strip{-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+  // 白黒の紙でも番号が読めるように：番号は黒、地は薄い灰色（偶数番は白）、1人ずつ枠線
+  '.floor-strip{display:flex;align-items:center;justify-content:center;background:#d9d9d9;opacity:1;color:#000;font-weight:700;border:1px solid #000}',
+  '.floor-strip:nth-child(even){background:#fff;opacity:1}',
   '.sj-made{display:block;position:fixed;left:0;right:0;bottom:0;margin:0;font-size:10px;color:#000;text-align:center}}',
 ].join('');
 
