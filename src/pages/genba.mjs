@@ -187,7 +187,7 @@ ${section(
   'sources',
   '出典',
   `<p>清掃作業監督者や病院清掃受託責任者の再講習の時期は、<a href="${ANZEN}">安全衛生の便利帳</a>で調べられます。</p>
-<p>歩掛りは<a href="${SEISOU_SRC.daily}">札幌市の清掃業務の積算</a>と<a href="${SEISOU_SRC.regular}">国土交通省の検討資料</a>、清掃員の単価は<a href="${ROUMU_TANKA.url}">国土交通省の${ROUMU_TANKA.year}建築保全業務労務単価</a>、経費の率は<a href="${SEISOU_KEIHI.url}">島根県の清掃業務委託料算定要領</a>から出しています。消毒液の濃さは<a href="${HYOHAKU_AMOUNT_SOURCES[0][1]}">${HYOHAKU_AMOUNT_SOURCES[0][0]}</a>、作り置きしないことは<a href="${HIROSHIMA}">広島市の消毒液の作り方と使用上の注意</a>によります。</p>`,
+<p>歩掛りは<a href="${SEISOU_SRC.daily}">札幌市の清掃業務の積算</a>と<a href="${SEISOU_SRC.regular}">国土交通省の建築保全業務積算要領</a>、清掃員の単価は<a href="${ROUMU_TANKA.url}">国土交通省の${ROUMU_TANKA.year}建築保全業務労務単価</a>、経費の率は<a href="${SEISOU_KEIHI.url}">島根県の清掃業務委託料算定要領</a>から出しています。消毒液の濃さは<a href="${HYOHAKU_AMOUNT_SOURCES[0][1]}">${HYOHAKU_AMOUNT_SOURCES[0][0]}</a>、作り置きしないことは<a href="${HIROSHIMA}">広島市の消毒液の作り方と使用上の注意</a>によります。</p>`,
 )}
 
 ${relatedHtml(tool)}
