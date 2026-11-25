@@ -9,8 +9,8 @@
 | `src/tools.mjs` | ツールの一覧（トップ・関連ツール・sitemap のもと） |
 | `src/layout.mjs`・`src/parts.mjs` | ページの外側（head・ヘッダー・フッター・構造化データ）と共通部品 |
 | `src/zukai.mjs` | 図解の式 `stair`・帯の図 `band`・折れ線 `lineChart` |
-| `src/pages/<slug>.mjs` | ページ（1ツール1ファイル。`index.mjs` はトップ、`info.mjs` は固定ページ、`*-uses.mjs` は使いみち別） |
-| `src/lib/<slug>.mjs` | 計算（DOM なし。テストとブラウザで共通） |
+| `src/pages/<slug>.mjs` | ページ（1ツール1ファイル。`index.mjs` はトップ、`info.mjs` は固定ページ、`*-uses.mjs` は使いみち別。`point-calendar.mjs` は HTML でない /point/calendar.ics） |
+| `src/lib/<slug>.mjs` | 計算（DOM なし。テストとブラウザで共通）。`ics.mjs` はカレンダーのファイルの部品 |
 | `src/client/<slug>.js` | ブラウザの入口（1ツール1ファイル）。`*.mjs` は共通部品（`ui.mjs` 入力、`notes.js` 付箋、`choimemo.mjs` ちょいメモ、`share-img.mjs` 画像で送る） |
 | `src/data/*.mjs` | 出典つきの数字（確認日つき） |
 | `src/yomimono/<slug>.mjs` | 読みもの1本1ファイル（`_hinagata.mjs` ひな形・`_shelf.mjs` 棚） |

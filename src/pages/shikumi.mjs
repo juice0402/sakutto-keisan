@@ -8,6 +8,7 @@ import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { SPU_ITEMS, SPU_SOURCES, SPU_BASE, SPU_MAX, POINT_DAY } from '../data/spu.mjs';
 import { POINT_EVENTS, POINT_SOURCES, POINT_MIN_YEN, POINT_MAX_SHOPS } from '../data/point.mjs';
+import { CAL_LINKS } from './point-calendar.mjs';
 import { AMAZON_CARD, AMAZON_SOURCES } from '../data/amazon.mjs';
 import { shikumiPoints, SHIKUMI_SHOPS } from '../lib/shikumi.mjs';
 import { fmt } from '../lib/number.mjs';
@@ -128,7 +129,8 @@ ${section(
 <tr><td class="nw">キャンペーン</td><td>お買い物マラソンと楽天スーパーSALEは、1,000円以上買った店の数で倍率が上がります。5と0のつく日は、エントリーして楽天カードで払うと＋${POINT_DAY.rate}倍です。</td></tr>
 </tbody>
 </table></div>
-<p>3つは重ねてつきます。SPUとキャンペーンでふえる分の多くは期間限定ポイントで、使える期限があります。SPUのサービスごとの倍率と上限は<a href="/point/spu/">SPUのポイント計算</a>に、買いまわりの上限に届く額は<a href="/point/">お買い物マラソンのポイント計算</a>にまとめました。</p>`,
+<p>3つは重ねてつきます。SPUとキャンペーンでふえる分の多くは期間限定ポイントで、使える期限があります。SPUのサービスごとの倍率と上限は<a href="/point/spu/">SPUのポイント計算</a>に、買いまわりの上限に届く額は<a href="/point/">お買い物マラソンのポイント計算</a>にまとめました。</p>
+${CAL_LINKS}`,
 )}
 
 ${section(
