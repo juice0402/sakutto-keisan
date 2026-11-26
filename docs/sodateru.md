@@ -337,3 +337,48 @@
 - 順番：「楽天の予定をカレンダーで登録できる（/point/calendar.ics）」のあと
 - マージ：する
 - 足した：育てる山の補充（自動・2026-11-18）
+
+### [ ] 塩分濃度と掛け率：早見表を印刷用のPDFにする
+- やること：/enbun-noudo/ と /kakeritsu/ の早見表を、ほかの貼れる早見表（割引・希釈・消毒液）と同じ形の A4 1枚の PDF にし、ページの早見表の上に「印刷用のPDF」のリンクを1行ずつ足す
+  - src/prints.mjs の `PRINTS` に2つ足す：`enbun`（題「塩の量の早見表」・path /enbun-noudo/・yearly false）と `kakeritsu`（題「掛け率の早見表」・path /kakeritsu/・yearly false）。HTML の関数は `waribikiHtml`・`kishakuHtml` と同じ形（明朝の題・細い罫線・右下のすみにサイト名と QR の印）。`printHtml` に2行
+  - 塩の量：ページの「塩の量の早見表」（水や食材 200g・500g・1L・2L × 1〜3％の塩の g）と「塩の重さとスプーンの目安」（1〜30g の12行）の2つの表を1枚に。下に「水は1ml＝1gとしています。」と、スプーンの目安の出典の名前（src/data/enbun.mjs の `ENBUN_SPOON.src`＝塩事業センター）を1行
+  - 掛け率：ページの「上代と掛け率の早見表」（上代8つ × 5・6・7・8掛けの下代）。下に「上代で売ったときの粗利率は、5掛けで50％、8掛けで20％です。」を1行
+  - 表の数字はページと同じ定数から作る：いまページの中にある早見表の定数（enbun-noudo.mjs の QUICK_BASE・QUICK_PCT・SPOON_GRAMS、kakeritsu.mjs の QUICK）を src/lib/enbun.mjs・src/lib/kakeritsu.mjs に移して export し、ページと prints.mjs の両方から読む（割引の `QUICK_PRICES` が src/lib/waribiki.mjs にあるのと同じ形）
+  - `python3 scripts/make-prints.py` で public/print/enbun.pdf・kakeritsu.pdf と src/data/prints.json を作ってコミット
+  - リンクは `printLink('enbun')`・`printLink('kakeritsu')` を、それぞれの早見表の節の頭（`${BAND}` の前。消毒液のページ kishaku-uses.mjs の `${printLink('hyohakuzai')}${Z_HYOHAKU.band}` と同じ順）に
+  - テスト：tests/prints.test.mjs はそのまま通ること（PRINTS に足せば PDF と指紋を見る）。移した定数の早見表の数字は今の tests/enbun.test.mjs・tests/kakeritsu.test.mjs のまま通ること
+  - docs/tools.md の「検索のための本文」の早見表の行（塩分濃度・掛け率）に「印刷用のPDFもある」と短く。docs/MAP.md の public/print の行は変えなくてよい（ファイルの種類は同じ）
+- できあがりの条件：`npm run check` が緑。make-prints.py が QR のかさなりで止まらずに2つの PDF を作る。PDF を画像にしたもの（2枚）を PR に。/enbun-noudo/ と /kakeritsu/ に「印刷用のPDF（A4・1枚）」のリンクが出る。check-fold.py が通る（リンクは1画面めの下なので答えの位置は変わらない）
+- 決まったこと：答えのページに来る理由の③「自分で計算できる・自分の数字が残る（残す・持ち帰る）」（連絡板 C-026）。塩分濃度はサイトで3番めに表示の多いページ（638表示・2クリック・目安25.5）、掛け率は4番め（348表示・2クリック。どちらもページのまとまりごとの表）（claude/search-data-sakutto.md の 11/11 の回）。どのページにも AI の答えでは済まないものを1つ以上：持ち帰れるもの＝印刷用の A4 の PDF、中身はサイトのデータから作り、すみにサイト名と QR（site-principles の「AIの検索の答えに負けない作り」・claude/sakutto-handoff.md の「貼れる早見表：全部のPDFのすみにサイト名とQR」）。印刷物の数字や表はサイトのデータから作り、手で打ちこまない。配るファイルには Canva の素材を入れない（site-principles の「絵と画像」）。12/1 までは「1回1つの小さな足し」はよい（連絡板 C-028）
+- 迷ったら：塩の量の2つの表が A4 1枚に収まらないときは、行の高さを小さくする（表を減らさない・字は3mm より小さくしない）。それでも入らなければスプーンの表を右の列に並べる。掛け率の表は8行で余るので、行の高さを割引の早見表くらいに大きくして見やすくする（行を足さない）。表の上の題は「塩の量の早見表」「掛け率の早見表」（ページの見出しの言葉）。用途ごとの塩の量（浅漬け・パスタなど）の表は入れない（出典のリンクが紙では押せないため）。定数の名前は、src/lib と src/client のほかのファイルと重ならないように `ENBUN_QUICK_BASE`・`KAKE_QUICK` のように頭をつける（CLAUDE.md のブラウザ用スクリプトの決まり）
+- 読むファイル：src/prints.mjs・scripts/make-prints.py（頭の注記）・scripts/print-html.mjs・src/pages/enbun-noudo.mjs・src/pages/kakeritsu.mjs・src/lib/enbun.mjs・src/lib/kakeritsu.mjs・src/data/enbun.mjs（ENBUN_SPOON）・src/pages/kishaku.mjs（printLink の置き方）・tests/prints.test.mjs・tests/enbun.test.mjs・tests/kakeritsu.test.mjs・docs/tools.md の「検索のための本文」の行
+- マージ：する
+- 足した：育てる山の補充（自動・2026-11-26）
+
+### [ ] 灯油代のつづけて使う：1日に使う時間を電気代の計算へ
+- やること：/touyu-dai/ を「つづけて使う」（C-027 案A）にする。答えが出たら、計算カードの中の1つめの行が「電気代の計算で、1日8時間を開く」になり、`/denki-dai/#hours=8`（1日に使う時間の欄の数字）を開く
+  - src/tools.mjs の touyu-dai に `carry: true`（kishaku・kakeritsu・seisou-jikan と同じ。コメントも同じ形で「つづけて使う（灯油代）」）
+  - src/lib/tsuzuki.mjs に `TZ_DENKI = { hours: [0, 24] }` と `touyuTsuzuki({ hours })`（`kishakuTsuzuki` と同じ形。text は「で、1日」＋「8時間」（太字の所）＋「を開く」。時間は fmt で小数2けたまで）。tests/tsuzuki.test.mjs に、ふつうの数・0・24・25・小数3けたのテスト
+  - src/client/touyu.js：答えが出たときと消えたときに1つめの行を入れかえる（src/client/kishaku.js の `carryTotal` と `tzRows` の使い方と同じ）
+  - src/client/denki.js：`#hours=<時間>` で開くと時間の欄に入れ、手で入れたのと同じく計算と案内まで動かし、すぐ # を消す（src/client/tsuzuki.mjs の受けとりの関数を使う。src/client/kakeritsu.js の受けとりと同じ形）。合わない # は何もしない。消費電力の欄が空なら答えは出ず、いつもの案内（いちばん上の空の欄＝消費電力）が出るだけでよい
+  - docs/tools.md の灯油代の節と電気代の節に1行ずつ（「灯油代の『つづけて使う』」「電気代の受けとり」。割引・希釈の行と同じ書き方）
+- できあがりの条件：`npm run check` が緑。check-flow.py と check-fold.py が通る（つづけて使うの行が計算カードに入っても答えが1画面に見える）。Playwright で 390px：/touyu-dai/ で 0.3L・8時間を入れると行が「電気代の計算で、1日8時間を開く」になり、押すと /denki-dai/ の時間の欄に 8 が入って URL から # が消える。/denki-dai/#hours=abc では何も入らない。スクショ2枚を PR に
+- 決まったこと：連絡 C-027（サイトの中の沼）の案A「数字を URL の # で引きつぎ、すぐ消す」を、よく見られるページから（claude/sakutto-handoff.md の 11/12 の「いまのこと」・しょーくん「おすすめでいいよ」）。灯油代はページのまとまりごとの表示で6番め（202表示・claude/search-data-sakutto.md の 11/11 の回）で、引き継ぎに「次の候補：レシピ・灯油代」。サイトの中だけでつなぐ（ほかのサイトへのリンクは作らない）（引き継ぎの「AIの検索の答えに負けない作り・楽しさ・買う理由・沼」）。12/1 までは C-027 のつなぎはよい（連絡板 C-028）
+- 迷ったら：渡すのは1日に使う時間だけ（灯油の量や値段は電気代の欄に合わないので渡さない）。2つめの行（セラミックヒーター）は理由の文のまま（kishaku・kakeritsu の2つめと同じ）。next の理由の文「エアコンの電気代とくらべる」は、答えがないときの文としてそのまま（変えない）。受けとりは denki.js に書くので、家電別の5ページ（/kotatsu/ など）でも # で開けば同じく入る（それでよい・行はつけない）。開いている #173（冬の家電・matsu）も src/client/denki.js をさわるので、待たずに作り、PR 本文に「#173 と src/client/denki.js が重なる。あとからマージするほうが main を取りこむ」と1行書く
+- 読むファイル：src/lib/tsuzuki.mjs・tests/tsuzuki.test.mjs・src/client/kishaku.js（carryTotal）・src/client/tsuzuki.mjs・src/client/kakeritsu.js（# の受けとり）・src/client/touyu.js・src/client/denki.js・src/parts.mjs（tsuzukiHtml）・src/tools.mjs（touyu-dai・carry のある行）・docs/tools.md の割引・希釈・掛け率の「つづけて使う」「受けとり」の行・scripts/check-flow.py・scripts/check-fold.py
+- マージ：する
+- 足した：育てる山の補充（自動・2026-11-26）
+
+### [ ] レシピの人数換算：作る分量のメモを印刷する
+- やること：/recipe/ で答えが出たら、作る分量のメモ（`#memo`。作る人数・材料ごとの作る分量）を A4 1枚に印刷できるようにする
+  - 「印刷する」のボタンを、答えが出たときだけ出る段（ちょいメモ・画像で送るの段 `#cm-bar`）に1つ。押すと `window.print()`
+  - 印刷に出すのは作る分量のメモだけ。ヘッダー・入力欄・写真の読み取り・本文・つぎに・フッター・広告の枠は `@media print` で出さない。ページの `css` に `@media print{@page{size:A4;margin:14mm}}` を書く（現場手帳 src/pages/genba.mjs と同じ。site.css には書かない）。白黒で読める。紙のいちばん下に小さく「サクッと計算 レシピの人数換算」とページの URL の1行
+  - 答えが出ていないときはボタンを出さない（`hidden`）
+  - テスト：ビルドしたページにボタンと印刷の CSS が入っていること（ほかの料理のページ /enbun-noudo/・/kondate/ に入っていないこと）
+  - docs/tools.md のレシピの行に1行
+- できあがりの条件：`npm run check` が緑。Playwright で 390px に材料5つを入れて答えを出し、`page.pdf({ format: 'A4' })` で1ページに収まり、メモのほかの部分が出ていないこと。材料20こでも1ページに収まること（PDF を画像にしたものを PR に）。check-fold.py が通る
+- 決まったこと：答えのページに来る理由の③「自分の数字が残る（持ち帰る）」（連絡板 C-026）。レシピはページのまとまりごとの表示で5番め（293表示・claude/search-data-sakutto.md の 11/11 の回）で、claude/sakutto-handoff.md に「次の候補：レシピ・灯油代」。印刷は A4 1枚で `@media print`（現場手帳 #106・docs/tools.md の現場手帳の行）。12/1 までは「仕事の道具を深くする・1回1つの小さな足し」はよい（連絡板 C-028）
+- 迷ったら：ボタンの置き方と紙のいちばん下の1行は「清掃の作業時間：作業指示書を A4 1枚で印刷する」（PR #198）の形にそろえる。#198 がまだマージされていなければ、その PR の差分（gh api）を読んで同じ形で書き、現場手帳の印刷の形をお手本にする（#198 を待たない）。段がスマホ 390px で1行に収まらないときは、「印刷する」を段の下に文字のボタンで1つ（四角いボタンを横に並べない）。材料の名前が空の行は画面のメモと同じ書き方のまま。印刷のためにメモの見た目を作り直さない。印刷した回数は残さない（保存は CLAUDE.md の4つの道具だけ）。材料20こで1ページをこえるときは、印刷のときだけメモの行の高さと字を小さくする（字は12px より小さくしない）
+- 読むファイル：src/pages/recipe.mjs・src/client/recipe.js・src/pages/genba.mjs（印刷の形）・src/parts.mjs（memoHtml）・PR #198 の差分・docs/tools.md のレシピと現場手帳の行
+- マージ：する
+- 足した：育てる山の補充（自動・2026-11-26）
