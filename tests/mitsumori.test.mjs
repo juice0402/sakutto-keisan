@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mitsumori, mitsuMonths, mitsuKeihi, mitsuMeyasu, MITSU_KAISU } from '../src/lib/mitsumori.mjs';
+import { mitsumori, mitsuMonths, mitsuKeihi, mitsuMeyasu, mitsuPrintDate, MITSU_KAISU } from '../src/lib/mitsumori.mjs';
 import { SEISOU_WORKS } from '../src/lib/seisou.mjs';
 import { ROUMU_TANKA, SEISOU_KEIHI } from '../src/data/seisou-tanka.mjs';
 
@@ -74,4 +74,11 @@ test('作業のマスの㎡単価の目安（ページの表）', () => {
   const got = SEISOU_WORKS.map((w) => mitsuMeyasu(w.buai, ROUMU_TANKA.average, SEISOU_KEIHI));
   assert.deepEqual(got.map((m) => m.price), [8, 6.1, 60, 78]);
   assert.deepEqual(got.map((m) => m.labor.toFixed(2)), ['5.71', '4.37', '42.65', '55.42']);
+});
+
+test('見積書を印刷した日（#204）：日本時間の「2026年11月18日」の形', () => {
+  assert.equal(mitsuPrintDate(new Date('2026-11-17T15:30:00Z')), '2026年11月18日'); // 日本ではもう18日
+  assert.equal(mitsuPrintDate(new Date('2026-11-18T14:59:59Z')), '2026年11月18日');
+  assert.equal(mitsuPrintDate(new Date('2026-12-31T15:00:00Z')), '2027年1月1日');
+  assert.equal(mitsuPrintDate(new Date('2026-03-05T00:00:00Z')), '2026年3月5日'); // 月と日の0はつけない
 });
