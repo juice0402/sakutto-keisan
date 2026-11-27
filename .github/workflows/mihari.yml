@@ -49,7 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          sparse-checkout: scripts
+          sparse-checkout: |
+            scripts
+            src/lib
 
       - uses: actions/setup-node@v5
         with:
@@ -75,7 +77,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          sparse-checkout: scripts
+          sparse-checkout: |
+            scripts
+            src/lib
 
       - uses: actions/setup-node@v5
         with:
