@@ -82,3 +82,11 @@ export function mitsuMeyasu(buai, wage, keihi) {
   const labor = fix((buai / 100) * wage);
   return { labor, price: Math.round(fix(labor * mitsuKeihi(keihi) * 10)) / 10 };
 }
+
+/**
+ * 見積書を印刷した日（#204）：日本時間の「2026年11月18日」の形。端末の時刻の帯にかかわらず Asia/Tokyo の日付
+ */
+export function mitsuPrintDate(now = new Date()) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(now).map((x) => [x.type, x.value]));
+  return `${p.year}年${Number(p.month)}月${Number(p.day)}日`;
+}

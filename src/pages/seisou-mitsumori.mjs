@@ -3,7 +3,7 @@
 // （10/26 司令塔の検索の傾向のメモ「清掃の作業時間はクリック率20％。清掃・ビルメン系の計算は伸ばす価値あり」→ しょーくんが「清掃の見積もり」をえらんだ）
 // 結果は見積書（大きな答え、面積×㎡単価×回数の1行、1回・1か月・1年の表、清掃する月に赤ペンの丸をつけた1年の帯）。ページに載せる例は tests/mitsumori.test.mjs で確かめる
 import { toolBySlug } from '../tools.mjs';
-import { page, section, faqHtml, faqLd } from '../layout.mjs';
+import { page, section, faqHtml, faqLd, absUrl } from '../layout.mjs';
 import { relatedHtml, toolLd, themeOf, memoHtml } from '../parts.mjs';
 import { boxField } from '../fields.mjs';
 import { SEISOU_WORKS, SEISOU_SRC } from '../lib/seisou.mjs';
@@ -56,6 +56,21 @@ const OKINAWA = ROUMU_TANKA.regions.find((r) => r.name === '沖縄');
 const KAISU_QUICK = [['週5回', 260], ['週3回', 156], ['週2回', 104], ['週1回', 52], ['月2回', 24], ['月1回', 12], ['年6回', 6], ['年4回', 4]];
 const KAISU_ROWS = KAISU_QUICK.map(([n, y]) => `<tr><td>${n}</td><td class="num">${y}回</td><td class="num">${fmt(y / 12, 1)}回</td></tr>`).join('\n');
 
+// 印刷（#204）：見積書だけを A4 1枚に。形は清掃の作業時間（#197・seisou-jikan.mjs の PRINT_CSS）と同じ。このページだけの CSS（site.css に書くと全ページに残る）
+// 「印刷する」が出ているときだけ、メモの段を3つに分ける。上に印刷した日と手で書く余白、紙のいちばん下に㎡単価の目安の出どころとどこで作ったかの1行
+export const PRINT_CSS = [
+  '.cm-add:has(#mt-print:not([hidden])){grid-template-columns:repeat(3,1fr)}', // 画面：「印刷する」が出たら段を3つに
+  '.mt-date,.mt-made{display:none}', // 画面：印刷した日と紙の下の行は印刷のときだけ
+  '@media print{@page{size:A4;margin:14mm}',
+  '.site-header,.site-footer,.crumbs,.pc-right,.pc-left>:not(.calc),main>:not(.pc-left):not(.calc),.calc>:not(.doc),.calc::before,.doc-clear{display:none!important}',
+  'main.wrap{max-width:none;padding:0}',
+  '.calc{margin:0;padding:0;border:0}',
+  '.doc{margin:0}',
+  '.mt-date{display:block;margin:0 0 22mm;font-size:12px;color:#000;text-align:right}', // 宛名は手で書くので、見積書の上に余白
+  '.mt-made{display:block;position:fixed;left:0;right:0;bottom:0;margin:0;font-size:10px;color:#000;text-align:center}',
+  '.mt-made p{margin:0}}',
+].join('');
+
 const checkedText = (d) => d.replace(/^(\d+)-0?(\d+)-0?(\d+)$/, '$1年$2月$3日');
 const MONTH_CELLS = Array.from({ length: 12 }, (_, i) => `<span class="mt-m">${i + 1}</span>`).join('');
 
@@ -103,6 +118,7 @@ export default function render() {
     <div class="pair">${boxField('price', '㎡単価（1回）', '円', String(OFFICE.price), '', '1㎡を1回掃除する料金')}${boxField('month', '1か月の料金', '円', fmt(EX.month))}</div>
   </div>
   <div class="doc" aria-live="polite">
+    <p class="mt-date" id="mt-date"></p>
     <p class="doc-title">見積書</p>
     <button type="button" class="clear-btn doc-clear" id="clear">クリア</button>
     <p class="doc-sum"><span class="doc-sum-k" id="r-cap">1か月の料金</span><span class="doc-sum-v"><b id="r-num">？</b><span id="r-unit">円</span></span></p>
@@ -114,9 +130,10 @@ export default function render() {
     </tbody></table>
     <div class="mt-months" id="s-months" aria-hidden="true">${MONTH_CELLS}</div>
     <p class="doc-foot"><span id="r-foot">回数をえらんでください</span><span id="r-tax"></span></p>
+    <div class="mt-made"><p>作業のマスの㎡単価は、歩掛り÷100×清掃員の全国平均の単価×経費の割合で出した目安です。</p><p>サクッと計算 清掃の見積もり　${absUrl(path)}</p></div>
   </div>
   <p class="tag-note" id="r-note" hidden></p>
-  ${memoHtml(tool)}
+  ${memoHtml(tool, true, '<button type="button" class="tool-btn" id="mt-print" hidden>印刷する</button>')}
   <noscript><p class="tag-note is-error">このツールを使うには、JavaScriptを有効にしてください。</p></noscript>
 </div>
 
@@ -189,6 +206,7 @@ ${relatedHtml(tool)}
     theme: themeOf(tool),
     ogImage: `/og/${tool.slug}.png`,
     scripts: ['mitsumori.js'],
+    css: PRINT_CSS,
     body,
   });
   return { path, html, sitemap: true, updated: tool.updated };

@@ -1,5 +1,5 @@
 import { parseNum, fmt } from '../lib/number.mjs';
-import { mitsumori, mitsuMonths, mitsuYearCheck, MITSU_FIELDS } from '../lib/mitsumori.mjs';
+import { mitsumori, mitsuMonths, mitsuYearCheck, mitsuPrintDate, MITSU_FIELDS } from '../lib/mitsumori.mjs';
 import { $, enterToNext, numericOnly, tidyOnBlur, focusHints } from './ui.mjs';
 import { choiMemo } from './choimemo.mjs';
 import { imgCard } from './share-img.mjs';
@@ -116,6 +116,7 @@ function update() {
   drawSheet(res.ok ? res : null);
   $('r-cap').textContent = SUM_CAP[out] || SUM_CAP.month;
   $('r-unit').textContent = out === 'area' ? '㎡' : '円';
+  $('mt-print').hidden = !res.ok; // 印刷は答えが出たときだけ（#204）
   if (!res.ok) {
     $('r-num').textContent = '？';
     $('r-foot').textContent = shown.error ? '' : mitsuEmpty(year);
@@ -178,6 +179,10 @@ $('clear').addEventListener('click', () => {
   mitsuTyped.clear();
   update();
 });
+// 印刷する（#204）：見積書だけを A4 1枚に（ページの CSS の @media print）。上に日本時間の今日の日付。押した回数は残さない
+const setPrintDate = () => { $('mt-date').textContent = mitsuPrintDate(); };
+window.addEventListener('beforeprint', setPrintDate); // ブラウザのメニューから印刷したときも
+$('mt-print').addEventListener('click', () => { setPrintDate(); window.print(); });
 enterToNext(MITSU_INPUTS);
 focusHints(document.querySelector('.box-rows'));
 update();
