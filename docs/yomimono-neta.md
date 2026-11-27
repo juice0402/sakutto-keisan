@@ -83,9 +83,7 @@
 - [x] 消毒液を薄めるとき、勤め先で決まっていること（PR #170・2026-11-15）
 - [x] 1日の塩の目標は、みそ汁何杯分？（PR #184・2026-11-19）
 - [x] 委託料30％は何掛け？卸と委託で受け取る額をくらべる（PR #192・2026-11-22）
-- [ ] 暖房の設定温度を1℃下げると、1か月いくら変わる？ — エアコンの暖房の温度で迷う人に、資源エネルギー庁の数字（21℃から20℃にしたときの年間の電気の差）を31円/kWhで円にし、1か月あたりにする。暖房の期間の数え方は出典のとおり／https://www.enecho.meti.go.jp/category/saving_and_new/saving/general/howto/airconditioning/index.html ／/denki-dai/
-- [ ] トイレ掃除の時間は男女でちがう：現場で数えていること — 清掃の作業時間を見積もる人（清掃・ビルメンの仕事）に。運営者から聞いた話1と、トイレの日常清掃の歩掛り（0.254人＝1人1時間約49㎡）の計算で、雨の日に回数がふえた日の時間の足し方を例にする。男女のどちらが長いかは書かない／src/lib/seisou.mjs・https://www.city.sapporo.jp/kanzai/keiyaku/ippan-syuyaku/r2-zenki/documents/nyusatusetumei_bekki4-seiso.pdf ／/seisou-jikan/・/genba/
-- [ ] 速さのちがう2人で、同じ時刻に終わる場所の分け方 — 現場の段取りを組む人に。運営者から聞いた話3（相性と一人ひとりの速さで調整）を入口に、1人1時間の面積がちがう2人で、同じ時刻に終わるよう面積を速さの割合で分ける計算（例：120㎡と80㎡の人で600㎡）。図は2人の帯／src/lib/seisou.mjs・src/pages/genba.mjs ／/genba/・/seisou-jikan/
+- [x] 速さのちがう2人で、同じ時刻に終わる場所の分け方（PR #200・2026-11-26）
 - [ ] 年末年始の休みは何日？有給休暇をつなげると — 冬休みの日数を数える人に。12月29日〜1月3日のような休みと土日・祝日、その前後に有給休暇を足したときの連休の日数をカレンダーの図で（2026年から2027年の暦で）。休みの日は会社でちがうと書く／WebSearch で内閣府「国民の祝日について」・src/lib の日数の計算 ／/nissu/・/yukyu-fuyo/
 - [ ] 2個目半額は何％オフ？まとめ売りを1個あたりに直す — 「2個目半額」「3個で◯円」の値札で迷う人に。1個あたりで見ると何％オフかを帯の図で（2個目半額は2個買って25％オフ）。1個だけ買うときとの差の早見表／src/lib の割引と単価の計算（外の出典なし）／/waribiki/・/matomegai/
 - [ ] お米5kgの値段は、茶わん1杯でいくら？ — お米の値段が気になる人に。茶わん1杯のごはんは炊く前のお米で65gくらい（農林水産省）から、5kgの値段ごとに1杯の値段を早見表に／https://www.maff.go.jp/j/council/seisaku/syokuryo/2410/attach/pdf/241030-94.pdf ・https://www.maff.go.jp/j/council/seisaku/syokuryo/220302/attach/pdf/220302-23.pdf ／/tanka/
@@ -100,3 +98,5 @@
 - [ ] ハンドメイドの値段の決め方：材料費・手数料・送料から売値を出す — 作品を売る人に。ほしい利益と販売手数料から売値を逆に出す式（売値＝（材料費＋ほしい利益）÷（1−手数料の率））を帯の図で。手数料は minne の公式のヘルプで確かめた数字だけ（ほかのサービスとくらべない）／https://help.minne.com/hc/ja/articles/4402120748819-販売手数料についておしえてください ・https://help.minne.com/hc/ja/articles/4402120789523-%E9%80%81%E6%96%99%E3%81%AF%E5%A3%B2%E4%B8%8A%E9%87%91%E3%81%AB%E5%90%AB%E3%81%BE%E3%82%8C%E3%81%BE%E3%81%99%E3%81%8B ／/rieki-ritsu/・/kakeritsu/
 - [ ] スワップで1年に入る額は、何円の値動きで消える？ — スワップの受け取りを考える人に。1万通貨を1年持ったときのスワップの目安（データの金利から）が、何円の値動きと同じかを図で。数字は目安で、会社ごとにちがうと書く（会社をくらべない・もうかる話を書かない）／src/data/fx-swap.mjs の出典・https://www.fsa.go.jp/news/21/syouken/20090731-6.html ／/fx-swap/・/fx-lot/
 - [ ] 同じ学年でいちばん年上と年下は、何日ちがう？ — 早生まれの差が気になる家族に。4月2日生まれと翌年4月1日生まれが同じ学年になるわけ（年齢は誕生日の前の日に上がる）と、その差の日数をカレンダーの図で（うるう年をふくむ年も）／src/pages/nenrei.mjs の出典（https://eco.mtk.nao.ac.jp/koyomi/wiki/CDD7C1C72F1C7AFA4C8A4CFA1A92FC7AFCEF0.html ・https://www.japaneselawtranslation.go.jp/ja/laws/view/4744/tb ）／/gakureki/・/nissu/
+- [ ] 暖房の設定温度を1℃下げると、1か月いくら変わる？ — エアコンの暖房の温度で迷う人に、資源エネルギー庁の数字（21℃から20℃にしたときの年間の電気の差）を31円/kWhで円にし、1か月あたりにする。暖房の期間の数え方は出典のとおり／https://www.enecho.meti.go.jp/category/saving_and_new/saving/general/howto/airconditioning/index.html ／/denki-dai/（飛ばした：資源エネルギー庁のページを開く許可が要った・2026-11-26）
+- [ ] トイレ掃除の時間は男女でちがう：現場で数えていること — 清掃の作業時間を見積もる人（清掃・ビルメンの仕事）に。運営者から聞いた話1と、トイレの日常清掃の歩掛り（0.254人＝1人1時間約49㎡）の計算で、雨の日に回数がふえた日の時間の足し方を例にする。男女のどちらが長いかは書かない／src/lib/seisou.mjs・https://www.city.sapporo.jp/kanzai/keiyaku/ippan-syuyaku/r2-zenki/documents/nyusatusetumei_bekki4-seiso.pdf ／/seisou-jikan/・/genba/（飛ばした：計算のページと重なる。現場手帳に男女のトイレの例と運営者の話がある・2026-11-26）
