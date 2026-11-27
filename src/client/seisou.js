@@ -77,6 +77,7 @@ function update() {
     else $(out).value = fmt(res[out], out === 'area' ? 0 : 2);
   }
   setNote(res.error || '', !!res.error);
+  $('sj-print').hidden = !res.ok; // 印刷は答えが出たときだけ（#197）
   drawFloor(res.ok ? res : null);
   drawSheet(res.ok ? res : null, out);
   $('r-cap').textContent = CAP[out] || CAP.hours;
@@ -153,4 +154,6 @@ $('clear').addEventListener('click', () => {
   update();
 });
 enterToNext(INPUTS);
+// 印刷する（#197）：作業指示書だけを A4 1枚に（ページの CSS の @media print）。押した回数は残さない
+$('sj-print').addEventListener('click', () => window.print());
 update();
